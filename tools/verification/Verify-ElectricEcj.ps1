@@ -70,8 +70,8 @@ try {
     $report.apiPinState = $properties.poweradvantage_pin_state
     $provisional = $properties.poweradvantage_pin_state -eq 'API_PIN_PROVISIONAL'
     if ($properties.mod_id -ne 'electricadvantage' -or $properties.mod_version -ne '2.2.9.117011' -or
-        (!$provisional -and $properties.poweradvantage_source_ref -ne 'fc4c47f2ed8cfebbaa010e6a0e807137a3329f95') -or
-        $properties.poweradvantage_deobf_sha256 -ne 'BDF486E16C1FE3B4CE2FE1ED78670AABA594063BCD2D4251265124B17FA9E767') {
+        (!$provisional -and $properties.poweradvantage_source_ref -ne '5b9abe578b053d2ef59b1962cf9e04f6880c91b9') -or
+        $properties.poweradvantage_deobf_sha256 -ne '799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8') {
         throw 'This verifier requires the pinned Electric 1.17.1 candidate'
     }
     $report.compiler = Get-Pin $Compiler

@@ -63,8 +63,8 @@ check('Exact native 1.17.1 build target', () => {
     assert(read('build.gradle').includes('major != 60'));
 });
 check('Approved 1.17 API source and artifact pins', () => {
-    assert.equal(properties.poweradvantage_deobf_sha256, 'BDF486E16C1FE3B4CE2FE1ED78670AABA594063BCD2D4251265124B17FA9E767');
-    assert.equal(properties.poweradvantage_source_ref, 'fc4c47f2ed8cfebbaa010e6a0e807137a3329f95');
+    assert.equal(properties.poweradvantage_deobf_sha256, '799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8');
+    assert.equal(properties.poweradvantage_source_ref, '5b9abe578b053d2ef59b1962cf9e04f6880c91b9');
     assert.notEqual(properties.poweradvantage_pin_state, 'API_PIN_PROVISIONAL', 'Power API remains provisional; source freeze pending');
     assert.match(properties.poweradvantage_source_ref, /^[a-f0-9]{40}$/, 'Power source pin pending parent');
     assert.match(properties.poweradvantage_deobf_sha256, /^[A-F0-9]{64}$/, 'Power development jar pin pending parent');

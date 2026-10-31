@@ -33,8 +33,8 @@ public class BuildWorkflowContractTest {
         for (String helper : new String[] {"tools/verify-native-port.js", "tools/verification/Verify-ElectricEcj.ps1"}) {
             String source = new String(Files.readAllBytes(Paths.get(helper)), StandardCharsets.UTF_8);
             assertTrue(helper, source.contains("API_PIN_PROVISIONAL"));
-            assertTrue(helper, source.contains("fc4c47f2ed8cfebbaa010e6a0e807137a3329f95"));
-            assertTrue(helper, source.contains("BDF486E16C1FE3B4CE2FE1ED78670AABA594063BCD2D4251265124B17FA9E767"));
+            assertTrue(helper, source.contains("5b9abe578b053d2ef59b1962cf9e04f6880c91b9"));
+            assertTrue(helper, source.contains("799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8"));
             assertFalse(helper, source.contains("2116a35a40dd150d79e7dfdcdc891637793178b7"));
             assertFalse(helper, source.contains("F58B93DAF03CF303F32B18CCCA140E55E886A2BA82732A3F286ADF3E31194B6A"));
         }
@@ -50,8 +50,8 @@ public class BuildWorkflowContractTest {
             assertTrue(source.contains("BaseMetals-3.1.0.117011-deobf.jar"));
             assertTrue(source.contains("ref: ${{ steps.pins.outputs.power_ref }}"));
             assertTrue(source.contains("API_PIN_PROVISIONAL"));
-            assertTrue(source.contains("fc4c47f2ed8cfebbaa010e6a0e807137a3329f95"));
-            assertTrue(source.contains("BDF486E16C1FE3B4CE2FE1ED78670AABA594063BCD2D4251265124B17FA9E767"));
+            assertTrue(source.contains("5b9abe578b053d2ef59b1962cf9e04f6880c91b9"));
+            assertTrue(source.contains("799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8"));
             assertFalse(source.contains("098d4625abc8a849bd1a11dcf697b3fee0cade7b"));
             assertFalse(source.contains("78E58DD2AB04E2B9F3267E5735C64AAE7E93EAC97571CB04485038862C853ED3"));
             assertFalse(source.contains("ce90c24c302d0ff3565db2db0c6c94a3b5f21f83"));

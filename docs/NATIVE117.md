@@ -1,7 +1,7 @@
 # Electric Advantage 1.17.1 Port
 
 Current Power source/API pin:
-`fc4c47f2ed8cfebbaa010e6a0e807137a3329f95` / `BDF486E16C1FE3B4CE2FE1ED78670AABA594063BCD2D4251265124B17FA9E767`.
+`5b9abe578b053d2ef59b1962cf9e04f6880c91b9` / `799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8`.
 This dependency retains native recipe unlocks and adds dirty-state persistence
 without comparator updates on each machine tick. The new Electric build and
 independent ECJ check each pass all 96 tests with no skips or assumptions,
@@ -54,8 +54,9 @@ native ray geometry, first-tick redstone caching, solar brightness above the
 panel, controller input capacity, still output preflight, waterlogged pickup,
 sound recipient bounds, turbine save/load/anchoring and normalized hydro GUI
 output. New tests check native factories, tag-only load positions, turret packet
-coordinates, the LED ticker type and shader resources. All 95 tests pass on the
-current checkpoint with both Gradle/JUnit and independent ECJ/JUnit.
+coordinates, the LED ticker type and shader resources. The initial checkpoint
+passed 95 tests with both Gradle/JUnit and independent ECJ/JUnit; the current
+96-test inventory also includes the native advancement-parser regression below.
 
 The plain-JVM harvest fixture initializes Forge's real tier ordering and native
 tag bindings. The build-only agent calls Forge's own capability and event-bus
@@ -71,7 +72,7 @@ no fabricated conversion or silent balance adjustment is included here.
 
 ## Qualification Gates
 
-Current local evidence: `electric-checkpoint-i.log` in the shared campaign records
+Initial local evidence: `electric-checkpoint-i.log` in the shared campaign records
 35 tasks executed successfully with `--no-build-cache --rerun-tasks`, including
 all 95 tests and every deterministic release/Eclipse audit. Independent evidence
 is `evidence-117-20261031/ecj-checkpoint-a/ecj-results.json`: fresh compilation of
@@ -113,7 +114,7 @@ The earlier artifact hashes above are historical evidence, not the current pin.
 The owner-credit and hydro observations require harness readiness/freeze repairs,
 not a production change; the prewarmed combined rerun is still a separate gate.
 
-The current pin's evidence is `electric-dirty-api-release-a.log` and
+The preceding dirty-state pin's evidence is `electric-dirty-api-release-a.log` and
 `electric-dirty-api-ecj-a.log`. Harvest H passes 271 real survival, wrong-tool,
 silk-touch and geometry checks on each of two complete JVM boots. Native chunk
 readiness is measured before mining. The earlier zero-capture report retained
@@ -121,6 +122,29 @@ readiness is measured before mining. The earlier zero-capture report retained
 fixture rather than missing production drops. No ore, tool tier, quantity or
 machine behavior was changed for that diagnosis. Interop and the broader
 operating/migration campaign remain separate recorded gates.
+
+## Final Local API Pin
+
+The final Power checkpoint above passes the complete 36-task release suite in
+`electric-final-api-release-a.log`, including all 96 tests with no skips.
+`electric-final-api-ecj-a.log` independently recompiles 85 production and 27 test
+sources and passes the same 96 tests on Java 16, with no ignored tests or
+assumptions. The restricted-JDK negative control still fails as expected.
+All 11 static contracts and all 50 recipe unlocks also pass. All four Electric
+archive hashes are unchanged from the advancement candidate; this repin changes
+no Electric machine code, ore drops, tool tiers or balance.
+
+Independent source exports and initially empty-cache builds are recorded in
+the campaign's `electric-final-api-qualification` directory. Their receipts must
+bind the exact committed source and compare release, development, sources and
+Javadoc archives. These are module and reproducibility gates, not evidence that
+the final combined runtime or manual gameplay has passed.
+
+Harvest H retains its 271 unchanged drop checks on each of two full JVM boots.
+Interop H stopped before exercising a machine because its runner omitted the
+test-world marker required to register the readiness command. That setup failure
+is retained; the corrected K runtime belongs to the combined campaign. Neither
+observation calls for an Electric production repair.
 
 1. Keep the exact current Power local source/API checkpoint and published API
    checksums pinned. Any coordinated source/API replacement requires new proof.

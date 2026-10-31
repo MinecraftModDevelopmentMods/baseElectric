@@ -22,18 +22,18 @@ Power, Base Metals and OreSpawn are separate dependencies, never embedded.
 ## Current State
 
 The source and resource migration is prepared. The source inventory is 85 production
-files and 27 test files containing 95 tests: all 89 inherited tests plus six native
-construction, shader and dependency-recipe checks.
+files and 27 test files containing 96 tests: all 89 inherited tests plus seven native
+construction, shader, dependency-recipe and advancement-parser checks.
 
-On 31 October 2026 the complete local deterministic build passed all 95 JUnit
+On 31 October 2026 the complete local deterministic build passed all 96 JUnit
 tests, Javadocs, dependency/resource/artifact audits, checksums and Eclipse
-production isolation checks. Independent ECJ compilation and all 95 tests also
+production isolation checks. Independent ECJ compilation and all 96 tests also
 passed on Java 16, with no ignored tests or assumptions; its restricted-JDK
 negative control failed for the expected access error.
 
 These results use the parent's local checkpoint, not a final combined release:
-Power Advantage `2.4.8.117011`, source `fc4c47f2ed8cfebbaa010e6a0e807137a3329f95`,
-API SHA-256 `BDF486E16C1FE3B4CE2FE1ED78670AABA594063BCD2D4251265124B17FA9E767`.
+Power Advantage `2.4.8.117011`, source `5b9abe578b053d2ef59b1962cf9e04f6880c91b9`,
+API SHA-256 `799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8`.
 The metadata records `LOCAL_CHECKPOINT`; any coordinated re-pin needs fresh proof.
 Earlier `API_PIN_PROVISIONAL` results are retained separately. A 1.16.5 Power jar
 is never accepted. Combined packaged runtime and migration are verified
