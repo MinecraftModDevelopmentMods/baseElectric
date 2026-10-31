@@ -6,7 +6,9 @@
       "conditions": {
         "items": [
           {
-            "item": "electricadvantage:li_powder"
+            "items": [
+              "electricadvantage:li_powder"
+            ]
           }
         ]
       }

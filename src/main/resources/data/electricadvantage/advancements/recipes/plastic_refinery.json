@@ -6,7 +6,9 @@
       "conditions": {
         "items": [
           {
-            "item": "minecraft:piston"
+            "items": [
+              "minecraft:piston"
+            ]
           }
         ]
       }

@@ -6,7 +6,9 @@
       "conditions": {
         "items": [
           {
-            "item": "minecraft:flower_pot"
+            "items": [
+              "minecraft:flower_pot"
+            ]
           }
         ]
       }

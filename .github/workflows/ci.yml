@@ -32,7 +32,7 @@ jobs:
           power_ref="$(sed -n 's/^poweradvantage_source_ref=//p' gradle.properties | tr -d '\r')"
           power_sha="$(sed -n 's/^poweradvantage_deobf_sha256=//p' gradle.properties | tr -d '\r')"
           pin_state="$(sed -n 's/^poweradvantage_pin_state=//p' gradle.properties | tr -d '\r')"
-          if [[ "$pin_state" == "API_PIN_PROVISIONAL" || "$power_ref" != "28247f936ac99e7a417da1bc1c89bc8394773a26" || "$power_sha" != "7B2B2676CDB9A0B933DA04CC743787803C68E1466FD44E2EFBAEFB3ED47ABB3D" ]]; then
+          if [[ "$pin_state" == "API_PIN_PROVISIONAL" || "$power_ref" != "fc4c47f2ed8cfebbaa010e6a0e807137a3329f95" || "$power_sha" != "BDF486E16C1FE3B4CE2FE1ED78670AABA594063BCD2D4251265124B17FA9E767" ]]; then
             echo "PowerAdvantage 1.17.1 source/deobf pin differs from the audited candidate" >&2
             exit 1
           fi

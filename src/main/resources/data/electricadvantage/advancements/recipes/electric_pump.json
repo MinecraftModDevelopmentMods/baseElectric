@@ -6,7 +6,9 @@
       "conditions": {
         "items": [
           {
-            "item": "minecraft:piston"
+            "items": [
+              "minecraft:piston"
+            ]
           }
         ]
       }
@@ -16,7 +18,9 @@
       "conditions": {
         "items": [
           {
-            "item": "minecraft:bucket"
+            "items": [
+              "minecraft:bucket"
+            ]
           }
         ]
       }

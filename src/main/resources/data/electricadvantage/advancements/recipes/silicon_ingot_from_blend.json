@@ -6,7 +6,9 @@
       "conditions": {
         "items": [
           {
-            "item": "electricadvantage:silicon_mix"
+            "items": [
+              "electricadvantage:silicon_mix"
+            ]
           }
         ]
       }

@@ -70,8 +70,8 @@ try {
     $report.apiPinState = $properties.poweradvantage_pin_state
     $provisional = $properties.poweradvantage_pin_state -eq 'API_PIN_PROVISIONAL'
     if ($properties.mod_id -ne 'electricadvantage' -or $properties.mod_version -ne '2.2.9.117011' -or
-        (!$provisional -and $properties.poweradvantage_source_ref -ne '28247f936ac99e7a417da1bc1c89bc8394773a26') -or
-        $properties.poweradvantage_deobf_sha256 -ne '7B2B2676CDB9A0B933DA04CC743787803C68E1466FD44E2EFBAEFB3ED47ABB3D') {
+        (!$provisional -and $properties.poweradvantage_source_ref -ne 'fc4c47f2ed8cfebbaa010e6a0e807137a3329f95') -or
+        $properties.poweradvantage_deobf_sha256 -ne 'BDF486E16C1FE3B4CE2FE1ED78670AABA594063BCD2D4251265124B17FA9E767') {
         throw 'This verifier requires the pinned Electric 1.17.1 candidate'
     }
     $report.compiler = Get-Pin $Compiler
@@ -131,7 +131,7 @@ try {
         $expected += [int]$inventory.testsuite.tests
         $report.gradleInventory += Get-Pin $xml.FullName
     }
-    if ($classes.Count -ne 27 -or $expected -ne 95 -or $sources.test.Count -ne 27 -or $sources.main.Count -ne 85) { throw 'Unexpected Electric 1.17.1 source/test inventory' }
+    if ($classes.Count -ne 27 -or $expected -ne 96 -or $sources.test.Count -ne 27 -or $sources.main.Count -ne 85) { throw 'Unexpected Electric 1.17.1 source/test inventory' }
     $main = Invoke-Ecj 'main' $sources.main $mainLibraries
     $test = Invoke-Ecj 'test' $sources.test (@($main) + $testLibraries)
     $helperSource = Join-Path $PSScriptRoot 'AuditedJUnit.java'

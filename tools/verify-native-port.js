@@ -27,6 +27,30 @@ const strings = source => tokens(source).filter(t => t.startsWith('"')
 const numbers = source => tokens(source).filter(t => /^\d|^\.\d/.test(t));
 const production = tracked.filter(n => n.startsWith(javaRoot) && n.endsWith('.java'));
 
+function nativeUnlockFromLegacy(source) {
+    const document = JSON.parse(source);
+    let converted = 0;
+    for (const criterion of Object.values(document.criteria || {})) {
+        if (criterion.trigger !== 'minecraft:inventory_changed') continue;
+        for (const predicate of criterion.conditions?.items || []) {
+            if (!Object.hasOwn(predicate, 'item')) continue;
+            assert.deepEqual(Object.keys(predicate), ['item']);
+            assert.equal(typeof predicate.item, 'string');
+            const id = predicate.item;
+            delete predicate.item;
+            predicate.items = [id];
+            converted++;
+        }
+    }
+    return {document, converted};
+}
+
+function assertNativeUnlock(source, actual) {
+    const expected = nativeUnlockFromLegacy(source);
+    assert.deepEqual(JSON.parse(actual), expected.document);
+    return expected.converted;
+}
+
 check('Exact native 1.17.1 build target', () => {
     for (const [key, value] of Object.entries({minecraft_version:'1.17.1', forge_version:'37.1.1',
         mapping_channel:'official', mapping_version:'1.17.1', mcp_version:'20210706.113038',
@@ -39,8 +63,8 @@ check('Exact native 1.17.1 build target', () => {
     assert(read('build.gradle').includes('major != 60'));
 });
 check('Approved 1.17 API source and artifact pins', () => {
-    assert.equal(properties.poweradvantage_deobf_sha256, '7B2B2676CDB9A0B933DA04CC743787803C68E1466FD44E2EFBAEFB3ED47ABB3D');
-    assert.equal(properties.poweradvantage_source_ref, '28247f936ac99e7a417da1bc1c89bc8394773a26');
+    assert.equal(properties.poweradvantage_deobf_sha256, 'BDF486E16C1FE3B4CE2FE1ED78670AABA594063BCD2D4251265124B17FA9E767');
+    assert.equal(properties.poweradvantage_source_ref, 'fc4c47f2ed8cfebbaa010e6a0e807137a3329f95');
     assert.notEqual(properties.poweradvantage_pin_state, 'API_PIN_PROVISIONAL', 'Power API remains provisional; source freeze pending');
     assert.match(properties.poweradvantage_source_ref, /^[a-f0-9]{40}$/, 'Power source pin pending parent');
     assert.match(properties.poweradvantage_deobf_sha256, /^[A-F0-9]{64}$/, 'Power development jar pin pending parent');
@@ -55,10 +79,40 @@ check('Approved 1.17 API source and artifact pins', () => {
         assert.equal(properties[key], value, key);
     }
 });
-check('All 1.16 assets, recipes, loot, translations and unlock bytes retained', () => {
+check('Resource bytes retained except exact native advancement predicate conversion', () => {
+    let changedFiles = 0, changedPredicates = 0;
     for (const name of tracked.filter(n => n.startsWith('src/main/resources/')
         && !['src/main/resources/pack.mcmeta', 'src/main/resources/META-INF/mods.toml'].includes(n))) {
-        assert.deepEqual(fs.readFileSync(path.join(root, name)), git('show', `${baseline}:${name}`), name);
+        const before = git('show', `${baseline}:${name}`);
+        if (name.startsWith('src/main/resources/data/electricadvantage/advancements/recipes/')) {
+            const converted = nativeUnlockFromLegacy(before.toString()).converted;
+            if (converted) {
+                assert.equal(assertNativeUnlock(before.toString(), read(name)), converted, name);
+                changedFiles++;
+                changedPredicates += converted;
+                continue;
+            }
+        }
+        assert.deepEqual(fs.readFileSync(path.join(root, name)), before, name);
+    }
+    assert.equal(changedFiles, 19);
+    assert.equal(changedPredicates, 21);
+});
+check('Advancement compatibility allowance rejects unrelated changes and old triggers', () => {
+    const before = JSON.stringify({criteria:{has_input:{trigger:'minecraft:inventory_changed',
+        conditions:{items:[{item:'minecraft:apple'}]}}}, rewards:{recipes:['electricadvantage:example']},
+        requirements:[['has_input']]});
+    const native = nativeUnlockFromLegacy(before).document;
+    assert.equal(assertNativeUnlock(before, JSON.stringify(native)), 1);
+    assert.throws(() => assertNativeUnlock(before, before));
+    for (const mutate of [
+        document => document.criteria.has_input.conditions.items[0].items.push('minecraft:dirt'),
+        document => document.rewards.recipes.push('electricadvantage:another'),
+        document => document.requirements.push(['has_input'])
+    ]) {
+        const altered = JSON.parse(JSON.stringify(native));
+        mutate(altered);
+        assert.throws(() => assertNativeUnlock(before, JSON.stringify(altered)));
     }
 });
 check('Registry, asset, provider and NBT string identities retained', () => {
@@ -88,9 +142,12 @@ check('Inherited regression tests remain present with no skip or assume bypass',
         const methods = s => [...s.matchAll(/@Test\s+public void (\w+)\(/g)].map(m => m[1]);
         const expected = methods(before).map(n => n.replace('resourcePackDeclaresTheNativeOneSixteenFormat',
             'resourcePackDeclaresTheNativeOneSeventeenFormat'));
+        count += expected.length;
+        if (name.endsWith('/RecipeUnlockContractTest.java')) {
+            expected.splice(2, 0, 'nativeParserRestrictsItemArraysButSilentlyIgnoresTheLegacySingularKey');
+        }
         assert.deepEqual(methods(after), expected, name);
         assert(!/@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/.test(after), name);
-        count += expected.length;
     }
     assert.equal(count, 89);
 });

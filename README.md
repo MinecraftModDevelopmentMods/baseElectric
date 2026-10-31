@@ -32,12 +32,12 @@ passed on Java 16, with no ignored tests or assumptions; its restricted-JDK
 negative control failed for the expected access error.
 
 These results use the parent's local checkpoint, not a final combined release:
-Power Advantage `2.4.8.117011`, source `28247f936ac99e7a417da1bc1c89bc8394773a26`,
-API SHA-256 `7B2B2676CDB9A0B933DA04CC743787803C68E1466FD44E2EFBAEFB3ED47ABB3D`.
+Power Advantage `2.4.8.117011`, source `fc4c47f2ed8cfebbaa010e6a0e807137a3329f95`,
+API SHA-256 `BDF486E16C1FE3B4CE2FE1ED78670AABA594063BCD2D4251265124B17FA9E767`.
 The metadata records `LOCAL_CHECKPOINT`; any coordinated re-pin needs fresh proof.
 Earlier `API_PIN_PROVISIONAL` results are retained separately. A 1.16.5 Power jar
-is never accepted. Combined packaged runtime, migration and manual gameplay
-acceptance remain pending, as does approval for an Electric local commit.
+is never accepted. Combined packaged runtime and migration are verified
+separately; manual gameplay acceptance remains required before remote delivery.
 Prepared CI has not been run on a hosted service.
 
 See [the native port notes](docs/NATIVE117.md) for the API audit and remaining gates.

@@ -6,7 +6,9 @@
       "conditions": {
         "items": [
           {
-            "item": "electricadvantage:electric_conduit"
+            "items": [
+              "electricadvantage:electric_conduit"
+            ]
           }
         ]
       }
@@ -16,7 +18,9 @@
       "conditions": {
         "items": [
           {
-            "item": "poweradvantage:steel_frame"
+            "items": [
+              "poweradvantage:steel_frame"
+            ]
           }
         ]
       }

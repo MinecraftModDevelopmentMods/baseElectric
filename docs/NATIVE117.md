@@ -1,9 +1,14 @@
 # Electric Advantage 1.17.1 Port
 
-Status: locally verified against Power source/API checkpoint
-`28247f936ac99e7a417da1bc1c89bc8394773a26` / `7B2B2676CDB9A0B933DA04CC743787803C68E1466FD44E2EFBAEFB3ED47ABB3D`.
+Current Power source/API pin:
+`fc4c47f2ed8cfebbaa010e6a0e807137a3329f95` / `BDF486E16C1FE3B4CE2FE1ED78670AABA594063BCD2D4251265124B17FA9E767`.
+This dependency retains native recipe unlocks and adds dirty-state persistence
+without comparator updates on each machine tick. The new Electric build and
+independent ECJ check each pass all 96 tests with no skips or assumptions,
+including the full release/Eclipse audits. Its release and development archive
+hashes remain identical to the prior advancement candidate.
 Combined packaged runtime, migration and manual acceptance remain pending.
-No commit or remote delivery has been made for this port.
+The production/API checkpoint is committed locally; no 1.17 port code has been pushed.
 
 ## Native API Audit
 
@@ -83,9 +88,43 @@ Both hashes were unchanged by the two full forced rebuilds H and I; H retained a
 failed old-format Eclipse audit, while I passed the native bootstrap audit.
 This is a local checkpoint, not final qualification or manual acceptance.
 
+An additional native advancement-parser regression is now prepared. It proves
+that `items: [id]` rejects unrelated items, while the old singular `item` key is
+silently ignored by Minecraft 1.17. The resource contract now distinguishes
+advancement predicates from ordinary recipe ingredients and rejects the legacy
+trigger shape. The suite now requires 96 tests with no skips; the earlier
+95-test results above remain historical checkpoint evidence. The coordinated
+resource fix and replacement Power pin are now present for requalification.
+
+The replacement build is recorded by `electric-advancement-release-a.log` and
+`electric-advancement-ecj-a.log` in the campaign evidence. The static audit now
+allows only the exact 21 item-predicate conversions in 19 advancement files;
+unrelated resource bytes, recipe values and machine code remain unchanged.
+Negative controls reject the old trigger, additional ingredients, changed
+rewards and changed requirements. All 50 recipe unlocks pass their generator
+check. Frozen artifacts and their input/test hashes are recorded separately in
+`electric-advancement-qualification/candidate-a/candidate-receipt.json`.
+
+The replacement release SHA-256 is
+`E1B4A7C65E09B6EE218F52328F0CD569A61B37E8646A46AC6D17EB3948D60EE4`;
+the development jar SHA-256 is
+`BEAA8CD23DBBC0C7E956B0304EAEE65251341908E69B60B2C9E4D24F08C31547`.
+The earlier artifact hashes above are historical evidence, not the current pin.
+The owner-credit and hydro observations require harness readiness/freeze repairs,
+not a production change; the prewarmed combined rerun is still a separate gate.
+
+The current pin's evidence is `electric-dirty-api-release-a.log` and
+`electric-dirty-api-ecj-a.log`. Harvest H passes 271 real survival, wrong-tool,
+silk-touch and geometry checks on each of two complete JVM boots. Native chunk
+readiness is measured before mining. The earlier zero-capture report retained
+264 real dropped entities in saved entity storage, proving an unready query
+fixture rather than missing production drops. No ore, tool tier, quantity or
+machine behavior was changed for that diagnosis. Interop and the broader
+operating/migration campaign remain separate recorded gates.
+
 1. Keep the exact current Power local source/API checkpoint and published API
    checksums pinned. Any coordinated source/API replacement requires new proof.
-2. Use the campaign lease helper for fresh compile, all 95 JUnit tests, strict
+2. Use the campaign lease helper for fresh compile, all 96 JUnit tests, strict
    dependency/resource/release audits, Javadocs and Eclipse generation/audit.
 3. Run independent ECJ compilation and strict JUnit on Java 16, preserving access
    restrictions, failed diagnostics and exact input hashes. Verify class major 60.

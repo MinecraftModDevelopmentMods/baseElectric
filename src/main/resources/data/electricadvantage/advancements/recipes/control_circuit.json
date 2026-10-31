@@ -6,7 +6,9 @@
       "conditions": {
         "items": [
           {
-            "item": "electricadvantage:blank_circuit_board"
+            "items": [
+              "electricadvantage:blank_circuit_board"
+            ]
           }
         ]
       }
