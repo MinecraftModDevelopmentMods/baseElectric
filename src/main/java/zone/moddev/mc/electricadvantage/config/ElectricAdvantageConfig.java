@@ -3,7 +3,7 @@ package zone.moddev.mc.electricadvantage.config;
 import java.util.Arrays;
 
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.util.crafting.RecipeDeconstructor;
 
@@ -31,7 +31,7 @@ public final class ElectricAdvantageConfig {
 
     private ElectricAdvantageConfig() {}
 
-    public static void onConfigLoading(ModConfig.Loading event) {
+    public static void onConfigLoading(ModConfigEvent.Loading event) {
         if (event.getConfig().getSpec() != SPEC) return;
         loaded = true;
         apply();

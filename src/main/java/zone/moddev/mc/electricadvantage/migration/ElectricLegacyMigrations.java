@@ -2,10 +2,10 @@ package zone.moddev.mc.electricadvantage.migration;
 
 import cyano.poweradvantage.api.migration.LegacyMigrationApi;
 import cyano.poweradvantage.api.simple.BlockSimplePowerMachine;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Direction;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.machines.ElectricDrillBlock;
 import zone.moddev.mc.electricadvantage.machines.ElectricGeneratorBlock;

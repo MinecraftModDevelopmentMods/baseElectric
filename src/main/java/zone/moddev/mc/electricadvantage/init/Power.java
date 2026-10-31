@@ -1,6 +1,6 @@
 package zone.moddev.mc.electricadvantage.init;
 
-import net.minecraft.util.DamageSource;
+import net.minecraft.world.damagesource.DamageSource;
 import cyano.poweradvantage.api.ConduitType;
 
 public abstract class Power {

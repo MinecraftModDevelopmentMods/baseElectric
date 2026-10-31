@@ -4,7 +4,7 @@ import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.machines.PlasticRefineryTileEntity;
 import cyano.poweradvantage.api.simple.SimpleMachineGUI;
 import zone.moddev.mc.poweradvantage.math.Integer2D;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import cyano.poweradvantage.api.fluid.FluidStack;
 
 public class PlasticRefineryGUI extends SimpleMachineGUI{

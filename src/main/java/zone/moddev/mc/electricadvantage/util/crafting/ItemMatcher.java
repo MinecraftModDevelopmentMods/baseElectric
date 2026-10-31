@@ -6,11 +6,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 /** Matches a crafting ingredient using flattened items or Forge item tags. */
 public final class ItemMatcher {

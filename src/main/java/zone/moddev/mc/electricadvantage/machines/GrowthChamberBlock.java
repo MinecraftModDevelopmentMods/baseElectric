@@ -1,8 +1,8 @@
 package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.init.Power;
-import net.minecraft.block.material.Material;
-import net.minecraft.world.World;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.Level;
 
 public class GrowthChamberBlock extends ElectricMachineBlock{
 
@@ -11,7 +11,7 @@ public class GrowthChamberBlock extends ElectricMachineBlock{
 	}
 
 	@Override
-	public ElectricMachineTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
-		return new GrowthChamberTileEntity();
+	public ElectricMachineTileEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		return new GrowthChamberTileEntity(pos, state);
 	}
 }

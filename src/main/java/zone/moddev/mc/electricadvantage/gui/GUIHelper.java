@@ -3,7 +3,7 @@ package zone.moddev.mc.electricadvantage.gui;
 import cyano.poweradvantage.api.simple.SimpleMachineGUI.GUIContainer;
 
 import zone.moddev.mc.poweradvantage.gui.FluidTankGUI;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import cyano.poweradvantage.api.fluid.FluidStack;
 
 import java.util.HashMap;

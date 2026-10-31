@@ -4,10 +4,10 @@ import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerConnectorContext;
 import cyano.poweradvantage.api.PowerRequest;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 
 import static zone.moddev.mc.electricadvantage.machines.SteamPoweredElectricGeneratorBlock.STEAM_POWER;
 
@@ -24,8 +24,8 @@ public class SteamPoweredElectricGeneratorTileEntity extends ElectricGeneratorTi
 	
 	private final int[] dataArray = new int[3];
 	
-	public SteamPoweredElectricGeneratorTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.STEAM_POWERED_ELECTRIC_GENERATOR, "tile.electricadvantage.steam_powered_generator.name", 0, new ConduitType[]{Power.ELECTRIC_POWER,STEAM_POWER}, new float[]{1000f,32f});
+	public SteamPoweredElectricGeneratorTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.STEAM_POWERED_ELECTRIC_GENERATOR, pos, state, "tile.electricadvantage.steam_powered_generator.name", 0, new ConduitType[]{Power.ELECTRIC_POWER,STEAM_POWER}, new float[]{1000f,32f});
 	}
 
 	@Override public void powerUpdate(){
@@ -171,12 +171,12 @@ public boolean isPowerSink(ConduitType pt){
 	///// end multi-type overrides /////
 
 	@Override
-	protected void saveTo(CompoundNBT tagRoot) {
+	protected void saveTo(CompoundTag tagRoot) {
 		tagRoot.putFloat("steam", steam);
 	}
 
 	@Override
-	protected void loadFrom(CompoundNBT tagRoot) {
+	protected void loadFrom(CompoundTag tagRoot) {
 		steam = tagRoot.getFloat("steam");
 	}
 	

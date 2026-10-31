@@ -9,8 +9,8 @@ public class SteamPoweredElectricGeneratorBlock extends ElectricGeneratorBlock{
 	public static final ConduitType STEAM_POWER = new ConduitType("steam");
 
 	@Override
-	public ElectricGeneratorTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
-		return new SteamPoweredElectricGeneratorTileEntity();
+	public ElectricGeneratorTileEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		return new SteamPoweredElectricGeneratorTileEntity(pos, state);
 	}
 
 	@Override

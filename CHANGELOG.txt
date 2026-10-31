@@ -1,3 +1,14 @@
+Electric Advantage 2.2.9.117011 - Minecraft 1.17.1 port candidate (local, unqualified)
+
+- Target Forge 37.1.1, official mappings, Java 16 production bytecode and FG7.
+- Carry native machine position/state through factories, persistence and drill movement.
+- Port native helper ticking, hydroturbine removal/link restoration and renderer registration.
+- Retain laser geometry, NBT identities, recipes, machine constants and 1.16 regression tests.
+- Use native ore harvest tags and bucket pickup, including waterlogged sources.
+- Pass 95 Gradle/JUnit and 95 independent ECJ/JUnit tests plus local artifact/Eclipse audits against the pinned Power checkpoint.
+- Combined packaged runtime, migration and manual acceptance remain pending; no Electric commit has been approved yet.
+- No port-code push, pull request, merge, tag or release before manual testing.
+
 Electric Advantage 2.2.8.116051 (local port candidate)
 
 - Check generator redstone before the first power pulse so a disabled solar panel cannot produce a startup burst.

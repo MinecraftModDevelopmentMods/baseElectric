@@ -2,8 +2,8 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import cyano.poweradvantage.api.fluid.FluidStack;
 import java.lang.reflect.Method;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.util.registry.Bootstrap;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.server.Bootstrap;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import zone.moddev.mc.poweradvantage.registry.still.recipe.DistillationRecipe;
@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 
 /** Capacity preflight tests; the shared rig separately tests natural machine ticks. */
 public class ElectricOperationalStillCapacityTest {
-    @BeforeClass public static void bootstrap() { Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
 
     @Test public void aFullTankCannotConsumeInput() throws Exception {
         ElectricStillTileEntity still = fixture(1000);
@@ -52,7 +52,7 @@ public class ElectricOperationalStillCapacityTest {
     }
 
     private static ElectricStillTileEntity fixture(int output) {
-        ElectricStillTileEntity still = new ElectricStillTileEntity();
+        ElectricStillTileEntity still = new ElectricStillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.electricadvantage.machines.ElectricStillBlock().defaultBlockState());
         still.getInputTank().setFluid(new FluidStack(Fluids.WATER, 4));
         if (output > 0) still.getOutputTank().setFluid(new FluidStack(Fluids.LAVA, output));
         return still;

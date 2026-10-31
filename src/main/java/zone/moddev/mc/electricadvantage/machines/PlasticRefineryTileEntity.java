@@ -10,17 +10,17 @@ import cyano.poweradvantage.api.PowerRequest;
 import cyano.poweradvantage.api.fluid.FluidRequest;
 import zone.moddev.mc.poweradvantage.init.Fluids;
 import zone.moddev.mc.poweradvantage.util.FluidIdHelper;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.fluid.Fluid;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.material.Fluid;
 import cyano.poweradvantage.api.fluid.FluidStack;
 import cyano.poweradvantage.api.fluid.FluidTank;
 import cyano.poweradvantage.api.fluid.FluidTankInfo;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Registry;
 
 import java.util.List;
 
@@ -36,8 +36,8 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 
 	private final int[] dataSyncArray = new int[4];
 
-	public PlasticRefineryTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.PLASTIC_REFINERY, "tile.electricadvantage.plastic_refinery.name",
+	public PlasticRefineryTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.PLASTIC_REFINERY, pos, state, "tile.electricadvantage.plastic_refinery.name",
 				0, 1, 0, new ConduitType[]{Power.ELECTRIC_POWER, Fluids.fluidConduit_general},new float[]{500f,2000f});
 		tank = new FluidTank(FluidTank.BUCKET_VOLUME * 2);
 	}
@@ -103,20 +103,20 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 	}
 
 	@Override
-	protected void saveTo(CompoundNBT tagRoot) {
+	protected void saveTo(CompoundTag tagRoot) {
 		tagRoot.putShort("progress", fabTime);
-		CompoundNBT tankTag = new CompoundNBT();
+		CompoundTag tankTag = new CompoundTag();
 		this.getTank().writeToNBT(tankTag);
 		tagRoot.put("Tank", tankTag);
 	}
 
 	@Override
-	protected void loadFrom(CompoundNBT tagRoot) {
+	protected void loadFrom(CompoundTag tagRoot) {
 		if(tagRoot.contains("progress", 99)){
 			this.fabTime = tagRoot.getShort("progress");
 		}
 		if (tagRoot.contains("Tank", 10)) {
-			CompoundNBT tankTag = tagRoot.getCompound("Tank");
+			CompoundTag tankTag = tagRoot.getCompound("Tank");
 			getTank().readFromNBT(tankTag);
 			if(tankTag.contains("Empty", 1)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
@@ -144,7 +144,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 		dataSyncArray[2] = this.getTank().getFluidAmount();
 		dataSyncArray[3] = (getTank().getFluid() != null && getTank().getFluid().getFluid() != null
 				? FluidIdHelper.getFluidId(getTank().getFluid().getFluid())
-						: FluidIdHelper.getFluidId(net.minecraft.fluid.Fluids.WATER));
+						: FluidIdHelper.getFluidId(net.minecraft.world.level.material.Fluids.WATER));
 
 	}
 

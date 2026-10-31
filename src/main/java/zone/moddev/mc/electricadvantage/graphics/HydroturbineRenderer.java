@@ -2,15 +2,15 @@ package zone.moddev.mc.electricadvantage.graphics;
 
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.entities.HydroturbineEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.math.vector.Vector3f;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -20,13 +20,13 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 
 	private static final float DEGREES_TO_RADIANS = (float)(Math.PI / 180);
 
-	public HydroturbineRenderer(final EntityRendererManager rm) {
+	public HydroturbineRenderer(final EntityRendererProvider.Context rm) {
 		super(rm);
 	}
 
 	@Override
 	public void render(final HydroturbineEntity entity, final float entityYaw, final float partialTick,
-            final MatrixStack matrices, final IRenderTypeBuffer buffers, final int packedLight) {
+            final PoseStack matrices, final MultiBufferSource buffers, final int packedLight) {
 		{
 			final float pixel = 1.0f / 16;
 			HydroturbineEntity e = (HydroturbineEntity)entity;
@@ -40,7 +40,7 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 			final float shaftMaxV = 1.0f;
 			
 			matrices.translate(0f, 0.5f, 0f);
-			matrices.mulPose(Vector3f.YP.rotationDegrees(e.yRot));
+			matrices.mulPose(Vector3f.YP.rotationDegrees(e.getYRot()));
             final BufferedQuads worldRenderer = new BufferedQuads(matrices,
                     buffers.getBuffer(RenderType.entitySolid(texture)), packedLight, OverlayTexture.NO_OVERLAY);
 
@@ -127,18 +127,18 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 
 			final float rotaryWidth = DEGREES_TO_RADIANS*45;
 			final float t1 = DEGREES_TO_RADIANS*spin1, t2 = DEGREES_TO_RADIANS*spin2, t3 = DEGREES_TO_RADIANS*spin3;
-			final float sin1a = MathHelper.sin(t1);
-			final float sin1b = MathHelper.sin(t1+rotaryWidth);
-			final float cos1a = MathHelper.cos(t1);
-			final float cos1b = MathHelper.cos(t1+rotaryWidth);
-			final float sin2a = MathHelper.sin(t2);
-			final float sin2b = MathHelper.sin(t2+rotaryWidth);
-			final float cos2a = MathHelper.cos(t2);
-			final float cos2b = MathHelper.cos(t2+rotaryWidth);
-			final float sin3a = MathHelper.sin(t3);
-			final float sin3b = MathHelper.sin(t3+rotaryWidth);
-			final float cos3a = MathHelper.cos(t3);
-			final float cos3b = MathHelper.cos(t3+rotaryWidth);
+			final float sin1a = Mth.sin(t1);
+			final float sin1b = Mth.sin(t1+rotaryWidth);
+			final float cos1a = Mth.cos(t1);
+			final float cos1b = Mth.cos(t1+rotaryWidth);
+			final float sin2a = Mth.sin(t2);
+			final float sin2b = Mth.sin(t2+rotaryWidth);
+			final float cos2a = Mth.cos(t2);
+			final float cos2b = Mth.cos(t2+rotaryWidth);
+			final float sin3a = Mth.sin(t3);
+			final float sin3b = Mth.sin(t3+rotaryWidth);
+			final float cos3a = Mth.cos(t3);
+			final float cos3b = Mth.cos(t3+rotaryWidth);
 
 			worldRenderer.pos(cos1b*bladeOffset, sin1b*bladeOffset, depthDelta-axelLength).tex(bladeMinU,bladeMinV).endVertex(); // inner, leading
 			worldRenderer.pos(cos1b*bladeLength, sin1b*bladeLength, depthDelta-axelLength).tex(bladeMinU,bladeMaxV).endVertex(); // outer, leading

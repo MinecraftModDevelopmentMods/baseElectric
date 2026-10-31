@@ -2,31 +2,30 @@ package zone.moddev.mc.electricadvantage.graphics;
 
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.machines.LaserTurretTileEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.math.Vector3f;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT) // This is needed for classes that extend client-only classes
-public class LaserTurretRenderer extends TileEntityRenderer<LaserTurretTileEntity>{
+public class LaserTurretRenderer implements BlockEntityRenderer<LaserTurretTileEntity>{
 
 	
 	private final ResourceLocation texture = new ResourceLocation(ElectricAdvantage.MODID+":textures/entity/laser_turret.png");
 	private final RenderType renderType = ElectricRenderTypes.unshaded(texture, true);
 	
-	public LaserTurretRenderer(TileEntityRendererDispatcher dispatcher) {
-		super(dispatcher);
+	public LaserTurretRenderer(BlockEntityRendererProvider.Context context) {
 	}
 
 	
 	@Override
-	public void render(final LaserTurretTileEntity e, final float partialTick, final MatrixStack matrices,
-            final IRenderTypeBuffer buffers, final int packedLight, final int packedOverlay) {
+	public void render(final LaserTurretTileEntity e, final float partialTick, final PoseStack matrices,
+            final MultiBufferSource buffers, final int packedLight, final int packedOverlay) {
 		final float sideU0 = 0;
 		final float sideU1 = 0.5f;
 		final float sideV0 = 0;

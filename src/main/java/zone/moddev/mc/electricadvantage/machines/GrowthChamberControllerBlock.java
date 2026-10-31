@@ -5,10 +5,10 @@ import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerConnectorContext;
 import cyano.poweradvantage.api.PoweredEntity;
 import zone.moddev.mc.poweradvantage.init.Fluids;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 
 /**
@@ -25,8 +25,8 @@ public class GrowthChamberControllerBlock extends cyano.poweradvantage.api.simpl
 	}
 
 	@Override
-	public PoweredEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
-		return new GrowthChamberControllerTileEntity();
+	public PoweredEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		return new GrowthChamberControllerTileEntity(pos, state);
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class GrowthChamberControllerBlock extends cyano.poweradvantage.api.simpl
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState bs, World world, BlockPos coord) {
+	public int getAnalogOutputSignal(BlockState bs, Level world, BlockPos coord) {
 		if(world.getBlockEntity(coord) instanceof GrowthChamberControllerTileEntity){
 			return ((GrowthChamberControllerTileEntity)world.getBlockEntity(coord)).getComparatorOutput();
 		}

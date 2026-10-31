@@ -1,9 +1,9 @@
 package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.entities.HydroturbineEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 import java.util.Random;
@@ -19,8 +19,8 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 	
 	private boolean isInitialized;
 	
-	public HydroelectricGeneratorTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.HYDROELECTRIC_GENERATOR, "tile.electricadvantage.hydroelectric_generator.name", 0);
+	public HydroelectricGeneratorTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.HYDROELECTRIC_GENERATOR, pos, state, "tile.electricadvantage.hydroelectric_generator.name", 0);
 		isInitialized = false;
 	}
 
@@ -32,7 +32,7 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 			}
 			if((getLevel().getGameTime() + checkOffset) % checkInterval == 0){
 				// periodically check if the hydroturbine entity is still present
-				List turbines = getLevel().getEntitiesOfClass(HydroturbineEntity.class, new AxisAlignedBB(
+				List turbines = getLevel().getEntitiesOfClass(HydroturbineEntity.class, new AABB(
 						getBlockPos().getX(),getBlockPos().getY()-1,getBlockPos().getZ(),
 						getBlockPos().getX()+1,getBlockPos().getY(),getBlockPos().getZ()+1));
 				if(turbines == null || turbines.isEmpty()){
@@ -65,12 +65,12 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 	}
 
 	@Override
-	protected void saveTo(CompoundNBT tagRoot) {
+	protected void saveTo(CompoundTag tagRoot) {
 		tagRoot.putBoolean("initDone", this.isInitialized);
 	}
 
 	@Override
-	protected void loadFrom(CompoundNBT tagRoot) {
+	protected void loadFrom(CompoundTag tagRoot) {
 		if(tagRoot.contains("initDone", 1)){
 			this.isInitialized = tagRoot.getBoolean("initDone");
 		}

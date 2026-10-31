@@ -3,24 +3,24 @@ package zone.moddev.mc.electricadvantage.machines;
 import zone.moddev.mc.electricadvantage.init.Blocks;
 import zone.moddev.mc.electricadvantage.init.Power;
 import zone.moddev.mc.poweradvantage.util.InventoryWrapper;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.Container;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -42,15 +42,15 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	private int progressGoal = 0;
 	private BlockPos targetBlockCoord = null;
 	private Block[] targetBlocks = null;
-	private ListNBT savedTargetStates = null;
+	private ListTag savedTargetStates = null;
 	private List<ItemStack> targetBlockItems = null;
 	private int laserLength = 0;
 
 
 	private boolean deferred = false;
 
-	public ElectricDrillTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_DRILL, "tile.electricadvantage.electric_drill.name",
+	public ElectricDrillTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_DRILL, pos, state, "tile.electricadvantage.electric_drill.name",
 				0, 6, 0);
 	}
 
@@ -95,7 +95,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 							BlockPos[] targets = this.getArea(targetBlockCoord);
 							for(int i = 0; i < targets.length; i++)
 								if(canMine(targets[i])){
-									getLevel().setBlock(targets[i], net.minecraft.block.Blocks.AIR.defaultBlockState(), 3);
+									getLevel().setBlock(targets[i], net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
 								}
 							for(ItemStack item : targetBlockItems){
 								addItem(item);
@@ -148,14 +148,13 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 		// clone this block into neighboring block
 		this.untargetBlock();
-		World w = getLevel();
+		Level w = getLevel();
 		BlockPos nextPos = getBlockPos().relative(trackDir);
 		w.setBlock(nextPos, w.getBlockState(getBlockPos()), 2);
 		ElectricDrillTileEntity te = (ElectricDrillTileEntity)w.getBlockEntity(nextPos);
-		CompoundNBT dataTransfer = new CompoundNBT();
+		CompoundTag dataTransfer = new CompoundTag();
 		this.save(dataTransfer);
-		te.load(w.getBlockState(nextPos), dataTransfer);
-		te.setPosition(nextPos);
+		te.load(dataTransfer);
 		te.clearRemoved();
 		te.subtractEnergy(ENERGY_COST_MOVE, getEnergyType());
 		te.setChanged();
@@ -287,7 +286,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		// fry any idiots who stand in the laser's path
 		if(isActive() && targetBlocks != null && targetBlockCoord != null){
 			BlockPos pos = getBlockPos();
-			AxisAlignedBB beamArea = new AxisAlignedBB(targetBlockCoord.getX(),targetBlockCoord.getY(),targetBlockCoord.getZ(),
+			AABB beamArea = new AABB(targetBlockCoord.getX(),targetBlockCoord.getY(),targetBlockCoord.getZ(),
 					pos.getX()+1,pos.getY()+1,pos.getZ()+1);
 			List<LivingEntity> victims = getLevel().getEntitiesOfClass(LivingEntity.class, beamArea);
 			for(Entity e : victims){
@@ -318,14 +317,14 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		targetBlockCoord = pos;
 		progressGoal = 0;
 		targetBlocks = new Block[targets.length];
-		savedTargetStates = new ListNBT();
+		savedTargetStates = new ListTag();
 		targetBlockItems = new ArrayList<>(targets.length);
 		for(int i = 0; i < targets.length; i++){
 			targetBlocks[i] = getLevel().getBlockState(targets[i]).getBlock();
-			savedTargetStates.add(NBTUtil.writeBlockState(getLevel().getBlockState(targets[i])));
+			savedTargetStates.add(NbtUtils.writeBlockState(getLevel().getBlockState(targets[i])));
 			progressGoal += this.getBlockStrength(targets[i]);
 			targetBlockItems.addAll(Block.getDrops(getLevel().getBlockState(targets[i]),
-					(ServerWorld) getLevel(), targets[i], getLevel().getBlockEntity(targets[i])));
+					(ServerLevel) getLevel(), targets[i], getLevel().getBlockEntity(targets[i])));
 		}
 		deferred = false;
 	}
@@ -339,7 +338,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 				return;
 			}
 			for(int i = 0; i < targets.length; i++){
-				if(!savedTargetStates.getCompound(i).equals(NBTUtil.writeBlockState(getLevel().getBlockState(targets[i])))){
+				if(!savedTargetStates.getCompound(i).equals(NbtUtils.writeBlockState(getLevel().getBlockState(targets[i])))){
 					untargetBlock();
 					return;
 				}
@@ -439,9 +438,9 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 	private void inventoryTransfer(BlockPos adj, Direction otherFace) {
 		ItemStack[] inventory = this.getInventory();
-		TileEntity te = getLevel().getBlockEntity(adj);
-		if(te instanceof IInventory ){
-			ISidedInventory inv = InventoryWrapper.wrap((IInventory)te);
+		BlockEntity te = getLevel().getBlockEntity(adj);
+		if(te instanceof Container ){
+			WorldlyContainer inv = InventoryWrapper.wrap((Container)te);
 			int[] accessibleSlots = inv.getSlotsForFace(otherFace);
 			if(accessibleSlots.length == 0) return;
 			for(int mySlot = 0; mySlot < inventory.length; mySlot++){
@@ -489,7 +488,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 
 	@Override
-	protected void saveTo(CompoundNBT tagRoot) {
+	protected void saveTo(CompoundTag tagRoot) {
 		tagRoot.putShort("progress",(short)progress);
 		if(targetBlockCoord != null){
 			tagRoot.putInt("targetX", targetBlockCoord.getX());
@@ -500,7 +499,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	}
 
 	@Override
-	protected void loadFrom(CompoundNBT tagRoot) {
+	protected void loadFrom(CompoundTag tagRoot) {
 		untargetBlock();
 		if(tagRoot.contains("progress", 99)){
 			progress = tagRoot.getShort("progress");
@@ -547,9 +546,9 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	// Helps with laser rendering
 	final private int renderRange = MAX_RANGE * 2;
 	@OnlyIn(Dist.CLIENT)
-	public AxisAlignedBB getRenderBoundingBox()
+	public AABB getRenderBoundingBox()
 	{
-		return new AxisAlignedBB(getBlockPos().offset(-renderRange, -renderRange, -renderRange), getBlockPos().offset(renderRange, renderRange, renderRange));
+		return new AABB(getBlockPos().offset(-renderRange, -renderRange, -renderRange), getBlockPos().offset(renderRange, renderRange, renderRange));
 		//return super.INFINITE_EXTENT_AABB;
 	}
 }

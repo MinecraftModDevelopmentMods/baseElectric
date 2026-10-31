@@ -4,14 +4,14 @@ import zone.moddev.mc.electricadvantage.common.IRechargeableItem;
 import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerRequest;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 public class ElectricBatteryArrayTileEntity extends ElectricGeneratorTileEntity{
 	
-	public ElectricBatteryArrayTileEntity(){
-		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_BATTERY_ARRAY, "tile.electricadvantage.electric_battery_array.name",8);
+	public ElectricBatteryArrayTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state){
+		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_BATTERY_ARRAY, pos, state, "tile.electricadvantage.electric_battery_array.name",8);
 	}
 	
 	
@@ -168,12 +168,12 @@ public class ElectricBatteryArrayTileEntity extends ElectricGeneratorTileEntity{
 	}
 
 	@Override
-	protected void saveTo(CompoundNBT tagRoot) {
+	protected void saveTo(CompoundTag tagRoot) {
 		// do nothing (inventory already handled
 	}
 
 	@Override
-	protected void loadFrom(CompoundNBT tagRoot) {
+	protected void loadFrom(CompoundTag tagRoot) {
 		// do nothing (inventory already handled
 	}
 

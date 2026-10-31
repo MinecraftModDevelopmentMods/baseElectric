@@ -1,11 +1,11 @@
 package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.init.Power;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 
 public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity {
 
@@ -16,8 +16,8 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 	public static final float BLOCKLIGHT_FACTOR = 0.1f; // light from blocks less effective than sunlight
 	private float powerOutput = 0;
 	
-	public PhotovoltaicGeneratorTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.PHOTOVOLTAIC_GENERATOR, "tile.electricadvantage.photovoltaic_generator.name", 0);
+	public PhotovoltaicGeneratorTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.PHOTOVOLTAIC_GENERATOR, pos, state, "tile.electricadvantage.photovoltaic_generator.name", 0);
 	}
 
 	@Override
@@ -42,12 +42,12 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 	}
 
 	@Override
-	protected void saveTo(CompoundNBT tagRoot) {
+	protected void saveTo(CompoundTag tagRoot) {
 		// do nothing
 	}
 
 	@Override
-	protected void loadFrom(CompoundNBT tagRoot) {
+	protected void loadFrom(CompoundTag tagRoot) {
 		// do nothing
 	}
 
@@ -91,13 +91,13 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 		super.powerUpdate();
 	}
 	
-	public static float getLightIntensityAt(BlockPos pos, World w){
+	public static float getLightIntensityAt(BlockPos pos, Level w){
 		// The panel is solid; sample incident light above its top surface, not inside it.
 		BlockPos lightPos = pos.above();
 		float light;
 		if(w.canSeeSky(lightPos) && w.dimensionType().hasSkyLight()){
 			// outdoor light imposes no penalty
-			light = MathHelper.sin((float)w.getDayTime() * 2.61799E-4f); // (worldTime * pi / 12000);
+			light = Mth.sin((float)w.getDayTime() * 2.61799E-4f); // (worldTime * pi / 12000);
 			// handle weather
 			if(w.isThundering()){
 				light *= 0.2f;

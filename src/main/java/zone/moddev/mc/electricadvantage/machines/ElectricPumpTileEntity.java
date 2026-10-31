@@ -8,15 +8,15 @@ import cyano.poweradvantage.api.PowerRequest;
 import zone.moddev.mc.poweradvantage.conduitnetwork.ConduitRegistry;
 import zone.moddev.mc.poweradvantage.init.Fluids;
 import zone.moddev.mc.poweradvantage.util.FluidIdHelper;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.IBucketPickupHandler;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.fluid.Fluid;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 import cyano.poweradvantage.api.fluid.FluidStack;
 import cyano.poweradvantage.api.fluid.FluidTank;
 import cyano.poweradvantage.api.fluid.FluidTankInfo;
@@ -43,8 +43,8 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 
 
 
-	public ElectricPumpTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_PUMP, "tile.electricadvantage.electric_pump.name", 0, 0, 0, new ConduitType[]{Power.ELECTRIC_POWER, Fluids.fluidConduit_general},new float[]{ENERGY_COST_PUMP + 256 * ENERGY_COST_VERTICAL,1000f});
+	public ElectricPumpTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_PUMP, pos, state, "tile.electricadvantage.electric_pump.name", 0, 0, 0, new ConduitType[]{Power.ELECTRIC_POWER, Fluids.fluidConduit_general},new float[]{ENERGY_COST_PUMP + 256 * ENERGY_COST_VERTICAL,1000f});
 		tank = new FluidTank(FluidTank.BUCKET_VOLUME);
 	}
 
@@ -58,7 +58,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 			if(!hasRedstoneSignal()){
 				if(timeUntilNextPump > 0) timeUntilNextPump--;
 				if(timeUntilNextPump == 0 && getTank().getFluidAmount() <= 0){
-					World w = getLevel();
+					Level w = getLevel();
 					boolean success = false;
 					BlockPos target = this.getBlockPos().below();
 					while(target.getY() > 0 && w.getBlockState(target).getBlock() == zone.moddev.mc.electricadvantage.init.Blocks.pump_pipe_electric){
@@ -83,10 +83,11 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 							float cost = ENERGY_COST_PUMP+ENERGY_COST_VERTICAL*(getBlockPos().getY()-fluidSource.getY());
 							// Found a fluid to suck-up!
 							BlockState blockstate = w.getBlockState(fluidSource);
-							if(blockstate.getBlock() instanceof IBucketPickupHandler && getEnergy() >= cost){
+							if(blockstate.getBlock() instanceof BucketPickup && getEnergy() >= cost){
 								// Native pickup drains waterlogging without deleting the containing block.
-								Fluid f = ((IBucketPickupHandler)blockstate.getBlock()).takeLiquid(w, fluidSource, blockstate);
-								if(f != null && f != net.minecraft.fluid.Fluids.EMPTY){
+								Fluid f = blockstate.getFluidState().getType();
+								ItemStack pickup = ((BucketPickup)blockstate.getBlock()).pickupBlock(w, fluidSource, blockstate);
+								if(pickup != null && !pickup.isEmpty() && f != net.minecraft.world.level.material.Fluids.EMPTY){
 									this.getTank().fill(new FluidStack(f, FluidTank.BUCKET_VOLUME), true);
 									this.subtractEnergy(cost, Power.ELECTRIC_POWER);
 									success = true;
@@ -159,13 +160,13 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 
 	private boolean isSourceBlock( BlockPos coord){
 		BlockState state = getLevel().getBlockState(coord);
-		return state.getBlock() instanceof IBucketPickupHandler && state.getFluidState().isSource();
+		return state.getBlock() instanceof BucketPickup && state.getFluidState().isSource();
 	}
 
 
 
 	private boolean isFluidBlock(BlockPos coord) {
-		World w = getLevel();
+		Level w = getLevel();
 		if(w.hasChunkAt(coord) == false) return false;
 		return !w.getFluidState(coord).isEmpty();
 	}
@@ -234,7 +235,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	public void prepareDataFieldsForSync() {
 		dataSyncArray[0] = Float.floatToRawIntBits(this.getEnergy());
 		dataSyncArray[1] = this.getTank().getFluidAmount();
-		dataSyncArray[2] = (this.getTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(this.getTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.fluid.Fluids.WATER));
+		dataSyncArray[2] = (this.getTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(this.getTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.world.level.material.Fluids.WATER));
 		dataSyncArray[3] = this.timeUntilNextPump;
 	}
 
@@ -253,8 +254,8 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public void saveTo(final CompoundNBT tagRoot) {
-		CompoundNBT tankTag = new CompoundNBT();
+	public void saveTo(final CompoundTag tagRoot) {
+		CompoundTag tankTag = new CompoundTag();
 		this.getTank().writeToNBT(tankTag);
 		tagRoot.put("Tank", tankTag);
 		tagRoot.putByte("NextPump", (byte)this.timeUntilNextPump);
@@ -264,9 +265,9 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public void loadFrom(final CompoundNBT tagRoot) {
+	public void loadFrom(final CompoundTag tagRoot) {
 		if (tagRoot.contains("Tank", 10)) {
-			CompoundNBT tankTag = tagRoot.getCompound("Tank");
+			CompoundTag tankTag = tagRoot.getCompound("Tank");
 			getTank().readFromNBT(tankTag);
 			if(tankTag.contains("Empty", 1)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )

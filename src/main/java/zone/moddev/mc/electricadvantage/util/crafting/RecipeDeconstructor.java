@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.world.World;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 
 /** Recursive crafting solver used by the Electric Fabricator. */
@@ -19,7 +19,7 @@ public final class RecipeDeconstructor {
     private static final RecipeDeconstructor INSTANCE = new RecipeDeconstructor();
     public static int RECURSION_LIMIT = 5;
 
-    private final Map<ItemRecord, List<IRecipe<?>>> recipeCache = new HashMap<>();
+    private final Map<ItemRecord, List<Recipe<?>>> recipeCache = new HashMap<>();
     private int cachedRecipeCount = -1;
 
     private RecipeDeconstructor() {}
@@ -33,11 +33,11 @@ public final class RecipeDeconstructor {
         cachedRecipeCount = -1;
     }
 
-    private void initializeRecipeCache(World world) {
-        Collection<IRecipe<?>> recipes = world.getRecipeManager().getRecipes();
+    private void initializeRecipeCache(Level world) {
+        Collection<Recipe<?>> recipes = world.getRecipeManager().getRecipes();
         if (cachedRecipeCount == recipes.size() && !recipeCache.isEmpty()) return;
         recipeCache.clear();
-        for (IRecipe<?> recipe : recipes) {
+        for (Recipe<?> recipe : recipes) {
             ItemStack output = recipe.getResultItem();
             if (output == null || output.isEmpty()) continue;
             recipeCache.computeIfAbsent(new ItemRecord(output), ignored -> new ArrayList<>()).add(recipe);
@@ -45,19 +45,19 @@ public final class RecipeDeconstructor {
         cachedRecipeCount = recipes.size();
     }
 
-    public SerializedInventory attemptToCraft(World world, ItemStack target,
+    public SerializedInventory attemptToCraft(Level world, ItemStack target,
             SerializedInventory inventory, AtomicReference<ItemStack> output) {
         initializeRecipeCache(world);
         return attemptToCraft(world, target, inventory, output, 0);
     }
 
-    private SerializedInventory attemptToCraft(World world, ItemStack target,
+    private SerializedInventory attemptToCraft(Level world, ItemStack target,
             SerializedInventory inventory, AtomicReference<ItemStack> output, int depth) {
         if (depth > RECURSION_LIMIT || target == null || target.isEmpty()) return null;
-        List<IRecipe<?>> recipes = recipeCache.get(new ItemRecord(target));
+        List<Recipe<?>> recipes = recipeCache.get(new ItemRecord(target));
         if (recipes == null || recipes.isEmpty()) return null;
 
-        for (IRecipe<?> recipe : recipes) {
+        for (Recipe<?> recipe : recipes) {
             SerializedInventory candidate = inventory.copy();
             boolean failed = false;
             for (Ingredient ingredient : recipe.getIngredients()) {

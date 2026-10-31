@@ -10,11 +10,11 @@ import zone.moddev.mc.poweradvantage.init.Fluids;
 import zone.moddev.mc.poweradvantage.registry.still.recipe.DistillationRecipe;
 import zone.moddev.mc.poweradvantage.registry.still.recipe.DistillationRecipeRegistry;
 import zone.moddev.mc.poweradvantage.util.FluidIdHelper;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.fluid.Fluid;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.material.Fluid;
 import cyano.poweradvantage.api.fluid.FluidStack;
 import cyano.poweradvantage.api.fluid.FluidTank;
 import cyano.poweradvantage.api.fluid.FluidTankInfo;
@@ -32,8 +32,8 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 
 	private final int[] dataSyncArray = new int[5];
 
-	public ElectricStillTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_STILL, "tile.electricadvantage.electric_still.name", 0, 0, 0, new ConduitType[]{Power.ELECTRIC_POWER, Fluids.fluidConduit_general},new float[]{500f,1000f});
+	public ElectricStillTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_STILL, pos, state, "tile.electricadvantage.electric_still.name", 0, 0, 0, new ConduitType[]{Power.ELECTRIC_POWER, Fluids.fluidConduit_general},new float[]{500f,1000f});
 		outputTank = new FluidTank(FluidTank.BUCKET_VOLUME );
 		inputTank = new FluidTank(FluidTank.BUCKET_VOLUME);
 	}
@@ -165,9 +165,9 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	public void prepareDataFieldsForSync() {
 		dataSyncArray[0] = Float.floatToRawIntBits(this.getEnergy());
 		dataSyncArray[1] = this.getOutputTank().getFluidAmount();
-		dataSyncArray[2] = (this.getOutputTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(this.getOutputTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.fluid.Fluids.WATER));
+		dataSyncArray[2] = (this.getOutputTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(this.getOutputTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.world.level.material.Fluids.WATER));
 		dataSyncArray[3] = getInputTank().getFluidAmount();
-		dataSyncArray[4] = (getInputTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(getInputTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.fluid.Fluids.WATER));
+		dataSyncArray[4] = (getInputTank().getFluidAmount() > 0 ? FluidIdHelper.getFluidId(getInputTank().getFluid().getFluid()) : FluidIdHelper.getFluidId(net.minecraft.world.level.material.Fluids.WATER));
 	}
 
 	@Override
@@ -184,11 +184,11 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public void saveTo(final CompoundNBT tagRoot) {
-		CompoundNBT tankTag = new CompoundNBT();
+	public void saveTo(final CompoundTag tagRoot) {
+		CompoundTag tankTag = new CompoundTag();
 		this.getOutputTank().writeToNBT(tankTag);
 		tagRoot.put("TankOut", tankTag);
-		CompoundNBT tankTag2 = new CompoundNBT();
+		CompoundTag tankTag2 = new CompoundTag();
 		this.getInputTank().writeToNBT(tankTag2);
 		tagRoot.put("TankIn", tankTag2);
 	}
@@ -197,9 +197,9 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public void loadFrom(final CompoundNBT tagRoot) {
+	public void loadFrom(final CompoundTag tagRoot) {
 		if (tagRoot.contains("TankOut", 10)) {
-			CompoundNBT tankTag = tagRoot.getCompound("TankOut");
+			CompoundTag tankTag = tagRoot.getCompound("TankOut");
 			getOutputTank().readFromNBT(tankTag);
 			if(tankTag.contains("Empty", 1)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
@@ -208,7 +208,7 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 		}
 
 		if (tagRoot.contains("TankIn", 10)) {
-			CompoundNBT tankTag = tagRoot.getCompound("TankIn");
+			CompoundTag tankTag = tagRoot.getCompound("TankIn");
 			getInputTank().readFromNBT(tankTag);
 			if(tankTag.contains("Empty", 1)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )

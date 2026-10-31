@@ -1,6 +1,6 @@
 package zone.moddev.mc.electricadvantage.machines;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 
 import zone.moddev.mc.electricadvantage.util.LegacyFluidHandler;
 import zone.moddev.mc.electricadvantage.init.Power;
@@ -9,15 +9,15 @@ import cyano.poweradvantage.api.PowerConnectorContext;
 import cyano.poweradvantage.api.PowerRequest;
 import cyano.poweradvantage.api.fluid.FluidRequest;
 import zone.moddev.mc.poweradvantage.init.Fluids;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.fluid.Fluid;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.material.Fluid;
 import cyano.poweradvantage.api.fluid.FluidStack;
 import cyano.poweradvantage.api.fluid.FluidTank;
 import cyano.poweradvantage.api.fluid.FluidTankInfo;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine implements LegacyFluidHandler{
 
@@ -40,8 +40,8 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 
 	private final int[] dataSyncArray = new int[4];
 
-	public GrowthChamberControllerTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.GROWTH_CHAMBER_CONTROLLER, types, capacities, "tile.electricadvantage.growth_chamber_controller.name");
+	public GrowthChamberControllerTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.GROWTH_CHAMBER_CONTROLLER, pos, state, types, capacities, "tile.electricadvantage.growth_chamber_controller.name");
 		tank = new FluidTank((int)capacities[2]);
 		inventory = new ItemStack[1];
 	}
@@ -81,7 +81,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	
 	private static boolean isDirt(ItemStack i){
 		return i != null && !i.isEmpty()
-				&& (i.getItem() == net.minecraft.block.Blocks.DIRT.asItem()
+				&& (i.getItem() == net.minecraft.world.level.block.Blocks.DIRT.asItem()
 				|| ItemTags.getAllTags().getTagOrEmpty(new ResourceLocation("forge", "dirt")).contains(i.getItem()));
 	}
 
@@ -179,7 +179,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	@Override
 	public void onDataFieldUpdate() {
 		this.setEnergy(Float.intBitsToFloat(dataSyncArray[0]), Power.GROWTHCHAMBER_POWER);
-		this.getTank().setFluid(new FluidStack(net.minecraft.fluid.Fluids.WATER,dataSyncArray[1]));
+		this.getTank().setFluid(new FluidStack(net.minecraft.world.level.material.Fluids.WATER,dataSyncArray[1]));
 		this.setSoil(Float.intBitsToFloat(dataSyncArray[2]));
 		timeSinceLastPowerRequest = dataSyncArray[3];
 	}
@@ -190,9 +190,9 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public CompoundNBT save(final CompoundNBT tagRoot) {
+	public CompoundTag save(final CompoundTag tagRoot) {
 		super.save(tagRoot);
-		CompoundNBT tankTag = new CompoundNBT();
+		CompoundTag tankTag = new CompoundTag();
 		this.getTank().writeToNBT(tankTag);
 		tagRoot.put("Tank", tankTag);
 		tagRoot.putFloat("soil", soil);
@@ -203,10 +203,10 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public void load(BlockState state, final CompoundNBT tagRoot) {
-		super.load(state, tagRoot);
+	public void load(final CompoundTag tagRoot) {
+		super.load(tagRoot);
 		if (tagRoot.contains("Tank", 10)) {
-			CompoundNBT tankTag = tagRoot.getCompound("Tank");
+			CompoundTag tankTag = tagRoot.getCompound("Tank");
 			getTank().readFromNBT(tankTag);
 			if(tankTag.contains("Empty", 1)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
@@ -305,7 +305,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	@Override
 	public PowerRequest getPowerRequest(ConduitType offer) {
 		if(redstone) return PowerRequest.REQUEST_NOTHING;
-		if(Fluids.conduitTypeToFluid(offer) == net.minecraft.fluid.Fluids.WATER){
+		if(Fluids.conduitTypeToFluid(offer) == net.minecraft.world.level.material.Fluids.WATER){
 			PowerRequest request = new FluidRequest(FluidRequest.MEDIUM_PRIORITY+1,
 					(getTank().getCapacity() - getTank().getFluidAmount()),
 					this);
@@ -386,7 +386,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	 */
 	@Override
 	public boolean canFill(Direction face, Fluid fluid) {
-		if(fluid != net.minecraft.fluid.Fluids.WATER) return false;
+		if(fluid != net.minecraft.world.level.material.Fluids.WATER) return false;
 		if(getTank().getFluid() == null) return true;
 		return getTank().getFluidAmount() <= getTank().getCapacity() && fluid.equals(getTank().getFluid().getFluid());
 	}

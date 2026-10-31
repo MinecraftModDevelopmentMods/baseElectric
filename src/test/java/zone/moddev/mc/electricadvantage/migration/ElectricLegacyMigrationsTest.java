@@ -3,7 +3,7 @@ package zone.moddev.mc.electricadvantage.migration;
 import static org.junit.Assert.assertEquals;
 
 import cyano.poweradvantage.api.migration.LegacyMigrationApi;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import org.junit.Test;
 
 public class ElectricLegacyMigrationsTest {

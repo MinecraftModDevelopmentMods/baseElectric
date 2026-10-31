@@ -4,13 +4,13 @@ import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerConnectorContext;
 import zone.moddev.mc.poweradvantage.init.Fluids;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 public class ElectricStillBlock extends ElectricMachineBlock{
 
 	@Override
-	public ElectricMachineTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
-		return new ElectricStillTileEntity();
+	public ElectricMachineTileEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		return new ElectricStillTileEntity(pos, state);
 	}
 
 ///// Overrides to make this a multi-type block /////

@@ -1,8 +1,8 @@
 package zone.moddev.mc.electricadvantage.machines;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelReader;
 
 public class HydroelectricGeneratorBlock extends ElectricGeneratorBlock {
 
@@ -11,12 +11,12 @@ public class HydroelectricGeneratorBlock extends ElectricGeneratorBlock {
 	}
 
 	@Override
-	public ElectricGeneratorTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
-		return new HydroelectricGeneratorTileEntity();
+	public ElectricGeneratorTileEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		return new HydroelectricGeneratorTileEntity(pos, state);
 	}
 
 	@Override
-	public boolean canSurvive(BlockState state, IWorldReader worldIn, BlockPos pos)
+	public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos)
 	{
 		return super.canSurvive(state, worldIn, pos)
 				&& !worldIn.getBlockState(pos.below()).getMaterial().isSolid();

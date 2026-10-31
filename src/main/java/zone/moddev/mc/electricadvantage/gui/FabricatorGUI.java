@@ -4,10 +4,10 @@ import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.machines.ElectricMachineTileEntity;
 import cyano.poweradvantage.api.simple.SimpleMachineGUI;
 import zone.moddev.mc.poweradvantage.math.Integer2D;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 
 public class FabricatorGUI extends SimpleMachineGUI{
 
@@ -26,10 +26,10 @@ public class FabricatorGUI extends SimpleMachineGUI{
 
 		for(int i = 12; i <= 13; i++)super.specialSlots.put(i, (SlotContext c)->new Slot(c.machineInventory,c.slotIndex,c.screenPositionX,c.screenPositionY){
 			@Override
-			public ItemStack onTake(PlayerEntity player, ItemStack stack)
+			public void onTake(Player player, ItemStack stack)
 			{
 				stack.onCraftedBy(player.getCommandSenderWorld(), player, stack.getCount());
-				return super.onTake(player, stack);
+				super.onTake(player, stack);
 			}
 			@Override
 			public boolean mayPlace(ItemStack stack){ return false; }

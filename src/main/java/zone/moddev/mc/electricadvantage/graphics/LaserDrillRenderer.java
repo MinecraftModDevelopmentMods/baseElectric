@@ -2,33 +2,32 @@ package zone.moddev.mc.electricadvantage.graphics;
 
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.machines.ElectricDrillTileEntity;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.math.Vector3f;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT) // This is needed for classes that extend client-only classes
-public class LaserDrillRenderer extends TileEntityRenderer<ElectricDrillTileEntity>{
+public class LaserDrillRenderer implements BlockEntityRenderer<ElectricDrillTileEntity>{
 
 	
 	private final ResourceLocation texture = new ResourceLocation(ElectricAdvantage.MODID+":textures/materials/laser_beam.png");
 	private final RenderType beamType = ElectricRenderTypes.unshaded(texture, false);
 	
 	
-	public LaserDrillRenderer(TileEntityRendererDispatcher dispatcher) {
-		super(dispatcher);
+	public LaserDrillRenderer(BlockEntityRendererProvider.Context context) {
 	}
 
 	
 	@Override
-	public void render(final ElectricDrillTileEntity e, final float partialTick, final MatrixStack matrices,
-            final IRenderTypeBuffer buffers, final int packedLight, final int packedOverlay) {
+	public void render(final ElectricDrillTileEntity e, final float partialTick, final PoseStack matrices,
+            final MultiBufferSource buffers, final int packedLight, final int packedOverlay) {
 		float laserBlastLength = e.getDrillLength();
 
 		if(laserBlastLength > 0){

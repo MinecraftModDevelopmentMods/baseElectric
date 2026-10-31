@@ -2,11 +2,11 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.compat.BaseMetalsCompat;
 import zone.moddev.mc.electricadvantage.init.Power;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.ShortNBT;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.ShortTag;
 
 import java.util.Arrays;
 
@@ -21,8 +21,8 @@ public class ElectricCrusherTileEntity extends ElectricMachineTileEntity{
 	private final short totalSmashTime = 200;
 
 
-	public ElectricCrusherTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_CRUSHER, "tile.electricadvantage.electric_crusher.name",
+	public ElectricCrusherTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_CRUSHER, pos, state, "tile.electricadvantage.electric_crusher.name",
 				3, 6, 0);
 		Arrays.fill(smashTime, (short)0);
 	}
@@ -100,19 +100,19 @@ public class ElectricCrusherTileEntity extends ElectricMachineTileEntity{
 
 
 	@Override
-	protected void saveTo(CompoundNBT tagRoot) {
-		ListNBT times = new ListNBT();
+	protected void saveTo(CompoundTag tagRoot) {
+		ListTag times = new ListTag();
 		for(int i = 0; i < numberOfInputSlots(); i++){
-			times.add(ShortNBT.valueOf(smashTime[i]));
+			times.add(ShortTag.valueOf(smashTime[i]));
 		}
 		tagRoot.put("smashTime", times);
 	}
 
 	@Override
-	protected void loadFrom(CompoundNBT tagRoot) {
-		ListNBT times = tagRoot.getList("smashTime", 2);
+	protected void loadFrom(CompoundTag tagRoot) {
+		ListTag times = tagRoot.getList("smashTime", 2);
 		for(int i = 0; i < numberOfInputSlots() && i < times.size(); i++){
-			smashTime[i] = ((ShortNBT)times.get(i)).getAsShort();
+			smashTime[i] = ((ShortTag)times.get(i)).getAsShort();
 		}
 	}
 

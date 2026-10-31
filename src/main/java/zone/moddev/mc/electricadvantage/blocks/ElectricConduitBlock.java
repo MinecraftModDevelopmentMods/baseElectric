@@ -1,7 +1,7 @@
 package zone.moddev.mc.electricadvantage.blocks;
 
 import zone.moddev.mc.electricadvantage.init.Power;
-import net.minecraft.block.material.Material;
+import net.minecraft.world.level.material.Material;
 
 public class ElectricConduitBlock  extends cyano.poweradvantage.api.simple.BlockSimplePowerConduit{
 

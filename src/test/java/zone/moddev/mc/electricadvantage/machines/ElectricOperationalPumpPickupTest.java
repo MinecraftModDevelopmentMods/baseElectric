@@ -5,29 +5,29 @@ import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.block.IBucketPickupHandler;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.block.StairsBlock;
-import net.minecraft.block.material.Material;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.state.properties.Half;
-import net.minecraft.state.properties.SlabType;
-import net.minecraft.state.properties.StairsShape;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Bootstrap;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.block.state.properties.StairsShape;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.Bootstrap;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import zone.moddev.mc.electricadvantage.init.Power;
@@ -41,7 +41,7 @@ public class ElectricOperationalPumpPickupTest {
     private static final float RESERVE = 8000;
     private static final float PICKUP_COST = 1000 + 32;
 
-    @BeforeClass public static void bootstrap() { Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
 
     @Test public void waterloggedSlabKeepsItsBlockAndSlabType() throws Exception {
         BlockState wet = Blocks.OAK_SLAB.defaultBlockState()
@@ -56,9 +56,9 @@ public class ElectricOperationalPumpPickupTest {
 
     @Test public void waterloggedStairsKeepFacingHalfAndShape() throws Exception {
         BlockState wet = Blocks.OAK_STAIRS.defaultBlockState()
-                .setValue(StairsBlock.FACING, Direction.SOUTH)
-                .setValue(StairsBlock.HALF, Half.TOP)
-                .setValue(StairsBlock.SHAPE, StairsShape.OUTER_LEFT)
+                .setValue(StairBlock.FACING, Direction.SOUTH)
+                .setValue(StairBlock.HALF, Half.TOP)
+                .setValue(StairBlock.SHAPE, StairsShape.OUTER_LEFT)
                 .setValue(BlockStateProperties.WATERLOGGED, true);
         StubPump pump = fixture(wet);
         pump.tickUpdate(true);
@@ -80,7 +80,7 @@ public class ElectricOperationalPumpPickupTest {
     @Test public void sourceWaterInsideNonPickupSeagrassIsNotDestroyed() throws Exception {
         StubPump pump = fixture(Blocks.SEAGRASS.defaultBlockState());
         assertTrue(pump.testWorld.getFluidState(SOURCE).isSource());
-        assertFalse(pump.testWorld.getBlockState(SOURCE).getBlock() instanceof IBucketPickupHandler);
+        assertFalse(pump.testWorld.getBlockState(SOURCE).getBlock() instanceof BucketPickup);
         pump.tickUpdate(true);
         assertUntouched(pump, Blocks.SEAGRASS.defaultBlockState(), RESERVE, 0);
     }
@@ -116,7 +116,7 @@ public class ElectricOperationalPumpPickupTest {
 
     @Test public void flowingWaterAndDrySlabsCannotBePickedUpAsSources() throws Exception {
         for (BlockState state : new BlockState[]{
-                Blocks.WATER.defaultBlockState().setValue(FlowingFluidBlock.LEVEL, 1),
+                Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 1),
                 Blocks.OAK_SLAB.defaultBlockState()}) {
             StubPump pump = fixture(state);
             pump.tickUpdate(true);
@@ -130,9 +130,8 @@ public class ElectricOperationalPumpPickupTest {
         world.blocks.put(SOURCE, source);
         StubPump pump = new StubPump();
         pump.testWorld = world;
-        pump.setPosition(PUMP);
         pump.setEnergy(RESERVE, Power.ELECTRIC_POWER);
-        CompoundNBT patch = new CompoundNBT();
+        CompoundTag patch = new CompoundTag();
         patch.putByte("NextPump", (byte)0);
         pump.loadFrom(patch);
         return pump;
@@ -161,16 +160,17 @@ public class ElectricOperationalPumpPickupTest {
     }
 
     private static final class StubPump extends ElectricPumpTileEntity {
+        StubPump() { super(PUMP, new ElectricPumpBlock().defaultBlockState()); }
         PumpWorld testWorld;
         int sounds;
-        @Override public World getLevel() { return testWorld; }
+        @Override public Level getLevel() { return testWorld; }
         @Override protected boolean hasRedstoneSignal() { return false; }
         @Override protected void playSoundEffect(double x, double y, double z, SoundEvent sound, float volume, float pitch) {
             sounds++;
         }
     }
 
-    private static final class PumpWorld extends ServerWorld {
+    private static final class PumpWorld extends ServerLevel {
         Map<BlockPos, BlockState> blocks;
         int writes;
         private PumpWorld() {
@@ -189,7 +189,7 @@ public class ElectricOperationalPumpPickupTest {
         }
     }
 
-    private static final class RefusingSource extends Block implements IBucketPickupHandler {
+    private static final class RefusingSource extends Block implements BucketPickup {
         final boolean returnNull;
         int calls;
         RefusingSource(boolean returnNull) {
@@ -197,9 +197,10 @@ public class ElectricOperationalPumpPickupTest {
             this.returnNull = returnNull;
         }
         @Override public FluidState getFluidState(BlockState state) { return Fluids.WATER.getSource(false); }
-        @Override public Fluid takeLiquid(IWorld world, BlockPos pos, BlockState state) {
+        @Override public net.minecraft.world.item.ItemStack pickupBlock(LevelAccessor world, BlockPos pos, BlockState state) {
             calls++;
-            return returnNull ? null : Fluids.EMPTY;
+            return returnNull ? null : net.minecraft.world.item.ItemStack.EMPTY;
         }
+        @Override public java.util.Optional<SoundEvent> getPickupSound() { return java.util.Optional.empty(); }
     }
 }

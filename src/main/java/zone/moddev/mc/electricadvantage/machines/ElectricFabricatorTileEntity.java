@@ -2,9 +2,9 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.util.crafting.RecipeDeconstructor;
 import zone.moddev.mc.electricadvantage.util.crafting.SerializedInventory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,8 +18,8 @@ public class ElectricFabricatorTileEntity extends ElectricMachineTileEntity {
 	private int progress;
 	private final int progressGoal = 200;
 
-	public ElectricFabricatorTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_FABRICATOR, "tile.electricadvantage.electric_fabricator.name", 12, 2, 1);
+	public ElectricFabricatorTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_FABRICATOR, pos, state, "tile.electricadvantage.electric_fabricator.name", 12, 2, 1);
 	}
 
 
@@ -160,13 +160,13 @@ public class ElectricFabricatorTileEntity extends ElectricMachineTileEntity {
 	}
 
 	@Override
-	protected void saveTo(CompoundNBT tagRoot) {
+	protected void saveTo(CompoundTag tagRoot) {
 		tagRoot.putShort("progress", (short)progress);
 		tagRoot.putByte("FSM", (byte)state.ordinal());
 	}
 
 	@Override
-	protected void loadFrom(CompoundNBT tagRoot) {
+	protected void loadFrom(CompoundTag tagRoot) {
 		if(tagRoot.contains("progress", 99)){
 			this.progress = tagRoot.getShort("progress");
 		}

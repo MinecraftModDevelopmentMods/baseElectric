@@ -8,8 +8,8 @@ import zone.moddev.mc.poweradvantage.init.Fluids;
 public class PlasticRefineryBlock extends ElectricMachineBlock{
 
 	@Override
-	public ElectricMachineTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
-		return new PlasticRefineryTileEntity();
+	public ElectricMachineTileEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		return new PlasticRefineryTileEntity(pos, state);
 	}
 
 	@Override

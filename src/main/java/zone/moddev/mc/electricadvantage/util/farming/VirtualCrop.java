@@ -1,18 +1,18 @@
 package zone.moddev.mc.electricadvantage.util.farming;
 
 import zone.moddev.mc.electricadvantage.util.crafting.ItemRecord;
-import net.minecraft.block.Block;
-import net.minecraft.block.StemBlock;
-import net.minecraft.state.Property;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.StemBlock;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.IPlantable;
 
 import java.lang.reflect.Field;
@@ -32,7 +32,7 @@ public class VirtualCrop {
 		customRecipes.remove(new ItemRecord(seed));
 	}
 	
-	public static VirtualCrop createVirtualCrop(ItemStack stack, World w, BlockPos pos){
+	public static VirtualCrop createVirtualCrop(ItemStack stack, Level w, BlockPos pos){
 		if(stack == null || stack.getItem() == null) return null;
 		ItemRecord r = new ItemRecord(stack);
 		ItemStack seed = stack.copy();
@@ -46,14 +46,14 @@ public class VirtualCrop {
 		}
 		if(customRecipes.get(r) != null){
 			return customRecipes.get(r).copy();
-		} else if(i == net.minecraft.block.Blocks.SUGAR_CANE.asItem()
-				|| b instanceof net.minecraft.block.MushroomBlock
-				|| b instanceof net.minecraft.block.CactusBlock
-				|| (b instanceof net.minecraft.block.BushBlock
-						&& !(b instanceof net.minecraft.block.CropsBlock) && !(b instanceof StemBlock))
-				|| b instanceof net.minecraft.block.GrassBlock
-				|| b instanceof net.minecraft.block.VineBlock
-				|| b instanceof net.minecraft.block.LilyPadBlock){
+		} else if(i == net.minecraft.world.level.block.Blocks.SUGAR_CANE.asItem()
+				|| b instanceof net.minecraft.world.level.block.MushroomBlock
+				|| b instanceof net.minecraft.world.level.block.CactusBlock
+				|| (b instanceof net.minecraft.world.level.block.BushBlock
+						&& !(b instanceof net.minecraft.world.level.block.CropBlock) && !(b instanceof StemBlock))
+				|| b instanceof net.minecraft.world.level.block.GrassBlock
+				|| b instanceof net.minecraft.world.level.block.VineBlock
+				|| b instanceof net.minecraft.world.level.block.WaterlilyBlock){
 			// duplicate
 			ItemStack product = seed.copy();
 			product.setCount(2);
@@ -114,9 +114,9 @@ public class VirtualCrop {
 		return startingState;
 	}
 
-	private static List<ItemStack> getDrops(BlockState state, World world, BlockPos pos) {
-		if (!(world instanceof net.minecraft.world.server.ServerWorld)) return Collections.emptyList();
-		return Block.getDrops(state, (net.minecraft.world.server.ServerWorld) world, pos, null);
+	private static List<ItemStack> getDrops(BlockState state, Level world, BlockPos pos) {
+		if (!(world instanceof net.minecraft.server.level.ServerLevel)) return Collections.emptyList();
+		return Block.getDrops(state, (net.minecraft.server.level.ServerLevel) world, pos, null);
 	}
 	
 	private final byte numberOfStages;

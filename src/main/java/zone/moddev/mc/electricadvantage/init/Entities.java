@@ -1,11 +1,10 @@
 package zone.moddev.mc.electricadvantage.init;
 
-import java.util.function.Supplier;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -31,28 +30,28 @@ import zone.moddev.mc.electricadvantage.machines.SteamPoweredElectricGeneratorTi
 /** Stable tile/entity registrations; IDs are unchanged from 1.12. */
 @Mod.EventBusSubscriber(modid = ElectricAdvantage.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class Entities {
-    public static TileEntityType<ElectricFurnaceTileEntity> ELECTRIC_FURNACE;
-    public static TileEntityType<ElectricCrusherTileEntity> ELECTRIC_CRUSHER;
-    public static TileEntityType<ElectricDrillTileEntity> ELECTRIC_DRILL;
-    public static TileEntityType<ElectricFabricatorTileEntity> ELECTRIC_FABRICATOR;
-    public static TileEntityType<GrowthChamberTileEntity> GROWTH_CHAMBER;
-    public static TileEntityType<GrowthChamberControllerTileEntity> GROWTH_CHAMBER_CONTROLLER;
-    public static TileEntityType<ElectricOvenTileEntity> ELECTRIC_OVEN;
-    public static TileEntityType<LaserTurretTileEntity> LASER_TURRET;
-    public static TileEntityType<LEDTileEntity> LED;
-    public static TileEntityType<HydroelectricGeneratorTileEntity> HYDROELECTRIC_GENERATOR;
-    public static TileEntityType<PhotovoltaicGeneratorTileEntity> PHOTOVOLTAIC_GENERATOR;
-    public static TileEntityType<SteamPoweredElectricGeneratorTileEntity> STEAM_POWERED_ELECTRIC_GENERATOR;
-    public static TileEntityType<ElectricBatteryArrayTileEntity> ELECTRIC_BATTERY_ARRAY;
-    public static TileEntityType<ElectricPumpTileEntity> ELECTRIC_PUMP;
-    public static TileEntityType<ElectricStillTileEntity> ELECTRIC_STILL;
-    public static TileEntityType<PlasticRefineryTileEntity> PLASTIC_REFINERY;
+    public static BlockEntityType<ElectricFurnaceTileEntity> ELECTRIC_FURNACE;
+    public static BlockEntityType<ElectricCrusherTileEntity> ELECTRIC_CRUSHER;
+    public static BlockEntityType<ElectricDrillTileEntity> ELECTRIC_DRILL;
+    public static BlockEntityType<ElectricFabricatorTileEntity> ELECTRIC_FABRICATOR;
+    public static BlockEntityType<GrowthChamberTileEntity> GROWTH_CHAMBER;
+    public static BlockEntityType<GrowthChamberControllerTileEntity> GROWTH_CHAMBER_CONTROLLER;
+    public static BlockEntityType<ElectricOvenTileEntity> ELECTRIC_OVEN;
+    public static BlockEntityType<LaserTurretTileEntity> LASER_TURRET;
+    public static BlockEntityType<LEDTileEntity> LED;
+    public static BlockEntityType<HydroelectricGeneratorTileEntity> HYDROELECTRIC_GENERATOR;
+    public static BlockEntityType<PhotovoltaicGeneratorTileEntity> PHOTOVOLTAIC_GENERATOR;
+    public static BlockEntityType<SteamPoweredElectricGeneratorTileEntity> STEAM_POWERED_ELECTRIC_GENERATOR;
+    public static BlockEntityType<ElectricBatteryArrayTileEntity> ELECTRIC_BATTERY_ARRAY;
+    public static BlockEntityType<ElectricPumpTileEntity> ELECTRIC_PUMP;
+    public static BlockEntityType<ElectricStillTileEntity> ELECTRIC_STILL;
+    public static BlockEntityType<PlasticRefineryTileEntity> PLASTIC_REFINERY;
     public static EntityType<HydroturbineEntity> HYDROTURBINE;
 
     private Entities() {}
     public static void init() {}
 
-    @SubscribeEvent public static void registerTiles(RegistryEvent.Register<TileEntityType<?>> event) {
+    @SubscribeEvent public static void registerTiles(RegistryEvent.Register<BlockEntityType<?>> event) {
         ELECTRIC_FURNACE = tile(event, "electric_furnace", ElectricFurnaceTileEntity::new, Blocks.arc_furnace);
         ELECTRIC_CRUSHER = tile(event, "electric_crusher", ElectricCrusherTileEntity::new, Blocks.rock_crusher);
         ELECTRIC_DRILL = tile(event, "electric_drill", ElectricDrillTileEntity::new, Blocks.laser_drill);
@@ -73,7 +72,7 @@ public final class Entities {
 
     @SubscribeEvent public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
         HYDROTURBINE = EntityType.Builder.<HydroturbineEntity>of(
-                HydroturbineEntity::new, EntityClassification.MISC)
+                HydroturbineEntity::new, MobCategory.MISC)
                 .sized(0.9375F, 0.9375F)
                 .setTrackingRange(64).setUpdateInterval(1).setShouldReceiveVelocityUpdates(true)
                 .build(ElectricAdvantage.MODID + ":hydroturbine");
@@ -81,10 +80,10 @@ public final class Entities {
         event.getRegistry().register(HYDROTURBINE);
     }
 
-    private static <T extends TileEntity> TileEntityType<T> tile(
-            RegistryEvent.Register<TileEntityType<?>> event, String id, Supplier<? extends T> factory,
-            net.minecraft.block.Block... blocks) {
-        TileEntityType<T> type = TileEntityType.Builder.<T>of(factory, blocks).build(null);
+    private static <T extends BlockEntity> BlockEntityType<T> tile(
+            RegistryEvent.Register<BlockEntityType<?>> event, String id, BlockEntityType.BlockEntitySupplier<T> factory,
+            net.minecraft.world.level.block.Block... blocks) {
+        BlockEntityType<T> type = BlockEntityType.Builder.<T>of(factory, blocks).build(null);
         type.setRegistryName(ElectricAdvantage.MODID, id);
         event.getRegistry().register(type);
         return type;

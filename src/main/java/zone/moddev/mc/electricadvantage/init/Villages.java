@@ -1,11 +1,11 @@
 package zone.moddev.mc.electricadvantage.init;
 
 import java.util.List;
-import net.minecraft.entity.merchant.villager.VillagerProfession;
-import net.minecraft.entity.merchant.villager.VillagerTrades;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.MerchantOffer;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 
@@ -23,8 +23,8 @@ public final class Villages {
 
     public static void addTrades(VillagerTradesEvent event) {
         if (event.getType() != VillagerProfession.LIBRARIAN) return;
-        List<VillagerTrades.ITrade> novice = event.getTrades().get(1);
-        List<VillagerTrades.ITrade> apprentice = event.getTrades().get(2);
+        List<VillagerTrades.ItemListing> novice = event.getTrades().get(1);
+        List<VillagerTrades.ItemListing> apprentice = event.getTrades().get(2);
         novice.add(sell(Blocks.electric_conduit.asItem(), -6, -3));
         novice.add(sell(Items.solder, -10, -5));
         novice.add(sell(Items.integrated_circuit, -6, -3));
@@ -33,12 +33,12 @@ public final class Villages {
         apprentice.add(sell(Items.power_supply_unit, 1, 3));
     }
 
-    static VillagerTrades.ITrade sell(Item item, int minimumPrice, int maximumPrice) {
+    static VillagerTrades.ItemListing sell(Item item, int minimumPrice, int maximumPrice) {
         return (villager, random) -> {
             int price = minimumPrice + random.nextInt(maximumPrice - minimumPrice + 1);
             int emeralds = price < 0 ? 1 : price;
             int count = price < 0 ? -price : 1;
-            return new MerchantOffer(new ItemStack(net.minecraft.item.Items.EMERALD, emeralds),
+            return new MerchantOffer(new ItemStack(net.minecraft.world.item.Items.EMERALD, emeralds),
                     new ItemStack(item, count), 7, 1, 0.0F);
         };
     }

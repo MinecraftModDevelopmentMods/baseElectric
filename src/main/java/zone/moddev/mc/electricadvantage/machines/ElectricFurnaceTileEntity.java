@@ -3,10 +3,10 @@ package zone.moddev.mc.electricadvantage.machines;
 import java.util.Arrays;
 
 import zone.moddev.mc.electricadvantage.init.Power;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.ShortNBT;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.ShortTag;
 
 public class ElectricFurnaceTileEntity extends ElectricMachineTileEntity{
 
@@ -19,8 +19,8 @@ public class ElectricFurnaceTileEntity extends ElectricMachineTileEntity{
 	private final short totalBurnTime = 200;
 
 
-	public ElectricFurnaceTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_FURNACE, "tile.electricadvantage.electric_furnace.name",
+	public ElectricFurnaceTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_FURNACE, pos, state, "tile.electricadvantage.electric_furnace.name",
 				4, 6, 0);
 		Arrays.fill(burnTime, (short)0);
 	}
@@ -96,19 +96,19 @@ public class ElectricFurnaceTileEntity extends ElectricMachineTileEntity{
 
 
 	@Override
-	protected void saveTo(CompoundNBT tagRoot) {
-		ListNBT burnTimes = new ListNBT();
+	protected void saveTo(CompoundTag tagRoot) {
+		ListTag burnTimes = new ListTag();
 		for(int i = 0; i < numberOfInputSlots(); i++){
-			burnTimes.add(ShortNBT.valueOf(burnTime[i]));
+			burnTimes.add(ShortTag.valueOf(burnTime[i]));
 		}
 		tagRoot.put("cookTime", burnTimes);
 	}
 
 	@Override
-	protected void loadFrom(CompoundNBT tagRoot) {
-		ListNBT burnTimes = tagRoot.getList("cookTime", 2);
+	protected void loadFrom(CompoundTag tagRoot) {
+		ListTag burnTimes = tagRoot.getList("cookTime", 2);
 		for(int i = 0; i < numberOfInputSlots() && i < burnTimes.size(); i++){
-			burnTime[i] = ((ShortNBT)burnTimes.get(i)).getAsShort();
+			burnTime[i] = ((ShortTag)burnTimes.get(i)).getAsShort();
 		}
 	}
 

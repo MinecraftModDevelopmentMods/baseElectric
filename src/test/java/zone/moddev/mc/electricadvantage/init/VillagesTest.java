@@ -1,16 +1,16 @@
 package zone.moddev.mc.electricadvantage.init;
 
 import java.util.Random;
-import net.minecraft.item.MerchantOffer;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.registry.Bootstrap;
+import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.Bootstrap;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class VillagesTest {
     @BeforeClass public static void bootstrapVanillaItems() {
-        Bootstrap.bootStrap();
+        net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap();
     }
 
     @Test public void nativeNegativePricesKeepBulkGoodsForOneEmerald() {
@@ -31,9 +31,9 @@ public class VillagesTest {
         Random random = new Random(0L) {
             @Override public int nextInt(int bound) { return upper ? bound - 1 : 0; }
         };
-        MerchantOffer offer = Villages.sell(net.minecraft.item.Items.APPLE, minimum, maximum)
+        MerchantOffer offer = Villages.sell(net.minecraft.world.item.Items.APPLE, minimum, maximum)
                 .getOffer(null, random);
-        CompoundNBT nbt = offer.createTag();
+        CompoundTag nbt = offer.createTag();
         assertEquals("minecraft:emerald", nbt.getCompound("buy").getString("id"));
         assertEquals(emeralds, nbt.getCompound("buy").getByte("Count"));
         assertEquals("minecraft:apple", nbt.getCompound("sell").getString("id"));

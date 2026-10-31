@@ -1,17 +1,22 @@
 package zone.moddev.mc.electricadvantage.machines;
 
 import cyano.poweradvantage.api.ConduitType;
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import zone.moddev.mc.electricadvantage.init.Entities;
 import zone.moddev.mc.electricadvantage.blocks.ElectricConduitBlock;
 
 /** Electric conduit that consumes a small amount of power to emit light. */
-public class LEDBlock extends ElectricConduitBlock implements ITileEntityProvider {
+public class LEDBlock extends ElectricConduitBlock implements EntityBlock {
     public static final BooleanProperty LIT = BooleanProperty.create("lit");
 
     public LEDBlock() {
@@ -23,17 +28,22 @@ public class LEDBlock extends ElectricConduitBlock implements ITileEntityProvide
     }
 
     @Override
-    public TileEntity newBlockEntity(IBlockReader world) {
-        return new LEDTileEntity();
+    public BlockEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+        return new LEDTileEntity(pos, state);
     }
 
     @Override
-    public int getLightValue(BlockState state, IBlockReader world, net.minecraft.util.math.BlockPos pos) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return type == Entities.LED ? (world, pos, blockState, tile) -> ((LEDTileEntity) tile).tick() : null;
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter world, BlockPos pos) {
         return state.getBlock() == this && state.getValue(LIT) ? 15 : 0;
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(LIT);
     }

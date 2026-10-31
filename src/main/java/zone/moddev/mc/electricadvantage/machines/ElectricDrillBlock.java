@@ -5,24 +5,24 @@ import cyano.poweradvantage.api.GUIBlock;
 import cyano.poweradvantage.api.ITypedConduit;
 import cyano.poweradvantage.api.PowerConnectorContext;
 import cyano.poweradvantage.api.PoweredEntity;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import zone.moddev.mc.electricadvantage.init.Power;
 import zone.moddev.mc.poweradvantage.conduitnetwork.ConduitRegistry;
 
@@ -40,17 +40,17 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(ACTIVE, FACING);
     }
 
     @Override
-    public ElectricMachineTileEntity newBlockEntity(IBlockReader world) {
-        return new ElectricDrillTileEntity();
+    public ElectricMachineTileEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+        return new ElectricDrillTileEntity(pos, state);
     }
 
     @Override
-    public void onPlace(BlockState state, World world, BlockPos pos, BlockState oldState, boolean isMoving) {
+    public void onPlace(BlockState state, Level world, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, world, pos, oldState, isMoving);
         if (state.getBlock() == oldState.getBlock()) return;
         ConduitRegistry.getInstance().conduitBlockPlacedEvent(
@@ -58,13 +58,13 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     }
 
     @Override
-    public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.getBlock() != newState.getBlock()) {
             ConduitRegistry.getInstance().conduitBlockRemovedEvent(
                     world, pos, Power.ELECTRIC_POWER);
-            TileEntity tile = world.getBlockEntity(pos);
-            if (tile instanceof IInventory) {
-                InventoryHelper.dropContents(world, pos, (IInventory) tile);
+            BlockEntity tile = world.getBlockEntity(pos);
+            if (tile instanceof Container) {
+                Containers.dropContents(world, pos, (Container) tile);
                 world.updateNeighbourForOutputSignal(pos, this);
             }
         }
@@ -72,7 +72,7 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     }
 
     @Override
-    public void wasExploded(World world, BlockPos pos, Explosion explosion) {
+    public void wasExploded(Level world, BlockPos pos, Explosion explosion) {
         ConduitRegistry.getInstance().conduitBlockRemovedEvent(
                 world, pos, Power.ELECTRIC_POWER);
         super.wasExploded(world, pos, explosion);
@@ -99,15 +99,15 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(FACING, context.getClickedFace().getOpposite());
     }
 
     @Override
-    public void setPlacedBy(World world, BlockPos pos, BlockState state,
+    public void setPlacedBy(Level world, BlockPos pos, BlockState state,
                                 LivingEntity placer, ItemStack stack) {
         if (stack.hasCustomHoverName()) {
-            TileEntity tile = world.getBlockEntity(pos);
+            BlockEntity tile = world.getBlockEntity(pos);
             if (tile instanceof PoweredEntity) {
                 ((PoweredEntity) tile).setCustomInventoryName(stack.getHoverName().getString());
             }
@@ -126,8 +126,8 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, World world, BlockPos pos) {
-        TileEntity tile = world.getBlockEntity(pos);
+    public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
+        BlockEntity tile = world.getBlockEntity(pos);
         return tile instanceof ElectricMachineTileEntity
                 ? ((ElectricMachineTileEntity) tile).getComparatorOutput() : 0;
     }

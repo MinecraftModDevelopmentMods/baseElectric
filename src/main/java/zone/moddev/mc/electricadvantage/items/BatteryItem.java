@@ -3,20 +3,20 @@ package zone.moddev.mc.electricadvantage.items;
 import zone.moddev.mc.electricadvantage.common.IRechargeableItem;
 import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Item;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 
 import java.text.NumberFormat;
 import java.util.List;
 
 
-public class BatteryItem extends net.minecraft.item.Item implements IRechargeableItem {
+public class BatteryItem extends net.minecraft.world.item.Item implements IRechargeableItem {
 	private final float capacity;
 	private final NumberFormat nf;
 	
@@ -32,7 +32,7 @@ public class BatteryItem extends net.minecraft.item.Item implements IRechargeabl
 	public float getEnergy(ItemStack stack) {
 		if(stack.getItem() instanceof IRechargeableItem){
 			BatteryItem battery = (BatteryItem)stack.getItem();
-			CompoundNBT dataTag;
+			CompoundTag dataTag;
 			if(!stack.hasTag()){
 				return battery.capacity; // new battery starts with 100% charge
 			} else {
@@ -50,7 +50,7 @@ public class BatteryItem extends net.minecraft.item.Item implements IRechargeabl
 	@Override
 	public void setEnergy(ItemStack stack, float energy){
 		if(stack.getItem() instanceof BatteryItem){
-			CompoundNBT dataTag;
+			CompoundTag dataTag;
 			dataTag = stack.getOrCreateTag();
 			dataTag.putFloat("energy", energy);
 			stack.setTag(dataTag);
@@ -66,7 +66,7 @@ public class BatteryItem extends net.minecraft.item.Item implements IRechargeabl
 	public float addEnergy(ItemStack stack, float energy, ConduitType type){
 		if(ConduitType.areSameType(type, Power.ELECTRIC_POWER) && stack.getItem() instanceof BatteryItem){
 			BatteryItem battery = (BatteryItem)stack.getItem();
-			CompoundNBT dataTag;
+			CompoundTag dataTag;
 			dataTag = stack.getOrCreateTag();
 			float currentEnergy;
 			if(dataTag.contains("energy", 99)){
@@ -95,15 +95,15 @@ public class BatteryItem extends net.minecraft.item.Item implements IRechargeabl
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, World world, List<ITextComponent> list, ITooltipFlag flag){
+	public void appendHoverText(ItemStack stack, Level world, List<Component> list, TooltipFlag flag){
 		super.appendHoverText(stack, world, list, flag);
 		float max = getMaxEnergy(stack);
 		if(max <= 0) return; // not a battery!
 		float e = getEnergy(stack);
-		list.add(new StringTextComponent(nf.format(100 * e / max) + "% ")
-				.append(new TranslationTextComponent("tooltip.battery.charge")));
-		list.add(new StringTextComponent("(" + nf.format(max) + "kJ ")
-				.append(new TranslationTextComponent("tooltip.battery.capacity"))
+		list.add(new TextComponent(nf.format(100 * e / max) + "% ")
+				.append(new TranslatableComponent("tooltip.battery.charge")));
+		list.add(new TextComponent("(" + nf.format(max) + "kJ ")
+				.append(new TranslatableComponent("tooltip.battery.capacity"))
 				.append(")"));
 	}
 }

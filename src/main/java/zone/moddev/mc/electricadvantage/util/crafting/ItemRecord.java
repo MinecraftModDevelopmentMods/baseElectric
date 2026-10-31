@@ -1,6 +1,6 @@
 package zone.moddev.mc.electricadvantage.util.crafting;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /** Flattened-item key used by the fabricator's serialized inventory. */
 public final class ItemRecord {

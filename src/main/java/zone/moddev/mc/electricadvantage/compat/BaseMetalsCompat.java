@@ -1,14 +1,14 @@
 package zone.moddev.mc.electricadvantage.compat;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
 import zone.moddev.mc.basemetals.recipe.CrushingRecipe;
@@ -27,16 +27,16 @@ public final class BaseMetalsCompat {
     public static void addCrusherRecipe(Block input, ItemStack output) {}
     public static void registerOreDictionaryCopies(String target, String... sources) {}
 
-    public static boolean hasCrusherRecipe(World world, ItemStack input) {
+    public static boolean hasCrusherRecipe(Level world, ItemStack input) {
         return getCrusherRecipeOutput(world, input) != null;
     }
 
-    public static ItemStack getCrusherRecipeOutput(World world, ItemStack input) {
+    public static ItemStack getCrusherRecipeOutput(Level world, ItemStack input) {
         if (world == null || input == null || input.isEmpty()) return null;
         if (isLoaded()) {
-            Inventory inventory = new Inventory(1);
+            SimpleContainer inventory = new SimpleContainer(1);
             inventory.setItem(0, input.copy());
-            for (IRecipe<?> candidate : world.getRecipeManager().getRecipes()) {
+            for (Recipe<?> candidate : world.getRecipeManager().getRecipes()) {
                 if (candidate instanceof CrushingRecipe && ((CrushingRecipe) candidate).matches(inventory, world)) {
                     return candidate.getResultItem().copy();
                 }
@@ -45,7 +45,7 @@ public final class BaseMetalsCompat {
         return getVanillaCrusherOutput(input);
     }
 
-    public static ItemStack getCrusherRecipeOutput(World world, BlockState input) {
+    public static ItemStack getCrusherRecipeOutput(Level world, BlockState input) {
         return input == null ? null : getCrusherRecipeOutput(world, new ItemStack(input.getBlock()));
     }
 

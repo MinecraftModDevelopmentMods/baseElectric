@@ -1,18 +1,18 @@
 package zone.moddev.mc.electricadvantage.graphics;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 /** Preserves the legacy quad coordinates and UVs in the native entity vertex format. */
 final class BufferedQuads {
-    private final MatrixStack.Entry transform;
-    private final IVertexBuilder buffer;
+    private final PoseStack.Pose transform;
+    private final VertexConsumer buffer;
     private final int light;
     private final int overlay;
     private final float[][] vertices = new float[4][5];
     private int count;
 
-    BufferedQuads(MatrixStack matrices, IVertexBuilder buffer, int light, int overlay) {
+    BufferedQuads(PoseStack matrices, VertexConsumer buffer, int light, int overlay) {
         this.transform = matrices.last();
         this.buffer = buffer;
         this.light = light;

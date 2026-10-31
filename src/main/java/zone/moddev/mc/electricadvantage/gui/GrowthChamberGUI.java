@@ -4,7 +4,7 @@ import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.machines.ElectricMachineTileEntity;
 import cyano.poweradvantage.api.simple.SimpleMachineGUI;
 import zone.moddev.mc.poweradvantage.math.Integer2D;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class GrowthChamberGUI extends SimpleMachineGUI{
 

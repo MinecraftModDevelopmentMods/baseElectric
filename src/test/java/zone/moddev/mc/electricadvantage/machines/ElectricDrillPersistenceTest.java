@@ -1,10 +1,10 @@
 package zone.moddev.mc.electricadvantage.machines;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Bootstrap;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.Bootstrap;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -15,34 +15,34 @@ import org.junit.BeforeClass;
 import static org.junit.Assert.assertEquals;
 
 public class ElectricDrillPersistenceTest {
-    @BeforeClass public static void bootstrapNativeRegistries() { Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrapNativeRegistries() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
 
     @Test public void retainsLegacyProgressUntilWorldIsAttached() {
-        ElectricDrillTileEntity drill = new ElectricDrillTileEntity();
-        drill.load(new ElectricDrillBlock().defaultBlockState(), target(94));
+        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.electricadvantage.machines.ElectricDrillBlock().defaultBlockState());
+        drill.load(target(94));
         drill.prepareDataFieldsForSync();
         assertEquals(94, drill.getDataFieldArray()[1]);
     }
 
     @Test public void clearsPreviousProgressOnReadingAnUntargetedTile() {
-        ElectricDrillTileEntity drill = new ElectricDrillTileEntity();
-        drill.load(new ElectricDrillBlock().defaultBlockState(), target(94));
-        drill.load(new ElectricDrillBlock().defaultBlockState(), new CompoundNBT());
+        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.electricadvantage.machines.ElectricDrillBlock().defaultBlockState());
+        drill.load(target(94));
+        drill.load(new CompoundTag());
         drill.prepareDataFieldsForSync();
         assertEquals(0, drill.getDataFieldArray()[1]);
     }
 
     @Test public void preservesPendingTargetSnapshotAcrossRepeatedReadSave() {
-        CompoundNBT source = target(94);
-        CompoundNBT state = new CompoundNBT();
+        CompoundTag source = target(94);
+        CompoundTag state = new CompoundTag();
         state.putString("Name", "minecraft:stone");
-        ListNBT states = new ListNBT();
+        ListTag states = new ListTag();
         for (int i = 0; i < 9; i++) states.add(state.copy());
         source.put("TargetStates", states);
         for (int pass = 0; pass < 3; pass++) {
-            ElectricDrillTileEntity drill = new ElectricDrillTileEntity();
+            ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.electricadvantage.machines.ElectricDrillBlock().defaultBlockState());
             drill.loadFrom(source);
-            CompoundNBT saved = new CompoundNBT();
+            CompoundTag saved = new CompoundTag();
             drill.saveTo(saved);
             assertEquals(source, saved);
             source = saved;
@@ -50,7 +50,7 @@ public class ElectricDrillPersistenceTest {
     }
 
     @Test public void targetPlaneRemainsNineUniqueBlocksForEveryDrillDirection() throws Exception {
-        ElectricDrillTileEntity drill = new ElectricDrillTileEntity();
+        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.electricadvantage.machines.ElectricDrillBlock().defaultBlockState());
         Field facing = ElectricDrillTileEntity.class.getDeclaredField("facingCache");
         facing.setAccessible(true);
         Method area = ElectricDrillTileEntity.class.getDeclaredMethod("getArea", BlockPos.class);
@@ -72,8 +72,8 @@ public class ElectricDrillPersistenceTest {
     }
 
     @Test public void nativeDataFieldsRetainEnergyAndMiningProgress() {
-        ElectricDrillTileEntity drill = new ElectricDrillTileEntity();
-        drill.load(new ElectricDrillBlock().defaultBlockState(), target(94));
+        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.electricadvantage.machines.ElectricDrillBlock().defaultBlockState());
+        drill.load(target(94));
         drill.setEnergy(416.0F, drill.getEnergyType());
         drill.prepareDataFieldsForSync();
         assertEquals(416.0F, Float.intBitsToFloat(drill.getDataFieldArray()[0]), 0.0F);
@@ -83,8 +83,8 @@ public class ElectricDrillPersistenceTest {
         assertEquals(6, drill.numberOfOutputSlots());
     }
 
-    private static CompoundNBT target(int progress) {
-        CompoundNBT tag = new CompoundNBT();
+    private static CompoundTag target(int progress) {
+        CompoundTag tag = new CompoundTag();
         tag.putShort("progress", (short) progress);
         tag.putInt("targetX", 2048);
         tag.putInt("targetY", 80);

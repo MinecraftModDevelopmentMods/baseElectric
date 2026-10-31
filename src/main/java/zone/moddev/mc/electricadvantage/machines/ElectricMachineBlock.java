@@ -2,18 +2,18 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.simple.BlockSimplePowerMachine;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.BlockState;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import zone.moddev.mc.electricadvantage.init.Power;
 
 public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
@@ -46,7 +46,7 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(ACTIVE, FACING, POWERED);
     }
 
@@ -85,11 +85,11 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
     }
 
     @Override
-    public abstract ElectricMachineTileEntity newBlockEntity(IBlockReader world);
+    public abstract ElectricMachineTileEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state);
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, World world, BlockPos pos) {
-        TileEntity tile = world.getBlockEntity(pos);
+    public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos) {
+        BlockEntity tile = world.getBlockEntity(pos);
         return tile instanceof ElectricMachineTileEntity
                 ? ((ElectricMachineTileEntity) tile).getComparatorOutput() : 0;
     }
@@ -100,12 +100,12 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
     }
 
     @Override
-    public void onRemove(BlockState state, World world, BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
         if (state.getBlock() != newState.getBlock()) {
-            TileEntity tile = world.getBlockEntity(pos);
-            if (tile instanceof IInventory) {
-                InventoryHelper.dropContents(world, pos, (IInventory) tile);
-                ((IInventory) tile).clearContent();
+            BlockEntity tile = world.getBlockEntity(pos);
+            if (tile instanceof Container) {
+                Containers.dropContents(world, pos, (Container) tile);
+                ((Container) tile).clearContent();
                 world.updateNeighbourForOutputSignal(pos, this);
             }
         }

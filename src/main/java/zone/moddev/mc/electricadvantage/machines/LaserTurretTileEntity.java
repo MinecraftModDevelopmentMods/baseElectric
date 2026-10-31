@@ -2,28 +2,31 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.electricadvantage.init.Power;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.scores.Team;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -31,7 +34,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LaserTurretTileEntity extends ElectricMachineTileEntity implements ITickableTileEntity{
+public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 
 	private final SoundEvent LASER_SOUND;
 
@@ -75,15 +78,16 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	/** used by renderer to draw laser line */
 	public double laserBlastLength = 0;
 	
-	private Vector3d opticPosition = null;
+	private Vec3 opticPosition = null;
 	
 	/** rotation speed (non-idle), in degrees per tick */
 	public final float speed = 9f;
 
 
-	public LaserTurretTileEntity(){
-		super(zone.moddev.mc.electricadvantage.init.Entities.LASER_TURRET, "tile.electricadvantage.laser_turret.name",MAX_BUFFER,0,0,0);
-		SoundEvent soundEvent = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(ElectricAdvantage.INSTANCE.LASER_SOUND));
+	public LaserTurretTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state){
+		super(zone.moddev.mc.electricadvantage.init.Entities.LASER_TURRET, pos, state, "tile.electricadvantage.laser_turret.name",MAX_BUFFER,0,0,0);
+		SoundEvent soundEvent = ElectricAdvantage.INSTANCE == null ? SoundEvents.NOTE_BLOCK_BASS
+				: ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(ElectricAdvantage.INSTANCE.LASER_SOUND));
 		if(soundEvent == null){
 			LASER_SOUND = SoundEvents.ENDERMAN_TELEPORT;
 		} else {
@@ -98,7 +102,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	
 	@Override
 	public void tickUpdate(boolean b) {
-		World w = getLevel();
+		Level w = getLevel();
 		if(laserAttack > 0){
 			laserAttack--;
 		}
@@ -157,13 +161,13 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 					double x = this.getOpticPosition().x;
 					double y = this.getOpticPosition().y;
 					double z = this.getOpticPosition().z;
-					List<LivingEntity> entities = w.getEntitiesOfClass(LivingEntity.class, new AxisAlignedBB(x-TARGET_RANGE, y-TARGET_RANGE, z-TARGET_RANGE, x+TARGET_RANGE, y+TARGET_RANGE, z+TARGET_RANGE));
+					List<LivingEntity> entities = w.getEntitiesOfClass(LivingEntity.class, new AABB(x-TARGET_RANGE, y-TARGET_RANGE, z-TARGET_RANGE, x+TARGET_RANGE, y+TARGET_RANGE, z+TARGET_RANGE));
 					final double maxRangeSquared = TARGET_RANGE * TARGET_RANGE;
 					if(isEvil){
 						for (Entity e : entities) {
 							if (!(
-									e.getType().getCategory() == EntityClassification.MONSTER
-									|| e.getType().getCategory() == EntityClassification.AMBIENT
+									e.getType().getCategory() == MobCategory.MONSTER
+									|| e.getType().getCategory() == MobCategory.AMBIENT
 								)
 							) {
 								if (canSeeEntity(e)) {
@@ -175,13 +179,13 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 					} else {
 						for (Entity e : entities) {
 							if (e.position().distanceToSqr(getOpticPosition()) > maxRangeSquared) continue;
-							if (e instanceof PlayerEntity) {
-								if (isEnemy((PlayerEntity) e)) {
+							if (e instanceof Player) {
+								if (isEnemy((Player) e)) {
 									setTarget(e);
 									break;
 								}
 							}
-							if (e.getType().getCategory() == EntityClassification.MONSTER) {
+							if (e.getType().getCategory() == MobCategory.MONSTER) {
 								if (canSeeEntity(e)) {
 									setTarget(e);
 									break;
@@ -222,7 +226,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		}
 	}
 	
-	private boolean isEnemy(PlayerEntity player) {
+	private boolean isEnemy(Player player) {
 		if(player.isCreative()) return false;
 		if(this.teamIdentity == null || this.teamIdentity.isEmpty()){
 			return false;
@@ -240,19 +244,19 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	
 	
 	private List<Entity> getLaserAttackVictims(){
-		final Vector3d origin = getOpticPosition();
-		final Vector3d dir;
-		final World w = getLevel();
+		final Vec3 origin = getOpticPosition();
+		final Vec3 dir;
+		final Level w = getLevel();
 		final Entity e = w.getEntity(targetID);
 		if(e != null){
 			dir = e.position().add(0, 0.5*e.getBbHeight(), 0).subtract(origin).normalize();
 		} else {
-			dir = (new Vector3d(Math.cos(DEGREES_TO_RADIANS * rotYaw),Math.sin(rotPitch),Math.sin(rotYaw))).normalize();
+			dir = (new Vec3(Math.cos(DEGREES_TO_RADIANS * rotYaw),Math.sin(rotPitch),Math.sin(rotYaw))).normalize();
 		}
-		final Vector3d terminus = followRayToSolidBlock(origin,dir,ATTACK_RANGE);
+		final Vec3 terminus = followRayToSolidBlock(origin,dir,ATTACK_RANGE);
 		final double maxDistSqr = origin.distanceToSqr(terminus);
 		final double maxDist = Math.sqrt(maxDistSqr);
-		List<LivingEntity> potentialVictims = w.getEntitiesOfClass(LivingEntity.class, new AxisAlignedBB(
+		List<LivingEntity> potentialVictims = w.getEntitiesOfClass(LivingEntity.class, new AABB(
 				origin.x - maxDist, origin.y - maxDist, origin.z - maxDist,
 				origin.x + maxDist, origin.y + maxDist, origin.z + maxDist));
 		List<Entity> victims = new ArrayList<>();
@@ -276,7 +280,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 				getLevel().setBlockAndUpdate(bp, Blocks.FIRE.defaultBlockState());
 			}
 			if(playerOwner != null && !playerOwner.isEmpty()){
-				for (PlayerEntity player : getLevel().players()) {
+				for (Player player : getLevel().players()) {
 					if (playerOwner.equals(player.getName().getString())) {
 						((LivingEntity) e).setLastHurtByMob(player);
 						break;
@@ -286,40 +290,40 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		}
 	}
 	
-	private Vector3d calculateLaserTerminus(){
-		Vector3d dir;
-		World w = getLevel();
+	private Vec3 calculateLaserTerminus(){
+		Vec3 dir;
+		Level w = getLevel();
 		Entity e = w.getEntity(targetID);
 		if(e != null){
 			dir = e.position().add(0, 0.5*e.getBbHeight(), 0).subtract(this.getOpticPosition()).normalize();
 		} else {
-			dir = (new Vector3d(Math.cos(DEGREES_TO_RADIANS * rotYaw),Math.sin(rotPitch),Math.sin(rotYaw))).normalize();
+			dir = (new Vec3(Math.cos(DEGREES_TO_RADIANS * rotYaw),Math.sin(rotPitch),Math.sin(rotYaw))).normalize();
 		}
 		return followRayToSolidBlock(getOpticPosition(),dir,ATTACK_RANGE);
 	}
-	private Vector3d followRayToSolidBlock(Vector3d origin, Vector3d dir, double maxRange){
-		Vector3d max = origin.add(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
-		BlockRayTraceResult impact = getLevel().clip(new RayTraceContext(origin, max,
-				RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.SOURCE_ONLY, null) {
-			@Override public VoxelShape getBlockShape(BlockState state, IBlockReader world, BlockPos pos) {
+	private Vec3 followRayToSolidBlock(Vec3 origin, Vec3 dir, double maxRange){
+		Vec3 max = origin.add(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
+		BlockHitResult impact = getLevel().clip(new ClipContext(origin, max,
+				ClipContext.Block.COLLIDER, ClipContext.Fluid.SOURCE_ONLY, null) {
+			@Override public VoxelShape getBlockShape(BlockState state, BlockGetter world, BlockPos pos) {
 				// The optic is inside our collision post; ignore only this block, not nearby cover.
-				return pos.equals(LaserTurretTileEntity.this.getBlockPos()) ? VoxelShapes.empty()
+				return pos.equals(LaserTurretTileEntity.this.getBlockPos()) ? Shapes.empty()
 						: super.getBlockShape(state, world, pos);
 			}
 		});
-		if(impact.getType() == RayTraceResult.Type.BLOCK){
+		if(impact.getType() == HitResult.Type.BLOCK){
 			return impact.getLocation();
 		} else {
 			return max;
 		}
 	}
 	
-	public static boolean rayIntersectsBoundingBox(Vector3d rayOrigin, Vector3d rayDirection, AxisAlignedBB box){
+	public static boolean rayIntersectsBoundingBox(Vec3 rayOrigin, Vec3 rayDirection, AABB box){
 		if(box == null) {
 			return false;
 		}
 		// algorithm from http://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms
-		Vector3d inverse = new Vector3d(1.0 / rayDirection.x, 1.0 / rayDirection.y, 1.0 / rayDirection.z);
+		Vec3 inverse = new Vec3(1.0 / rayDirection.x, 1.0 / rayDirection.y, 1.0 / rayDirection.z);
 		double t1 = (box.minX - rayOrigin.x)*inverse.x;
 		double t2 = (box.maxX- rayOrigin.x)*inverse.x;
 		double t3 = (box.minY - rayOrigin.y)*inverse.y;
@@ -346,8 +350,8 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 
 	
-	private static Vector3d mul(Vector3d a, double b){
-		return new Vector3d(a.x * b, a.y * b, a.z * b);
+	private static Vec3 mul(Vec3 a, double b){
+		return new Vec3(a.x * b, a.y * b, a.z * b);
 	}
 	private static double max(double a, double b){
 		return Math.max(a, b);
@@ -359,7 +363,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	
 	private void drawLaserLine() {
 		// client-side only
-		World w = getLevel();
+		Level w = getLevel();
 		if(w.isClientSide){
 			this.laserBlastLength = getOpticPosition().distanceTo(calculateLaserTerminus());
 		}
@@ -387,11 +391,11 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	
 	public boolean canSeeEntity(Entity e){
 		if(e == null) return false;
-		Vector3d offsetOrigin = getOpticPosition().add(e.position().subtract(getOpticPosition()).normalize());
-		BlockRayTraceResult collision = getLevel().clip(new RayTraceContext(offsetOrigin,
-				e.position().add(0, e.getBbHeight()*0.5, 0), RayTraceContext.BlockMode.COLLIDER,
-				RayTraceContext.FluidMode.SOURCE_ONLY, null));
-		if(collision.getType() == RayTraceResult.Type.BLOCK){
+		Vec3 offsetOrigin = getOpticPosition().add(e.position().subtract(getOpticPosition()).normalize());
+		BlockHitResult collision = getLevel().clip(new ClipContext(offsetOrigin,
+				e.position().add(0, e.getBbHeight()*0.5, 0), ClipContext.Block.COLLIDER,
+				ClipContext.Fluid.SOURCE_ONLY, null));
+		if(collision.getType() == HitResult.Type.BLOCK){
 			return false;
 		}
 		return true;
@@ -412,16 +416,16 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 
 	private void lookAt(Entity e) {
-		Vector3d pos = e.position().add(0, e.getBbHeight()*0.5, 0);
+		Vec3 pos = e.position().add(0, e.getBbHeight()*0.5, 0);
 		targetPosition(pos);
 	}
 	
-	private Vector3d getOpticPosition(){
+	private Vec3 getOpticPosition(){
 		if(opticPosition == null)setOpticPosition();
 		return opticPosition;
 	}
 	
-	public void setOwner(PlayerEntity owner){
+	public void setOwner(Player owner){
 		this.setTeam(owner.getTeam());
 		playerOwner = owner.getName().getString();
 	}
@@ -434,18 +438,13 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 		}
 	}
 	
-	@Override 
-	public void setPosition(BlockPos p){
-		super.setPosition(p);
-		setOpticPosition();
-	}
 	public final void setOpticPosition(){
 		BlockPos p = getBlockPos();
-		opticPosition = new Vector3d(p.getX()+0.5,p.getY()+0.75,p.getZ()+0.5);
+		opticPosition = new Vec3(p.getX()+0.5,p.getY()+0.75,p.getZ()+0.5);
 	}
 	
-	private void targetPosition(Vector3d coord) {
-		Vector3d pos = getOpticPosition();
+	private void targetPosition(Vec3 coord) {
+		Vec3 pos = getOpticPosition();
 		double x = pos.x;
 		double y = pos.y;
 		double z = pos.z;
@@ -496,33 +495,33 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	 * Turns the data field NBT into a network packet
 	 */
 	@Override 
-	public SUpdateTileEntityPacket getUpdatePacket(){
-		CompoundNBT nbtTag = new CompoundNBT();
+	public ClientboundBlockEntityDataPacket getUpdatePacket(){
+		CompoundTag nbtTag = new CompoundTag();
 		writeRenderSync(nbtTag);
-		return new SUpdateTileEntityPacket(this.getBlockPos(), 0, nbtTag);
+		return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0, nbtTag);
 	}
 
 	@Override
-	public CompoundNBT getUpdateTag() {
-		CompoundNBT nbtTag = save(new CompoundNBT());
+	public CompoundTag getUpdateTag() {
+		CompoundTag nbtTag = save(new CompoundTag());
 		writeRenderSync(nbtTag);
 		return nbtTag;
 	}
 
 	@Override
-	public void handleUpdateTag(BlockState state, CompoundNBT tag) {
-		load(state, tag);
+	public void handleUpdateTag(CompoundTag tag) {
+		load(tag);
 		readRenderSync(tag);
 	}
 
-	private void writeRenderSync(CompoundNBT nbtTag) {
+	private void writeRenderSync(CompoundTag nbtTag) {
 		nbtTag.putFloat("energy", getEnergy());
 		nbtTag.putBoolean("lock", targetLocked);
 		if(targetLocked){
 			if(targetID != Integer.MIN_VALUE && getLevel().getEntity(targetID) != null){
 				Entity e = getLevel().getEntity(targetID);
-				Vector3d pos = e.position().add(0, e.getBbHeight()*0.5, 0);
-				CompoundNBT target = new CompoundNBT();
+				Vec3 pos = e.position().add(0, e.getBbHeight()*0.5, 0);
+				CompoundTag target = new CompoundTag();
 				target.putInt("id", this.targetID);
 				target.putFloat("yaw", rotTargetYaw);
 				target.putFloat("pitch", rotTargetPitch);
@@ -536,15 +535,15 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	 * Receives the network packet made by <code>getDescriptionPacket()</code>
 	 */
 	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
 		readRenderSync(packet.getTag());
 	}
 
-	private void readRenderSync(CompoundNBT tag) {
+	private void readRenderSync(CompoundTag tag) {
 		if(tag.contains("lock", 1)){
 			this.targetLocked = tag.getBoolean("lock");
 			if(tag.contains("target", 10)){
-				CompoundNBT target = tag.getCompound("target");
+				CompoundTag target = tag.getCompound("target");
 				this.targetID = target.getInt("id");
 				Entity e = getLevel().getEntity(targetID);
 				if(e != null){
@@ -568,7 +567,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 
 	@Override
-	protected void saveTo(CompoundNBT root) {
+	protected void saveTo(CompoundTag root) {
 		root.putFloat("pitch", rotPitch);
 		root.putFloat("yaw", rotYaw);
 		root.putBoolean("lock", targetLocked);
@@ -585,7 +584,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	}
 
 	@Override
-	protected void loadFrom(CompoundNBT root) {
+	protected void loadFrom(CompoundTag root) {
 		if(root.contains("pitch", 99)){
 			this.rotPitch = root.getFloat("pitch");
 			this.rotOldPitch = rotPitch;
@@ -651,8 +650,8 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity implements 
 	// Helps with laser rendering
 	final private int renderRange = ATTACK_RANGE * 2;
 	@OnlyIn(Dist.CLIENT)
-	public AxisAlignedBB getRenderBoundingBox()
+	public AABB getRenderBoundingBox()
 	{
-		return new AxisAlignedBB(getBlockPos().offset(-renderRange, -renderRange, -renderRange), getBlockPos().offset(renderRange, renderRange, renderRange));
+		return new AABB(getBlockPos().offset(-renderRange, -renderRange, -renderRange), getBlockPos().offset(renderRange, renderRange, renderRange));
 	}
 }

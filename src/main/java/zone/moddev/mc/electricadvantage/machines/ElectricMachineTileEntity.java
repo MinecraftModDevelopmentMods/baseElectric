@@ -2,24 +2,24 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.play.server.SPlaySoundPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.item.crafting.RecipeType;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 
 import java.util.Arrays;
@@ -34,12 +34,12 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	
 	
 	
-	public ElectricMachineTileEntity(TileEntityType<?> tileType, String name,float bufferSize,int numInputSlots, int numOutputSlots, int numOtherSlots) {
-		this(tileType,name,Power.ELECTRIC_POWER,bufferSize,numInputSlots,numOutputSlots,numOtherSlots);
+	public ElectricMachineTileEntity(BlockEntityType<?> tileType, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, String name,float bufferSize,int numInputSlots, int numOutputSlots, int numOtherSlots) {
+		this(tileType, pos, state,name,Power.ELECTRIC_POWER,bufferSize,numInputSlots,numOutputSlots,numOtherSlots);
 	}
 	
-	public ElectricMachineTileEntity(TileEntityType<?> tileType, String name, ConduitType powerType, float bufferSize,int numInputSlots, int numOutputSlots, int numOtherSlots) {
-		super(tileType, powerType, bufferSize, name);
+	public ElectricMachineTileEntity(BlockEntityType<?> tileType, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, String name, ConduitType powerType, float bufferSize,int numInputSlots, int numOutputSlots, int numOtherSlots) {
+		super(tileType, pos, state, powerType, bufferSize, name);
 		inventory = new ItemStack[numInputSlots+numOutputSlots+numOtherSlots];
 		inputSlots = new int[numInputSlots];
 		outputSlots = new int[numOutputSlots];
@@ -52,11 +52,11 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 			if(i < otherSlots.length)otherSlots[i] = inputSlots.length + outputSlots.length + i;
 		}
 	}
-	public ElectricMachineTileEntity(TileEntityType<?> tileType, String name,int numInputSlots, int numOutputSlots, int numOtherSlots) {
-		this(tileType,name,500f,numInputSlots,numOutputSlots,numOtherSlots);
+	public ElectricMachineTileEntity(BlockEntityType<?> tileType, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, String name,int numInputSlots, int numOutputSlots, int numOtherSlots) {
+		this(tileType, pos, state,name,500f,numInputSlots,numOutputSlots,numOtherSlots);
 	}
-	public ElectricMachineTileEntity(TileEntityType<?> tileType, String name,int numInputSlots, int numOutputSlots, int numOtherSlots, ConduitType[] energyTypes, float[] energyBuffers) {
-		super(tileType, energyTypes, energyBuffers, name);
+	public ElectricMachineTileEntity(BlockEntityType<?> tileType, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, String name,int numInputSlots, int numOutputSlots, int numOtherSlots, ConduitType[] energyTypes, float[] energyBuffers) {
+		super(tileType, pos, state, energyTypes, energyBuffers, name);
 		inventory = new ItemStack[numInputSlots+numOutputSlots+numOtherSlots];
 		inputSlots = new int[numInputSlots];
 		outputSlots = new int[numOutputSlots];
@@ -224,32 +224,32 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 
 	protected ItemStack getSmeltingResult(ItemStack input) {
 		if (isEmptyStack(input) || getLevel() == null) return ItemStack.EMPTY;
-		Inventory inventory = new Inventory(1);
+		SimpleContainer inventory = new SimpleContainer(1);
 		inventory.setItem(0, input);
-		return getLevel().getRecipeManager().getRecipeFor(IRecipeType.SMELTING, inventory, getLevel())
+		return getLevel().getRecipeManager().getRecipeFor(RecipeType.SMELTING, inventory, getLevel())
 				.map(recipe -> recipe.assemble(inventory)).orElse(ItemStack.EMPTY);
 	}
 	
 	@Override
-	public CompoundNBT save(CompoundNBT tagRoot){
+	public CompoundTag save(CompoundTag tagRoot){
 		super.save(tagRoot);
 		saveTo(tagRoot);
 		return tagRoot;
 	}
 
 	@Override
-	public CompoundNBT getUpdateTag() {
-		return save(new CompoundNBT());
+	public CompoundTag getUpdateTag() {
+		return save(new CompoundTag());
 	}
 
 	@Override
-	public void load(BlockState state, CompoundNBT tagRoot){
-		super.load(state, tagRoot);
+	public void load(CompoundTag tagRoot){
+		super.load(tagRoot);
 		loadFrom(tagRoot);
 	}
 
-	protected abstract void saveTo(CompoundNBT tagRoot);
-	protected abstract void loadFrom(CompoundNBT tagRoot);
+	protected abstract void saveTo(CompoundTag tagRoot);
+	protected abstract void loadFrom(CompoundTag tagRoot);
 
 	
 	@Override
@@ -350,16 +350,16 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	protected void playSoundEffect(double x, double y, double z, SoundEvent sound, float volume, float pitch){
 		if(getLevel().isClientSide) return;
 		final double range = 16;
-		AxisAlignedBB bounds = new AxisAlignedBB(
+		AABB bounds = new AABB(
 				x - range, y - range, z - range,
 				x + range, y + range, z + range);
 		// A world-wide entity query can load chunks just to broadcast a sound.
-		for(PlayerEntity candidate : getLevel().players()){
-			if(!(candidate instanceof ServerPlayerEntity)) continue;
-			ServerPlayerEntity player = (ServerPlayerEntity)candidate;
+		for(Player candidate : getLevel().players()){
+			if(!(candidate instanceof ServerPlayer)) continue;
+			ServerPlayer player = (ServerPlayer)candidate;
 			if(player.connection == null || player.isSpectator() || !player.getBoundingBox().intersects(bounds)) continue;
-			player.connection.send(new SPlaySoundPacket(sound.getRegistryName(), SoundCategory.BLOCKS,
-					new net.minecraft.util.math.vector.Vector3d(x, y, z), volume, pitch));
+			player.connection.send(new ClientboundCustomSoundPacket(sound.getRegistryName(), SoundSource.BLOCKS,
+					new net.minecraft.world.phys.Vec3(x, y, z), volume, pitch));
 		}
 	}
 	

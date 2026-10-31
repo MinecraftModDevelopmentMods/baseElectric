@@ -1,21 +1,21 @@
 package zone.moddev.mc.electricadvantage.machines;
 
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.BlockState;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.Level;
 
 public class PhotovoltaicGeneratorBlock extends ElectricGeneratorBlock{
 
 	public PhotovoltaicGeneratorBlock(){
-		super(net.minecraft.block.Block.Properties.of(Material.STONE)
+		super(net.minecraft.world.level.block.Block.Properties.of(Material.STONE)
 				.strength(0.75F).sound(SoundType.GLASS).dynamicShape()
                 .isRedstoneConductor((state, world, pos) -> true));
 	}
 	
 	@Override
-	public ElectricGeneratorTileEntity newBlockEntity(net.minecraft.world.IBlockReader world) {
-		return new PhotovoltaicGeneratorTileEntity();
+	public ElectricGeneratorTileEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		return new PhotovoltaicGeneratorTileEntity(pos, state);
 	}
 	
 

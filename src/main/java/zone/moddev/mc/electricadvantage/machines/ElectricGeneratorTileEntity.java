@@ -2,20 +2,20 @@ package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.play.server.SPlaySoundPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.Level;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 
 import java.util.Arrays;
@@ -26,8 +26,8 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 	private final int[] inputSlots;
 	
 	
-	public ElectricGeneratorTileEntity(TileEntityType<?> tileType, String name,int numInputSlots) {
-		super(tileType, Power.ELECTRIC_POWER, 1000, name);
+	public ElectricGeneratorTileEntity(BlockEntityType<?> tileType, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, String name,int numInputSlots) {
+		super(tileType, pos, state, Power.ELECTRIC_POWER, 1000, name);
 		inventory = new ItemStack[numInputSlots];
 		inputSlots = new int[numInputSlots];
 		for(int i = 0; i < inventory.length; i++){
@@ -35,8 +35,8 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 		}
 	}
 
-	public ElectricGeneratorTileEntity(TileEntityType<?> tileType, String name,int numInputSlots, ConduitType[] types, float[] energyBuffers) {
-		super(tileType, types, energyBuffers, name);
+	public ElectricGeneratorTileEntity(BlockEntityType<?> tileType, net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state, String name,int numInputSlots, ConduitType[] types, float[] energyBuffers) {
+		super(tileType, pos, state, types, energyBuffers, name);
 		inventory = new ItemStack[numInputSlots];
 		inputSlots = new int[numInputSlots];
 		for(int i = 0; i < inventory.length; i++){
@@ -81,16 +81,16 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 	protected void playSoundEffect(double x, double y, double z, SoundEvent sound, float volume, float pitch){
 		if(getLevel().isClientSide) return;
 		final double range = 16;
-		AxisAlignedBB bounds = new AxisAlignedBB(
+		AABB bounds = new AABB(
 				x - range, y - range, z - range,
 				x + range, y + range, z + range);
 		// A world-wide entity query can load chunks just to broadcast a sound.
-		for(PlayerEntity candidate : getLevel().players()){
-			if(!(candidate instanceof ServerPlayerEntity)) continue;
-			ServerPlayerEntity player = (ServerPlayerEntity)candidate;
+		for(Player candidate : getLevel().players()){
+			if(!(candidate instanceof ServerPlayer)) continue;
+			ServerPlayer player = (ServerPlayer)candidate;
 			if(player.connection == null || player.isSpectator() || !player.getBoundingBox().intersects(bounds)) continue;
-			player.connection.send(new SPlaySoundPacket(sound.getRegistryName(), SoundCategory.BLOCKS,
-					new net.minecraft.util.math.vector.Vector3d(x, y, z), volume, pitch));
+			player.connection.send(new ClientboundCustomSoundPacket(sound.getRegistryName(), SoundSource.BLOCKS,
+					new net.minecraft.world.phys.Vec3(x, y, z), volume, pitch));
 		}
 	}
 
@@ -179,20 +179,20 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 	
 	@Override
-	public CompoundNBT save(CompoundNBT tagRoot){
+	public CompoundTag save(CompoundTag tagRoot){
 		super.save(tagRoot);
 		saveTo(tagRoot);
 		return tagRoot;
 	}
 	
 	@Override
-	public void load(BlockState state, CompoundNBT tagRoot){
-		super.load(state, tagRoot);
+	public void load(CompoundTag tagRoot){
+		super.load(tagRoot);
 		loadFrom(tagRoot);
 	}
 	
-	protected abstract void saveTo(CompoundNBT tagRoot);
-	protected abstract void loadFrom(CompoundNBT tagRoot);
+	protected abstract void saveTo(CompoundTag tagRoot);
+	protected abstract void loadFrom(CompoundTag tagRoot);
 
 	@Override public int getMaxStackSize(){return 64;}
 }

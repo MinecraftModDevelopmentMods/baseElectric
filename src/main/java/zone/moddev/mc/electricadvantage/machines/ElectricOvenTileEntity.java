@@ -1,10 +1,10 @@
 package zone.moddev.mc.electricadvantage.machines;
 
 import zone.moddev.mc.electricadvantage.init.Power;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 
@@ -13,8 +13,8 @@ public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 	private final short totalCookTime = 100;
 	private short progress = 0;
 	
-	public ElectricOvenTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_OVEN, "tile.electricadvantage.electric_oven.name", 1, 1, 0);
+	public ElectricOvenTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.ELECTRIC_OVEN, pos, state, "tile.electricadvantage.electric_oven.name", 1, 1, 0);
 	}
 
 	@Override
@@ -75,12 +75,12 @@ public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 	}
 
 	@Override
-	protected void saveTo(CompoundNBT tagRoot) {
+	protected void saveTo(CompoundTag tagRoot) {
 		tagRoot.putShort("cookTime", progress);
 	}
 
 	@Override
-	protected void loadFrom(CompoundNBT tagRoot) {
+	protected void loadFrom(CompoundTag tagRoot) {
 		if(tagRoot.contains("cookTime", 99)){
 			progress = tagRoot.getShort("cookTime");
 		}

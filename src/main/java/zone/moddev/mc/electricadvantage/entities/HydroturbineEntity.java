@@ -2,21 +2,21 @@ package zone.moddev.mc.electricadvantage.entities;
 
 import zone.moddev.mc.electricadvantage.init.Power;
 import zone.moddev.mc.electricadvantage.machines.HydroelectricGeneratorTileEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraftforge.fml.network.NetworkHooks;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 
 import java.util.List;
 
-public class HydroturbineEntity extends net.minecraft.entity.Entity{
+public class HydroturbineEntity extends net.minecraft.world.entity.Entity{
 
 	public static final float DEGREES_PER_TICK = 30;
 	private static final float RADIANS_TO_DEGREES = (float)(180 / Math.PI);
@@ -24,23 +24,24 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 	public static final float PROPELLER_DAMAGE = 5f;
 	public float rotation = 0;
 	public boolean isSpinning = false;
-	public TileEntity parent = null;
+	public BlockEntity parent = null;
 	private BlockPos parentCoord = null;
 	private final long roffset;
 	
-	public HydroturbineEntity(EntityType<?> type, World w) {
+	public HydroturbineEntity(EntityType<?> type, Level w) {
 		super(type, w);
 		this.blocksBuilding = true;
 		roffset = w.random.nextInt(8);
 	}
-	public HydroturbineEntity(World w, BlockPos parentTileEntity) {
+	public HydroturbineEntity(Level w, BlockPos parentTileEntity) {
 		this(w, w.getBlockEntity(parentTileEntity));
 	}
 
-	public HydroturbineEntity(World w, TileEntity parentTileEntity) {
+	public HydroturbineEntity(Level w, BlockEntity parentTileEntity) {
 		this(zone.moddev.mc.electricadvantage.init.Entities.HYDROTURBINE, w);
 		this.parent = parentTileEntity;
 		BlockPos p = parentTileEntity.getBlockPos();
+		this.parentCoord = p;
 		this.setPos(p.getX()+0.5, p.getY()-1, p.getZ()+0.5);
 	}
 
@@ -50,7 +51,7 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 	}
 
 	@Override
-	public IPacket<?> getAddEntityPacket() {
+	public Packet<?> getAddEntityPacket() {
 		return NetworkHooks.getEntitySpawningPacket(this);
 	}
 
@@ -64,30 +65,30 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 	public void tick(){
 		super.tick();
 		FluidState fluidState = this.getCommandSenderWorld().getFluidState(blockPosition());
-		Vector3d directionVector;
+		Vec3 directionVector;
 		if(!fluidState.isEmpty()){
 			directionVector = fluidState.getFlow(getCommandSenderWorld(), blockPosition());
 			isSpinning = !(directionVector.x == 0 && directionVector.z == 0);
 		} else {
 			isSpinning = false;
-			directionVector = new Vector3d(0,0,0);
+			directionVector = new Vec3(0,0,0);
 		}
 		if(this.getCommandSenderWorld().isClientSide){
 			// client-side only
 			if(isSpinning){
 				rotation += DEGREES_PER_TICK;
-				this.yRot = RADIANS_TO_DEGREES * (float)Math.atan2(-directionVector.z, directionVector.x) -90;
+				this.setYRot(RADIANS_TO_DEGREES * (float)Math.atan2(-directionVector.z, directionVector.x) -90);
 			} else {
 				// do nothing
 			}
 		} else {
 			// server-side only
-			if(parent == null && parentCoord != null){
+			if((parent == null || parent.isRemoved()) && parentCoord != null){
+				if(!this.getCommandSenderWorld().hasChunkAt(parentCoord)) return;
 				parent = this.getCommandSenderWorld().getBlockEntity(parentCoord);
-				parentCoord = null;
 			}
 			if(parent == null || parent.isRemoved()){
-				this.remove();
+				this.discard();
 			} else if(parent instanceof HydroelectricGeneratorTileEntity){
 				HydroelectricGeneratorTileEntity generator = (HydroelectricGeneratorTileEntity)parent;
 				if(isSpinning){
@@ -106,7 +107,7 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 	}
 	
 	@Override
-	protected void readAdditionalSaveData(CompoundNBT root) {
+	protected void readAdditionalSaveData(CompoundTag root) {
 		parent = null;
 		parentCoord = null;
 		if(root.contains("parentPos", 11)){
@@ -118,7 +119,7 @@ public class HydroturbineEntity extends net.minecraft.entity.Entity{
 	}
 
 	@Override
-	protected void addAdditionalSaveData(CompoundNBT root) {
+	protected void addAdditionalSaveData(CompoundTag root) {
 		BlockPos p = parent != null ? parent.getBlockPos() : parentCoord;
 		if(p != null){
 			int[] coords = new int[3];

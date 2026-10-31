@@ -4,17 +4,17 @@ import zone.moddev.mc.electricadvantage.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerRequest;
 import cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 public class LEDTileEntity extends TileEntitySimplePowerMachine {
 
 	private static final float ENERGY_COST = 0.125f;
 	
-	public LEDTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.LED, Power.ELECTRIC_POWER, ENERGY_COST * 4, "tile.electricadvantage.led_bar.name");
+	public LEDTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.LED, pos, state, Power.ELECTRIC_POWER, ENERGY_COST * 4, "tile.electricadvantage.led_bar.name");
 	}
 
 	private final ItemStack[] none = new ItemStack[0];

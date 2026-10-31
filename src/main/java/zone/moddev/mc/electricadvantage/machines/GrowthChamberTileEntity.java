@@ -5,10 +5,10 @@ import zone.moddev.mc.electricadvantage.init.Power;
 import zone.moddev.mc.electricadvantage.util.farming.VirtualCrop;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerRequest;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,8 +23,8 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 	private final VirtualCrop[] crops = new VirtualCrop[GROWTH_AREA];
 	private byte[] pendingGrowth;
 	
-	public GrowthChamberTileEntity() {
-		super(zone.moddev.mc.electricadvantage.init.Entities.GROWTH_CHAMBER, "tile.electricadvantage.growth_chamber.name",Power.GROWTHCHAMBER_POWER, ENERGY_PER_TICK*64, GROWTH_AREA, 6, 0);
+	public GrowthChamberTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
+		super(zone.moddev.mc.electricadvantage.init.Entities.GROWTH_CHAMBER, pos, state, "tile.electricadvantage.growth_chamber.name",Power.GROWTHCHAMBER_POWER, ENERGY_PER_TICK*64, GROWTH_AREA, 6, 0);
 	}
 
 
@@ -158,7 +158,7 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 
 
 	@Override
-	protected void saveTo(CompoundNBT tagRoot) {
+	protected void saveTo(CompoundTag tagRoot) {
 		byte[] growthStages = pendingGrowth == null ? new byte[GROWTH_AREA]
 				: Arrays.copyOf(pendingGrowth, GROWTH_AREA);
 		for(int i = 0; i < growthStages.length; i++){
@@ -171,7 +171,7 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 
 
 	@Override
-	protected void loadFrom(CompoundNBT tagRoot) {
+	protected void loadFrom(CompoundTag tagRoot) {
 		Arrays.fill(crops, null);
 		Arrays.fill(progression, 0);
 		Arrays.fill(progressionMax, 0);

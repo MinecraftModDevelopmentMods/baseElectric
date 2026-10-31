@@ -4,16 +4,16 @@ import cyano.poweradvantage.api.fluid.FluidStack;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
-import net.minecraft.block.Blocks;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Bootstrap;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.server.Bootstrap;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import zone.moddev.mc.electricadvantage.init.Power;
@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 
 /** Focused regressions for retained independent native operating failures. */
 public class ElectricOperationalNativeDefectsTest {
-    @BeforeClass public static void bootstrap() { Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
 
     @Test public void controllerCannotRequestMoreThanItsHundredUnitElectricalBuffer() throws Exception {
         GrowthChamberControllerTileEntity controller = controller();
@@ -77,20 +77,19 @@ public class ElectricOperationalNativeDefectsTest {
     @Test public void beamIgnoresOnlyItsOwnCollisionPostAndStopsAtTheDeclaredRange() throws Exception {
         BeamWorld world = withoutConstructor(BeamWorld.class);
         world.turret = new BlockPos(101, 82, -27);
-        StubTurret turret = withoutConstructor(StubTurret.class);
+        StubTurret turret = new StubTurret(world.turret);
         turret.testWorld = world;
-        turret.setPosition(world.turret);
-        Vector3d origin = new Vector3d(101.5, 82.75, -26.5);
+        Vec3 origin = new Vec3(101.5, 82.75, -26.5);
         Method trace = LaserTurretTileEntity.class.getDeclaredMethod("followRayToSolidBlock",
-                Vector3d.class, Vector3d.class, double.class);
+                Vec3.class, Vec3.class, double.class);
         trace.setAccessible(true);
-        Vector3d end = (Vector3d)trace.invoke(turret, origin, new Vector3d(1, 0, 0), 32.0);
+        Vec3 end = (Vec3)trace.invoke(turret, origin, new Vec3(1, 0, 0), 32.0);
         assertEquals(1, world.traces);
         assertEquals(32, origin.distanceTo(end), 0.000001);
     }
 
     private static GrowthChamberControllerTileEntity controller() throws Exception {
-        GrowthChamberControllerTileEntity controller = new GrowthChamberControllerTileEntity();
+        GrowthChamberControllerTileEntity controller = new GrowthChamberControllerTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.electricadvantage.machines.GrowthChamberControllerBlock().defaultBlockState());
         controller.setSoil(1000);
         controller.getTank().setFluid(new FluidStack(Fluids.WATER, 1800));
         Field redstone = GrowthChamberControllerTileEntity.class.getDeclaredField("redstone");
@@ -106,7 +105,7 @@ public class ElectricOperationalNativeDefectsTest {
         return type.cast(allocator.getMethod("allocateInstance", Class.class).invoke(field.get(null), type));
     }
 
-    private static final class LightWorld extends ServerWorld {
+    private static final class LightWorld extends ServerLevel {
         BlockPos surface;
         int brightness, skyReads, lightReads;
         private LightWorld() {
@@ -124,24 +123,25 @@ public class ElectricOperationalNativeDefectsTest {
         }
     }
 
-    private static final class BeamWorld extends ServerWorld {
+    private static final class BeamWorld extends ServerLevel {
         BlockPos turret;
         int traces;
         private BeamWorld() {
             super(null, null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
         }
-        @Override public BlockRayTraceResult clip(RayTraceContext context) {
+        @Override public BlockHitResult clip(ClipContext context) {
             traces++;
             assertTrue("Owning turret post must not stop its own beam",
                     context.getBlockShape(new LaserTurretBlock(false).defaultBlockState(), this, turret).isEmpty());
             assertFalse("An immediately adjacent solid block must still stop the beam",
                     context.getBlockShape(Blocks.STONE.defaultBlockState(), this, turret.east()).isEmpty());
-            return BlockRayTraceResult.miss(context.getTo(), Direction.EAST, new BlockPos(context.getTo()));
+            return BlockHitResult.miss(context.getTo(), Direction.EAST, new BlockPos(context.getTo()));
         }
     }
 
     private static final class StubTurret extends LaserTurretTileEntity {
-        World testWorld;
-        @Override public World getLevel() { return testWorld; }
+        StubTurret(BlockPos pos) { super(pos, new LaserTurretBlock(false).defaultBlockState()); }
+        Level testWorld;
+        @Override public Level getLevel() { return testWorld; }
     }
 }

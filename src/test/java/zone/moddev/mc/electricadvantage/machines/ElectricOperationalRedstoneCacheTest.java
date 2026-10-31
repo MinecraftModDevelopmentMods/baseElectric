@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Bootstrap;
-import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.Bootstrap;
+import net.minecraft.world.level.Level;
+import net.minecraft.server.level.ServerLevel;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class ElectricOperationalRedstoneCacheTest {
     private static final BlockPos EVEN = new BlockPos(8, 80, 8);
     private static final BlockPos ODD = new BlockPos(9, 81, 9);
 
-    @BeforeClass public static void bootstrap() { Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
 
     @Test public void signalledFirstUseDoesNotWaitForPowerUpdate() throws Exception {
         ProbeMachine machine = fixture(EVEN, true);
@@ -41,8 +41,7 @@ public class ElectricOperationalRedstoneCacheTest {
     }
 
     @Test public void unattachedReadDoesNotInitializeTheWorldCache() throws Exception {
-        ProbeMachine machine = new ProbeMachine();
-        machine.setPosition(EVEN);
+        ProbeMachine machine = new ProbeMachine(EVEN);
         assertFalse(machine.signal());
         machine.testWorld = world(EVEN, true);
         assertTrue(machine.signal());
@@ -52,7 +51,7 @@ public class ElectricOperationalRedstoneCacheTest {
     @Test public void clientReadsNeitherQueryRedstoneNorInitializeTheCache() throws Exception {
         ProbeMachine machine = fixture(EVEN, true);
         SignalWorld client = machine.testWorld;
-        Field clientSide = World.class.getDeclaredField("isClientSide");
+        Field clientSide = Level.class.getDeclaredField("isClientSide");
         clientSide.setAccessible(true);
         clientSide.setBoolean(client, true);
         assertTrue(client.isClientSide);
@@ -100,8 +99,7 @@ public class ElectricOperationalRedstoneCacheTest {
     }
 
     private static ProbeMachine fixture(BlockPos position, boolean signalled) throws Exception {
-        ProbeMachine machine = new ProbeMachine();
-        machine.setPosition(position);
+        ProbeMachine machine = new ProbeMachine(position);
         machine.testWorld = world(position, signalled);
         // Isolate conduit discovery, not PoweredEntity's real power-update cadence.
         Field delay = PoweredEntity.class.getDeclaredField("conduitRefreshDelay");
@@ -123,11 +121,12 @@ public class ElectricOperationalRedstoneCacheTest {
     }
 
     private static final class ProbeMachine extends ElectricOvenTileEntity {
+        ProbeMachine(BlockPos pos) { super(pos, new ElectricOvenBlock().defaultBlockState()); }
         SignalWorld testWorld;
         boolean observed;
         int powerUpdates;
         boolean signal() { return hasRedstoneSignal(); }
-        @Override public World getLevel() { return testWorld; }
+        @Override public Level getLevel() { return testWorld; }
         @Override public void tickUpdate(boolean server) { observed = hasRedstoneSignal(); }
         @Override public void powerUpdate() {
             powerUpdates++;
@@ -156,7 +155,6 @@ public class ElectricOperationalRedstoneCacheTest {
 
     @Test public void unattachedGeneratorReadDoesNotInitializeItsCache() throws Exception {
         ProbeGenerator generator = new ProbeGenerator();
-        generator.setPosition(EVEN);
         assertFalse(generator.signal());
         generator.testWorld = world(EVEN, true);
         assertTrue(generator.signal());
@@ -165,7 +163,7 @@ public class ElectricOperationalRedstoneCacheTest {
 
     @Test public void clientGeneratorReadCannotInitializeTheServerCache() throws Exception {
         ProbeGenerator generator = generatorFixture(true);
-        Field clientSide = World.class.getDeclaredField("isClientSide");
+        Field clientSide = Level.class.getDeclaredField("isClientSide");
         clientSide.setAccessible(true);
         clientSide.setBoolean(generator.testWorld, true);
         assertFalse(generator.signal());
@@ -186,18 +184,18 @@ public class ElectricOperationalRedstoneCacheTest {
 
     private static ProbeGenerator generatorFixture(boolean signalled) throws Exception {
         ProbeGenerator generator = new ProbeGenerator();
-        generator.setPosition(EVEN);
         generator.testWorld = world(EVEN, signalled);
         return generator;
     }
 
     private static final class ProbeGenerator extends PhotovoltaicGeneratorTileEntity {
+        ProbeGenerator() { super(EVEN, new PhotovoltaicGeneratorBlock().defaultBlockState()); }
         SignalWorld testWorld;
         boolean signal() { return hasRedstoneSignal(); }
-        @Override public World getLevel() { return testWorld; }
+        @Override public Level getLevel() { return testWorld; }
     }
 
-    private static final class SignalWorld extends ServerWorld {
+    private static final class SignalWorld extends ServerLevel {
         @Override public boolean canSeeSky(BlockPos position) {
             throw new AssertionError("An inhibited panel must not enter light sampling");
         }

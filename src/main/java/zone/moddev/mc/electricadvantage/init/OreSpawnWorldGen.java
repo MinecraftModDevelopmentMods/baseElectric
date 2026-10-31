@@ -3,7 +3,7 @@ package zone.moddev.mc.electricadvantage.init;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.ModList;
 import zone.moddev.mc.electricadvantage.ElectricAdvantage;
 import zone.moddev.mc.orespawn.api.GeologyFamily;
