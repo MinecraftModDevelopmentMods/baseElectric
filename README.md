@@ -55,22 +55,33 @@ Exact API and public-runtime SHA-256 values are recorded separately in
 `gradle.properties`. Published runtime jars, not unpublished dependency builds,
 must be used for packaged qualification.
 
-For this local coordinated campaign, every Gradle invocation must go through
-`D:/PowerAdvantage/_verification/advantage-117-port-20261031/Invoke-Gradle117.ps1`.
-It holds the exclusive `gradle-shared.lease` and uses
-`D:/GradleCaches/advantage-117-20261031`. Do not bypass the helper, delete caches,
-overwrite evidence, or build against another module's mutable output.
-
-The required local deterministic tasks are:
+Build the pinned dependency sources first, then run from this repository:
 
 ```text
-clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums verifyEclipseProductionClasspath
+./gradlew clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums verifyEclipseProductionClasspath
 ```
 
-Pass the exact immutable paths with `-PpowerAdvantageDeobfJar`,
-`-PbaseMetalsDeobfJar` and `-PoreSpawnDeobfJar` through the helper's `Extra` argument.
+On Windows, use `gradlew.bat` instead of `./gradlew`. Set `JAVA_HOME` to Java 17
+for Gradle and install the Java 16 production toolchain and Java 25 Mavenizer
+runtime listed above. The older dependency build utilities also need Java 8.
+
+The default dependency paths follow the sibling checkout layout. For an isolated
+checkout, append these Gradle arguments with your actual paths:
+
+```text
+-PpowerAdvantageDeobfJar="/path/to/PowerAdvantage-2.4.8.117011-deobf.jar"
+-PbaseMetalsDeobfJar="/path/to/BaseMetals-3.1.0.117011-deobf.jar"
+-PoreSpawnDeobfJar="/path/to/OreSpawn-4.1.0.117011-deobf.jar"
+-PpowerAdvantageUnitBootstrapSource="/path/to/PowerAdvantage/test-rig/unit-bootstrap/ForgeCapabilityBootstrap.java"
+```
+
+The build checks these inputs against the pinned hashes; do not substitute jars
+from another Minecraft version. If Gradle cannot find the installed JDKs, pass
+`-Porg.gradle.java.installations.paths=<java8-home>,<java16-home>,<java17-home>,<java25-home>`.
+No machine-specific helper or shared Gradle cache is required.
+
 Tests use Power Advantage's hash-checked, build-only Forge capability bootstrap source
-through `-PpowerAdvantageUnitBootstrapSource`. Electric's build-only wrapper also
+from `-PpowerAdvantageUnitBootstrapSource`. Electric's build-only wrapper also
 runs Forge's event-bus plugin for the native tier/harvest checks. Neither replaces
 capability tokens or events, and neither is included in production jars.
 Independent ECJ verification uses `tools/verification/Verify-ElectricEcj.ps1`
