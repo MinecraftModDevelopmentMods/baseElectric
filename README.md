@@ -31,7 +31,8 @@ production isolation checks. Independent ECJ compilation and all 96 tests also
 passed on Java 16, with no ignored tests or assumptions; its restricted-JDK
 negative control failed for the expected access error.
 
-These results use the parent's local checkpoint, not a final combined release:
+These are local module results against the shared Power Advantage checkpoint,
+not a final combined release:
 Power Advantage `2.4.8.117011`, source `5b9abe578b053d2ef59b1962cf9e04f6880c91b9`,
 API SHA-256 `799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8`.
 The metadata records `LOCAL_CHECKPOINT`; any coordinated re-pin needs fresh proof.
@@ -68,7 +69,7 @@ clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts write
 
 Pass the exact immutable paths with `-PpowerAdvantageDeobfJar`,
 `-PbaseMetalsDeobfJar` and `-PoreSpawnDeobfJar` through the helper's `Extra` argument.
-Tests use the parent's hash-checked, build-only Forge capability bootstrap source
+Tests use Power Advantage's hash-checked, build-only Forge capability bootstrap source
 through `-PpowerAdvantageUnitBootstrapSource`. Electric's build-only wrapper also
 runs Forge's event-bus plugin for the native tier/harvest checks. Neither replaces
 capability tokens or events, and neither is included in production jars.
@@ -102,6 +103,8 @@ no replacement raw-metal conversion or balance change is introduced.
 Eclipse imports use the Gradle wrapper, processed resources and production-only
 launches. Generate metadata through `verifyEclipseProductionClasspath`; do not
 hand-edit generated classpaths or disable restricted-reference tests.
+Use Java `16.0.2+7` for the generated client and server launches, not Java 8.
+Java 17 is for Gradle and Buildship; Java 25 is for Mavenizer.
 
 Test only disposable copies of worlds. Preserve originals, backups, failed
 receipts and version-specific checkouts. Manual GUI interaction and captions,

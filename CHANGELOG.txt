@@ -3,7 +3,7 @@ Electric Advantage 2.2.9.117011 - Minecraft 1.17.1 local port candidate
 - Target Forge 37.1.1, official mappings, Java 16 production bytecode and FG7.
 - Carry native machine position/state through factories, persistence and drill movement.
 - Port native helper ticking, hydroturbine removal/link restoration and renderer registration.
-- Retain laser geometry, NBT identities, recipes, machine constants and 1.16 regression tests.
+- Retain laser geometry, NBT identities, recipes, machine constants and the inherited regression tests.
 - Use native ore harvest tags and bucket pickup, including waterlogged sources.
 - Use the 1.17 ingredient-predicate format so unrelated items do not unlock recipes.
 - Require the matching Power Advantage build so machine progress and stored energy remain saved after automatic saves.
@@ -11,6 +11,7 @@ Electric Advantage 2.2.9.117011 - Minecraft 1.17.1 local port candidate
 - Pass 96 Gradle/JUnit and 96 independent ECJ/JUnit tests plus local artifact/Eclipse audits against the pinned Power checkpoint.
 - Verify the original ore tool levels and real survival drops, including silk touch, across a full restart.
 - Combined packaged runtime, migration and manual acceptance are recorded separately from the build checks.
+- Use Java 16 for generated Eclipse client and server launches, Java 17 for Gradle, and Java 25 for Mavenizer.
 - No port-code push, pull request, merge, tag or release before manual testing.
 
 Electric Advantage 2.2.8.116051 (local port candidate)
