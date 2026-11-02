@@ -76,7 +76,7 @@ The build pins basePower source commit `425af862ef5b41b61d3e1f7e665d1d691852ff4b
 both dependency-building workflows. CI builds that exact MMD basePower source and checks the
 resulting jar before compiling baseElectric. Do not substitute an old jar or a moving branch.
 
-CurseForge project ID `0` means unassigned development metadata. No CurseForge project has
-been created or authorized. Maven publication, prepared release validation, and release-tag
+CurseForge project ID `0` means the new project's ID has not been configured in this build.
+Maven publication, prepared release validation, and release-tag
 validation refuse unassigned IDs and the old Electric Advantage project ID. Local builds
 and checks are separate from publication approval.
