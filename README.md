@@ -71,7 +71,7 @@ gradlew.bat cleanEclipse verifyEclipseProductionClasspath
 
 basePower `2.4.4.110021` or newer and OreSpawn are required at compile time and runtime but are never bundled. Base Metals remains a required distribution dependency while its integrations stay reflection-based and absent from the compile classpath. CurseForge relations are `basepower`, `base-metals`, and `mmd-orespawn`.
 
-The build pins basePower source commit `79fb16437615df98b6c6298fe8d98643a0e7140b` and development-jar SHA-256
+The build pins basePower source commit `425af862ef5b41b61d3e1f7e665d1d691852ff4b` and development-jar SHA-256
 `2992F2CADC30D8F61A17216DF9AB02BDF8E8211BB8B494A6CCED70A3267F69FE` in properties, audits and
 both dependency-building workflows. CI builds that exact MMD basePower source and checks the
 resulting jar before compiling baseElectric. Do not substitute an old jar or a moving branch.

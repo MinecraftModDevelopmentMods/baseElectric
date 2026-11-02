@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: MinecraftModDevelopmentMods/basePower
-          ref: 79fb16437615df98b6c6298fe8d98643a0e7140b
+          ref: 425af862ef5b41b61d3e1f7e665d1d691852ff4b
           path: .ci-dependencies/PowerAdvantage
 
       - name: Install Java 8 toolchain

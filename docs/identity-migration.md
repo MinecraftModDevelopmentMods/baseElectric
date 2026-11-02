@@ -93,7 +93,7 @@ Implementation references use `zone.moddev.mc.basepower`; public API references 
 `required-after:basepower@[2.4.4.110021,);after:basemetals`, alongside the existing OreSpawn
 requirement. Distribution relations are `basepower,base-metals,mmd-orespawn`.
 
-The build pins basePower source commit `79fb16437615df98b6c6298fe8d98643a0e7140b` and development-jar
+The build pins basePower source commit `425af862ef5b41b61d3e1f7e665d1d691852ff4b` and development-jar
 SHA-256 `2992F2CADC30D8F61A17216DF9AB02BDF8E8211BB8B494A6CCED70A3267F69FE` in properties,
 the strict dependency audit and both dependency-building workflows. CI builds that exact source
 before checking the jar checksum. Required class, manifest, classpath, Java 8 bytecode,
