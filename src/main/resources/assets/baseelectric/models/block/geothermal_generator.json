@@ -1,0 +1,10 @@
+{
+    "parent": "baseelectric:block/electric_machine_base",
+    "textures": {
+        "front": "baseelectric:blocks/geothermal_generator_side",
+        "top":   "baseelectric:blocks/geothermal_generator_top",
+        "bottom":"baseelectric:blocks/geothermal_generator_side",
+        "back":  "baseelectric:blocks/geothermal_generator_side",
+        "side":  "baseelectric:blocks/geothermal_generator_side"
+    }
+}

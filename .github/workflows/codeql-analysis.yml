@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - name: Check out ElectricAdvantage
+      - name: Check out baseElectric
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Check out pinned OreSpawn
@@ -33,11 +33,11 @@ jobs:
           ref: 5a50df1158e948c8db55814e819090b34c12d765
           path: .ci-dependencies/OreSpawn
 
-      - name: Check out pinned PowerAdvantage
+      - name: Check out pinned basePower
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: MinecraftModDevelopmentMods/PowerAdvantage
-          ref: 2443eaae7c666b8d54a5c9c30091892b79e80994
+          repository: MinecraftModDevelopmentMods/basePower
+          ref: 79fb16437615df98b6c6298fe8d98643a0e7140b
           path: .ci-dependencies/PowerAdvantage
 
       - name: Install Java 8 toolchain
@@ -70,7 +70,7 @@ jobs:
           test -f "$jar"
           echo "jar=$jar" >> "$GITHUB_OUTPUT"
 
-      - name: Build pinned PowerAdvantage development jar
+      - name: Build pinned basePower development jar
         id: poweradvantage
         shell: bash
         run: |
@@ -86,8 +86,9 @@ jobs:
               -PoreSpawnDeobfJar="${{ steps.orespawn.outputs.jar }}" \
               --no-daemon --stacktrace
           )
-          jar="$dependency/build/libs-dev/PowerAdvantage-2.4.3.110021-deobf.jar"
+          jar="$dependency/build/libs-dev/basePower-2.4.4.110021-deobf.jar"
           test -f "$jar"
+          echo "2992F2CADC30D8F61A17216DF9AB02BDF8E8211BB8B494A6CCED70A3267F69FE  $jar" | sha256sum --check --strict
           echo "jar=$jar" >> "$GITHUB_OUTPUT"
 
       - name: Initialize CodeQL
@@ -95,7 +96,7 @@ jobs:
         with:
           languages: java-kotlin
 
-      - name: Compile ElectricAdvantage production code
+      - name: Compile baseElectric production code
         run: |
           chmod +x ./gradlew
           ./gradlew clean classes --rerun-tasks --no-build-cache --no-daemon --stacktrace \

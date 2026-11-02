@@ -1,5 +1,0 @@
-{
-    "variants": {
-        "normal": {"model": "poweradvantage:fluid_pipe_ns", "x": 90, "y": 0, "uvlock": false }
-    }
-}

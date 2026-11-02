@@ -1,0 +1,6 @@
+{
+    "parent": "baseelectric:item/generic_item",
+    "textures": {
+        "item_texture": "baseelectric:items/li_ingot"
+    }
+}
