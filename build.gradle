@@ -16,7 +16,7 @@ plugins {
 
 group = project.mod_group
 version = project.mod_version
-base.archivesName = 'ElectricAdvantage'
+base.archivesName = 'baseElectric'
 
 def versionParts = project.mod_version.toString().tokenize('.')
 if (versionParts.size() != 4 || !versionParts.every { it ==~ /\d+/ }) {
@@ -144,12 +144,12 @@ repositories {
     }
 }
 
-// ElectricAdvantage needs the full PowerAdvantage implementation in development,
+// baseElectric needs the full basePower implementation in development,
 // but the retired MMD Maven cannot provide a dependable deobfuscated artifact.
 // Local builds use the sibling FG7 output; CI supplies the same pinned jar via
 // -PpowerAdvantageDeobfJar after building the audited upstream commit.
 def defaultPowerAdvantageDeobfJar = file("../../PowerAdvantage/build/libs-dev/" \
-        + "PowerAdvantage-${project.poweradvantage_version}-deobf.jar")
+        + "basePower-${project.poweradvantage_version}-deobf.jar")
 def powerAdvantageDeobfJar = providers.gradleProperty('powerAdvantageDeobfJar')
         .map { file(it) }
         .getOrElse(defaultPowerAdvantageDeobfJar)
@@ -311,8 +311,8 @@ tasks.register('verifyReleaseConfiguration') {
     group = 'verification'
     description = 'Validates release identity, target metadata, and dependency policy.'
     doLast {
-        if (project.mod_version != '2.2.5.110021') {
-            throw new GradleException("Unexpected ElectricAdvantage release version: ${project.mod_version}")
+        if (project.mod_version != '2.2.6.110021') {
+            throw new GradleException("Unexpected baseElectric release version: ${project.mod_version}")
         }
         if (project.minecraft_version != '1.10.2'
                 || project.forge_version != '12.18.3.2511'
@@ -326,22 +326,24 @@ tasks.register('verifyReleaseConfiguration') {
                 || project.gradle_java_version != '17') {
             throw new GradleException('Unexpected release dispatcher target metadata')
         }
-        if (project.mod_id != 'electricadvantage'
-                || project.group.toString() != 'zone.moddev.mc.electricadvantage'
-                || base.archivesName.get() != 'ElectricAdvantage'
+        if (project.mod_id != 'baseelectric' || project.mod_name != 'baseElectric'
+                || project.group.toString() != 'zone.moddev.mc.baseelectric'
+                || base.archivesName.get() != 'baseElectric'
+                || rootProject.name != 'baseElectric'
                 || project.mod_license != 'GPL-3.0-only'
-                || project.curseforge_project_id != '240985') {
+                || !(project.curseforge_project_id ==~ /0|[1-9][0-9]*/)
+                || project.curseforge_project_id == '240985') {
             throw new GradleException('Unexpected Forge, Maven, archive, or CurseForge identity')
         }
-        if (project.cf_requirements != 'power-advantage,base-metals,mmd-orespawn'
+        if (project.cf_requirements != 'basepower,base-metals,mmd-orespawn'
                 || project.cf_optionals != ''
                 || project.cf_versions != '1.10.2') {
             throw new GradleException('Unexpected CurseForge dependency or game-version metadata')
         }
-        if (project.poweradvantage_version != '2.4.3.110021'
-                || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/PowerAdvantage'
-                || project.poweradvantage_source_ref != '2443eaae7c666b8d54a5c9c30091892b79e80994'
-                || project.poweradvantage_deobf_sha256 != '316262B51DDF4BD4258E19CC45221959E20133855B37E2367686F752A48C07C5') {
+        if (project.poweradvantage_version != '2.4.4.110021'
+                || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/basePower'
+                || project.poweradvantage_source_ref != '425af862ef5b41b61d3e1f7e665d1d691852ff4b'
+                || project.poweradvantage_deobf_sha256 != '2992F2CADC30D8F61A17216DF9AB02BDF8E8211BB8B494A6CCED70A3267F69FE') {
             throw new GradleException('Unexpected PowerAdvantage compile dependency identity')
         }
         if (project.orespawn_version != '4.0.8.110021'
@@ -354,22 +356,27 @@ tasks.register('verifyReleaseConfiguration') {
             String workflow = file(workflowPath).getText('UTF-8')
             if (!workflow.contains('repository: ' + project.poweradvantage_source_repository)
                     || !workflow.contains('ref: ' + project.poweradvantage_source_ref)
+                    || !workflow.contains(project.poweradvantage_deobf_sha256)
                     || !workflow.contains('repository: ' + project.orespawn_source_repository)
                     || !workflow.contains('ref: ' + project.orespawn_source_commit)) {
                 throw new GradleException("${workflowPath} does not build the pinned Advantage dependencies")
             }
         }
         String mainSource = file(
-                'src/main/java/zone/moddev/mc/electricadvantage/ElectricAdvantage.java').getText('UTF-8')
-        if (!mainSource.contains('MODID = "electricadvantage"')
-                || !mainSource.contains('VERSION = "2.2.5.110021"')
-                || !mainSource.contains('required-after:orespawn@[4.0.6,5.0.0);required-after:poweradvantage@[2.4.3.110021,);after:basemetals')) {
-            throw new GradleException('ElectricAdvantage source identity or dependency policy changed')
+                'src/main/java/zone/moddev/mc/baseelectric/ElectricAdvantage.java').getText('UTF-8')
+        if (!mainSource.contains('MODID = "baseelectric"')
+                || !mainSource.contains('NAME = "baseElectric"')
+                || !mainSource.contains('VERSION = "2.2.6.110021"')
+                || !mainSource.contains('required-after:orespawn@[4.0.6,5.0.0);required-after:basepower@[2.4.4.110021,);after:basemetals')
+                || !mainSource.contains('LegacyIdentity.remapMissingMappings(event, LEGACY_MODID, MODID)')
+                || !mainSource.contains('LegacyIdentity.migrateConfiguration(')
+                || !mainSource.contains('LegacyIdentity.migrateAdditionalLootTables(')) {
+            throw new GradleException('baseElectric source identity, migration, or dependency policy changed')
         }
         def metadata = new JsonSlurper().parse(file('src/main/resources/mcmod.info'))
         def mod = metadata instanceof List ? metadata.first() : metadata
-        if (mod.modid != 'electricadvantage') {
-            throw new GradleException('Source mcmod.info does not use the stable electricadvantage mod id')
+        if (mod.modid != 'baseelectric' || mod.name != 'baseElectric') {
+            throw new GradleException('Source mcmod.info does not use the baseElectric identity')
         }
     }
 }
@@ -403,8 +410,10 @@ tasks.register('verifyReleaseDependencies') {
             ['cyano/poweradvantage/api/PoweredEntity.class',
              'cyano/poweradvantage/api/GUIBlock.class',
              'cyano/poweradvantage/api/FluidCategoryRegistry.class',
-             'zone/moddev/mc/poweradvantage/conduitnetwork/ConduitRegistry.class',
-             'zone/moddev/mc/poweradvantage/init/Fluids.class'].each { required ->
+             'zone/moddev/mc/basepower/conduitnetwork/ConduitRegistry.class',
+             'zone/moddev/mc/basepower/init/Fluids.class',
+             'zone/moddev/mc/basepower/compat/LegacyIdentity.class',
+             'zone/moddev/mc/basepower/compat/LegacyWorldgenIdentity.class'].each { required ->
                 if (zip.getEntry(required) == null) {
                     throw new GradleException("PowerAdvantage dependency is missing ${required}")
                 }
@@ -474,15 +483,17 @@ tasks.register('verifyReleaseArtifacts') {
         new ZipFile(mainJar).withCloseable { zip ->
             List<String> names = zip.entries().collect { it.name }
             ['mcmod.info', 'pack.mcmeta',
-             'zone/moddev/mc/electricadvantage/ElectricAdvantage.class',
-             'zone/moddev/mc/electricadvantage/machines/ElectricDrillTileEntity.class',
-             'assets/electricadvantage/lang/en_US.lang'].each { required ->
+             'zone/moddev/mc/baseelectric/ElectricAdvantage.class',
+             'zone/moddev/mc/baseelectric/machines/ElectricDrillTileEntity.class',
+             'assets/baseelectric/lang/en_US.lang'].each { required ->
                 if (!names.contains(required)) {
                     throw new GradleException("Release jar is missing ${required}")
                 }
             }
             ['agent-notes/', '.codex/', 'src/test/', 'fernflower_abstract_parameter_names.txt',
              'cyano/poweradvantage/',
+             'cyano/electricadvantage/', 'zone/moddev/mc/electricadvantage/',
+             'assets/electricadvantage/', 'zone/moddev/mc/basepower/',
              'com/mcmoddev/electricadvantage/', 'com/mcmoddev/poweradvantage/',
              'zone/moddev/mc/poweradvantage/', 'cyano/basemetals/', 'com/mcmoddev/lib/',
              'zone/moddev/mc/orespawn/', 'com/mcmoddev/orespawn/',
@@ -491,15 +502,28 @@ tasks.register('verifyReleaseArtifacts') {
                     throw new GradleException("Release jar contains forbidden entry matching ${forbidden}")
                 }
             }
+            zip.entries().findAll { entry ->
+                entry.name.startsWith('assets/baseelectric/')
+                        && ['.json', '.lang', '.mcmeta'].any { entry.name.endsWith(it) }
+            }.each { entry ->
+                String contents = zip.getInputStream(entry).getText(StandardCharsets.UTF_8.name())
+                if (['electricadvantage:', 'poweradvantage:', 'tile.electricadvantage.',
+                     'item.electricadvantage.'].any { contents.contains(it) }) {
+                    throw new GradleException("Stale asset or translation identity in ${entry.name}")
+                }
+            }
             def metadata = new JsonSlurper().parseText(zip.getInputStream(zip.getEntry('mcmod.info'))
                     .getText(StandardCharsets.UTF_8.name()))
             def mod = metadata instanceof List ? metadata.first() : metadata
-            if (mod.modid != project.mod_id || mod.version != project.mod_version
+            if (mod.modid != project.mod_id || mod.name != project.mod_name || mod.version != project.mod_version
                     || mod.mcversion != project.minecraft_version) {
                 throw new GradleException('Packaged mcmod.info identity, version, or target is incorrect')
             }
             def manifest = new Manifest(zip.getInputStream(zip.getEntry('META-INF/MANIFEST.MF'))).mainAttributes
             if (manifest.getValue('Implementation-Version') != project.mod_version
+                    || manifest.getValue('Implementation-Title') != 'baseElectric'
+                    || manifest.getValue('Specification-Title') != 'baseelectric'
+                    || manifest.getValue('Maven-Artifact') != "zone.moddev.mc.baseelectric:baseElectric:${project.mod_version}"
                     || manifest.getValue('Built-On-Java') != project.java_version
                     || manifest.getValue('Implementation-Timestamp') != null
                     || manifest.getValue('Timestamp') != null) {
@@ -520,9 +544,9 @@ tasks.register('verifyReleaseArtifacts') {
         }
 
         new ZipFile(new File(libs, expectedReleaseFiles.get()[1])).withCloseable { sourceZip ->
-            if (sourceZip.getEntry('zone/moddev/mc/electricadvantage/ElectricAdvantage.java') == null
-                    || sourceZip.getEntry('zone/moddev/mc/electricadvantage/machines/ElectricDrillTileEntity.java') == null) {
-                throw new GradleException('Sources jar is missing required ElectricAdvantage sources')
+            if (sourceZip.getEntry('zone/moddev/mc/baseelectric/ElectricAdvantage.java') == null
+                    || sourceZip.getEntry('zone/moddev/mc/baseelectric/machines/ElectricDrillTileEntity.java') == null) {
+                throw new GradleException('Sources jar is missing required baseElectric sources')
             }
         }
         new ZipFile(new File(libs, expectedReleaseFiles.get()[2])).withCloseable { javadocZip ->
@@ -560,6 +584,7 @@ tasks.register('writeReleaseChecksums') {
 tasks.register('verifyPreparedReleaseArtifacts') {
     group = 'verification'
     description = 'Audits an immutable release bundle before Maven publication.'
+    dependsOn tasks.named('verifyPublicationConfiguration')
     doLast {
         if (!preparedReleaseDir.isPresent()) {
             throw new GradleException('preparedReleaseDir is required for prepared artifact publication')
@@ -617,9 +642,9 @@ publishing {
                 artifact(tasks.named('javadocJar'))
             }
             pom {
-                name = 'Electric Advantage'
+                name = 'baseElectric'
                 description = project.mod_description
-                url = 'https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage'
+                url = 'https://github.com/MinecraftModDevelopmentMods/baseElectric'
                 licenses {
                     license {
                         name = 'GNU General Public License, Version 3'
@@ -627,9 +652,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage.git'
-                    developerConnection = 'scm:git:ssh://git@github.com/MinecraftModDevelopmentMods/ElectricAdvantage.git'
-                    url = 'https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage'
+                    connection = 'scm:git:https://github.com/MinecraftModDevelopmentMods/baseElectric.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/MinecraftModDevelopmentMods/baseElectric.git'
+                    url = 'https://github.com/MinecraftModDevelopmentMods/baseElectric'
                 }
             }
         }
@@ -661,11 +686,27 @@ tasks.register('validateMavenReleaseCredentials') {
     }
 }
 
+tasks.register('verifyPublicationConfiguration') {
+    group = 'verification'
+    description = 'Refuses publication until baseElectric has its own assigned CurseForge project.'
+    doLast {
+        String id = project.curseforge_project_id.toString()
+        if (!(id ==~ /[1-9][0-9]*/) || id == '240985') {
+            throw new GradleException('baseElectric CurseForge project is unassigned or uses the old ElectricAdvantage project; publication is disabled')
+        }
+    }
+}
+
 tasks.withType(PublishToMavenRepository).configureEach {
+    dependsOn tasks.named('verifyPublicationConfiguration')
     dependsOn tasks.named('validateMavenReleaseCredentials')
     dependsOn preparedReleaseDir.isPresent()
             ? tasks.named('verifyPreparedReleaseArtifacts')
             : tasks.named('verifyReleaseArtifacts')
+}
+
+tasks.withType(PublishToMavenLocal).configureEach {
+    dependsOn tasks.named('verifyPublicationConfiguration')
 }
 
 idea {
@@ -799,7 +840,7 @@ tasks.register('verifyEclipseProductionClasspath') {
                     || contents.contains('src/test') || contents.contains('bin/test')) {
                 throw new GradleException("${name} does not isolate production code")
             }
-            if (!contents.contains('PROJECT_ATTR" value="ElectricAdvantage"')) {
+            if (!contents.contains('PROJECT_ATTR" value="baseElectric"')) {
                 throw new GradleException("${name} targets the wrong Eclipse project")
             }
         }

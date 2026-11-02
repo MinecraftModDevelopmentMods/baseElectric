@@ -1,4 +1,14 @@
-Unreleased
+baseElectric 2.2.6.110021
+
+- Rename the Minecraft 1.10.2 candidate to baseElectric 2.2.6.110021 with mod ID baseelectric and implementation namespace zone.moddev.mc.baseelectric.
+- Require basePower 2.4.4.110021 or newer while retaining the stable cyano.poweradvantage.api public API.
+- Remap released Cyano Electric Advantage block and item identities; retain old tile and hydroturbine reads while writing new canonical IDs.
+- Copy the original configuration when the new one is absent, and preserve custom loot tables without duplicate injection.
+- Use basePower's early, backed-up OreSpawn identity migration for new provider/rule/block IDs; retire consumed legacy inputs to avoid duplicate generation and abort on ambiguous authority.
+- Move assets, translations, build metadata, workflows, and distribution relations to the new identity without changing gameplay or balance.
+- Keep publication disabled until baseElectric has an assigned, authorized CurseForge project.
+- Pin the exact basePower source commit and development-jar checksum in the build and CI.
+- Update the installation and migration notes with the copied-world and operating test coverage.
 
 - Check generator redstone before the first power pulse so a disabled solar panel cannot produce a startup burst.
 - Charge the moved electric drill its existing 250-unit track cost before saving its replacement, instead of charging the removed drill.

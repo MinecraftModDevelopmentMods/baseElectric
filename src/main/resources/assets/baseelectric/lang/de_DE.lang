@@ -1,0 +1,54 @@
+language_support_goals=Englisch (en_US, de_DE, en_CA, de_DE, en_AU, en_PT), Spanisch (es_MX, es_ES), Chinesisch (zh_CN), Japanisch (ja_JA), Portugiesisch (pt_BR), Deutsch (de_DE), Italienisch (it_IT), Koreanisch (ko_KR)
+
+item.baseelectric.blank_circuit_board.name=Leiterplatte (Leer)
+item.baseelectric.control_circuit.name=Steuerstromkreis
+item.baseelectric.integrated_circuit.name=Mikrochip
+item.baseelectric.psu.name=Netzteil
+item.baseelectric.silicon_ingot.name=Silizium-Ingots
+item.baseelectric.silicon_mix.name=Silizium-Mischung
+item.baseelectric.solder_mix.name=Lötmetall Mischung
+item.baseelectric.solder.name=Lötmetall
+item.baseelectric.li_powder.name=Pulverisierte Lithium
+item.baseelectric.li_ingot.name=Lithium-Barren
+item.baseelectric.li_nugget.name=Lithium Nugget
+item.baseelectric.sulfur_powder.name=Schwefelpulver
+item.baseelectric.lead_acid_battery.name=Blei-Säure-Batterie
+item.baseelectric.nickel_hydride_battery.name=Nickel-Metallhydrid-Batterie
+item.baseelectric.alkaline_battery.name=Alkali-Batterie
+item.baseelectric.lithium_battery.name=Lithium-Ionen-Batterie
+
+tile.baseelectric.electric_conduit.name=Elektrischen Draht
+tile.baseelectric.electric_track.name=Elektro-Gerüst
+tile.baseelectric.electric_battery_array.name=Batterie Array
+tile.baseelectric.electric_crusher.name=Elektrische Felsen-Zerkleinerungsmaschine
+tile.baseelectric.laser_turret.name=Laser-Verteidigung Waffe
+tile.baseelectric.electric_drill.name=Laser Bohrer
+tile.baseelectric.electric_fabricator.name=Automatisierte Fabrik
+tile.baseelectric.electric_furnace.name=Lichtbogenofen
+tile.baseelectric.electric_oven.name=Elektro-Ofen
+tile.baseelectric.electric_pcb_printer.name=PCB Drucker
+tile.baseelectric.geothermal_generator.name=Geothermal Generator
+tile.baseelectric.hydroelectric_generator.name=Hydroelectric Generator
+tile.baseelectric.photovoltaic_generator.name=Photovoltaik-Generator
+tile.baseelectric.steam_powered_generator.name=Pumpenlose Stromerzeuger
+tile.baseelectric.growth_chamber.name=Wachstumskammer
+tile.baseelectric.growth_chamber_controller.name=Wachstumskammer Steuereinheit
+tile.baseelectric.li_ore.name=Lithiumerz
+tile.baseelectric.sulfur_ore.name=Schwefelerz
+tile.baseelectric.led_bar.name=LED Draht
+
+tooltip.battery.charge=Lade
+tooltip.battery.capacity=Kapazität
+
+death.attack.laser=%1$s verdampft
+death.attack.laser.player=%2$s verdampft %1$s
+death.attack.propeller=%1$s wurde von einem Propeller pulverisiert.
+death.attack.propeller.player=%2$s geschoben %1$s in einen Propeller.
+
+
+tile.baseelectric.electric_switch.name=Elektrische Schalter
+tile.baseelectric.electric_still.name=Elektro Brennerei
+tile.baseelectric.electric_pump.name=Elektropumpe
+tile.baseelectric.plastic_refinery.name=Kunststoff-Raffinerie
+item.baseelectric.petrolplastic_ingot.name=Erdöl Kunststoff Barren
+tile.baseelectric.pump_pipe_electric.name=Pumpenrohr

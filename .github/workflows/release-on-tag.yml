@@ -1,4 +1,4 @@
-name: Validate Electric Advantage release tag
+name: Validate baseElectric release tag
 
 on:
   push:
@@ -10,13 +10,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: electricadvantage-release-tag-${{ github.ref_name }}
+  group: baseelectric-release-tag-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
   validate-release-tag:
     name: Validate tag for manual release confirmation
-    if: github.repository == 'MinecraftModDevelopmentMods/ElectricAdvantage'
+    if: github.repository == 'MinecraftModDevelopmentMods/baseElectric'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -37,6 +37,11 @@ jobs:
           minecraft_version="$(value minecraft_version)"
           loader_name="$(value loader_name)"
           loader_code="$(value loader_code)"
+          curseforge_project_id="$(value curseforge_project_id)"
+          if [[ ! "$curseforge_project_id" =~ ^[1-9][0-9]*$ || "$curseforge_project_id" == 240985 ]]; then
+            echo "baseElectric publication is disabled until its own CurseForge project is assigned" >&2
+            exit 1
+          fi
 
           IFS=. read -r mc_major mc_minor mc_patch extra <<<"$minecraft_version"
           if [[ -n "${extra:-}" || -z "${mc_major:-}" || -z "${mc_minor:-}" ]]; then

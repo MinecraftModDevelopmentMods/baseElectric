@@ -1,6 +1,0 @@
-{
-    "parent": "electricadvantage:item/generic_item",
-    "textures": {
-        "item_texture": "electricadvantage:items/silicon_mix"
-    }
-}

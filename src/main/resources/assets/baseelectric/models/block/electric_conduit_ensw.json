@@ -1,0 +1,7 @@
+{
+    "parent": "basepower:block/pipe2_ensw",
+    "textures": {
+        "texture": "baseelectric:blocks/electric_conduit",
+        "particle": "baseelectric:materials/machine_case"
+    }
+}
