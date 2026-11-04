@@ -1,0 +1,12 @@
+{
+    "variants": {
+        "active=true,facing=east":   { "model": "baseelectric:photovoltaic_generator",  "y": 90  },
+        "active=true,facing=north":  { "model": "baseelectric:photovoltaic_generator"   },
+        "active=true,facing=south":  { "model": "baseelectric:photovoltaic_generator",  "y": 180 },
+        "active=true,facing=west":   { "model": "baseelectric:photovoltaic_generator",  "y": 270 },
+        "active=false,facing=east":  { "model": "baseelectric:photovoltaic_generator", "y": 90  },
+        "active=false,facing=north": { "model": "baseelectric:photovoltaic_generator"  },
+        "active=false,facing=south": { "model": "baseelectric:photovoltaic_generator", "y": 180 },
+        "active=false,facing=west":  { "model": "baseelectric:photovoltaic_generator", "y": 270 }
+    }
+}

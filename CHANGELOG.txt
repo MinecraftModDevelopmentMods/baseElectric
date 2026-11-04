@@ -1,4 +1,10 @@
-Unreleased
+2.2.6.112021 - baseElectric for Minecraft 1.12.2
+
+- Continue Electric Advantage as baseElectric. Read 1.10.2 original and baseElectric tile IDs, including the older hydroelectric turbine names.
+- Use OreSpawn 4 provider rules for sulfur and lithium while keeping existing player choices.
+- Use matching basePower 1.12.2 and keep the earlier drill, battery, greenhouse and fluid-machine fixes.
+
+Earlier 1.12.2 test-coverage repairs
 
 - Check generator redstone before the first power pulse so a disabled solar panel cannot produce a startup burst.
 - Charge the moved electric drill its existing 250-unit track cost before saving its replacement, instead of charging the removed drill.

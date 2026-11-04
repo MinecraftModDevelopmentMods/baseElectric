@@ -1,0 +1,4 @@
+{
+    "parent": "baseelectric:block/hydroelectric_generator_off",
+    "ambientocclusion": false
+}

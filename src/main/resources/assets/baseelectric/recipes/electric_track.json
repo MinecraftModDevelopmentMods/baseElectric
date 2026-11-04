@@ -1,0 +1,15 @@
+{
+	"type": "forge:ore_shapeless",
+	"ingredients": [
+		{
+			"item": "baseelectric:electric_conduit"
+		},
+		{
+			"item": "basepower:steel_frame"
+		}
+	],
+	"result": {
+		"item": "baseelectric:electric_track"
+	},
+	"group": "tracks"
+}

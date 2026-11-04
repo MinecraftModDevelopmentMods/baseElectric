@@ -1,0 +1,4 @@
+{
+    "parent": "baseelectric:block/electric_furnace_off",
+    "ambientocclusion": false
+}

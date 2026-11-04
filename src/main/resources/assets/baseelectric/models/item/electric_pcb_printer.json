@@ -1,0 +1,4 @@
+{
+    "parent": "baseelectric:block/electric_pcb_printer_off",
+    "ambientocclusion": false
+}

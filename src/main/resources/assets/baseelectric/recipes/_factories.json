@@ -1,0 +1,6 @@
+{
+	"conditions": {
+		"recipe_mode": "zone.moddev.mc.baseelectric.recipe.condition.RecipeModeConditionFactory",
+		"not_recipe_mode": "zone.moddev.mc.baseelectric.recipe.condition.NotRecipeModeConditionFactory"
+	}
+}

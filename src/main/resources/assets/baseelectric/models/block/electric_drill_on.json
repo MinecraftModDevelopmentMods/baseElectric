@@ -1,0 +1,7 @@
+{
+    "parent": "baseelectric:block/electric_drill_base",
+    "textures": {
+        "top":    "baseelectric:blocks/electric_drill_on",
+        "bottom": "baseelectric:blocks/laser_drill_optic_on"
+    }
+}

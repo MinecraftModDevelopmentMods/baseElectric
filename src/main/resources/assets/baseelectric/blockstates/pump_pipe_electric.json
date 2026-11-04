@@ -1,0 +1,5 @@
+{
+    "variants": {
+        "normal": {"model": "basepower:fluid_pipe_ns", "x": 90, "y": 0, "uvlock": false }
+    }
+}
