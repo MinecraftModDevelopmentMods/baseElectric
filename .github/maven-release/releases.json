@@ -1,0 +1,29 @@
+{
+  "repository": "MinecraftModDevelopmentMods/baseElectric",
+  "groupId": "zone.moddev.mc.baseelectric",
+  "artifactId": "baseElectric",
+  "description": "Electrical generation, storage and machinery for basePower.",
+  "license": "GNU General Public License, Version 3",
+  "licenseUrl": "https://www.gnu.org/licenses/gpl-3.0.txt",
+  "releases": {
+    "2.2.6.110021": {
+      "branch": "master-1.10.2",
+      "commit": "a7f987d5fad0cac148affbe9804a4e0b45f2c672",
+      "runId": 41485931628,
+      "artifactId": 13162745335,
+      "archiveSha256": "337714b7afeee36ba34488331d0570e66c248298c7366de0fdd4a5f410fba46d",
+      "curseFileId": 9432137,
+      "mainSha256": "05f1cf02c97c6112c7eb4913db46f65c45058cc6e818d81e159dbf5ad0f93dd1"
+    },
+    "2.2.6.112021": {
+      "branch": "master-1.12.2",
+      "commit": "e4349eb6915a78545516f94b934b02e7ac39b211",
+      "tag": "2.2.6.112021",
+      "runId": 42009998322,
+      "artifactId": 13406960746,
+      "archiveSha256": "4eff14ed15ef2139f5af0499b4ab86e5f17f575a7b9eccf34ce539af1e495b3f",
+      "curseFileId": 9452435,
+      "mainSha256": "9db6800caf1795bba56c483c1a177c09f0893413644b6c62ade5978c7ff61e78"
+    }
+  }
+}
