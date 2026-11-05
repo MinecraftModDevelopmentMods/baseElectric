@@ -332,8 +332,8 @@ tasks.register('verifyReleaseConfiguration') {
         }
         if (project.poweradvantage_version != '2.4.4.112021'
                 || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/basePower'
-                || project.poweradvantage_source_ref != '2913aba3d3f4f3b40594dfad8fcdef6bf61f6bcb'
-                || project.poweradvantage_deobf_sha256 != '592469C64AA34BDDF7537FADD107639EEB604B570B2EAB080F711DD6CBB385F3') {
+                || project.poweradvantage_source_ref != '6da980e7ef3bba6d3c289e85c8dee3cc70474f71'
+                || project.poweradvantage_deobf_sha256 != '3E46BBF2ADEC22C9B119F5E8FEA8CCA56B16969187850B3A067C7FC0C181700B') {
             throw new GradleException('Unexpected PowerAdvantage compile dependency identity')
         }
         ['.github/workflows/ci.yml', '.github/workflows/codeql-analysis.yml'].each { workflowPath ->

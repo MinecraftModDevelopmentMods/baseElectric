@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: MinecraftModDevelopmentMods/basePower
-          ref: 2913aba3d3f4f3b40594dfad8fcdef6bf61f6bcb
+          ref: 6da980e7ef3bba6d3c289e85c8dee3cc70474f71
           path: .ci-dependencies/PowerAdvantage
 
       - name: Check out pinned OreSpawn
