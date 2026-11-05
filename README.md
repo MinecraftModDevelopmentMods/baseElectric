@@ -4,7 +4,9 @@ baseElectric continues DrCyano's Electric Advantage, adding generators, batterie
 
 ## Upgrading a world
 
-Replace the installed Advantage family together. baseElectric `2.2.6.112021` reads the original Electric Advantage and released baseElectric 1.10.2 tile and turbine identities. Back up the complete save and its configuration, then test a copy and check charge, fluid and machine state again after a full restart.
+Install [basePower 2.4.4 for Forge 1.12.2](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9452029) and Base Metals. Use the 1.12.2 builds of all mods in your workshop.
+
+baseElectric replaces Electric Advantage on 1.12.2 and can read worlds from Electric Advantage or baseElectric on 1.10.2. Back up your world and config, then replace the old Advantage mods together on a copy of the world. Check battery charge, machine contents and your turbines. Save, close Minecraft completely, and check again after reopening the copy.
 
 [World upgrade guide](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.12.2/docs/1.12-upgrade.md) | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/baseelectric)
 

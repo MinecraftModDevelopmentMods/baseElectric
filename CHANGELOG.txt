@@ -1,8 +1,9 @@
 2.2.6.112021 - baseElectric for Minecraft 1.12.2
 
-- Continue Electric Advantage as baseElectric. Read 1.10.2 original and baseElectric tile IDs, including the older hydroelectric turbine names.
-- Use OreSpawn 4 provider rules for sulfur and lithium while keeping existing player choices.
-- Use matching basePower 1.12.2 and keep the earlier drill, battery, greenhouse and fluid-machine fixes.
+- Build against the released basePower 2.4.4.112021.
+- Bring baseElectric to Forge 1.12.2. Move worlds from Electric Advantage or baseElectric 1.10.2 and keep your machines, wiring and turbines.
+- Move sulfur and lithium generation to OreSpawn 4 without replacing your saved choices.
+- Keep the fixes for saved drill progress, turbine links, greenhouse growth and blocked fluid outputs.
 
 Earlier 1.12.2 test-coverage repairs
 
