@@ -1,0 +1,4 @@
+{
+    "parent": "baseelectric:block/plastic_refinery_off",
+    "ambientocclusion": false
+}

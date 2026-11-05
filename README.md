@@ -1,25 +1,27 @@
-# ElectricAdvantage
+# baseElectric for Minecraft 1.12.2
 
-Electric Advantage adds electric machines, generators, automation, and infrastructure to Power Advantage for Minecraft 1.12.2.
+baseElectric continues DrCyano's Electric Advantage, adding generators, batteries, wiring, greenhouses and electric machines to basePower.
 
-## Drill Reload Fix
+## Upgrading a world
 
-Version `2.2.3.112021` keeps unfinished drill work when a chunk or world reloads.
-Existing inventories, energy, orientation and saved-world names are unchanged.
-The regression tests cover resumed progress and full server restarts.
+Install [basePower 2.4.4 for Forge 1.12.2](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9452029) and Base Metals. Use the 1.12.2 builds of all mods in your workshop.
+
+baseElectric replaces Electric Advantage on 1.12.2 and can read worlds from Electric Advantage or baseElectric on 1.10.2. Back up your world and config, then replace the old Advantage mods together on a copy of the world. Check battery charge, machine contents and your turbines. Save, close Minecraft completely, and check again after reopening the copy.
+
+[World upgrade guide](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.12.2/docs/1.12-upgrade.md) | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/baseelectric)
 
 ## Building Minecraft 1.12.2
 
 The `master-1.12.2` build uses ForgeGradle 7.0.34 and Gradle 9.6.1. Run Gradle with Java 17; Gradle resolves the Java 8 toolchain used for compilation.
 
-First build the pinned sibling PowerAdvantage development jar:
+First build the pinned OreSpawn and sibling basePower development jars:
 
 ```text
 cd ..\..\PowerAdvantage
 gradlew.bat deobfJar
 ```
 
-Then build and audit ElectricAdvantage:
+Back in the baseElectric checkout, build and audit the release:
 
 ```text
 gradlew.bat clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums verifyEclipseProductionClasspath
@@ -33,7 +35,7 @@ For Eclipse, import this repository as an existing Gradle project and run:
 gradlew.bat cleanEclipse verifyEclipseProductionClasspath
 ```
 
-Power Advantage is required at compile time and runtime but is never bundled. Base Metals remains a required distribution dependency while its integrations stay reflection-based and absent from the compile classpath.
+basePower is required at compile time and runtime but is never bundled. For a different checkout layout, supply `-PpowerAdvantageDeobfJar=<path>` and `-PoreSpawnDeobfJar=<path>`. The expected commits and hashes are in `gradle.properties`. Base Metals remains a distribution dependency, but its integrations do not require it at compile time.
 
 ## Hydroturbine Persistence
 

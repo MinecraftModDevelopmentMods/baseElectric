@@ -1,0 +1,53 @@
+language_support_goals=Inglés (en_US, en_EN, en_CA, es_ES, es_ES, en_PT), Español (es_MX, es_ES), chino (zh_CN), japonés (ja_JA), portugués (pt_BR), Alemán (de_DE), italiano (it_IT), coreano (ko_KR)
+
+item.baseelectric.blank_circuit_board.name=Placa de Circuito (Blanco)
+item.baseelectric.control_circuit.name=Circuito de Computadora
+item.baseelectric.integrated_circuit.name=Microchip
+item.baseelectric.psu.name=Unidad de Fuente de Alimentación
+item.baseelectric.silicon_ingot.name=Silicio Lingote
+item.baseelectric.silicon_mix.name=Blend Silicio
+item.baseelectric.solder_mix.name=Blend Soldadura
+item.baseelectric.solder.name=Soldadura
+item.baseelectric.li_powder.name=Polvo de Litio
+item.baseelectric.li_ingot.name=Litio Lingote
+item.baseelectric.li_nugget.name=Pepita de Litio
+item.baseelectric.sulfur_powder.name=Azufre en Polvo
+item.baseelectric.lead_acid_battery.name=Plomo-Ácido de la Batería
+item.baseelectric.nickel_hydride_battery.name=Níquel e Hidruro Metálico
+item.baseelectric.alkaline_battery.name=Batería Alcalina
+item.baseelectric.lithium_battery.name=Batería de Litio-Ion
+
+tile.baseelectric.electric_conduit.name=Cable de Energía Eléctrica
+tile.baseelectric.electric_track.name=Eléctrica Andamios
+tile.baseelectric.electric_battery_array.name=Batería Matriz
+tile.baseelectric.electric_crusher.name=Eléctrica de la Roca Trituradora
+tile.baseelectric.laser_turret.name=Laser Defensa Torreta
+tile.baseelectric.electric_drill.name=Eléctrica Minería Taladro
+tile.baseelectric.electric_fabricator.name=Automatizado Ensamblador
+tile.baseelectric.electric_furnace.name=Horno de Arco Eléctrico
+tile.baseelectric.electric_oven.name=Horno Eléctrico
+tile.baseelectric.electric_pcb_printer.name=PCB Impresora
+tile.baseelectric.geothermal_generator.name=Geotérmica Generador
+tile.baseelectric.hydroelectric_generator.name=Hidroeléctrico Generador
+tile.baseelectric.photovoltaic_generator.name=Fotovoltaica Generador
+tile.baseelectric.steam_powered_generator.name=a Vapor Generador Eléctrico
+tile.baseelectric.growth_chamber.name=Cámara Crecimiento
+tile.baseelectric.growth_chamber_controller.name=Unidad de Control de Crecimiento Cámara
+tile.baseelectric.li_ore.name=Mineral de Litio
+tile.baseelectric.sulfur_ore.name=Mineral de Azufre
+tile.baseelectric.led_bar.name=Luz LED
+
+tooltip.battery.charge=Carga
+tooltip.battery.capacity=Capacidad
+
+death.attack.laser=%1$s vaporiza
+death.attack.laser.player=%2$s vaporizado s%1$s
+death.attack.propeller=%1$s se pulverizan por una hélice.
+death.attack.propeller.player=%2$s empujaron %1$s en la hélice.
+
+tile.baseelectric.electric_switch.name=Interruptor Eléctrico
+tile.baseelectric.electric_still.name=Destilador Eléctrico
+tile.baseelectric.electric_pump.name=Bomba Eléctrica
+tile.baseelectric.plastic_refinery.name=Refinería de Plástico
+item.baseelectric.petrolplastic_ingot.name=Petróleo Lingote de Plástico
+tile.baseelectric.pump_pipe_electric.name=Tubería de la Bomba

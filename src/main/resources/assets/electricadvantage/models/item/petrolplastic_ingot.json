@@ -1,6 +1,0 @@
-{
-    "parent": "electricadvantage:item/generic_item",
-    "textures": {
-        "layer0": "electricadvantage:items/petrolplastic_ingot"
-    }
-}

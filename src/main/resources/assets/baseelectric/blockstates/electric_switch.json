@@ -1,0 +1,6 @@
+{
+    "variants": {
+        "active=false":  { "model": "baseelectric:electric_switch_off"},
+        "active=true":   { "model": "baseelectric:electric_switch_on"}
+    }
+}

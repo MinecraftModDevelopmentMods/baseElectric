@@ -16,7 +16,7 @@ plugins {
 
 group = project.mod_group
 version = project.mod_version
-base.archivesName = 'ElectricAdvantage'
+base.archivesName = 'baseElectric'
 
 def versionParts = project.mod_version.toString().tokenize('.')
 if (versionParts.size() != 4 || !versionParts.every { it ==~ /\d+/ }) {
@@ -150,10 +150,12 @@ repositories {
 // Local builds use the sibling FG7 output; CI supplies the same pinned jar via
 // -PpowerAdvantageDeobfJar after building the audited upstream commit.
 def defaultPowerAdvantageDeobfJar = file("../../PowerAdvantage/build/libs-dev/" \
-        + "PowerAdvantage-${project.poweradvantage_version}-deobf.jar")
+        + "basePower-${project.poweradvantage_version}-deobf.jar")
 def powerAdvantageDeobfJar = providers.gradleProperty('powerAdvantageDeobfJar')
         .map { file(it) }
         .getOrElse(defaultPowerAdvantageDeobfJar)
+def oreSpawnJar = file(providers.gradleProperty('oreSpawnDeobfJar').getOrElse(
+        "../../../../MinecraftMineralogy/OS112/OreSpawn/build/libs-dev/OreSpawn-${project.orespawn_version}-deobf.jar"))
 if (!powerAdvantageDeobfJar.isFile()) {
     throw new GradleException("Missing PowerAdvantage deobf jar at ${powerAdvantageDeobfJar}. "
             + "Run gradlew.bat deobfJar in ../../PowerAdvantage first, or pass "
@@ -169,6 +171,7 @@ dependencies {
     // PowerAdvantage is required at runtime but remains a separate mod jar.
     compileOnly files(powerAdvantageDeobfJar)
     runtimeOnly files(powerAdvantageDeobfJar)
+    implementation files(oreSpawnJar)
     testImplementation 'junit:junit:4.13.2'
     testImplementation files(powerAdvantageDeobfJar)
 }
@@ -300,7 +303,7 @@ tasks.register('verifyReleaseConfiguration') {
     group = 'verification'
     description = 'Validates release identity, target metadata, and dependency policy.'
     doLast {
-        if (project.mod_version != '2.2.3.112021') {
+        if (project.mod_version != '2.2.6.112021') {
             throw new GradleException("Unexpected ElectricAdvantage release version: ${project.mod_version}")
         }
         if (project.minecraft_version != '1.12.2'
@@ -315,22 +318,22 @@ tasks.register('verifyReleaseConfiguration') {
                 || project.gradle_java_version != '17') {
             throw new GradleException('Unexpected release dispatcher target metadata')
         }
-        if (project.mod_id != 'electricadvantage'
-                || project.group.toString() != 'com.mcmoddev.electricadvantage'
-                || base.archivesName.get() != 'ElectricAdvantage'
+        if (project.mod_id != 'baseelectric'
+                || project.group.toString() != 'zone.moddev.mc.baseelectric'
+                || base.archivesName.get() != 'baseElectric'
                 || project.mod_license != 'GPL-3.0-only'
-                || project.curseforge_project_id != '240985') {
+                || project.curseforge_project_id != '1783006') {
             throw new GradleException('Unexpected Forge, Maven, archive, or CurseForge identity')
         }
-        if (project.cf_requirements != 'power-advantage,base-metals'
+        if (project.cf_requirements != 'basepower,base-metals'
                 || project.cf_optionals != ''
                 || project.cf_versions != '1.12.2') {
             throw new GradleException('Unexpected CurseForge dependency or game-version metadata')
         }
-        if (project.poweradvantage_version != '2.4.1.112021'
-                || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/PowerAdvantage'
-                || project.poweradvantage_source_ref != '40811a0be37174a0633998eb3d820d95755d35e8'
-                || project.poweradvantage_deobf_sha256 != 'DE7759033A094718E1341CC82B9912425A24A035DBD7F91D590D8B921F08DEB2') {
+        if (project.poweradvantage_version != '2.4.4.112021'
+                || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/basePower'
+                || project.poweradvantage_source_ref != '1fc2fb3a409a5cf86a4133ee4d313002a5b8611e'
+                || project.poweradvantage_deobf_sha256 != '3E46BBF2ADEC22C9B119F5E8FEA8CCA56B16969187850B3A067C7FC0C181700B') {
             throw new GradleException('Unexpected PowerAdvantage compile dependency identity')
         }
         ['.github/workflows/ci.yml', '.github/workflows/codeql-analysis.yml'].each { workflowPath ->
@@ -341,16 +344,16 @@ tasks.register('verifyReleaseConfiguration') {
             }
         }
         String mainSource = file(
-                'src/main/java/com/mcmoddev/electricadvantage/ElectricAdvantage.java').getText('UTF-8')
-        if (!mainSource.contains('MODID = "electricadvantage"')
-                || !mainSource.contains('VERSION = "2.2.3.112021"')
-                || !mainSource.contains('dependencies = "required-after:poweradvantage;after:basemetals"')) {
+                'src/main/java/zone/moddev/mc/baseelectric/ElectricAdvantage.java').getText('UTF-8')
+        if (!mainSource.contains('MODID = "baseelectric"')
+                || !mainSource.contains('VERSION = "2.2.6.112021"')
+                || !mainSource.contains('required-after:basepower@[2.4.4.112021,);required-after:orespawn@[4.1.3,5.0.0);after:basemetals')) {
             throw new GradleException('ElectricAdvantage source identity or dependency policy changed')
         }
         def metadata = new JsonSlurper().parse(file('src/main/resources/mcmod.info'))
         def mod = metadata instanceof List ? metadata.first() : metadata
-        if (mod.modid != 'electricadvantage'
-                || mod.url != 'https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage') {
+        if (mod.modid != 'baseelectric'
+                || mod.url != 'https://github.com/MinecraftModDevelopmentMods/baseElectric') {
             throw new GradleException('Source mcmod.info does not use the stable ElectricAdvantage identity')
         }
     }
@@ -370,8 +373,8 @@ tasks.register('verifyReleaseDependencies') {
         new ZipFile(powerAdvantageDeobfJar).withCloseable { zip ->
             ['cyano/poweradvantage/api/PoweredEntity.class',
              'cyano/poweradvantage/api/GUIBlock.class',
-             'com/mcmoddev/poweradvantage/conduitnetwork/ConduitRegistry.class',
-             'com/mcmoddev/poweradvantage/init/Fluids.class'].each { required ->
+             'zone/moddev/mc/basepower/conduitnetwork/ConduitRegistry.class',
+             'zone/moddev/mc/basepower/init/Fluids.class'].each { required ->
                 if (zip.getEntry(required) == null) {
                     throw new GradleException("PowerAdvantage dependency is missing ${required}")
                 }
@@ -390,7 +393,12 @@ tasks.register('verifyReleaseDependencies') {
         if (!runtimeFiles.contains(powerAdvantageDeobfJar.canonicalFile)) {
             throw new GradleException('PowerAdvantage is missing from runtimeClasspath')
         }
-        List<String> forbiddenRuntimeMods = runtimeFiles.collect { it.name.toLowerCase(Locale.ROOT) }
+        if (!runtimeFiles.contains(oreSpawnJar.canonicalFile) || !compileFiles.contains(oreSpawnJar.canonicalFile)
+                || MessageDigest.getInstance('SHA-256').digest(oreSpawnJar.bytes).encodeHex()
+                    .toString().toUpperCase(Locale.ROOT) != project.orespawn_deobf_sha256) {
+            throw new GradleException('Missing or unexpected OreSpawn development artifact')
+        }
+        List<String> forbiddenRuntimeMods = (runtimeFiles - oreSpawnJar.canonicalFile).collect { it.name.toLowerCase(Locale.ROOT) }
                 .findAll { name ->
                     name.contains('basemetals') || name.contains('orespawn')
                             || name.contains('rf-api') || name.contains('reborncore')
@@ -441,19 +449,19 @@ tasks.register('verifyReleaseArtifacts') {
         new ZipFile(mainJar).withCloseable { zip ->
             List<String> names = zip.entries().collect { it.name }
             ['mcmod.info', 'pack.mcmeta',
-             'com/mcmoddev/electricadvantage/ElectricAdvantage.class',
-             'com/mcmoddev/electricadvantage/machines/ElectricDrillTileEntity.class',
-             'com/mcmoddev/electricadvantage/machines/ElectricPumpTileEntity.class',
-             'com/mcmoddev/electricadvantage/machines/LaserTurretTileEntity.class',
-             'assets/electricadvantage/lang/en_us.lang'].each { required ->
+             'zone/moddev/mc/baseelectric/ElectricAdvantage.class',
+             'zone/moddev/mc/baseelectric/machines/ElectricDrillTileEntity.class',
+             'zone/moddev/mc/baseelectric/machines/ElectricPumpTileEntity.class',
+             'zone/moddev/mc/baseelectric/machines/LaserTurretTileEntity.class',
+             'assets/baseelectric/lang/en_us.lang'].each { required ->
                 if (!names.contains(required)) {
                     throw new GradleException("Release jar is missing ${required}")
                 }
             }
             ['agent-notes/', '.codex/', 'src/test/', 'fernflower_abstract_parameter_names.txt',
-             'cyano/poweradvantage/',
-             'com/mcmoddev/poweradvantage/', 'cyano/basemetals/', 'com/mcmoddev/lib/',
-             'cyano/orespawn/', 'com/mcmoddev/orespawn/', 'cofh/api/', 'reborncore/',
+             'cyano/basepower/',
+             'zone/moddev/mc/basepower/', 'cyano/basemetals/', 'com/mcmoddev/lib/',
+             'cyano/orespawn/', 'com/mcmoddev/orespawn/', 'zone/moddev/mc/orespawn/', 'cofh/api/', 'reborncore/',
              'net/minecraft/', 'net/minecraftforge/'].each { forbidden ->
                 if (names.any { it.contains(forbidden) }) {
                     throw new GradleException("Release jar contains forbidden entry matching ${forbidden}")
@@ -488,8 +496,8 @@ tasks.register('verifyReleaseArtifacts') {
         }
 
         new ZipFile(new File(libs, expectedReleaseFiles.get()[1])).withCloseable { sourceZip ->
-            if (sourceZip.getEntry('com/mcmoddev/electricadvantage/ElectricAdvantage.java') == null
-                    || sourceZip.getEntry('com/mcmoddev/electricadvantage/machines/ElectricDrillTileEntity.java') == null) {
+            if (sourceZip.getEntry('zone/moddev/mc/baseelectric/ElectricAdvantage.java') == null
+                    || sourceZip.getEntry('zone/moddev/mc/baseelectric/machines/ElectricDrillTileEntity.java') == null) {
                 throw new GradleException('Sources jar is missing required ElectricAdvantage sources')
             }
         }
@@ -587,7 +595,7 @@ publishing {
             pom {
                 name = 'Electric Advantage'
                 description = project.mod_description
-                url = 'https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage'
+                url = 'https://github.com/MinecraftModDevelopmentMods/baseElectric'
                 licenses {
                     license {
                         name = 'GNU General Public License, Version 3'
@@ -595,9 +603,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage.git'
-                    developerConnection = 'scm:git:ssh://git@github.com/MinecraftModDevelopmentMods/ElectricAdvantage.git'
-                    url = 'https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage'
+                    connection = 'scm:git:https://github.com/MinecraftModDevelopmentMods/baseElectric.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/MinecraftModDevelopmentMods/baseElectric.git'
+                    url = 'https://github.com/MinecraftModDevelopmentMods/baseElectric'
                 }
             }
         }
@@ -817,7 +825,7 @@ tasks.register('verifyEclipseProductionClasspath') {
             if (contents.contains('org.eclipse.buildship.core.gradleclasspathcontainer')) {
                 throw new GradleException("${name} exposes compileOnly dependencies at runtime")
             }
-            ['BaseMetals', 'OreSpawn', 'RF-API.jar', 'RebornCore-1.12.2'].each { forbiddenDependency ->
+            ['BaseMetals', 'RF-API.jar', 'RebornCore-1.12.2'].each { forbiddenDependency ->
                 if (contents.toLowerCase(Locale.ROOT).contains(forbiddenDependency.toLowerCase(Locale.ROOT))) {
                     throw new GradleException(
                             "${name} includes forbidden runtime dependency ${forbiddenDependency}")
@@ -875,7 +883,7 @@ tasks.register('verifyModelAssets') {
             int separator = reference.indexOf(':')
             String namespace = separator >= 0 ? reference.substring(0, separator) : 'minecraft'
             String path = separator >= 0 ? reference.substring(separator + 1) : reference
-            if (namespace != project.mod_id && namespace != 'poweradvantage') return
+            if (namespace != project.mod_id && namespace != 'basepower') return
 
             String suffix = assetType == 'textures' ? '.png' : '.json'
             String targetPath = "assets/${namespace}/${assetType}/${path}${suffix}"

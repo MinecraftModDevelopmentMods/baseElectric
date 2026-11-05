@@ -1,4 +1,11 @@
-Unreleased
+2.2.6.112021 - baseElectric for Minecraft 1.12.2
+
+- Build against the released basePower 2.4.4.112021.
+- Bring baseElectric to Forge 1.12.2. Move worlds from Electric Advantage or baseElectric 1.10.2 and keep your machines, wiring and turbines.
+- Move sulfur and lithium generation to OreSpawn 4 without replacing your saved choices.
+- Keep the fixes for saved drill progress, turbine links, greenhouse growth and blocked fluid outputs.
+
+Earlier 1.12.2 test-coverage repairs
 
 - Check generator redstone before the first power pulse so a disabled solar panel cannot produce a startup burst.
 - Charge the moved electric drill its existing 250-unit track cost before saving its replacement, instead of charging the removed drill.
