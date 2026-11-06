@@ -1,0 +1,4 @@
+{
+    "parent": "baseelectric:block/electric_pump_off",
+    "ambientocclusion": false
+}

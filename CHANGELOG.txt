@@ -1,3 +1,9 @@
+2.2.7.113021 - baseElectric for Minecraft 1.13.2
+
+- Bring baseElectric to Forge 1.13.2. Keep your machines and wiring when moving from Electric Advantage or an earlier baseElectric release.
+- Keep battery charge, drill directions and the saved link between each turbine and its generator.
+- Find the machines and parts on the shared basePower creative tab.
+
 Unreleased
 
 - Check generator redstone before the first power pulse so a disabled solar panel cannot produce a startup burst.

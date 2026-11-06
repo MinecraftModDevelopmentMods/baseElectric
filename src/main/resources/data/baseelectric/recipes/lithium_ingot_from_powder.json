@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "baseelectric:li_powder"
+  },
+  "result": "baseelectric:li_ingot",
+  "experience": 0.5,
+  "cookingtime": 200,
+  "conditions": [],
+  "group": "baseelectric:li_ingot"
+}

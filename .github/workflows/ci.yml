@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: electricadvantage-1.13-${{ github.workflow }}-${{ github.ref }}
+  group: baseelectric-1.13-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -30,18 +30,33 @@ jobs:
       - name: Use canonical LF dependency inputs
         # Base Metals predates archive text normalization; its LF artifact is separately pinned.
         run: git config --global core.autocrlf false
+      - name: Read dependency source pins
+        id: pins
+        shell: bash
+        run: |
+          set -euo pipefail
+          bm=$(sed -n 's/^basemetals_source_commit=//p' gradle.properties)
+          power=$(sed -n 's/^basepower_source_ref=//p' gradle.properties)
+          [[ "$bm" =~ ^[a-f0-9]{40}$ && "$power" =~ ^[a-f0-9]{40}$ ]]
+          echo "basemetals=$bm" >> "$GITHUB_OUTPUT"
+          echo "power=$power" >> "$GITHUB_OUTPUT"
       - name: Check out pinned Base Metals
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: MinecraftModDevelopmentMods/BaseMetals
-          ref: 1376a20d7d5ba22d3abc77dc34b49a2c88943697
+          ref: ${{ steps.pins.outputs.basemetals }}
           path: .ci-dependencies/BaseMetals
       - name: Check out PowerAdvantage 1.13.2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: MinecraftModDevelopmentMods/PowerAdvantage
-          ref: 6a845ad68eb1e34dcdd793dceb9cb528be22cedf
+          repository: MinecraftModDevelopmentMods/basePower
+          ref: ${{ steps.pins.outputs.power }}
           path: .ci-dependencies/PowerAdvantage
+      - name: Install Java 25 for Mavenizer
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '25.0.3+9.0.LTS'
       - name: Install Java 8 toolchain
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
@@ -64,42 +79,44 @@ jobs:
           power="$GITHUB_WORKSPACE/.ci-dependencies/PowerAdvantage"
           chmod +x "$orespawn/gradlew" "$basemetals/gradlew" "$power/gradlew"
           (cd "$orespawn" && ./gradlew jar --no-daemon --stacktrace)
-          (cd "$basemetals" && ./gradlew jar --no-daemon --stacktrace)
+          mirror="$RUNNER_TEMP/orespawn-mirror"
+          (cd "$basemetals" && bash gradle/stage-orespawn-release.sh "$mirror" &&
+            ./gradlew jar "-PorespawnVerificationRepository=$mirror" --no-daemon --stacktrace)
           osjar="$orespawn/build/libs-dev/OreSpawn-4.1.0.113021-deobf.jar"
-          bmjar="$basemetals/build/libs-dev/BaseMetals-3.0.1.113021-deobf.jar"
-          (cd "$power" && ./gradlew jar verifyReleaseDependencies             -PbaseMetalsDeobfJar="$bmjar" -PoreSpawnDeobfJar="$osjar"             --no-daemon --stacktrace)
-          powerjar="$power/build/libs-dev/PowerAdvantage-2.4.4.113021-deobf.jar"
+          bm_version=$(sed -n 's/^basemetals_version=//p' gradle.properties)
+          bmjar="$basemetals/build/libs-dev/BaseMetals-$bm_version-deobf.jar"
+          (cd "$power" && ./gradlew jar verifyReleaseDependencies \
+            -PbaseMetalsDeobfJar="$bmjar" -PoreSpawnDeobfJar="$osjar" --no-daemon --stacktrace)
+          powerjar="$power/build/libs-dev/basePower-2.4.5.113021-deobf.jar"
           test -f "$osjar" && test -f "$bmjar" && test -f "$powerjar"
           echo "orespawn=$osjar" >> "$GITHUB_OUTPUT"
           echo "basemetals=$bmjar" >> "$GITHUB_OUTPUT"
           echo "power=$powerjar" >> "$GITHUB_OUTPUT"
-          echo "power_ref=$(git -C "$power" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - name: Build and audit release artifacts
         run: >-
           ./gradlew clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts
           writeReleaseChecksums verifyEclipseProductionClasspath
           -PpowerAdvantageDeobfJar=${{ steps.dependencies.outputs.power }}
-          -Ppoweradvantage_source_ref=${{ steps.dependencies.outputs.power_ref }}
           -PbaseMetalsDeobfJar=${{ steps.dependencies.outputs.basemetals }}
           -PoreSpawnDeobfJar=${{ steps.dependencies.outputs.orespawn }}
           --no-daemon --stacktrace
       - name: Upload audited release candidate
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ElectricAdvantage-1.13.2-${{ github.sha }}
+          name: baseElectric-1.13.2-${{ github.sha }}
           if-no-files-found: error
           retention-days: 30
           path: |
-            build/libs/ElectricAdvantage-2.2.5.113021.jar
-            build/libs/ElectricAdvantage-2.2.5.113021-sources.jar
-            build/libs/ElectricAdvantage-2.2.5.113021-javadoc.jar
+            build/libs/baseElectric-2.2.7.113021.jar
+            build/libs/baseElectric-2.2.7.113021-sources.jar
+            build/libs/baseElectric-2.2.7.113021-javadoc.jar
             build/release/SHA256SUMS
             CHANGELOG.txt
       - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ElectricAdvantage-1.13.2-diagnostics-${{ github.sha }}
+          name: baseElectric-1.13.2-diagnostics-${{ github.sha }}
           if-no-files-found: ignore
           retention-days: 14
           path: |

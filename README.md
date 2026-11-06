@@ -1,15 +1,16 @@
-# ElectricAdvantage
+# baseElectric for Minecraft 1.13.2
 
-Electric Advantage adds electric machines, generation, storage, automation, and defence to Power Advantage for Minecraft 1.13.2.
+baseElectric continues DrCyano's Electric Advantage, adding generators, batteries, wiring and electric machines to basePower.
 
-Every crafting and vanilla smelting variant has an ingredient-triggered recipe-book discovery. See the [shared material checklist and discovery tests](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/RECIPE-DISCOVERY.md) and [manufacturing progression audit](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/MANUFACTURING-PROGRESSION.md). Regenerate unlock JSON after recipe changes with `node tools/generate-recipe-unlocks.js`; `check` audits recipe coverage and criteria. Custom machine and crushing recipes are not crafting-book entries.
+Use basePower `2.4.5.113021` and Base Metals `3.0.2.113021` for Forge 1.13.2. baseElectric's machines and parts are on the shared **basePower** creative tab. Back up the world and config, then replace the old jars together and test on a copy. Save, close Minecraft completely, and reopen the copy to check your machines.
+
+The recipe book unlocks crafting and smelting recipes when you pick up the ingredients. See the [material checklist](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.13.2/docs/1.13/RECIPE-DISCOVERY.md) for where to start. Custom machine recipes aren't shown in the crafting book. After changing recipes, run `node tools/generate-recipe-unlocks.js` and `check`.
 
 ## Building Minecraft 1.13.2
 
 The `master-1.13.2` build uses ForgeGradle 7.0.34 and Gradle 9.6.1. Run Gradle with Java 17; production code is compiled for Java 8.
 
-Build the pinned PowerAdvantage, Base Metals, and OreSpawn deobf jars first.
-Exact source commits and checksums are recorded in `gradle.properties`; CI builds the same commits.
+Build the pinned basePower, Base Metals and OreSpawn development jars first. The source commits and checksums in `gradle.properties` keep local and CI builds on the same inputs.
 With the standard sibling layout:
 
 ```text
@@ -24,6 +25,8 @@ gradlew.bat clean check build javadoc verifyReleaseDependencies verifyReleaseArt
 ```
 
 Alternative layouts may pass `-PpowerAdvantageDeobfJar=<path>`, `-PbaseMetalsDeobfJar=<path>`, and `-PoreSpawnDeobfJar=<path>`. None of those dependencies is embedded.
+
+For publishing, use the [MMD release workflow](https://github.com/MinecraftModDevelopmentMods/baseElectric/actions/workflows/deploy-release.yml). It publishes the same checked jar to CurseForge and MMD Maven.
 
 For Eclipse, import this repository as an existing Gradle project and run:
 
@@ -42,7 +45,7 @@ records measured machine work, restart checks, repaired windows and remaining li
 
 For an all-Advantage play-test, run `prepareCombinedEclipseLaunch` in the sibling PowerAdvantage checkout and select its `runClientAllAdvantage.launch`. The [native resource probe](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/test-rig/client-resources/README.md) checks models, textures and names across all three mods. These resource checks do not replace gameplay testing.
 
-The implementation namespace is `zone.moddev.mc.electricadvantage`. Runtime identities, registries, tile/entity IDs, NBT, recipes, tags, OreSpawn provider IDs, and assets remain stable. Electric registers its legacy state, tile, and hydroturbine aliases with PowerAdvantage's shared migration hook.
+The implementation namespace is `zone.moddev.mc.baseelectric`. Electric registers its legacy block, tile and hydroturbine mappings with basePower. Old Electric Advantage and baseElectric worlds are converted to the new IDs while carrying over saved batteries, inventories, fluids, and machine state.
 
 The RF- and Tech Reborn-labelled converters belong to Power Advantage and now use Forge Energy.
 Read the [1.13 migration guide](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/MIGRATION.md) before upgrading, and always use a backup. The [qualification notes](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/CURRENT-QUALIFICATION.md) list the tested scenarios and remaining gaps.

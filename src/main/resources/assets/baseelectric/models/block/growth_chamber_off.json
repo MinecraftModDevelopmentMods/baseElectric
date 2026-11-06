@@ -1,0 +1,10 @@
+{
+    "parent": "baseelectric:block/electric_machine_base",
+    "textures": {
+        "front": "baseelectric:blocks/growth_chamber_off",
+        "top":   "baseelectric:blocks/machine_top",
+        "bottom":"baseelectric:blocks/machine_top",
+        "back":  "baseelectric:blocks/machine_back",
+        "side":  "baseelectric:blocks/machine_side"
+    }
+}
