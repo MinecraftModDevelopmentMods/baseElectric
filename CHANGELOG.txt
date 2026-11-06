@@ -1,4 +1,11 @@
-Unreleased
+2.2.8.115021 - baseElectric for Minecraft 1.15.2
+
+- Continue Electric Advantage under the baseElectric name on Forge 1.15.2.
+- Read the old Electric Advantage machine IDs without changing saved machine data.
+- Find the machines and parts on the shared basePower creative tab.
+- Build against the released basePower 2.4.7.115021 for Minecraft 1.15.2.
+
+Earlier 1.15.2 fixes
 
 - Check generator redstone before the first power pulse so a disabled solar panel cannot produce a startup burst.
 - Stop the electric still consuming oil and power when its full output will not fit.

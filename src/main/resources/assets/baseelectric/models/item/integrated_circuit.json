@@ -1,0 +1,6 @@
+{
+    "parent": "baseelectric:item/generic_item",
+    "textures": {
+        "layer0": "baseelectric:items/integrated_circuit"
+    }
+}

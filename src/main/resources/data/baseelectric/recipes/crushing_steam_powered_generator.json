@@ -1,0 +1,20 @@
+{
+  "type": "basemetals:crushing",
+  "ingredient": {
+    "item": "baseelectric:steam_powered_generator"
+  },
+  "result": {
+    "item": "baseelectric:psu",
+    "count": 1
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "basemetals"
+    },
+    {
+      "type": "baseelectric:recipe_mode",
+      "mode": "APOCALYPTIC"
+    }
+  ]
+}
