@@ -71,8 +71,8 @@ $report = [ordered]@{ status = 'RUNNING'; project = $ProjectRoot; evidence = $Ev
 try {
     $properties = ConvertFrom-StringData -StringData (Get-Content -LiteralPath (Join-Path $ProjectRoot 'gradle.properties') -Raw)
     if ($properties.mod_id -ne 'electricadvantage' -or $properties.mod_version -ne '2.2.8.116051' -or
-        $properties.poweradvantage_source_ref -ne 'bcb75bfa91c14751ebf1e31865e1ec0ffa82c0b7' -or
-        $properties.poweradvantage_deobf_sha256 -ne '2FB923944A456B4F26AB2F9212C646469CE3F49BFD4DAE894C15559B48908386') {
+        $properties.poweradvantage_source_ref -ne 'a21d0653129912e8d45bc443080b211eb09ae88c' -or
+        $properties.poweradvantage_deobf_sha256 -ne '156674F6DF6007D351AD419416344356F6586452077FCAE2E9BC9404EE14A14B') {
         throw 'This verifier requires the pinned Electric 1.16.5 candidate'
     }
     $report.compiler = Get-Pin $Compiler
@@ -99,7 +99,7 @@ try {
         if (!$scope -or $scope.Split(',') -contains 'main') { $mainLibraries += $file }
         if (!$scope -or $scope.Split(',') -contains 'test') { $testLibraries += $file }
     }
-    foreach ($dependency in @(@{ prefix = 'PowerAdvantage-'; hash = $properties.poweradvantage_deobf_sha256 },
+    foreach ($dependency in @(@{ prefix = 'basePower-'; hash = $properties.poweradvantage_deobf_sha256 },
         @{ prefix = 'BaseMetals-'; hash = $properties.basemetals_deobf_sha256 }, @{ prefix = 'OreSpawn-'; hash = $properties.orespawn_deobf_sha256 })) {
         $matching = @($report.libraries | Where-Object { [IO.Path]::GetFileName($_.path).StartsWith($dependency.prefix) })
         if ($matching.Count -ne 1 -or $matching[0].sha256 -ne $dependency.hash) { throw "Typed dependency pin mismatch: $($dependency.prefix)" }

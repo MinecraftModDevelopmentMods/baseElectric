@@ -1,0 +1,4 @@
+{
+    "parent": "baseelectric:block/photovoltaic_generator",
+    "ambientocclusion": false
+}

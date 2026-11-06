@@ -5,7 +5,7 @@ const { execFileSync } = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
 const baseline = '74aa1cee1ddec821ebcd12b9f8b0515b7aec61d9';
-const javaRoot = 'src/main/java/zone/moddev/mc/electricadvantage/';
+const javaRoot = 'src/main/java/zone/moddev/mc/baseelectric/';
 const read = name => fs.readFileSync(path.join(root, name), 'utf8');
 const git = (...args) => execFileSync('git', args, { cwd: root });
 const tracked = git('ls-tree', '-r', '--name-only', baseline).toString().trim().split('\n');
@@ -17,7 +17,7 @@ function check(name, run) {
 function strings(source) {
     const tokens = source.match(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\/\/[^\n]*|\/\*[\s\S]*?\*\//g) || [];
     return tokens.filter(token => token.startsWith('"'))
-        .filter(token => token !== '"2.2.7.115021"' && token !== '"2.2.8.116051"').sort();
+        .filter(token => token !== '"2.2.7.115021"' && token !== '"2.2.9.116051"').sort();
 }
 function numbers(source) {
     const tokens = source.match(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\/\/[^\n]*|\/\*[\s\S]*?\*\/|[A-Za-z_$][A-Za-z0-9_$]*|(?:0[xX][\da-fA-F_]+|(?:\d[\d_]*\.?[\d_]*|\.\d[\d_]*)(?:[eE][+-]?[\d_]+)?)[dDfFlL]?/g) || [];
@@ -28,9 +28,9 @@ check('Exact native target metadata', () => {
     const properties = read('gradle.properties');
     for (const pair of ['minecraft_version=1.16.5', 'forge_version=36.2.34',
         'mapping_channel=official', 'mapping_version=1.16.5', 'mcp_version=20210115.111550',
-        'mod_version=2.2.8.116051', 'poweradvantage_version=2.4.7.116051',
-        'poweradvantage_source_ref=bcb75bfa91c14751ebf1e31865e1ec0ffa82c0b7',
-        'poweradvantage_deobf_sha256=2FB923944A456B4F26AB2F9212C646469CE3F49BFD4DAE894C15559B48908386',
+        'mod_version=2.2.9.116051', 'poweradvantage_version=2.4.8.116051',
+        'poweradvantage_source_ref=a21d0653129912e8d45bc443080b211eb09ae88c',
+        'poweradvantage_deobf_sha256=156674F6DF6007D351AD419416344356F6586452077FCAE2E9BC9404EE14A14B',
         'basemetals_version=3.1.1.116051', 'orespawn_version=4.1.0.116051',
         'java_version=8', 'gradle_java_version=17']) {
         assert(properties.split(/\r?\n/).includes(pair), pair);
@@ -49,7 +49,7 @@ check('Production string identities and NBT keys match the accepted 115 source',
     }
 });
 check('Production numeric constants and rendering test tolerances match 115', () => {
-    const rendererTest = 'src/test/java/zone/moddev/mc/electricadvantage/graphics/RendererBufferContractTest.java';
+    const rendererTest = 'src/test/java/zone/moddev/mc/baseelectric/graphics/RendererBufferContractTest.java';
     for (const name of tracked.filter(name => name.startsWith(javaRoot) && name.endsWith('.java') || name === rendererTest)) {
         assert.deepEqual(numbers(read(name)), numbers(git('show', `${baseline}:${name}`).toString()), name);
     }

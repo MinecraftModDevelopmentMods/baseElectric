@@ -1,6 +1,6 @@
-# Electric Advantage
+# baseElectric
 
-**Minecraft 1.16.5 source port candidate, version 2.2.8.116051.**
+**Minecraft 1.16.5 local test candidate, version 2.2.9.116051.**
 The follow-up checks measure finite machine jobs, energy and fluid conservation,
 blocked routes, real turret hits and full-process restarts. Rendered GUI checks
 require the correct labels as well as correctly placed controls. The shared
@@ -14,8 +14,9 @@ records the exact jars, completed checks and remaining limits.
 The [accepted 1.15 record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.15.2/docs/1.15/CURRENT-QUALIFICATION.md)
 is a behavior reference, not evidence that this target passes.
 
-Electric Advantage adds electric machines, generation, storage, automation,
-and defence to Power Advantage for Minecraft 1.16.5.
+baseElectric continues DrCyano's Electric Advantage. It adds electric
+generation, storage, machinery and defence to basePower. Back up your world
+before upgrading; the port maps legacy Electric Advantage blocks and saved state.
 
 ## Build Target
 
@@ -28,12 +29,12 @@ inference and downloads.
 
 Build inputs are separate, non-embedded deobfuscated jars:
 
-- Power Advantage `2.4.7.116051`: source `bcb75bfa91c14751ebf1e31865e1ec0ffa82c0b7`.
+- Power Advantage `2.4.7.116051`: source `a21d0653129912e8d45bc443080b211eb09ae88c`.
 - Base Metals `3.1.1.116051`: source `995f6cc4dd2d5eecc628a42e5c43fa5390c24bca`.
 - OreSpawn `4.1.0.116051`: source `a113e5d767169189f0e35ade1e173a12d550b00e`.
 
 Exact checksums are recorded in `gradle.properties`. Power deobf SHA-256 is
-`2FB923944A456B4F26AB2F9212C646469CE3F49BFD4DAE894C15559B48908386`.
+`156674F6DF6007D351AD419416344356F6586452077FCAE2E9BC9404EE14A14B`.
 The pinned Power source is available upstream. Do not bypass the release audits
 or substitute a preliminary jar.
 Use immutable copies for verification, not a sibling's output that another

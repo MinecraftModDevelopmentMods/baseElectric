@@ -1,0 +1,7 @@
+{
+    "parent": "basepower:block/pipe2_dnu",
+    "textures": {
+        "texture": "baseelectric:blocks/led_bar_off",
+        "particle": "baseelectric:materials/machine_case"
+    }
+}
