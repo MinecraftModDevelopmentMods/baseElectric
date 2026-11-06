@@ -1,4 +1,4 @@
 {
   "replace": false,
-  "values": ["electricadvantage:integrated_circuit"]
+  "values": ["baseelectric:integrated_circuit"]
 }

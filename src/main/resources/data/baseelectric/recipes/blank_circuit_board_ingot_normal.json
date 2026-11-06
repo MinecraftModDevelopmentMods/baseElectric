@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "forge:plastic"
+    },
+    {
+      "tag": "forge:ingots/copper"
+    }
+  ],
+  "result": {
+    "item": "baseelectric:blank_circuit_board",
+    "count": 2
+  },
+  "conditions": [
+    {
+      "type": "baseelectric:recipe_mode",
+      "mode": "NORMAL"
+    },
+    {
+      "type": "basepower:tag_not_empty",
+      "tag": "forge:ingots/copper"
+    },
+    {
+      "type": "basepower:tag_not_empty",
+      "tag": "forge:plastic"
+    }
+  ],
+  "group": "baseelectric:blank_circuit_board"
+}

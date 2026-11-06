@@ -1,0 +1,4 @@
+{
+    "parent": "baseelectric:block/electric_still_off",
+    "ambientocclusion": false
+}

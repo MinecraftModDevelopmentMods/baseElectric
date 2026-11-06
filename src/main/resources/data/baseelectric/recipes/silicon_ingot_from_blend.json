@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "baseelectric:silicon_mix"
+  },
+  "result": "baseelectric:silicon_ingot",
+  "experience": 0.5,
+  "cookingtime": 200,
+  "conditions": [],
+  "group": "baseelectric:silicon_ingot"
+}
