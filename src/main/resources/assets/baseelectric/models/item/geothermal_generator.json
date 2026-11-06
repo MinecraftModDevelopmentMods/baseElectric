@@ -1,0 +1,4 @@
+{
+    "parent": "baseelectric:block/geothermal_generator",
+    "ambientocclusion": false
+}

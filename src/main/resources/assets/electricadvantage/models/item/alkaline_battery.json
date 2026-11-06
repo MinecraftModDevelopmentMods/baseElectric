@@ -1,6 +1,0 @@
-{
-    "parent": "electricadvantage:item/battery_base",
-    "textures": {
-        "item_texture": "electricadvantage:items/alkaline_battery"
-    }
-}

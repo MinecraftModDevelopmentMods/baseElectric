@@ -1,0 +1,33 @@
+{
+  "parent": "block/block",
+  "textures": {
+        "bottom": "baseelectric:blocks/laser_turret_base",
+        "top": "baseelectric:blocks/laser_turret_base",
+        "side": "baseelectric:blocks/laser_turret_base",
+        "shaft": "basepower:materials/steel",
+        "particle": "basepower:materials/steel"
+    },
+    "elements": [
+       
+        {   "from": [ 0, 0, 0 ],
+            "to": [ 16, 4, 16 ],
+            "faces": {
+                "down":  { "uv": [ 0, 0,16,14 ], "texture": "#bottom" },
+                "up":    { "uv": [ 0, 0,16,14 ], "texture": "#top" },
+                "north": { "uv": [ 0,12,16,16 ], "texture": "#side" },
+                "south": { "uv": [ 0,12,16,16 ], "texture": "#side" },
+                "west":  { "uv": [16,12, 0,16 ], "texture": "#side" },
+                "east":  { "uv": [ 0,12,16,16 ], "texture": "#side" }
+            }
+        },
+        {   "from": [ 7, 4, 7 ],
+            "to": [ 9, 12, 9 ],
+            "faces": {
+                "north": { "uv": [ 7, 4, 9,12 ], "texture": "#shaft" },
+                "west":  { "uv": [ 9, 4, 7,12 ], "texture": "#shaft" },
+                "south": { "uv": [ 7, 4, 9,12 ], "texture": "#shaft" },
+                "east":  { "uv": [ 9, 4, 7,12 ], "texture": "#shaft" }
+            }
+        }
+    ]
+}

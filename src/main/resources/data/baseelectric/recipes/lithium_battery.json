@@ -1,0 +1,44 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "pXp",
+    "pYp",
+    "pZp"
+  ],
+  "key": {
+    "X": {
+      "tag": "forge:ingots/lithium"
+    },
+    "Y": {
+      "tag": "forge:dusts/redstone"
+    },
+    "Z": {
+      "tag": "forge:dusts/carbon"
+    },
+    "p": {
+      "tag": "forge:plastic"
+    }
+  },
+  "result": {
+    "item": "baseelectric:lithium_battery"
+  },
+  "group": "baseelectric:lithium_battery",
+  "conditions": [
+    {
+      "type": "basepower:tag_not_empty",
+      "tag": "forge:dusts/carbon"
+    },
+    {
+      "type": "basepower:tag_not_empty",
+      "tag": "forge:dusts/redstone"
+    },
+    {
+      "type": "basepower:tag_not_empty",
+      "tag": "forge:ingots/lithium"
+    },
+    {
+      "type": "basepower:tag_not_empty",
+      "tag": "forge:plastic"
+    }
+  ]
+}

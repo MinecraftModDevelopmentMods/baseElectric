@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "baseelectric:electric_conduit"
+    },
+    {
+      "item": "basepower:steel_frame"
+    }
+  ],
+  "result": {
+    "item": "baseelectric:electric_track"
+  },
+  "group": "baseelectric:electric_track"
+}

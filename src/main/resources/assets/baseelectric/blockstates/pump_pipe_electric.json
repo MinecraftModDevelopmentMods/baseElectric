@@ -1,0 +1,5 @@
+{
+    "variants": {
+        "": {"model": "basepower:block/fluid_pipe_ns", "x": 90, "y": 0, "uvlock": false }
+    }
+}

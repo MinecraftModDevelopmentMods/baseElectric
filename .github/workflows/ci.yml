@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: electricadvantage-1.15-${{ github.workflow }}-${{ github.ref }}
+  group: baseelectric-1.15-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -36,11 +36,21 @@ jobs:
           repository: MinecraftModDevelopmentMods/BaseMetals
           ref: ac1781e7cade15045ffe0135077087b4d1722603
           path: .ci-dependencies/BaseMetals
-      - name: Check out PowerAdvantage 1.15.2
+      - name: Read basePower source pin
+        id: power-pin
+        shell: bash
+        run: |
+          ref=$(sed -n 's/^poweradvantage_source_ref=//p' gradle.properties)
+          if [[ ! "$ref" =~ ^[a-f0-9]{40}$ ]]; then
+            echo "::error::Set poweradvantage_source_ref to the hosted basePower commit before building in CI."
+            exit 1
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+      - name: Check out pinned basePower
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: MinecraftModDevelopmentMods/PowerAdvantage
-          ref: 6666099a734eba16561d98c86f3f4bb1b7c742f7
+          repository: MinecraftModDevelopmentMods/basePower
+          ref: ${{ steps.power-pin.outputs.ref }}
           path: .ci-dependencies/PowerAdvantage
       - name: Install pinned Java 25 Mavenizer runtime
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
@@ -82,7 +92,7 @@ jobs:
           (cd "$power" && ./gradlew $MMD_GRADLE_TOOLCHAINS jar verifyReleaseDependencies \
             -PbaseMetalsDeobfJar="$bmjar" -PoreSpawnDeobfJar="$osjar" \
             --no-daemon --stacktrace)
-          powerjar="$power/build/libs-dev/PowerAdvantage-2.4.6.115021-deobf.jar"
+          powerjar="$power/build/libs-dev/basePower-2.4.7.115021-deobf.jar"
           test -f "$osjar" && test -f "$bmjar" && test -f "$powerjar"
           echo "orespawn=$osjar" >> "$GITHUB_OUTPUT"
           echo "basemetals=$bmjar" >> "$GITHUB_OUTPUT"
@@ -100,20 +110,20 @@ jobs:
       - name: Upload audited release candidate
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ElectricAdvantage-1.15.2-${{ github.sha }}
+          name: baseElectric-1.15.2-${{ github.sha }}
           if-no-files-found: error
           retention-days: 30
           path: |
-            build/libs/ElectricAdvantage-2.2.7.115021.jar
-            build/libs/ElectricAdvantage-2.2.7.115021-sources.jar
-            build/libs/ElectricAdvantage-2.2.7.115021-javadoc.jar
+            build/libs/baseElectric-2.2.8.115021.jar
+            build/libs/baseElectric-2.2.8.115021-sources.jar
+            build/libs/baseElectric-2.2.8.115021-javadoc.jar
             build/release/SHA256SUMS
             CHANGELOG.txt
       - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ElectricAdvantage-1.15.2-diagnostics-${{ github.sha }}
+          name: baseElectric-1.15.2-diagnostics-${{ github.sha }}
           if-no-files-found: ignore
           retention-days: 14
           path: |
