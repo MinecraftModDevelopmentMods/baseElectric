@@ -1,0 +1,6 @@
+{
+    "parent": "baseelectric:item/battery_base",
+    "textures": {
+        "item_texture": "baseelectric:items/lithium_battery"
+    }
+}

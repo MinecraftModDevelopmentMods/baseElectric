@@ -1,0 +1,4 @@
+{
+    "parent": "baseelectric:block/electric_fabricator_off",
+    "ambientocclusion": false
+}

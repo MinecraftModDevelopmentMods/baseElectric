@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=east":   { "model": "baseelectric:block/growth_chamber_controller",  "y": 90  },
+        "facing=north":  { "model": "baseelectric:block/growth_chamber_controller"   },
+        "facing=south":  { "model": "baseelectric:block/growth_chamber_controller",  "y": 180 },
+        "facing=west":   { "model": "baseelectric:block/growth_chamber_controller",  "y": 270 }
+    }
+}

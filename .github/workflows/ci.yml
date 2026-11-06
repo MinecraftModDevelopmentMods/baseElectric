@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: electricadvantage-1.14-${{ github.workflow }}-${{ github.ref }}
+  group: baseelectric-1.14-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 105
     steps:
-      - name: Check out ElectricAdvantage
+      - name: Check out baseElectric
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Check out pinned OreSpawn
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -36,11 +36,21 @@ jobs:
           repository: MinecraftModDevelopmentMods/BaseMetals
           ref: 713802f93f2d1f650e1593fa35c487ea43add4a5
           path: .ci-dependencies/BaseMetals
-      - name: Check out PowerAdvantage 1.14.4
+      - name: Read basePower source pin
+        id: power-pin
+        shell: bash
+        run: |
+          ref=$(sed -n 's/^poweradvantage_source_ref=//p' gradle.properties)
+          if [[ ! "$ref" =~ ^[a-f0-9]{40}$ ]]; then
+            echo "::error::Set poweradvantage_source_ref to the exact hosted basePower commit before building in CI."
+            exit 1
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+      - name: Check out pinned basePower
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: MinecraftModDevelopmentMods/PowerAdvantage
-          ref: 1d498ca02b6795b16435f0ece35ac04c67ef6948
+          repository: MinecraftModDevelopmentMods/basePower
+          ref: ${{ steps.power-pin.outputs.ref }}
           path: .ci-dependencies/PowerAdvantage
       - name: Install Java 8 toolchain
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
@@ -70,38 +80,36 @@ jobs:
           (cd "$power" && ./gradlew jar verifyReleaseDependencies \
             -PbaseMetalsDeobfJar="$bmjar" -PoreSpawnDeobfJar="$osjar" \
             --no-daemon --stacktrace)
-          powerjar="$power/build/libs-dev/PowerAdvantage-2.4.5.114041-deobf.jar"
+          powerjar="$power/build/libs-dev/basePower-2.4.6.114041-deobf.jar"
           test -f "$osjar" && test -f "$bmjar" && test -f "$powerjar"
           echo "orespawn=$osjar" >> "$GITHUB_OUTPUT"
           echo "basemetals=$bmjar" >> "$GITHUB_OUTPUT"
           echo "power=$powerjar" >> "$GITHUB_OUTPUT"
-          echo "power_ref=$(git -C "$power" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - name: Build and audit release artifacts
         run: >-
           ./gradlew clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts
           writeReleaseChecksums verifyEclipseProductionClasspath
           -PpowerAdvantageDeobfJar=${{ steps.dependencies.outputs.power }}
-          -Ppoweradvantage_source_ref=${{ steps.dependencies.outputs.power_ref }}
           -PbaseMetalsDeobfJar=${{ steps.dependencies.outputs.basemetals }}
           -PoreSpawnDeobfJar=${{ steps.dependencies.outputs.orespawn }}
           --no-daemon --stacktrace
       - name: Upload audited release candidate
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ElectricAdvantage-1.14.4-${{ github.sha }}
+          name: baseElectric-1.14.4-${{ github.sha }}
           if-no-files-found: error
           retention-days: 30
           path: |
-            build/libs/ElectricAdvantage-2.2.6.114041.jar
-            build/libs/ElectricAdvantage-2.2.6.114041-sources.jar
-            build/libs/ElectricAdvantage-2.2.6.114041-javadoc.jar
+            build/libs/baseElectric-2.2.8.114041.jar
+            build/libs/baseElectric-2.2.8.114041-sources.jar
+            build/libs/baseElectric-2.2.8.114041-javadoc.jar
             build/release/SHA256SUMS
             CHANGELOG.txt
       - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ElectricAdvantage-1.14.4-diagnostics-${{ github.sha }}
+          name: baseElectric-1.14.4-diagnostics-${{ github.sha }}
           if-no-files-found: ignore
           retention-days: 14
           path: |
