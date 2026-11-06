@@ -1,4 +1,11 @@
-Unreleased
+2.2.8.114041 - baseElectric for Minecraft 1.14.4
+
+- Continue Electric Advantage under the baseElectric name on Forge 1.14.4.
+- Built and tested with the published basePower 2.4.6.114041 release.
+- Keep old electric machine IDs and the turbine link readable when upgrading.
+- Find the electric machines and parts on the shared basePower creative tab.
+
+Earlier 1.14.4 fixes
 
 - Check generator redstone before the first power pulse so a disabled solar panel cannot produce a startup burst.
 - Stop the electric still consuming oil and power when its full output will not fit.

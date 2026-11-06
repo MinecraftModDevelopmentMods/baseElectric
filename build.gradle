@@ -16,7 +16,7 @@ plugins {
 
 group = project.mod_group
 version = project.mod_version
-base.archivesName = 'ElectricAdvantage'
+base.archivesName = 'baseElectric'
 
 def versionParts = project.mod_version.toString().tokenize('.')
 if (versionParts.size() != 4 || !versionParts.every { it ==~ /\d+/ }) {
@@ -101,7 +101,7 @@ minecraft {
             workingDir.convention layout.projectDirectory.dir(configuredRunDirectory)
             systemProperty 'forge.logging.markers', 'REGISTRIES'
             systemProperty 'forge.logging.console.level', 'info'
-            mods { electricadvantage { source sourceSets.main } }
+            mods { baseelectric { source sourceSets.main } }
             environment 'target', forge28RunTargets[name]
             environment 'MCP_MAPPINGS', "${mapping_channel}_${mapping_version}"
             environment 'MCP_VERSION', mcp_version
@@ -166,7 +166,7 @@ repositories {
 // Local builds use the sibling FG7 output; CI supplies the same pinned jar via
 // -PpowerAdvantageDeobfJar after building the audited upstream commit.
 def defaultPowerAdvantageDeobfJar = file("../../PowerAdvantage/build/libs-dev/" \
-        + "PowerAdvantage-${project.poweradvantage_version}-deobf.jar")
+        + "basePower-${project.poweradvantage_version}-deobf.jar")
 def powerAdvantageDeobfJar = providers.gradleProperty('powerAdvantageDeobfJar')
         .map { file(it) }
         .getOrElse(defaultPowerAdvantageDeobfJar)
@@ -341,7 +341,7 @@ tasks.register('verifyReleaseConfiguration') {
     group = 'verification'
     description = 'Validates release identity, target metadata, and dependency policy.'
     doLast {
-        if (project.mod_version != '2.2.6.114041') {
+        if (project.mod_version != '2.2.8.114041') {
             throw new GradleException("Unexpected ElectricAdvantage release version: ${project.mod_version}")
         }
         if (project.minecraft_version != '1.14.4'
@@ -357,33 +357,35 @@ tasks.register('verifyReleaseConfiguration') {
                 || project.gradle_java_version != '17') {
             throw new GradleException('Unexpected release dispatcher target metadata')
         }
-        if (project.mod_id != 'electricadvantage'
-                || project.group.toString() != 'zone.moddev.mc.electricadvantage'
-                || base.archivesName.get() != 'ElectricAdvantage'
+        if (project.mod_id != 'baseelectric'
+                || project.group.toString() != 'zone.moddev.mc.baseelectric'
+                || base.archivesName.get() != 'baseElectric'
                 || project.mod_license != 'GPL-3.0-only'
-                || project.curseforge_project_id != '240985') {
+                || project.curseforge_project_id != '1783006') {
             throw new GradleException('Unexpected Forge, Maven, archive, or CurseForge identity')
         }
-        if (project.cf_requirements != 'power-advantage,base-metals'
+        if (project.cf_requirements != 'basepower,base-metals'
                 || project.cf_optionals != ''
                 || project.cf_versions != '1.14.4') {
             throw new GradleException('Unexpected CurseForge dependency or game-version metadata')
         }
-        if (project.poweradvantage_version != '2.4.5.114041'
-                || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/PowerAdvantage'
+        if (project.poweradvantage_version != '2.4.6.114041'
+                || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/basePower'
                 || !(project.poweradvantage_source_ref ==~ /[a-f0-9]{40}/)
+                || !(project.poweradvantage_curse_file_id ==~ /[0-9]+/)
+                || !(project.poweradvantage_release_sha256 ==~ /[A-F0-9]{64}/)
                 || !(project.poweradvantage_deobf_sha256 ==~ /[A-F0-9]{64}/)) {
-            throw new GradleException('Unexpected PowerAdvantage compile dependency identity')
+            throw new GradleException('Unexpected basePower release or development dependency identity')
         }
         String mainSource = file(
-                'src/main/java/zone/moddev/mc/electricadvantage/ElectricAdvantage.java').getText('UTF-8')
-        if (!mainSource.contains('MODID = "electricadvantage"')
-                || !mainSource.contains('VERSION = "2.2.6.114041"')) {
+                'src/main/java/zone/moddev/mc/baseelectric/ElectricAdvantage.java').getText('UTF-8')
+        if (!mainSource.contains('MODID = "baseelectric"')
+                || !mainSource.contains('VERSION = "2.2.8.114041"')) {
             throw new GradleException('ElectricAdvantage source identity changed')
         }
         String metadata = file('src/main/resources/META-INF/mods.toml').getText('UTF-8').replace('\r\n', '\n')
-        ['modId="electricadvantage"', 'modId="poweradvantage"', 'modId="basemetals"',
-         'versionRange="[2.4.5.114041,3.0.0)"'].each { marker ->
+        ['modId="baseelectric"', 'modId="basepower"', 'modId="basemetals"',
+         'versionRange="[2.4.6.114041,3.0.0)"'].each { marker ->
             if (!metadata.contains(marker)) {
                 throw new GradleException("Source mods.toml is missing ${marker}")
             }
@@ -409,8 +411,8 @@ tasks.register('verifyReleaseDependencies') {
             ['cyano/poweradvantage/api/PoweredEntity.class',
              'cyano/poweradvantage/api/GUIBlock.class',
              'cyano/poweradvantage/api/FluidCategoryRegistry.class',
-             'zone/moddev/mc/poweradvantage/conduitnetwork/ConduitRegistry.class',
-             'zone/moddev/mc/poweradvantage/init/Fluids.class'].each { required ->
+             'zone/moddev/mc/basepower/conduitnetwork/ConduitRegistry.class',
+             'zone/moddev/mc/basepower/init/Fluids.class'].each { required ->
                 if (zip.getEntry(required) == null) {
                     throw new GradleException("PowerAdvantage dependency is missing ${required}")
                 }
@@ -498,19 +500,19 @@ tasks.register('verifyReleaseArtifacts') {
         new ZipFile(mainJar).withCloseable { zip ->
             List<String> names = zip.entries().collect { it.name }
             ['META-INF/mods.toml', 'pack.mcmeta',
-             'zone/moddev/mc/electricadvantage/ElectricAdvantage.class',
-             'zone/moddev/mc/electricadvantage/machines/ElectricDrillTileEntity.class',
-             'zone/moddev/mc/electricadvantage/machines/ElectricPumpTileEntity.class',
-             'zone/moddev/mc/electricadvantage/machines/HydroelectricGeneratorTileEntity.class',
-             'zone/moddev/mc/electricadvantage/migration/ElectricLegacyMigrations.class',
-             'zone/moddev/mc/electricadvantage/init/OreSpawnWorldGen.class',
-             'zone/moddev/mc/electricadvantage/init/Villages.class',
-             'zone/moddev/mc/electricadvantage/recipe/RecipeConditions$ModeSerializer.class',
-             'assets/electricadvantage/lang/en_us.json',
-             'data/electricadvantage/loot_tables/blocks/electric_drill.json',
-             'data/electricadvantage/loot_tables/blocks/electric_conduit.json',
-             'data/electricadvantage/recipes/electric_conduit_plastic_ingot.json',
-             'data/electricadvantage/advancements/recipes/integrated_circuit_copper_normal.json',
+             'zone/moddev/mc/baseelectric/ElectricAdvantage.class',
+             'zone/moddev/mc/baseelectric/machines/ElectricDrillTileEntity.class',
+             'zone/moddev/mc/baseelectric/machines/ElectricPumpTileEntity.class',
+             'zone/moddev/mc/baseelectric/machines/HydroelectricGeneratorTileEntity.class',
+             'zone/moddev/mc/baseelectric/migration/ElectricLegacyMigrations.class',
+             'zone/moddev/mc/baseelectric/init/OreSpawnWorldGen.class',
+             'zone/moddev/mc/baseelectric/init/Villages.class',
+             'zone/moddev/mc/baseelectric/recipe/RecipeConditions$ModeSerializer.class',
+             'assets/baseelectric/lang/en_us.json',
+             'data/baseelectric/loot_tables/blocks/electric_drill.json',
+             'data/baseelectric/loot_tables/blocks/electric_conduit.json',
+             'data/baseelectric/recipes/electric_conduit_plastic_ingot.json',
+             'data/baseelectric/advancements/recipes/integrated_circuit_copper_normal.json',
              'data/forge/tags/items/ores/lithium.json'].each { required ->
                 if (!names.contains(required)) {
                     throw new GradleException("Release jar is missing ${required}")
@@ -518,7 +520,7 @@ tasks.register('verifyReleaseArtifacts') {
             }
             ['agent-notes/', '.codex/', 'src/test/', 'fernflower_abstract_parameter_names.txt',
               'cyano/poweradvantage/',
-              'zone/moddev/mc/poweradvantage/', 'zone/moddev/mc/basemetals/', 'cyano/basemetals/', 'com/mcmoddev/lib/',
+              'zone/moddev/mc/basepower/', 'zone/moddev/mc/basemetals/', 'cyano/basemetals/', 'com/mcmoddev/lib/',
               'cyano/orespawn/', 'com/mcmoddev/orespawn/', 'cofh/api/', 'reborncore/',
              'net/minecraft/', 'net/minecraftforge/'].each { forbidden ->
                 if (names.any { it.contains(forbidden) }) {
@@ -527,7 +529,7 @@ tasks.register('verifyReleaseArtifacts') {
             }
             String metadata = zip.getInputStream(zip.getEntry('META-INF/mods.toml'))
                     .getText(StandardCharsets.UTF_8.name())
-            if (!metadata.contains('modId="electricadvantage"')
+            if (!metadata.contains('modId="baseelectric"')
                     || !metadata.contains("version=\"${project.mod_version}\"")) {
                 throw new GradleException('Packaged mods.toml identity or version is incorrect')
             }
@@ -553,8 +555,8 @@ tasks.register('verifyReleaseArtifacts') {
         }
 
         new ZipFile(new File(libs, expectedReleaseFiles.get()[1])).withCloseable { sourceZip ->
-            if (sourceZip.getEntry('zone/moddev/mc/electricadvantage/ElectricAdvantage.java') == null
-                    || sourceZip.getEntry('zone/moddev/mc/electricadvantage/machines/ElectricDrillTileEntity.java') == null) {
+            if (sourceZip.getEntry('zone/moddev/mc/baseelectric/ElectricAdvantage.java') == null
+                    || sourceZip.getEntry('zone/moddev/mc/baseelectric/machines/ElectricDrillTileEntity.java') == null) {
                 throw new GradleException('Sources jar is missing required ElectricAdvantage sources')
             }
         }
@@ -654,7 +656,7 @@ publishing {
             pom {
                 name = 'Electric Advantage'
                 description = project.mod_description
-                url = 'https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage'
+                url = 'https://github.com/MinecraftModDevelopmentMods/baseElectric'
                 licenses {
                     license {
                         name = 'GNU General Public License, Version 3'
@@ -662,9 +664,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage.git'
-                    developerConnection = 'scm:git:ssh://git@github.com/MinecraftModDevelopmentMods/ElectricAdvantage.git'
-                    url = 'https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage'
+                    connection = 'scm:git:https://github.com/MinecraftModDevelopmentMods/baseElectric.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/MinecraftModDevelopmentMods/baseElectric.git'
+                    url = 'https://github.com/MinecraftModDevelopmentMods/baseElectric'
                 }
             }
         }
@@ -1010,7 +1012,7 @@ tasks.register('verifyModelAssets') {
             int separator = reference.indexOf(':')
             String namespace = separator >= 0 ? reference.substring(0, separator) : 'minecraft'
             String path = separator >= 0 ? reference.substring(separator + 1) : reference
-            if (namespace != project.mod_id && namespace != 'poweradvantage') return
+            if (namespace != project.mod_id && namespace != 'basepower') return
 
             String suffix = assetType == 'textures' ? '.png' : '.json'
             String targetPath = "assets/${namespace}/${assetType}/${path}${suffix}"
@@ -1129,9 +1131,9 @@ tasks.register('verifyRecipeTagGuards') {
                 throw new GradleException("${recipeFile.path} contains a non-object recipe condition")
             }
             Set<String> guards = conditions
-                    .findAll { it instanceof Map && it.type == 'poweradvantage:tag_not_empty' }
+                    .findAll { it instanceof Map && it.type == 'basepower:tag_not_empty' }
                     .collect { it.tag as String } as Set<String>
-            Set<String> emptyGuards = conditions.findAll { it.type == 'poweradvantage:tag_empty' }
+            Set<String> emptyGuards = conditions.findAll { it.type == 'basepower:tag_empty' }
                     .collect { it.tag as String } as Set<String>
             if (!(emptyGuards.intersect(guards)).isEmpty()) {
                 throw new GradleException("${recipeFile.path} requires the same tag to be empty and nonempty")
