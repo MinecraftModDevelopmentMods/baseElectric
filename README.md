@@ -35,8 +35,9 @@ that this one passes.
 
 ## Dependencies
 
-The coordinated basePower `2.4.9.117011` source and artifact pins are pending
-in `gradle.properties`. Builds deliberately stop until those inputs are recorded.
+The coordinated basePower `2.4.9.117011` is pinned to local source
+`308d42a89483d56d0fad4805cdb65dac483d9e31`. Its development jar, player jar,
+and test bootstrap have separate SHA-256 pins in `gradle.properties`.
 Base Metals `3.1.1.117011` is pinned to the local startup fix
 `0deeeeecdbbc1fbcdecf910c59477de8efe164d7` and its verified deobf SHA-256 in
 `gradle.properties`. That source is unpushed; hosted builds cannot fetch it.

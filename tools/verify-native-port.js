@@ -78,23 +78,18 @@ check('Exact native 1.17.1 build target', () => {
     assert.match(metadata, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.1\.117011,4\.0\.0\)"/);
     assert(metadata.includes('modId="baseelectric"') && metadata.includes('displayName="baseElectric"'));
 });
-check('Pending basePower API pins fail closed; exact Base Metals and OreSpawn pins are retained', () => {
-    const artifactPins = ['poweradvantage_deobf_sha256', 'poweradvantage_unit_bootstrap_sha256'];
+check('Exact local basePower, Base Metals and OreSpawn pins are retained', () => {
     assert.equal(properties.poweradvantage_source_repository, 'MinecraftModDevelopmentMods/basePower');
-    if (properties.poweradvantage_pin_state === 'PENDING') {
-        for (const key of ['poweradvantage_source_ref', ...artifactPins]) {
-            assert.equal(properties[key], '', key);
-        }
-    } else {
-        assert.equal(properties.poweradvantage_pin_state, 'LOCAL_CHECKPOINT');
-        assert.match(properties.poweradvantage_source_ref, /^[a-f0-9]{40}$/);
-        for (const key of artifactPins) assert.match(properties[key], /^[A-F0-9]{64}$/, key);
-    }
+    assert.equal(properties.poweradvantage_pin_state, 'LOCAL_CHECKPOINT');
     const build = read('build.gradle');
     assert.match(build, /poweradvantage_pin_state != 'LOCAL_CHECKPOINT'/);
     assert.match(build, /requireDevelopmentPins\(\)\s+def powerAdvantageDeobfJarPath/);
     assert(!build.includes('defaultPowerAdvantageDeobfJar'));
     for (const [key, value] of Object.entries({
+        poweradvantage_source_ref:'308d42a89483d56d0fad4805cdb65dac483d9e31',
+        poweradvantage_deobf_sha256:'312FA3012CB57C91F5F22079DA4778D481BA45EF7B8A0587D9993899E1B6D08E',
+        poweradvantage_runtime_sha256:'C55782CA1B0F3B8F7B358BE3150229F5AD92F8C8CE15E3989AAAD1B4F182886F',
+        poweradvantage_unit_bootstrap_sha256:'28080BD563D6D2F378AD2735BBEFEBB079DBFC87A9457E066DDB99F43C3D4095',
         basemetals_source_commit:'0deeeeecdbbc1fbcdecf910c59477de8efe164d7',
         basemetals_deobf_sha256:'83A8C32C633B56BB7E4405E8B3B24A4DEA32B9119216E5097B884056D679CAD1',
         orespawn_source_commit:'b56e2b62a1a6ea4d1dd96f8646a87801a817dbdf',

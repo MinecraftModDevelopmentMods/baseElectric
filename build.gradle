@@ -423,7 +423,11 @@ tasks.register('verifyReleaseConfiguration') {
             throw new GradleException('Unexpected CurseForge dependency or game-version metadata')
         }
         if (project.poweradvantage_version != '2.4.9.117011'
-                || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/basePower') {
+                || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/basePower'
+                || project.poweradvantage_source_ref != '308d42a89483d56d0fad4805cdb65dac483d9e31'
+                || project.poweradvantage_deobf_sha256 != '312FA3012CB57C91F5F22079DA4778D481BA45EF7B8A0587D9993899E1B6D08E'
+                || project.poweradvantage_unit_bootstrap_sha256 != '28080BD563D6D2F378AD2735BBEFEBB079DBFC87A9457E066DDB99F43C3D4095'
+                || project.poweradvantage_runtime_sha256 != 'C55782CA1B0F3B8F7B358BE3150229F5AD92F8C8CE15E3989AAAD1B4F182886F') {
             throw new GradleException('Unexpected basePower compile dependency identity')
         }
         if (project.basemetals_version != '3.1.1.117011'

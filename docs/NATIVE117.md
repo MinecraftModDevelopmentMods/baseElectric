@@ -9,12 +9,11 @@ namespace changes, with specific checks for the retained old IDs and the
 shared basePower creative tab. The Eclipse refresh fix replaces stale
 runtime archives without changing the Forge bootstrap order or the launch runtime.
 
-The basePower `2.4.9.117011` pins are pending. Base Metals `3.1.1.117011` is
-pinned for local development to the unpushed startup fix; hosted qualification
-requires authorized source availability. Its runtime SHA-256 remains pending.
-Run fresh deterministic and ECJ checks, a repeated Eclipse refresh, and packaged
-migration on disposable worlds after the coordinated inputs arrive. The results
-below belong to the pre-rename port and do not qualify this candidate.
+The basePower `2.4.9.117011` source, development jar, player jar and bootstrap
+are pinned separately. Base Metals `3.1.1.117011` is pinned for local development
+to the unpushed startup fix; hosted qualification requires authorized source
+availability. Its runtime SHA-256 remains pending. The historical results below
+belong to the pre-rename port and do not qualify this candidate.
 
 ## Historical Electric Advantage Checkpoint
 
