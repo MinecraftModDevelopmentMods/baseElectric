@@ -1,18 +1,11 @@
 # baseElectric
 
-**Minecraft 1.16.5 local test candidate, version 2.2.9.116051.**
-The follow-up checks measure finite machine jobs, energy and fluid conservation,
-blocked routes, real turret hits and full-process restarts. Rendered GUI checks
-require the correct labels as well as correctly placed controls. The shared
-record below identifies the current jars and each completed run; earlier
-results are retained separately rather than counted again. Broader player/entity
-checks retain a separately controlled vanilla wolf-health difference.
-Manual acceptance is pending. This is not a published release.
-See [the native port checklist](docs/NATIVE116.md).
-The [shared test record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.16.5/docs/1.16/CURRENT-QUALIFICATION.md)
-records the exact jars, completed checks and remaining limits.
-The [accepted 1.15 record](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.15.2/docs/1.15/CURRENT-QUALIFICATION.md)
-is a behavior reference, not evidence that this target passes.
+**Minecraft 1.16.5, version 2.2.9.116051.**
+
+Use [basePower 2.4.8.116051](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9501921)
+and [Base Metals 3.1.1.116051](https://www.curseforge.com/minecraft/mc-mods/base-metals/files/9501458). The
+[shared test record](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.16.5/docs/1.16/BASE-RELEASE-CANDIDATE.md)
+covers machine operation, world upgrades and full restarts.
 
 baseElectric continues DrCyano's Electric Advantage. It adds electric
 generation, storage, machinery and defence to basePower. Back up your world
@@ -29,7 +22,7 @@ inference and downloads.
 
 Build inputs are separate, non-embedded deobfuscated jars:
 
-- Power Advantage `2.4.7.116051`: source `a21d0653129912e8d45bc443080b211eb09ae88c`.
+- basePower `2.4.8.116051`.
 - Base Metals `3.1.1.116051`: source `995f6cc4dd2d5eecc628a42e5c43fa5390c24bca`.
 - OreSpawn `4.1.0.116051`: source `a113e5d767169189f0e35ade1e173a12d550b00e`.
 
@@ -83,10 +76,9 @@ launching. Do not add raw source metadata to the production classpath.
 
 ## Compatibility
 
-The implementation namespace remains `zone.moddev.mc.electricadvantage`.
-Runtime registries, legacy aliases, tile/entity IDs, NBT keys, recipe IDs,
-ratios, tags, OreSpawn provider IDs and assets are retained. Electric uses
-Power Advantage's shared migration hook, dimension-key network registry,
+New saves use `baseelectric:*`. The shared upgrade code maps older
+`electricadvantage:*` IDs to their baseElectric equivalents and retains saved
+machine data. Electric uses basePower's shared migration hook, dimension-key network registry,
 capability adapters and native lifecycle contracts. It does not create
 synthetic numeric dimension IDs or a second capability implementation.
 
@@ -103,13 +95,12 @@ The RF- and Tech Reborn-labelled converters belong to Power Advantage and use
 Forge Energy. Check live rendering, GUI interaction, sound, weapons,
 hydroturbine orientation and animation, multiplayer and real player login in
 game. Automated tag, machine and upgrade checks do not replace that walkthrough.
-No 1.16 publication is included before manual acceptance.
 
 Always back up a whole world before upgrading and test only disposable copies.
 Keep migration backups and failed evidence. Bounded Advantage results never
 qualify unrelated mods or an arbitrary existing modpack.
 
-The shared [machine operating checks](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.16.5/docs/1.16/OPERATING-TESTS.md)
+The shared [machine operating checks](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.16.5/docs/1.16/OPERATING-TESTS.md)
 exercise finite processing, fabrication, growth, pumping, lighting, generation,
 battery and turret jobs. They check real output, damage and resource use, with
 blocked and starved controls and complete server restarts.
