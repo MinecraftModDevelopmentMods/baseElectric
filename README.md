@@ -13,7 +13,8 @@ older Electric Advantage saves, as well as saves that already use baseElectric I
 - Forge `37.1.1`, official `1.17.1` mappings, MCP `20210706.113038`.
 - ForgeGradle `7.0.34`, Renamer `1.1.5`, Gradle `9.6.1`.
 - Java 17 runs Gradle; Java 25 runs Mavenizer. Production and tests use
-  Java `16.0.2+7`, class major `60`. Java 8 is only for old dependency build utilities.
+  Java `16.0.2+7`, class major `60`. The Eclipse generator also needs Java 8
+  for ForgeGradle's Slime Launcher tooling; the game launches use Java 16.
 - Production artifact: `build/libs/baseElectric-2.2.10.117011.jar`.
   The separate deobfuscated API artifact stays under `build/libs-dev`.
 
@@ -26,8 +27,9 @@ basePower, Base Metals and OreSpawn are separate dependencies, never embedded.
 The identity port keeps the native 1.17.1 models, shader, GUI, loot and recipe
 book behavior. The 96-test suite is retained, with additional legacy ID cases in
 the existing migration test. The prior Electric Advantage build and ECJ results
-are historical; they do not qualify this candidate. Compilation, packaged world
-migration and manual gameplay checks are still pending.
+are historical; they do not qualify this candidate. Local builds are recorded
+against exact source and artifact hashes. Packaged world migration and manual
+gameplay are separate checks.
 
 See [the native port notes](docs/NATIVE117.md) for the API audit and remaining gates.
 The retained [1.16 notes](docs/NATIVE116.md) describe the previous target, not proof
@@ -54,8 +56,8 @@ Once the pins are set, run from this repository with the arguments below:
 ```
 
 On Windows, use `gradlew.bat` instead of `./gradlew`. Set `JAVA_HOME` to Java 17
-for Gradle and install the Java 16 production toolchain and Java 25 Mavenizer
-runtime listed above. The older dependency build utilities also need Java 8.
+for Gradle and install the Java 16 production toolchain, Java 25 Mavenizer
+runtime and Java 8 build tooling listed above.
 
 Append these arguments using immutable local inputs. In particular, the build
 does not discover a basePower jar or bootstrap source in a sibling checkout:
