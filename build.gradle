@@ -830,6 +830,35 @@ tasks.register('configureEclipseBuildship') {
     }
 }
 
+def quoteEclipseLaunchPaths = { String name, String arguments ->
+    // ForgeGradle flattens path arguments without quoting them for Eclipse.
+    Map<String, String> nextOptions = [
+            '--cache': '--metadata', '--metadata': '--to-srg',
+            '--to-srg': '--to-obf', '--to-obf': '--'
+    ]
+    if (name == 'runData.launch') {
+        nextOptions.put('--output', '--existing')
+        nextOptions.put('--existing', null)
+    }
+    nextOptions.each { String option, String next ->
+        String prefix = " ${option} "
+        int start = arguments.indexOf(prefix)
+        if (start < 0) {
+            throw new GradleException("${name} is missing path argument ${option}")
+        }
+        start += prefix.length()
+        int end = next == null ? arguments.length() : arguments.indexOf(" ${next} ", start)
+        if (end <= start) {
+            throw new GradleException("${name} has malformed path argument ${option}")
+        }
+        String value = arguments.substring(start, end)
+        if (value.find(/\s/) != null && !(value.startsWith('"') && value.endsWith('"'))) {
+            arguments = arguments.substring(0, start) + '"' + value + '"' + arguments.substring(end)
+        }
+    }
+    arguments
+}
+
 tasks.register('isolateEclipseProductionRuns') {
     group = 'ide'
     description = 'Normalizes ForgeGradle Eclipse launches for production-only execution.'
@@ -871,6 +900,13 @@ tasks.register('isolateEclipseProductionRuns') {
                 String eclipseModClasses = "${project.mod_id}%%${mainOutput}" +
                         "${File.pathSeparator}${project.mod_id}%%${mainOutput}"
                 modClasses[0].@value = eclipseModClasses
+                def programArguments = launchXml.stringAttribute.find {
+                    it.@key == 'org.eclipse.jdt.launching.PROGRAM_ARGUMENTS'
+                }
+                if (programArguments == null) {
+                    throw new GradleException("${launch.name} is missing its program arguments")
+                }
+                programArguments.@value = quoteEclipseLaunchPaths(launch.name, programArguments.@value)
                 // A launch reused across the rename may still point at the old Eclipse project.
                 launchXml.stringAttribute.findAll { it.@key == 'org.eclipse.jdt.launching.PROJECT_ATTR' }.each {
                     it.@value = project.name
@@ -935,26 +971,7 @@ tasks.register('isolateEclipseProductionRuns') {
                 new Node(null, 'listEntry', [value: groovy.xml.XmlUtil.serialize(archive)])
             }
             classpath.children().addAll(runtimeIndex, runtimeEntries)
-            contents = groovy.xml.XmlUtil.serialize(launchXml)
-
-            ['--cache', '--metadata', '--to-srg', '--to-obf'].each { option ->
-                String prefix = option + ' '
-                int valueStart = contents.indexOf(prefix)
-                if (valueStart < 0) {
-                    throw new GradleException("${name} is missing Slime Launcher argument ${option}")
-                }
-                valueStart += prefix.length()
-                int valueEnd = contents.indexOf(' --', valueStart)
-                if (valueEnd < 0) {
-                    throw new GradleException("${name} has malformed Slime Launcher argument ${option}")
-                }
-                String value = contents.substring(valueStart, valueEnd)
-                if (value.find(/\s/) != null && !value.startsWith('&quot;')) {
-                    contents = (contents.substring(0, valueStart)
-                            + '&quot;' + value + '&quot;' + contents.substring(valueEnd))
-                }
-            }
-            launch.setText(contents.replace('\r\n', '\n'), 'UTF-8')
+            launch.setText(groovy.xml.XmlUtil.serialize(launchXml).replace('\r\n', '\n'), 'UTF-8')
         }
     }
 }
@@ -1016,6 +1033,12 @@ tasks.register('verifyEclipseProductionClasspath') {
             }.mapEntry.find { it.@key.text() == 'MOD_CLASSES' }.@value.text()
             if (modClasses != expectedModClasses) {
                 throw new GradleException("${name} does not discover the Eclipse production mod in bin/main")
+            }
+            String programArguments = launch.stringAttribute.find {
+                it.@key.text() == 'org.eclipse.jdt.launching.PROGRAM_ARGUMENTS'
+            }.@value.text()
+            if (quoteEclipseLaunchPaths(name, programArguments) != programArguments) {
+                throw new GradleException("${name} has an unquoted path argument")
             }
         }
         ['runClient.launch', 'runServer.launch'].each { name ->
