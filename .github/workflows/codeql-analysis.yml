@@ -19,12 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
-      - name: Check out ElectricAdvantage
+      - name: Check out baseElectric
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Use canonical LF dependency inputs
         # Apply before every dependency checkout, including OreSpawn.
         run: git config --global core.autocrlf false
-      - name: Require final PowerAdvantage pin
+      - name: Require coordinated 1.17.1 dependency pins
         id: pins
         shell: bash
         run: |
@@ -32,11 +32,16 @@ jobs:
           power_ref="$(sed -n 's/^poweradvantage_source_ref=//p' gradle.properties | tr -d '\r')"
           power_sha="$(sed -n 's/^poweradvantage_deobf_sha256=//p' gradle.properties | tr -d '\r')"
           pin_state="$(sed -n 's/^poweradvantage_pin_state=//p' gradle.properties | tr -d '\r')"
-          if [[ "$pin_state" == "API_PIN_PROVISIONAL" || "$power_ref" != "5b9abe578b053d2ef59b1962cf9e04f6880c91b9" || "$power_sha" != "799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8" ]]; then
-            echo "PowerAdvantage 1.17.1 source/deobf pin differs from the audited candidate" >&2
+          bm_ref="$(sed -n 's/^basemetals_source_commit=//p' gradle.properties | tr -d '\r')"
+          bm_sha="$(sed -n 's/^basemetals_deobf_sha256=//p' gradle.properties | tr -d '\r')"
+          bootstrap_sha="$(sed -n 's/^poweradvantage_unit_bootstrap_sha256=//p' gradle.properties | tr -d '\r')"
+          if [[ "$pin_state" != "LOCAL_CHECKPOINT" || ! "$power_ref" =~ ^[a-f0-9]{40}$ || ! "$bm_ref" =~ ^[a-f0-9]{40}$ ||
+                ! "$power_sha" =~ ^[A-F0-9]{64}$ || ! "$bm_sha" =~ ^[A-F0-9]{64}$ || ! "$bootstrap_sha" =~ ^[A-F0-9]{64}$ ]]; then
+            echo "The coordinated basePower and Base Metals 1.17.1 pins are pending" >&2
             exit 1
           fi
           echo "power_ref=$power_ref" >> "$GITHUB_OUTPUT"
+          echo "basemetals_ref=$bm_ref" >> "$GITHUB_OUTPUT"
       - name: Check out pinned OreSpawn
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -47,12 +52,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: MinecraftModDevelopmentMods/BaseMetals
-          ref: dacfaa3af2e3310d5cb6b081da79f09260ae103d
+          # Local-only startup fix; hosted checkout must wait for authorized source availability.
+          ref: ${{ steps.pins.outputs.basemetals_ref }}
           path: .ci-dependencies/BaseMetals
-      - name: Check out PowerAdvantage 1.17.1
+      - name: Check out basePower 1.17.1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: MinecraftModDevelopmentMods/PowerAdvantage
+          repository: MinecraftModDevelopmentMods/basePower
           # Local-only Power source; publish upstream before hosted builds.
           ref: ${{ steps.pins.outputs.power_ref }}
           path: .ci-dependencies/PowerAdvantage
@@ -93,31 +99,31 @@ jobs:
           orespawn="$GITHUB_WORKSPACE/.ci-dependencies/OreSpawn"
           basemetals="$GITHUB_WORKSPACE/.ci-dependencies/BaseMetals"
           power="$GITHUB_WORKSPACE/.ci-dependencies/PowerAdvantage"
+          test "$(git -C "$power" rev-parse HEAD)" = "${{ steps.pins.outputs.power_ref }}"
+          test "$(git -C "$basemetals" rev-parse HEAD)" = "${{ steps.pins.outputs.basemetals_ref }}"
           chmod +x "$orespawn/gradlew" "$basemetals/gradlew" "$power/gradlew"
           (cd "$orespawn" && ./gradlew $MMD_GRADLE_TOOLCHAINS jar --no-daemon --stacktrace)
           (cd "$basemetals" && ./gradlew $MMD_GRADLE_TOOLCHAINS jar --no-daemon --stacktrace)
           osjar="$orespawn/build/libs-dev/OreSpawn-4.1.0.117011-deobf.jar"
-          bmjar="$basemetals/build/libs-dev/BaseMetals-3.1.0.117011-deobf.jar"
+          bmjar="$basemetals/build/libs-dev/BaseMetals-3.1.1.117011-deobf.jar"
           (cd "$power" && ./gradlew $MMD_GRADLE_TOOLCHAINS jar verifyReleaseDependencies \
             -PbaseMetalsDeobfJar="$bmjar" -PoreSpawnDeobfJar="$osjar" \
             --no-daemon --stacktrace)
-          powerjar="$power/build/libs-dev/PowerAdvantage-2.4.8.117011-deobf.jar"
+          powerjar="$power/build/libs-dev/basePower-2.4.9.117011-deobf.jar"
           test -f "$osjar" && test -f "$bmjar" && test -f "$powerjar"
           echo "orespawn=$osjar" >> "$GITHUB_OUTPUT"
           echo "basemetals=$bmjar" >> "$GITHUB_OUTPUT"
           echo "power=$powerjar" >> "$GITHUB_OUTPUT"
-          echo "power_ref=$(git -C "$power" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - name: Initialize CodeQL
         uses: github/codeql-action/init@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4
         with:
           languages: java-kotlin
           build-mode: manual
-      - name: Compile ElectricAdvantage production code
+      - name: Compile baseElectric production code
         run: |
           chmod +x ./gradlew
           ./gradlew $MMD_GRADLE_TOOLCHAINS clean classes --rerun-tasks --no-build-cache --no-daemon --stacktrace \
             -PpowerAdvantageDeobfJar=${{ steps.dependencies.outputs.power }} \
-            -Ppoweradvantage_source_ref=${{ steps.dependencies.outputs.power_ref }} \
             -PbaseMetalsDeobfJar=${{ steps.dependencies.outputs.basemetals }} \
             -PoreSpawnDeobfJar=${{ steps.dependencies.outputs.orespawn }}
       - name: Analyze

@@ -1,4 +1,4 @@
-package zone.moddev.mc.electricadvantage.verification;
+package zone.moddev.mc.baseelectric.verification;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;

@@ -1,4 +1,4 @@
 {
   "replace": false,
-  "values": ["electricadvantage:li_ore", "electricadvantage:sulfur_ore"]
+  "values": ["baseelectric:li_ore", "baseelectric:sulfur_ore"]
 }

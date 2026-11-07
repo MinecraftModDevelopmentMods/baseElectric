@@ -1,6 +1,24 @@
-# Electric Advantage 1.17.1 Port
+# baseElectric 1.17.1 Port
 
-Current Power source/API pin:
+## Local Identity Candidate
+
+`2.2.10.117011` starts at the native Electric Advantage 1.17.1 branch tip
+`ce6b075f1d0e417e46e1742b9a2ca856b24dc67f`. Its static audit checks that
+source, registry paths, machine state and resources are preserved across the
+namespace changes, with specific checks for the retained old IDs and the
+shared basePower creative tab. The Eclipse refresh fix replaces stale
+runtime archives without changing the Forge bootstrap order or the launch runtime.
+
+The basePower `2.4.9.117011` pins are pending. Base Metals `3.1.1.117011` is
+pinned for local development to the unpushed startup fix; hosted qualification
+requires authorized source availability. Its runtime SHA-256 remains pending.
+Run fresh deterministic and ECJ checks, a repeated Eclipse refresh, and packaged
+migration on disposable worlds after the coordinated inputs arrive. The results
+below belong to the pre-rename port and do not qualify this candidate.
+
+## Historical Electric Advantage Checkpoint
+
+Power source/API pin used for the prior checkpoint:
 `5b9abe578b053d2ef59b1962cf9e04f6880c91b9` / `799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8`.
 This dependency retains native recipe unlocks and adds dirty-state persistence
 without comparator updates on each machine tick. The new Electric build and
@@ -123,7 +141,7 @@ fixture rather than missing production drops. No ore, tool tier, quantity or
 machine behavior was changed for that diagnosis. Interop and the broader
 operating/migration campaign remain separate recorded gates.
 
-## Final Local API Pin
+## Final Pre-Rename API Pin
 
 The final Power checkpoint above passes the complete 36-task release suite in
 `electric-final-api-release-a.log`, including all 96 tests with no skips.

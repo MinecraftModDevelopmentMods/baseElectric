@@ -1,3 +1,9 @@
+baseElectric 2.2.10.117011 (Minecraft 1.17.1)
+
+- Continue Electric Advantage as baseElectric, with its blocks and items in the shared basePower creative tab.
+- Recognize older Electric Advantage blocks, items, machines and hydroturbines when upgrading.
+- Keep the native 1.17.1 machine controls, drops and recipe discoveries.
+
 Electric Advantage 2.2.9.117011 - Minecraft 1.17.1 local port candidate
 
 - Target Forge 37.1.1, official mappings, Java 16 production bytecode and FG7.

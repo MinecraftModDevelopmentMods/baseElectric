@@ -62,17 +62,21 @@ function Invoke-Ecj([string]$Name, [string[]]$Sources, [string[]]$Libraries) {
 }
 
 $report = [ordered]@{ status = 'RUNNING'; project = $ProjectRoot; evidence = $Evidence
-    scope = 'Pinned Electric 1.17.1 candidate; fresh ECJ main/test/helper outputs and worldless Java 16 JUnit; no Gradle or Minecraft launch'
+    scope = 'Pinned baseElectric 1.17.1 candidate; fresh ECJ main/test/helper outputs and worldless Java 16 JUnit; no Gradle or Minecraft launch'
     compiler = $null; toolchains = $null; libraries = @(); sources = @(); gradleInventory = @()
     compilations = [ordered]@{}; junit = $null; negativeControl = $null; apiPinState = $null; capabilityBootstrap = $null }
 try {
     $properties = ConvertFrom-StringData -StringData (Get-Content -LiteralPath (Join-Path $ProjectRoot 'gradle.properties') -Raw)
     $report.apiPinState = $properties.poweradvantage_pin_state
-    $provisional = $properties.poweradvantage_pin_state -eq 'API_PIN_PROVISIONAL'
-    if ($properties.mod_id -ne 'electricadvantage' -or $properties.mod_version -ne '2.2.9.117011' -or
-        (!$provisional -and $properties.poweradvantage_source_ref -ne '5b9abe578b053d2ef59b1962cf9e04f6880c91b9') -or
-        $properties.poweradvantage_deobf_sha256 -ne '799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8') {
-        throw 'This verifier requires the pinned Electric 1.17.1 candidate'
+    if ($properties.mod_id -ne 'baseelectric' -or $properties.mod_version -ne '2.2.10.117011' -or
+        $properties.poweradvantage_version -ne '2.4.9.117011' -or $properties.basemetals_version -ne '3.1.1.117011' -or
+        $properties.poweradvantage_pin_state -ne 'LOCAL_CHECKPOINT' -or
+        $properties.poweradvantage_source_ref -cnotmatch '^[a-f0-9]{40}$' -or
+        $properties.basemetals_source_commit -cnotmatch '^[a-f0-9]{40}$' -or
+        $properties.poweradvantage_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
+        $properties.poweradvantage_unit_bootstrap_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
+        $properties.basemetals_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$') {
+        throw 'This verifier requires the coordinated baseElectric 1.17.1 inputs'
     }
     $report.compiler = Get-Pin $Compiler
     if ($report.compiler.sha256 -ne 'D0D43F8E2D7003E5EFED612E2CBB5F01870043397D8F1BBE536FD9128F4FCBF7') { throw 'ECJ compiler pin mismatch' }
@@ -103,7 +107,10 @@ try {
     foreach ($entry in @($classpath.classpath.classpathentry | Where-Object { $_.kind -eq 'lib' })) {
         $file = if ([IO.Path]::IsPathRooted([string]$entry.path)) { [IO.Path]::GetFullPath([string]$entry.path) }
             else { [IO.Path]::GetFullPath((Join-Path $ProjectRoot ([string]$entry.path))) }
-        if ([IO.Path]::GetFileName($file) -like 'ElectricAdvantage*.jar') { throw 'Electric output jar cannot satisfy its own ECJ compilation' }
+        if ([IO.Path]::GetFileName($file) -like 'baseElectric*.jar' -or
+            [IO.Path]::GetFileName($file) -like 'ElectricAdvantage*.jar') {
+            throw 'Electric output jar cannot satisfy its own ECJ compilation'
+        }
         $scopeNode = $entry.SelectSingleNode('attributes/attribute[@name="gradle_used_by_scope"]/@value')
         $scope = if ($scopeNode) { $scopeNode.Value } else { '' }
         $pin = Get-Pin $file
@@ -112,7 +119,7 @@ try {
         if (!$scope -or $scope.Split(',') -contains 'main') { $mainLibraries += $file }
         if (!$scope -or $scope.Split(',') -contains 'test') { $testLibraries += $file }
     }
-    foreach ($dependency in @(@{ prefix = 'PowerAdvantage-'; hash = $properties.poweradvantage_deobf_sha256 },
+    foreach ($dependency in @(@{ prefix = 'basePower-'; hash = $properties.poweradvantage_deobf_sha256 },
         @{ prefix = 'BaseMetals-'; hash = $properties.basemetals_deobf_sha256 }, @{ prefix = 'OreSpawn-'; hash = $properties.orespawn_deobf_sha256 })) {
         $matching = @($report.libraries | Where-Object { [IO.Path]::GetFileName($_.path).StartsWith($dependency.prefix) })
         if ($matching.Count -ne 1 -or $matching[0].sha256 -ne $dependency.hash) { throw "Typed dependency pin mismatch: $($dependency.prefix)" }
@@ -142,7 +149,7 @@ try {
     $report.runtime = $runtime
     Push-Location $ProjectRoot
     try {
-        & $java16 "-javaagent:$capabilityBootstrap" -Xmx2G -cp ($runtime -join ';') zone.moddev.mc.electricadvantage.verification.AuditedJUnit $junitXml $expected @classes *> (Join-Path $Evidence 'junit.log')
+        & $java16 "-javaagent:$capabilityBootstrap" -Xmx2G -cp ($runtime -join ';') zone.moddev.mc.baseelectric.verification.AuditedJUnit $junitXml $expected @classes *> (Join-Path $Evidence 'junit.log')
         $junitExit = $LASTEXITCODE
     } finally { Pop-Location }
     $report.junit = [ordered]@{ exitCode = $junitExit; expected = $expected; suites = $classes; log = 'junit.log'; xml = 'junit.xml' }

@@ -6,10 +6,19 @@ const { createHash } = require('node:crypto');
 
 const root = path.resolve(__dirname, '..');
 const baseline = 'c5c8c9ea1d6f2010b8cff61e4bfae86f4c96c978';
-const javaRoot = 'src/main/java/zone/moddev/mc/electricadvantage/';
+const nativeBaseline = 'ce6b075f1d0e417e46e1742b9a2ca856b24dc67f';
+const oldJavaRoot = 'src/main/java/zone/moddev/mc/electricadvantage/';
+const javaRoot = 'src/main/java/zone/moddev/mc/baseelectric/';
+const migratePath = name => name.startsWith('src/test/resources/')
+    ? name : name.replaceAll('/electricadvantage/', '/baseelectric/');
+// Some historical blobs predate the checkout's canonical LF policy.
+const migrateText = source => source.replaceAll('\r\n', '\n').replaceAll('electricadvantage', 'baseelectric')
+    .replaceAll('zone.moddev.mc.poweradvantage', 'zone.moddev.mc.basepower')
+    .replaceAll('poweradvantage:', 'basepower:');
 const read = name => fs.readFileSync(path.join(root, name), 'utf8');
 const git = (...args) => execFileSync('git', args, { cwd: root });
 const tracked = git('ls-tree', '-r', '--name-only', baseline).toString().trim().split('\n');
+const nativeFiles = git('ls-tree', '-r', '--name-only', nativeBaseline, 'src').toString().trim().split('\n');
 const results = [];
 const properties = Object.fromEntries(read('gradle.properties').split(/\r?\n/)
     .filter(line => line && !line.startsWith('#')).map(line => {
@@ -23,9 +32,11 @@ function tokens(source) {
     return source.match(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\/\/[^\n]*|\/\*[\s\S]*?\*\/|[A-Za-z_$][A-Za-z0-9_$]*|(?:0[xX][\da-fA-F_]+|(?:\d[\d_]*\.?[\d_]*|\.\d[\d_]*)(?:[eE][+-]?[\d_]+)?)[dDfFlL]?/g) || [];
 }
 const strings = source => tokens(source).filter(t => t.startsWith('"')
-    && !['"2.2.8.116051"', '"2.2.9.117011"'].includes(t)).sort();
+    && !['"2.2.8.116051"', '"2.2.9.117011"', '"2.2.10.117011"'].includes(t)).sort();
 const numbers = source => tokens(source).filter(t => /^\d|^\.\d/.test(t));
-const production = tracked.filter(n => n.startsWith(javaRoot) && n.endsWith('.java'));
+const production = tracked.filter(n => n.startsWith(oldJavaRoot) && n.endsWith('.java'));
+const entry = javaRoot + 'ElectricAdvantage.java';
+const migration = javaRoot + 'migration/ElectricLegacyMigrations.java';
 
 function nativeUnlockFromLegacy(source) {
     const document = JSON.parse(source);
@@ -54,46 +65,62 @@ function assertNativeUnlock(source, actual) {
 check('Exact native 1.17.1 build target', () => {
     for (const [key, value] of Object.entries({minecraft_version:'1.17.1', forge_version:'37.1.1',
         mapping_channel:'official', mapping_version:'1.17.1', mcp_version:'20210706.113038',
-        mod_version:'2.2.9.117011', mod_group:'zone.moddev.mc.electricadvantage',
+        mod_id:'baseelectric', mod_name:'baseElectric', mod_version:'2.2.10.117011',
+        mod_group:'zone.moddev.mc.baseelectric', curseforge_project_id:'1783006', cf_requirements:'basepower,base-metals',
         java_version:'16', java_toolchain_version:'16.0.2+7', gradle_java_version:'17',
-        basemetals_version:'3.1.0.117011', orespawn_version:'4.1.0.117011'})) {
+        poweradvantage_version:'2.4.9.117011', basemetals_version:'3.1.1.117011', orespawn_version:'4.1.0.117011'})) {
         assert.equal(properties[key], value, key);
     }
-    assert.equal(JSON.parse(read('src/main/resources/pack.mcmeta')).pack.pack_format, 7);
+    assert.deepEqual(JSON.parse(read('src/main/resources/pack.mcmeta')).pack, {pack_format:7, description:'baseElectric'});
     assert(read('build.gradle').includes('major != 60'));
+    const metadata = read('src/main/resources/META-INF/mods.toml');
+    assert.match(metadata, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.9\.117011,3\.0\.0\)"/);
+    assert.match(metadata, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.1\.117011,4\.0\.0\)"/);
+    assert(metadata.includes('modId="baseelectric"') && metadata.includes('displayName="baseElectric"'));
 });
-check('Approved 1.17 API source and artifact pins', () => {
-    assert.equal(properties.poweradvantage_deobf_sha256, '799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8');
-    assert.equal(properties.poweradvantage_source_ref, '5b9abe578b053d2ef59b1962cf9e04f6880c91b9');
-    assert.notEqual(properties.poweradvantage_pin_state, 'API_PIN_PROVISIONAL', 'Power API remains provisional; source freeze pending');
-    assert.match(properties.poweradvantage_source_ref, /^[a-f0-9]{40}$/, 'Power source pin pending parent');
-    assert.match(properties.poweradvantage_deobf_sha256, /^[A-F0-9]{64}$/, 'Power development jar pin pending parent');
-    assert.match(properties.poweradvantage_version, /^\d+\.\d+\.\d+\.117011$/);
+check('Pending basePower API pins fail closed; exact Base Metals and OreSpawn pins are retained', () => {
+    const artifactPins = ['poweradvantage_deobf_sha256', 'poweradvantage_unit_bootstrap_sha256'];
+    assert.equal(properties.poweradvantage_source_repository, 'MinecraftModDevelopmentMods/basePower');
+    if (properties.poweradvantage_pin_state === 'PENDING') {
+        for (const key of ['poweradvantage_source_ref', ...artifactPins]) {
+            assert.equal(properties[key], '', key);
+        }
+    } else {
+        assert.equal(properties.poweradvantage_pin_state, 'LOCAL_CHECKPOINT');
+        assert.match(properties.poweradvantage_source_ref, /^[a-f0-9]{40}$/);
+        for (const key of artifactPins) assert.match(properties[key], /^[A-F0-9]{64}$/, key);
+    }
+    const build = read('build.gradle');
+    assert.match(build, /poweradvantage_pin_state != 'LOCAL_CHECKPOINT'/);
+    assert.match(build, /requireDevelopmentPins\(\)\s+def powerAdvantageDeobfJarPath/);
+    assert(!build.includes('defaultPowerAdvantageDeobfJar'));
     for (const [key, value] of Object.entries({
-        basemetals_source_commit:'dacfaa3af2e3310d5cb6b081da79f09260ae103d',
-        basemetals_deobf_sha256:'4EB49B12ED17211296F5FEC67FC4307174702BE096D3F1C02DD67B45AED587FA',
-        basemetals_runtime_sha256:'9276FA7E8A1E5BD6B9E336CF83CFEE9B178167DA09CE2B231C8DFF733F351B0C',
+        basemetals_source_commit:'0deeeeecdbbc1fbcdecf910c59477de8efe164d7',
+        basemetals_deobf_sha256:'83A8C32C633B56BB7E4405E8B3B24A4DEA32B9119216E5097B884056D679CAD1',
         orespawn_source_commit:'b56e2b62a1a6ea4d1dd96f8646a87801a817dbdf',
         orespawn_deobf_sha256:'CB7A736314842B110B2E4788FBD5E21D4AE8803C5ED34A49199B034BE572DA39',
         orespawn_runtime_sha256:'1BDEDCBB179CB5A3B169E5C8A6B301E3888AE15B94108B0AEC627D705CFAD833'})) {
         assert.equal(properties[key], value, key);
     }
 });
-check('Resource bytes retained except exact native advancement predicate conversion', () => {
+check('Resources retained except namespace moves, canonical LF and exact native advancement conversion', () => {
     let changedFiles = 0, changedPredicates = 0;
     for (const name of tracked.filter(n => n.startsWith('src/main/resources/')
         && !['src/main/resources/pack.mcmeta', 'src/main/resources/META-INF/mods.toml'].includes(n))) {
         const before = git('show', `${baseline}:${name}`);
+        const target = migratePath(name);
+        const expected = /\.(json|fsh|vsh|mcmeta)$/.test(name)
+            ? Buffer.from(migrateText(before.toString())) : before;
         if (name.startsWith('src/main/resources/data/electricadvantage/advancements/recipes/')) {
-            const converted = nativeUnlockFromLegacy(before.toString()).converted;
+            const converted = nativeUnlockFromLegacy(expected.toString()).converted;
             if (converted) {
-                assert.equal(assertNativeUnlock(before.toString(), read(name)), converted, name);
+                assert.equal(assertNativeUnlock(expected.toString(), read(target)), converted, target);
                 changedFiles++;
                 changedPredicates += converted;
                 continue;
             }
         }
-        assert.deepEqual(fs.readFileSync(path.join(root, name)), before, name);
+        assert.deepEqual(fs.readFileSync(path.join(root, target)), expected, target);
     }
     assert.equal(changedFiles, 19);
     assert.equal(changedPredicates, 21);
@@ -117,11 +144,13 @@ check('Advancement compatibility allowance rejects unrelated changes and old tri
 });
 check('Registry, asset, provider and NBT string identities retained', () => {
     for (const name of production) {
-        const actual = strings(read(name));
+        const target = migratePath(name);
+        if (target === entry || target === migration) continue; // Checked against the native baseline below.
+        const actual = strings(read(target));
         if (name.endsWith('/ElectricRenderTypes.java')) {
             assert.equal(actual.splice(actual.indexOf('"unshaded"'), 1)[0], '"unshaded"');
         }
-        assert.deepEqual(actual, strings(git('show', `${baseline}:${name}`).toString()), name);
+        assert.deepEqual(actual, strings(migrateText(git('show', `${baseline}:${name}`).toString())), target);
     }
 });
 check('Machine balance and renderer test tolerances retained', () => {
@@ -131,14 +160,14 @@ check('Machine balance and renderer test tolerances retained', () => {
         if (name.endsWith('/ElectricRenderTypes.java')) {
             assert.equal(expected.splice(expected.indexOf('7'), 1)[0], '7'); // Native enum replaces GL_QUADS.
         }
-        assert.deepEqual(numbers(read(name)), expected, name);
+        assert.deepEqual(numbers(read(migratePath(name))), expected, name);
     }
 });
 check('Inherited regression tests remain present with no skip or assume bypass', () => {
     let count = 0;
     for (const name of tracked.filter(n => n.startsWith('src/test/') && n.endsWith('.java'))) {
         const before = git('show', `${baseline}:${name}`).toString();
-        const after = read(name);
+        const after = read(migratePath(name));
         const methods = s => [...s.matchAll(/@Test\s+public void (\w+)\(/g)].map(m => m[1]);
         const expected = methods(before).map(n => n.replace('resourcePackDeclaresTheNativeOneSixteenFormat',
             'resourcePackDeclaresTheNativeOneSeventeenFormat'));
@@ -179,7 +208,7 @@ check('Native helper ticker, bucket pickup, renderer context and shader', () => 
     assert(render.includes('DefaultVertexFormat.NEW_ENTITY'));
     assert(render.includes('VertexFormat.Mode.QUADS'));
     assert(render.includes('new ShaderStateShard(() -> unshadedShader)'));
-    const shader = read('src/main/resources/assets/electricadvantage/shaders/core/unshaded.vsh');
+    const shader = read('src/main/resources/assets/baseelectric/shaders/core/unshaded.vsh');
     assert(shader.includes('vertexColor = Color;'));
     assert(shader.includes('lightMapColor = texelFetch(Sampler2, UV2 / 16, 0);'));
     assert(shader.includes('overlayColor = texelFetch(Sampler1, UV1, 0);'));
@@ -188,8 +217,8 @@ check('Native helper ticker, bucket pickup, renderer context and shader', () => 
 });
 check('Native harvest tags preserve lithium and sulfur tool tiers', () => {
     const tag = name => JSON.parse(read(`src/main/resources/data/minecraft/tags/blocks/${name}.json`));
-    assert.deepEqual(tag('mineable/pickaxe'), {replace:false, values:['electricadvantage:li_ore','electricadvantage:sulfur_ore']});
-    assert.deepEqual(tag('needs_stone_tool'), {replace:false, values:['electricadvantage:li_ore']});
+    assert.deepEqual(tag('mineable/pickaxe'), {replace:false, values:['baseelectric:li_ore','baseelectric:sulfur_ore']});
+    assert.deepEqual(tag('needs_stone_tool'), {replace:false, values:['baseelectric:li_ore']});
     assert.equal((read(javaRoot + 'blocks/Ore.java').match(/requiresCorrectToolForDrops\(\)/g) || []).length, 2);
 });
 check('Shared capabilities, legacy cyano API and first-tick interlocks retained', () => {
@@ -198,21 +227,67 @@ check('Shared capabilities, legacy cyano API and first-tick interlocks retained'
         const source = read(javaRoot + `machines/${name}.java`);
         assert(source.includes('!redstoneInitialized && getLevel() != null && !getLevel().isClientSide'));
     }
-    assert(!production.some(n => /invalidateCaps\(|reviveCaps\(|LazyOptional/.test(read(n))));
+    assert(!production.some(n => /invalidateCaps\(|reviveCaps\(|LazyOptional/.test(read(migratePath(n)))));
     assert(read(javaRoot + 'ElectricAdvantage.java').includes('event.enqueueWork(RecipeConditions::register)'));
     assert(read(javaRoot + 'machines/PhotovoltaicGeneratorTileEntity.java').includes('BlockPos lightPos = pos.above()'));
+});
+check('Native 1.17 source, tests and binary assets are preserved beyond the identity changes', () => {
+    const actualFiles = fs.readdirSync(path.join(root, 'src'), {recursive:true, withFileTypes:true})
+        .filter(file => file.isFile()).map(file => path.relative(root, path.join(file.parentPath, file.name))
+            .split(path.sep).join('/')).sort();
+    assert.deepEqual(actualFiles, nativeFiles.map(migratePath).sort(), 'Source path inventory');
+    for (const name of nativeFiles) {
+        const target = migratePath(name);
+        if ([entry, migration, 'src/main/resources/META-INF/mods.toml', 'src/main/resources/pack.mcmeta'].includes(target)
+                || /\/(ElectricLegacyMigrationsTest|BuildWorkflowContractTest)\.java$/.test(target)) continue;
+        const before = git('show', `${nativeBaseline}:${name}`);
+        const expected = !name.startsWith('src/test/resources/') && /\.(java|json|fsh|vsh|mcmeta)$/.test(name)
+            ? Buffer.from(migrateText(before.toString())) : before;
+        assert.deepEqual(fs.readFileSync(path.join(root, target)), expected, target);
+    }
+});
+check('Original and baseElectric aliases retain the native registry paths and state decoding', () => {
+    const old = git('show', `${nativeBaseline}:${oldJavaRoot}migration/ElectricLegacyMigrations.java`).toString();
+    const source = read(migration);
+    const ids = text => [...text.matchAll(/for \(String path : new String\[\] \{([^}]+)\}/g)]
+        .map(match => [...match[1].matchAll(/"([^"]+)"/g)].map(id => id[1]));
+    assert.equal(ids(old).length, 2);
+    assert.deepEqual(ids(source), ids(old));
+    const decoder = '    private static BlockState decodeState';
+    assert.equal(source.slice(source.indexOf(decoder)), old.slice(old.indexOf(decoder)));
+    assert(source.includes('LegacyMigrationApi.registerNamespaceAlias(ElectricAdvantage.LEGACY_MODID, ElectricAdvantage.MODID)'));
+    assert(source.includes('LegacyMigrationApi.registerTileEntityAliases(id(path))'));
+    assert(source.includes('new String[] {ElectricAdvantage.LEGACY_MODID, ElectricAdvantage.MODID}'));
+    for (const alias of ['minecraft:electricadvantage.Hydroturbine', 'electricadvantage.electricadvantage.Hydroturbine']) {
+        assert(source.includes(`registerEntityAlias("${alias}", hydroturbine)`), alias);
+    }
+    const main = read(entry);
+    assert(main.includes('LEGACY_MODID = "electricadvantage"'));
+    for (const bridge of ['LegacyConfigMigration', 'LegacyOreSpawnConfigBridge']) {
+        assert(main.includes(`${bridge}.migrate(FMLPaths.CONFIGDIR.get(), MODID, LEGACY_MODID`));
+    }
+    for (const name of ['Blocks', 'Items']) {
+        const registration = read(javaRoot + `init/${name}.java`);
+        assert(registration.includes('import zone.moddev.mc.basepower.init.ItemGroups;'));
+        assert(registration.includes('tab(ItemGroups.tab_powerAdvantage)'));
+    }
 });
 
 const changedFiles = [...new Set([
     ...git('diff', '--name-only', baseline).toString().trim().split('\n'),
     ...git('ls-files', '--others', '--exclude-standard').toString().trim().split('\n')
 ])].filter(Boolean).sort();
-const testFiles = [...tracked, ...changedFiles].filter((n, i, all) => all.indexOf(n) === i
-    && n.startsWith('src/test/java/') && n.endsWith('.java'));
-const report = {baseline, scope:'Static source/resource contracts only; not compilation, runtime or manual acceptance',
-    inventory: {productionFiles:production.length, testFiles:testFiles.length,
-        tests:testFiles.reduce((n, file) => n + (read(file).match(/@Test\b/g) || []).length, 0)},
-    changedFiles:changedFiles.map(file => ({file, sha256:createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex')})),
+const testFiles = nativeFiles.map(migratePath).filter(n => n.startsWith('src/test/java/')
+    && n.endsWith('.java') && fs.existsSync(path.join(root, n)));
+const tests = testFiles.reduce((n, file) => n + (read(file).match(/@Test\b/g) || []).length, 0);
+check('The complete native 1.17.1 test inventory is retained', () => {
+    assert.equal(testFiles.length, 27);
+    assert.equal(tests, 96);
+});
+const report = {baseline, nativeBaseline, scope:'Static source/resource contracts only; not compilation, runtime or manual acceptance',
+    inventory: {productionFiles:production.length, testFiles:testFiles.length, tests},
+    changedFiles:changedFiles.map(file => ({file, sha256:fs.existsSync(path.join(root, file))
+        ? createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex') : null})),
     results};
 const reportFlag = process.argv.indexOf('--report');
 if (reportFlag !== -1) {
