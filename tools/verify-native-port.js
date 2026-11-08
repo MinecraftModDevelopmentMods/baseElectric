@@ -29,7 +29,7 @@ check('Exact native target metadata', () => {
     for (const pair of ['minecraft_version=1.16.5', 'forge_version=36.2.34',
         'mapping_channel=official', 'mapping_version=1.16.5', 'mcp_version=20210115.111550',
         'mod_version=2.2.9.116051', 'poweradvantage_version=2.4.8.116051',
-        'poweradvantage_source_ref=a21d0653129912e8d45bc443080b211eb09ae88c',
+        'poweradvantage_source_ref=04a90df489180c69dd57f7cda9ff5ff7e3c456ba',
         'poweradvantage_deobf_sha256=156674F6DF6007D351AD419416344356F6586452077FCAE2E9BC9404EE14A14B',
         'basemetals_version=3.1.1.116051', 'orespawn_version=4.1.0.116051',
         'java_version=8', 'gradle_java_version=17']) {

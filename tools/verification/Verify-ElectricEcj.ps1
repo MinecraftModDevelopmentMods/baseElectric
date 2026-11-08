@@ -71,7 +71,7 @@ $report = [ordered]@{ status = 'RUNNING'; project = $ProjectRoot; evidence = $Ev
 try {
     $properties = ConvertFrom-StringData -StringData (Get-Content -LiteralPath (Join-Path $ProjectRoot 'gradle.properties') -Raw)
     if ($properties.mod_id -ne 'electricadvantage' -or $properties.mod_version -ne '2.2.8.116051' -or
-        $properties.poweradvantage_source_ref -ne 'a21d0653129912e8d45bc443080b211eb09ae88c' -or
+        $properties.poweradvantage_source_ref -ne '04a90df489180c69dd57f7cda9ff5ff7e3c456ba' -or
         $properties.poweradvantage_deobf_sha256 -ne '156674F6DF6007D351AD419416344356F6586452077FCAE2E9BC9404EE14A14B') {
         throw 'This verifier requires the pinned Electric 1.16.5 candidate'
     }

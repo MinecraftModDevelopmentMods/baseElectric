@@ -170,6 +170,11 @@ def defaultPowerAdvantageDeobfJar = file("../../PowerAdvantage/build/libs-dev/" 
 def powerAdvantageDeobfJar = providers.gradleProperty('powerAdvantageDeobfJar')
         .map { file(it) }
         .getOrElse(defaultPowerAdvantageDeobfJar)
+
+tasks.named('test', Test) {
+    inputs.files('gradle.properties', 'build.gradle', '.github/workflows/ci.yml', '.github/workflows/codeql-analysis.yml',
+            'tools/verify-native-port.js', 'tools/verification/Verify-ElectricEcj.ps1')
+}
 if (!powerAdvantageDeobfJar.isFile()) {
     throw new GradleException("Missing PowerAdvantage deobf jar at ${powerAdvantageDeobfJar}. "
             + "Run gradlew.bat deobfJar in ../../PowerAdvantage first, or pass "
