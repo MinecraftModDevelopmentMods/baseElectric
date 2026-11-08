@@ -1,3 +1,9 @@
+baseElectric 2.2.9.116051 (Minecraft 1.16.5)
+
+- Bring baseElectric to Minecraft 1.16.5 and use the shared basePower creative tab.
+- Map legacy Electric Advantage blocks, items and saved machine state to baseElectric when upgrading.
+- Fix Eclipse refreshes when ForgeGradle reuses an existing client or server launch.
+
 Electric Advantage 2.2.8.116051 (local port candidate)
 
 - Check generator redstone before the first power pulse so a disabled solar panel cannot produce a startup burst.

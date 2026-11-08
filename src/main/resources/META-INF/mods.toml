@@ -1,40 +1,40 @@
 modLoader="javafml"
 loaderVersion="${loader_version_range}"
-issueTrackerURL="https://github.com/MinecraftModDevelopmentMods/ElectricAdvantage/issues"
+issueTrackerURL="https://github.com/MinecraftModDevelopmentMods/baseElectric/issues"
 license="GPL-3.0-only"
 
 [[mods]]
-modId="electricadvantage"
+modId="baseelectric"
 version="${version}"
-displayName="Electric Advantage"
-displayURL="https://www.curseforge.com/minecraft/mc-mods/electric-advantage"
+displayName="baseElectric"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/baseelectric"
 authors="DrCyano"
 description='''
 Electric-powered machines and infrastructure for the Power Advantage platform.
 '''
 
-[[dependencies.electricadvantage]]
+[[dependencies.baseelectric]]
 modId="forge"
 mandatory=true
 versionRange="${forge_version_range}"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.electricadvantage]]
+[[dependencies.baseelectric]]
 modId="minecraft"
 mandatory=true
 versionRange="${minecraft_version_range}"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.electricadvantage]]
-modId="poweradvantage"
+[[dependencies.baseelectric]]
+modId="basepower"
 mandatory=true
-versionRange="[2.4.7.116051,3.0.0)"
+versionRange="[2.4.8.116051,3.0.0)"
 ordering="AFTER"
 side="BOTH"
 
-[[dependencies.electricadvantage]]
+[[dependencies.baseelectric]]
 modId="basemetals"
 mandatory=false
 versionRange="[3.1.1.116051,4.0.0)"
