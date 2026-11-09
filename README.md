@@ -4,8 +4,8 @@ baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower, and its blocks and items
 appear in the shared basePower creative tab.
 
-This is the local **Minecraft 1.18.2 candidate, 2.2.11.118021**, not a published
-release. Back up your world before upgrading. The port retains the mappings for
+This is **baseElectric 2.2.11.118021 for Minecraft 1.18.2**.
+Back up your world before upgrading. The port retains the mappings for
 older Electric Advantage saves, as well as saves that already use baseElectric IDs.
 
 ## Target
@@ -31,11 +31,12 @@ remaining gates. Results in the [1.17.1 notes](docs/NATIVE117.md) and
 
 ## Dependencies
 
-The local basePower `2.4.10.118021` checkpoint pins the source revision,
-development JAR, player JAR and test bootstrap separately. Base Metals
+The [basePower 2.4.10.118021 release](https://github.com/MinecraftModDevelopmentMods/basePower/releases/tag/2.4.10.118021)
+provides the player jar. The build pins its source, development jar and test
+bootstrap separately. Base Metals
 `3.1.2.118021`, OreSpawn `4.1.0.118021` and the Forge installer also have
-explicit hashes in `gradle.properties`. The inherited hosted workflows
-are for 1.17.1. This branch does not enable 1.18.2 publication.
+explicit hashes in `gradle.properties`. Hosted checks build the development
+dependencies and verify the published basePower jar from MMD Maven.
 
 Run from this repository with the explicit input arguments below:
 

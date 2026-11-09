@@ -58,7 +58,7 @@ function Send-Command([string]$Command) {
 }
 
 try {
-    if ($pins.poweradvantage_pin_state -ne 'LOCAL_CHECKPOINT' -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
+    if ($pins.poweradvantage_pin_state -ne 'PUBLISHED_RELEASE' -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
         throw 'Packaged smoke requires the exact source-pinned basePower player JAR.'
     }
     $receipt.powerSourceRef = $pins.poweradvantage_source_ref

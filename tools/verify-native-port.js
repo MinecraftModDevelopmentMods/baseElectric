@@ -78,24 +78,24 @@ check('Exact native 1.18.2 build target', () => {
     assert(read('build.gradle').includes('major != 61'));
     const metadata = read('src/main/resources/META-INF/mods.toml');
     assert.match(metadata, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.10\.118021,3\.0\.0\)"/);
-    assert.match(metadata, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.1\.118021,4\.0\.0\)"/);
+    assert.match(metadata, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.2\.118021,4\.0\.0\)"/);
     assert(metadata.includes('modId="baseelectric"') && metadata.includes('displayName="baseElectric"'));
 });
-check('Exact local basePower, Base Metals and OreSpawn pins are retained', () => {
+check('The exact published basePower, Base Metals and OreSpawn pins are retained', () => {
     assert.equal(properties.poweradvantage_source_repository, 'MinecraftModDevelopmentMods/basePower');
-    assert.equal(properties.poweradvantage_pin_state, 'LOCAL_CHECKPOINT');
+    assert.equal(properties.poweradvantage_pin_state, 'PUBLISHED_RELEASE');
     const build = read('build.gradle');
-    assert.match(build, /poweradvantage_pin_state != 'LOCAL_CHECKPOINT'/);
+    assert.match(build, /poweradvantage_pin_state != 'PUBLISHED_RELEASE'/);
     assert.match(build, /requirePowerPin\(\)\s+pinnedFile\('powerAdvantageDeobfJar', project.poweradvantage_deobf_sha256\)/);
     assert(!build.includes('PA117') && !build.includes('117011-deobf.jar'));
     for (const [key, value] of Object.entries({
-        poweradvantage_source_ref:'bab9971cc2d593eee1f4a3de6dafc7ec268d25c2',
-        poweradvantage_deobf_sha256:'C00F835A7A80BAF332355EF1F181F252B603A017A979D2F41EA3BBEAE314E280',
-        poweradvantage_runtime_sha256:'595991E8BB6B831C4F3A291251F283CD5FB1EC1F9BC48C1BB54BC5D88490ECB9',
+        poweradvantage_source_ref:'bcf5105ef5c10ba36c26c8ff941742fecc3e11a1',
+        poweradvantage_deobf_sha256:'767BABC0D6E1536DCB937B9F1DC565AF348B3CAF92D3207671EF1E1C8D8EF5D4',
+        poweradvantage_runtime_sha256:'8CA46D5BCBFFDDAEB4F40137B5BF71E5AF7DD36515E5BFEA751FC5C02249823B',
         poweradvantage_unit_bootstrap_sha256:'025F16FCA9FD5CFC585931E7C8BCFAB22FC1DF933BE7DAAD490B8E4FC824B76E',
         basemetals_source_commit:'3488ed58403722ac3ff203cff7680dfc16e0fd3f',
-        basemetals_deobf_sha256:'9371C976B890BF875FCD3A845B0E9FCF3DAF16F2FB76DADF5386A7BA28C12BAE',
-        basemetals_runtime_sha256:'9EA9DE0E5D548FD77BBAB05565D3C2004E1C2C985353C626F6610CDA07EE3BBF',
+        basemetals_deobf_sha256:'E4F9E2CDE355275218C79954D3792D000615790C7CBAE5FCEC59636A8C4CA57D',
+        basemetals_runtime_sha256:'5595C2CE7ADCDF1599E4327F1130121148A5CACD928CBC2190312D61F7CA37A9',
         orespawn_source_commit:'d31f52f296739f34a0c13f554abf3e1ac071ae25',
         orespawn_deobf_sha256:'34B25B2116FD91B0050C80393F8356A5CA256E707BF443E4882BE5CFAD1335B6',
         orespawn_runtime_sha256:'BD8D84A96DAFB7668E95D61B9D72C62AEF3440675473E41244C182C64653356F',

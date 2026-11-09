@@ -1,3 +1,9 @@
+baseElectric 2.2.11.118021 (Minecraft 1.18.2)
+
+- Bring baseElectric to Minecraft 1.18.2, with the same machines and recipes.
+- Keep saved power, inventories, drill facings and hydroturbines when upgrading.
+- Use the released basePower 2.4.10.118021 and Base Metals 3.1.2 save hook.
+
 baseElectric 2.2.10.117011 (Minecraft 1.17.1)
 
 - Continue Electric Advantage as baseElectric, with its blocks and items in the shared basePower creative tab.

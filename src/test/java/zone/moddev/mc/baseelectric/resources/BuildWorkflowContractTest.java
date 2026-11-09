@@ -11,11 +11,12 @@ public class BuildWorkflowContractTest {
         for (String workflow : new String[] {"ci.yml", "codeql-analysis.yml"}) {
             String source = new String(Files.readAllBytes(Paths.get(".github/workflows", workflow)), StandardCharsets.UTF_8);
             int setup = source.indexOf("- name: Set up Gradle");
-            for (String version : new String[] {"25.0.3+9.0.LTS", "16.0.2+7", "8.0.502+7", "17.0.1+12"}) {
+            for (String version : new String[] {"25.0.3+9.0.LTS", "8.0.502+7", "17.0.1+12"}) {
                 int pin = source.indexOf("java-version: '" + version + "'");
                 assertTrue(workflow + " missing pinned JDK " + version, pin >= 0 && pin < setup);
             }
-            assertTrue(source.contains("-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_16_X64,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64"));
+            assertTrue(source.contains("-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64"));
+            assertFalse(source.contains("JAVA_HOME_16_X64"));
             assertTrue(source.contains("-Porg.gradle.java.installations.auto-detect=false"));
             assertTrue(source.contains("-Porg.gradle.java.installations.auto-download=false"));
             assertFalse(source.contains("-Dorg.gradle.java.installations."));
@@ -33,18 +34,18 @@ public class BuildWorkflowContractTest {
         for (String workflow : new String[] {"ci.yml", "codeql-analysis.yml"}) {
             String source = new String(Files.readAllBytes(Paths.get(".github/workflows", workflow)), StandardCharsets.UTF_8);
             int policy = source.indexOf("git config --global core.autocrlf false");
-            int pins = source.indexOf("- name: Require coordinated 1.17.1 dependency pins");
+            int pins = source.indexOf("- name: Require coordinated 1.18.2 dependency pins");
             assertTrue(policy > 0);
             assertTrue(policy < pins);
             for (String repository : new String[] {"OreSpawn", "BaseMetals", "basePower"}) {
                 assertTrue(pins < source.indexOf("repository: MinecraftModDevelopmentMods/" + repository));
             }
-            assertTrue(source.contains("ref: b56e2b62a1a6ea4d1dd96f8646a87801a817dbdf"));
-            assertTrue(source.contains("BaseMetals-3.1.1.117011-deobf.jar"));
-            assertTrue(source.contains("basePower-2.4.9.117011-deobf.jar"));
+            assertTrue(source.contains("ref: d31f52f296739f34a0c13f554abf3e1ac071ae25"));
+            assertTrue(source.contains("BaseMetals-3.1.2.118021-deobf.jar"));
+            assertTrue(source.contains("basePower-2.4.10.118021-deobf.jar"));
             assertTrue(source.contains("ref: ${{ steps.pins.outputs.basemetals_ref }}"));
             assertTrue(source.contains("ref: ${{ steps.pins.outputs.power_ref }}"));
-            assertTrue(source.contains("\"$pin_state\" != \"LOCAL_CHECKPOINT\""));
+            assertTrue(source.contains("\"$pin_state\" != \"PUBLISHED_RELEASE\""));
             assertTrue(source.contains("! \"$power_ref\" =~ ^[a-f0-9]{40}$"));
             assertTrue(source.contains("! \"$bm_ref\" =~ ^[a-f0-9]{40}$"));
             for (String hash : new String[] {"power_sha", "bm_sha", "bootstrap_sha"}) {
@@ -59,7 +60,8 @@ public class BuildWorkflowContractTest {
             assertFalse(source.contains("78E58DD2AB04E2B9F3267E5735C64AAE7E93EAC97571CB04485038862C853ED3"));
             assertFalse(source.contains("ce90c24c302d0ff3565db2db0c6c94a3b5f21f83"));
             assertFalse(source.contains("8BBB03DD7E4AF08A7390A161ED5AA94E292BEE56EF60E550B5512E967E0E9174"));
-            assertTrue(source.contains("branches: [master-1.17.1"));
+            assertTrue(source.contains("branches: [master-1.18.2"));
+            assertTrue(source.contains("-PmavenizerCompatibilityJar=${{ steps.mavenizer.outputs.fixture }}"));
             assertFalse(source.contains("master-1.14.4"));
         }
     }
