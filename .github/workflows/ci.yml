@@ -119,18 +119,41 @@ jobs:
             'https://maven.moddev.zone/releases/zone/moddev/mc/basepower/basePower/2.4.10.118021/basePower-2.4.10.118021.jar'
           power_release_sha=$(sed -n 's/^poweradvantage_runtime_sha256=//p' gradle.properties | tr -d '\r')
           printf '%s  %s\n' "$power_release_sha" "$release" | sha256sum --check
+          pin() { sed -n "s/^$1=//p" gradle.properties | tr -d '\r'; }
+          fetch_runtime() {
+            local key="$1" url="$2" destination="$3" expected="$4"
+            [[ "$expected" =~ ^[A-F0-9]{64}$ ]]
+            curl --fail --silent --show-error --location --retry 3 --output "$destination" "$url"
+            printf '%s  %s\n' "$expected" "$destination" | sha256sum --check
+            echo "$key=$destination" >> "$GITHUB_OUTPUT"
+          }
+          bm_version="$(pin basemetals_version)"
+          os_version="$(pin orespawn_version)"
+          forge_target="$(pin minecraft_version)-$(pin forge_version)"
+          maven='https://maven.moddev.zone/releases/zone/moddev/mc'
+          fetch_runtime basemetals_runtime "$maven/basemetals/BaseMetals/$bm_version/BaseMetals-$bm_version.jar" \
+            "$RUNNER_TEMP/BaseMetals-$bm_version.jar" "$(pin basemetals_runtime_sha256)"
+          fetch_runtime orespawn_runtime "$maven/orespawn/OreSpawn/$os_version/OreSpawn-$os_version.jar" \
+            "$RUNNER_TEMP/OreSpawn-$os_version.jar" "$(pin orespawn_runtime_sha256)"
+          fetch_runtime forge_installer "https://maven.minecraftforge.net/net/minecraftforge/forge/$forge_target/forge-$forge_target-installer.jar" \
+            "$RUNNER_TEMP/forge-$forge_target-installer.jar" "$(pin forge_installer_sha256)"
           echo "orespawn=$osjar" >> "$GITHUB_OUTPUT"
           echo "basemetals=$bmjar" >> "$GITHUB_OUTPUT"
           echo "power=$powerjar" >> "$GITHUB_OUTPUT"
+          echo "power_runtime=$release" >> "$GITHUB_OUTPUT"
       - name: Build and audit release artifacts
         run: >-
           ./gradlew $MMD_GRADLE_TOOLCHAINS clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts
-          writeReleaseChecksums verifyEclipseProductionClasspath
+          writeReleaseChecksums verifyEclipseProductionClasspath verifyLocalRuntimeInputs
           -PpowerAdvantageDeobfJar=${{ steps.dependencies.outputs.power }}
           -PmavenizerCompatibilityJar=${{ steps.mavenizer.outputs.fixture }}
           -PpowerAdvantageUnitBootstrapSource=${{ github.workspace }}/.ci-dependencies/PowerAdvantage/test-rig/unit-bootstrap/ForgeCapabilityBootstrap.java
           -PbaseMetalsDeobfJar=${{ steps.dependencies.outputs.basemetals }}
           -PoreSpawnDeobfJar=${{ steps.dependencies.outputs.orespawn }}
+          -PpowerAdvantageRuntimeJar=${{ steps.dependencies.outputs.power_runtime }}
+          -PbaseMetalsRuntimeJar=${{ steps.dependencies.outputs.basemetals_runtime }}
+          -PoreSpawnRuntimeJar=${{ steps.dependencies.outputs.orespawn_runtime }}
+          -PforgeInstallerJar=${{ steps.dependencies.outputs.forge_installer }}
           --no-daemon --stacktrace
       - name: Upload audited release candidate
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

@@ -103,6 +103,19 @@ check('The exact published basePower, Base Metals and OreSpawn pins are retained
         assert.equal(properties[key], value, key);
     }
 });
+check('Hosted release checks receive the verified player jars and Forge installer', () => {
+    const workflow = read('.github/workflows/ci.yml');
+    assert(workflow.includes('verifyEclipseProductionClasspath verifyLocalRuntimeInputs'));
+    for (const [property, output] of [
+        ['powerAdvantageRuntimeJar', 'power_runtime'],
+        ['baseMetalsRuntimeJar', 'basemetals_runtime'],
+        ['oreSpawnRuntimeJar', 'orespawn_runtime'],
+        ['forgeInstallerJar', 'forge_installer']
+    ]) assert(workflow.includes('-P' + property + '=${{ steps.dependencies.outputs.' + output + ' }}'));
+    for (const key of ['basemetals_runtime_sha256', 'orespawn_runtime_sha256', 'forge_installer_sha256']) {
+        assert(workflow.includes('$(pin ' + key + ')'));
+    }
+});
 check('Resources retained except namespace moves, exact advancement conversion and the native fog shader', () => {
     let changedFiles = 0, changedPredicates = 0;
     for (const name of tracked.filter(n => n.startsWith('src/main/resources/')
