@@ -1,0 +1,4 @@
+{
+    "parent": "baseelectric:block/electric_conduit_ns",
+    "ambientocclusion": false
+}

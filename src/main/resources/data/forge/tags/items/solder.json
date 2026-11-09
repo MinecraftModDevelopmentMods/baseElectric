@@ -1,4 +1,4 @@
 {
   "replace": false,
-  "values": ["electricadvantage:solder"]
+  "values": ["baseelectric:solder"]
 }

@@ -1,0 +1,4 @@
+{
+    "parent": "baseelectric:block/electric_drill_off",
+    "ambientocclusion": false
+}

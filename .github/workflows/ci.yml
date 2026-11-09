@@ -1,16 +1,16 @@
-name: Electric Advantage 1.16 CI
+name: baseElectric 1.17 CI
 
 on:
   push:
-    branches: [master-1.16.5, 'feature/**']
+    branches: [master-1.17.1, 'feature/**']
   pull_request:
-    branches: [master-1.16.5]
+    branches: [master-1.17.1]
 
 permissions:
   contents: read
 
 concurrency:
-  group: electricadvantage-1.16-${{ github.workflow }}-${{ github.ref }}
+  group: baseelectric-1.17-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -19,48 +19,60 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 105
     steps:
-      - name: Check out ElectricAdvantage
+      - name: Check out baseElectric
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Use canonical LF dependency inputs
         # Apply before every dependency checkout, including OreSpawn.
         run: git config --global core.autocrlf false
-      - name: Require final PowerAdvantage pin
+      - name: Require coordinated 1.17.1 dependency pins
         id: pins
         shell: bash
         run: |
           set -euo pipefail
           power_ref="$(sed -n 's/^poweradvantage_source_ref=//p' gradle.properties | tr -d '\r')"
           power_sha="$(sed -n 's/^poweradvantage_deobf_sha256=//p' gradle.properties | tr -d '\r')"
-          if [[ "$power_ref" != "bcb75bfa91c14751ebf1e31865e1ec0ffa82c0b7" || "$power_sha" != "2FB923944A456B4F26AB2F9212C646469CE3F49BFD4DAE894C15559B48908386" ]]; then
-            echo "PowerAdvantage 1.16.5 source/deobf pin differs from the audited candidate" >&2
+          pin_state="$(sed -n 's/^poweradvantage_pin_state=//p' gradle.properties | tr -d '\r')"
+          bm_ref="$(sed -n 's/^basemetals_source_commit=//p' gradle.properties | tr -d '\r')"
+          bm_sha="$(sed -n 's/^basemetals_deobf_sha256=//p' gradle.properties | tr -d '\r')"
+          bootstrap_sha="$(sed -n 's/^poweradvantage_unit_bootstrap_sha256=//p' gradle.properties | tr -d '\r')"
+          if [[ "$pin_state" != "LOCAL_CHECKPOINT" || ! "$power_ref" =~ ^[a-f0-9]{40}$ || ! "$bm_ref" =~ ^[a-f0-9]{40}$ ||
+                ! "$power_sha" =~ ^[A-F0-9]{64}$ || ! "$bm_sha" =~ ^[A-F0-9]{64}$ || ! "$bootstrap_sha" =~ ^[A-F0-9]{64}$ ]]; then
+            echo "The coordinated basePower and Base Metals 1.17.1 pins are pending" >&2
             exit 1
           fi
           echo "power_ref=$power_ref" >> "$GITHUB_OUTPUT"
+          echo "basemetals_ref=$bm_ref" >> "$GITHUB_OUTPUT"
       - name: Check out pinned OreSpawn
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: MinecraftModDevelopmentMods/OreSpawn
-          ref: a113e5d767169189f0e35ade1e173a12d550b00e
+          ref: b56e2b62a1a6ea4d1dd96f8646a87801a817dbdf
           path: .ci-dependencies/OreSpawn
       - name: Check out pinned Base Metals
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: MinecraftModDevelopmentMods/BaseMetals
-          ref: 995f6cc4dd2d5eecc628a42e5c43fa5390c24bca
+          # Local-only startup fix; hosted checkout must wait for authorized source availability.
+          ref: ${{ steps.pins.outputs.basemetals_ref }}
           path: .ci-dependencies/BaseMetals
-      - name: Check out PowerAdvantage 1.16.5
+      - name: Check out basePower 1.17.1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          repository: MinecraftModDevelopmentMods/PowerAdvantage
+          repository: MinecraftModDevelopmentMods/basePower
           # Local-only Power source; publish upstream before hosted builds.
-          ref: bcb75bfa91c14751ebf1e31865e1ec0ffa82c0b7
+          ref: ${{ steps.pins.outputs.power_ref }}
           path: .ci-dependencies/PowerAdvantage
       - name: Install pinned Java 25 Mavenizer runtime
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
           java-version: '25.0.3+9.0.LTS'
-      - name: Install Java 8 toolchain
+      - name: Install Java 16 production toolchain
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '16.0.2+7'
+      - name: Install Java 8 build utilities
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
@@ -74,12 +86,12 @@ jobs:
         # These are Gradle project properties, not JVM system properties.
         shell: bash
         run: >-
-          echo "MMD_GRADLE_TOOLCHAINS=-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64
+          echo "MMD_GRADLE_TOOLCHAINS=-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_16_X64,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64
           -Porg.gradle.java.installations.auto-detect=false
           -Porg.gradle.java.installations.auto-download=false" >> "$GITHUB_ENV"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
-      - name: Build 1.16.5 dependency chain
+      - name: Build 1.17.1 dependency chain
         id: dependencies
         shell: bash
         run: |
@@ -87,46 +99,52 @@ jobs:
           orespawn="$GITHUB_WORKSPACE/.ci-dependencies/OreSpawn"
           basemetals="$GITHUB_WORKSPACE/.ci-dependencies/BaseMetals"
           power="$GITHUB_WORKSPACE/.ci-dependencies/PowerAdvantage"
+          test "$(git -C "$power" rev-parse HEAD)" = "${{ steps.pins.outputs.power_ref }}"
+          test "$(git -C "$basemetals" rev-parse HEAD)" = "${{ steps.pins.outputs.basemetals_ref }}"
           chmod +x "$orespawn/gradlew" "$basemetals/gradlew" "$power/gradlew"
           (cd "$orespawn" && ./gradlew $MMD_GRADLE_TOOLCHAINS jar --no-daemon --stacktrace)
           (cd "$basemetals" && ./gradlew $MMD_GRADLE_TOOLCHAINS jar --no-daemon --stacktrace)
-          osjar="$orespawn/build/libs-dev/OreSpawn-4.1.0.116051-deobf.jar"
-          bmjar="$basemetals/build/libs-dev/BaseMetals-3.1.1.116051-deobf.jar"
+          osjar="$orespawn/build/libs-dev/OreSpawn-4.1.0.117011-deobf.jar"
+          bmjar="$basemetals/build/libs-dev/BaseMetals-3.1.1.117011-deobf.jar"
           (cd "$power" && ./gradlew $MMD_GRADLE_TOOLCHAINS jar verifyReleaseDependencies \
             -PbaseMetalsDeobfJar="$bmjar" -PoreSpawnDeobfJar="$osjar" \
             --no-daemon --stacktrace)
-          powerjar="$power/build/libs-dev/PowerAdvantage-2.4.7.116051-deobf.jar"
+          powerjar="$power/build/libs-dev/basePower-2.4.9.117011-deobf.jar"
           test -f "$osjar" && test -f "$bmjar" && test -f "$powerjar"
+          release="$RUNNER_TEMP/basePower-2.4.9.117011.jar"
+          curl --fail --silent --show-error --location --retry 3 --output "$release" \
+            'https://maven.moddev.zone/releases/zone/moddev/mc/basepower/basePower/2.4.9.117011/basePower-2.4.9.117011.jar'
+          power_release_sha=$(sed -n 's/^poweradvantage_runtime_sha256=//p' gradle.properties | tr -d '\r')
+          printf '%s  %s\n' "$power_release_sha" "$release" | sha256sum --check
           echo "orespawn=$osjar" >> "$GITHUB_OUTPUT"
           echo "basemetals=$bmjar" >> "$GITHUB_OUTPUT"
           echo "power=$powerjar" >> "$GITHUB_OUTPUT"
-          echo "power_ref=$(git -C "$power" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - name: Build and audit release artifacts
         run: >-
           ./gradlew $MMD_GRADLE_TOOLCHAINS clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts
           writeReleaseChecksums verifyEclipseProductionClasspath
           -PpowerAdvantageDeobfJar=${{ steps.dependencies.outputs.power }}
-          -Ppoweradvantage_source_ref=${{ steps.dependencies.outputs.power_ref }}
+          -PpowerAdvantageUnitBootstrapSource=${{ github.workspace }}/.ci-dependencies/PowerAdvantage/test-rig/unit-bootstrap/ForgeCapabilityBootstrap.java
           -PbaseMetalsDeobfJar=${{ steps.dependencies.outputs.basemetals }}
           -PoreSpawnDeobfJar=${{ steps.dependencies.outputs.orespawn }}
           --no-daemon --stacktrace
       - name: Upload audited release candidate
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ElectricAdvantage-1.16.5-${{ github.sha }}
+          name: baseElectric-1.17.1-${{ github.sha }}
           if-no-files-found: error
           retention-days: 30
           path: |
-            build/libs/ElectricAdvantage-2.2.8.116051.jar
-            build/libs/ElectricAdvantage-2.2.8.116051-sources.jar
-            build/libs/ElectricAdvantage-2.2.8.116051-javadoc.jar
+            build/libs/baseElectric-2.2.10.117011.jar
+            build/libs/baseElectric-2.2.10.117011-sources.jar
+            build/libs/baseElectric-2.2.10.117011-javadoc.jar
             build/release/SHA256SUMS
             CHANGELOG.txt
       - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: ElectricAdvantage-1.16.5-diagnostics-${{ github.sha }}
+          name: baseElectric-1.17.1-diagnostics-${{ github.sha }}
           if-no-files-found: ignore
           retention-days: 14
           path: |
