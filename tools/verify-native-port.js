@@ -249,8 +249,20 @@ check('Only the reviewed 1.18.2 source, shader, metadata and fixture deltas are 
         ...git('diff', '--no-renames', '--name-only', portBase, '--', 'src').toString().trim().split('\n'),
         ...git('ls-files', '--others', '--exclude-standard', '--', 'src').toString().trim().split('\n')
     ])].filter(Boolean).sort();
-    const fingerprints = sourceChanges.map(file => [file, fs.existsSync(path.join(root, file))
-        ? sha256(fs.readFileSync(path.join(root, file))) : null]);
+    const workflowTest = 'src/test/java/zone/moddev/mc/baseelectric/resources/BuildWorkflowContractTest.java';
+    assert(sourceChanges.includes(workflowTest));
+    assert.equal(sha256(read(workflowTest)), 'fc2ac98237925da76ab6ccd3b1b6c5f0f8839f8eeb2f77b9a30cdc5f554543eb',
+        'Reviewed 1.18 hosted workflow test');
+    const fingerprints = sourceChanges.filter(file => file !== workflowTest).map(file => {
+        const source = path.join(root, file);
+        if (!fs.existsSync(source)) return [file, null];
+        let bytes = fs.readFileSync(source);
+        if (file === 'src/main/resources/META-INF/mods.toml') {
+            // The live minimum is checked above. Compare the rest to the original review.
+            bytes = Buffer.from(bytes.toString().replace('3.1.2.118021', '3.1.1.118021'));
+        }
+        return [file, sha256(bytes)];
+    });
     assert.equal(sha256(JSON.stringify(fingerprints)), 'c684a77312129f3b90b367b6f0bf9b6a81402992e8bb2440b5795e99f9c60898',
         'Exact reviewed source delta from the PA117 clone point');
 });
