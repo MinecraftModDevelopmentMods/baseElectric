@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -180,7 +180,7 @@ public class ElectricOperationalPumpPickupTest {
         Map<BlockPos, BlockState> blocks;
         int writes;
         private PumpWorld() {
-            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
+            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
         }
         @Override public boolean hasChunkAt(BlockPos pos) { return true; }
         @Override public BlockState getBlockState(BlockPos pos) {
@@ -199,7 +199,7 @@ public class ElectricOperationalPumpPickupTest {
         final boolean returnNull;
         int calls;
         RefusingSource(boolean returnNull) {
-            super(Block.Properties.of(Material.STONE));
+            super(Block.Properties.of().mapColor(MapColor.STONE));
             this.returnNull = returnNull;
             defaultBlockState().initCache();
         }

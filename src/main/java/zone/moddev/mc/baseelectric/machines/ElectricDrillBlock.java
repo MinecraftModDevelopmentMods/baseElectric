@@ -6,7 +6,6 @@ import cyano.poweradvantage.api.ITypedConduit;
 import cyano.poweradvantage.api.PowerConnectorContext;
 import cyano.poweradvantage.api.PoweredEntity;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.Container;
@@ -33,7 +32,7 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     private final ConduitType[] types = {Power.ELECTRIC_POWER};
 
     public ElectricDrillBlock() {
-        super(Block.Properties.of(Material.PISTON).strength(0.75F).dynamicShape().noOcclusion());
+        super(machineProperties(0.75F));
         registerDefaultState(getStateDefinition().any()
                 .setValue(ACTIVE, false)
                 .setValue(FACING, Direction.DOWN));

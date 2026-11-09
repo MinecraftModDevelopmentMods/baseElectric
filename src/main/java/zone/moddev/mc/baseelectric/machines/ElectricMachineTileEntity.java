@@ -205,7 +205,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	protected static boolean areItemsEqualNullable(ItemStack left, ItemStack right) {
 		if(isEmptyStack(left)) return isEmptyStack(right);
 		if(isEmptyStack(right)) return false;
-		return ItemStack.isSame(left, right);
+		return ItemStack.isSameItem(left, right);
 	}
 
 	protected static boolean areItemStacksEqualNullable(ItemStack left, ItemStack right) {
@@ -264,7 +264,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 			int stackLimit = Math.min(dest.getMaxStackSize(), this.getMaxStackSize());
 			if(dest.getCount() >= stackLimit) continue;
 			int combinedStackSize = item.getCount() + dest.getCount();
-			if(ItemStack.isSame(item, dest) ){
+			if(ItemStack.isSameItem(item, dest) ){
 				if(combinedStackSize <= stackLimit){
 					return true;
 				} else if (item.getCount() <= stackLimit) {
@@ -284,7 +284,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 			int stackLimit = Math.min(dest.getMaxStackSize(), this.getMaxStackSize());
 			if(dest.getCount() >= stackLimit) continue;
 			int combinedStackSize = item.getCount() + dest.getCount();
-			if(ItemStack.isSame(item, dest) ){
+			if(ItemStack.isSameItem(item, dest) ){
 				if(combinedStackSize <= stackLimit){
 					return true;
 				} else if (item.getCount() <= stackLimit) {
@@ -324,7 +324,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 				// empty slot
 				this.setInputSlot(slot,itemStack);
 				return null;
-			} else if(ItemStack.isSame(itemStack, slotContent)){
+			} else if(ItemStack.isSameItem(itemStack, slotContent)){
 				int stackLimit = Math.min(slotContent.getMaxStackSize(), this.getMaxStackSize());
 				// found slot with same item
 				if(slotContent.getCount() < stackLimit){
@@ -354,7 +354,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 				// empty slot
 				this.setOutputSlot(slot,itemStack);
 				return null;
-			} else if(ItemStack.isSame(itemStack, slotContent)){
+			} else if(ItemStack.isSameItem(itemStack, slotContent)){
 				int stackLimit = Math.min(slotContent.getMaxStackSize(), this.getMaxStackSize());
 				// found slot with same item
 				if(slotContent.getCount() < stackLimit){

@@ -33,10 +33,23 @@ public class BlockLootResourceTest {
         assertFalse(Files.exists(root.resolve("pump_pipe_electric.json")));
     }
 
-    @Test public void resourcePackDeclaresTheNativeOneNineteenFourFormats() throws Exception {
+    @Test public void resourcePackDeclaresTheNativeOneTwentyOneFormat() throws Exception {
         JsonObject pack = read(Paths.get("src/main/resources/pack.mcmeta")).getAsJsonObject("pack");
-        assertEquals(13, pack.get("pack_format").getAsInt());
-        assertEquals(12, pack.get("forge:server_data_pack_format").getAsInt());
+        assertEquals(15, pack.get("pack_format").getAsInt());
+        assertFalse(pack.has("forge:server_data_pack_format"));
+    }
+
+    @Test public void eachTrackStateUsesTheNativeCutoutRenderLayer() throws Exception {
+        Path assets = Paths.get("src/main/resources/assets/baseelectric");
+        var variants = read(assets.resolve("blockstates/electric_track.json")).getAsJsonObject("variants");
+        assertEquals(64, variants.size());
+        for (var variant : variants.entrySet()) {
+            String model = variant.getValue().getAsJsonObject().get("model").getAsString();
+            assertTrue(variant.getKey(), model.startsWith("baseelectric:block/electric_track_"));
+            JsonObject modelJson = read(assets.resolve("models/" + model.substring("baseelectric:".length()) + ".json"));
+            assertTrue(model + " does not declare a render layer", modelJson.has("render_type"));
+            assertEquals(model, "minecraft:cutout", modelJson.get("render_type").getAsString());
+        }
     }
 
     private static JsonObject read(Path path) throws Exception {

@@ -7,12 +7,12 @@ import java.util.function.Supplier;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 /** Legacy ElectricAdvantage ore block retaining its original drops and harvest level. */
@@ -34,21 +34,21 @@ public class Ore extends Block {
     }
 
     private Ore(Supplier<ItemStack> drop, int pickLevel, int variation) {
-        super(Properties.of(Material.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
+        super(Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
                 .strength(1.5F + pickLevel, 5.0F * (1 + pickLevel)));
         this.drop = drop;
         dropRange = variation + 1;
     }
 
     public Ore(int pickLevel) {
-        super(Properties.of(Material.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
+        super(Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
                 .strength(1.5F + pickLevel, 5.0F * (1 + pickLevel)));
         drop = () -> ItemStack.EMPTY;
         dropRange = 0;
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState state, LootContext.Builder context) {
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder context) {
         ItemStack tool = context.getOptionalParameter(LootContextParams.TOOL);
         ItemStack dropItem = drop.get();
         if (dropItem.isEmpty() || (tool != null
