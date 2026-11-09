@@ -11,11 +11,11 @@ public class BuildWorkflowContractTest {
         for (String workflow : new String[] {"ci.yml", "codeql-analysis.yml"}) {
             String source = new String(Files.readAllBytes(Paths.get(".github/workflows", workflow)), StandardCharsets.UTF_8);
             int setup = source.indexOf("- name: Set up Gradle");
-            for (String version : new String[] {"25.0.3+9.0.LTS", "16.0.2+7", "8.0.502+7", "17.0.1+12"}) {
+            for (String version : new String[] {"25.0.3+9.0.LTS", "8.0.502+7", "17.0.1+12"}) {
                 int pin = source.indexOf("java-version: '" + version + "'");
                 assertTrue(workflow + " missing pinned JDK " + version, pin >= 0 && pin < setup);
             }
-            assertTrue(source.contains("-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_16_X64,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64"));
+            assertTrue(source.contains("-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64"));
             assertTrue(source.contains("-Porg.gradle.java.installations.auto-detect=false"));
             assertTrue(source.contains("-Porg.gradle.java.installations.auto-download=false"));
             assertFalse(source.contains("-Dorg.gradle.java.installations."));
@@ -25,6 +25,7 @@ public class BuildWorkflowContractTest {
                 }
             }
             assertTrue(source.indexOf("- name: Use pinned build toolchains") < setup);
+            assertFalse(source.contains("JAVA_HOME_16_X64"));
             assertFalse(source.contains("distribution: microsoft"));
         }
     }
@@ -33,34 +34,43 @@ public class BuildWorkflowContractTest {
         for (String workflow : new String[] {"ci.yml", "codeql-analysis.yml"}) {
             String source = new String(Files.readAllBytes(Paths.get(".github/workflows", workflow)), StandardCharsets.UTF_8);
             int policy = source.indexOf("git config --global core.autocrlf false");
-            int pins = source.indexOf("- name: Require coordinated 1.17.1 dependency pins");
+            int pins = source.indexOf("bash .github/scripts/forge45-dependencies.sh pins");
+            int dependencyBuild = source.indexOf("bash .github/scripts/forge45-dependencies.sh build");
             assertTrue(policy > 0);
             assertTrue(policy < pins);
             for (String repository : new String[] {"OreSpawn", "BaseMetals", "basePower"}) {
                 assertTrue(pins < source.indexOf("repository: MinecraftModDevelopmentMods/" + repository));
             }
-            assertTrue(source.contains("ref: b56e2b62a1a6ea4d1dd96f8646a87801a817dbdf"));
-            assertTrue(source.contains("BaseMetals-3.1.1.117011-deobf.jar"));
-            assertTrue(source.contains("basePower-2.4.9.117011-deobf.jar"));
+            assertTrue(source.contains("ref: ${{ steps.pins.outputs.orespawn_ref }}"));
             assertTrue(source.contains("ref: ${{ steps.pins.outputs.basemetals_ref }}"));
             assertTrue(source.contains("ref: ${{ steps.pins.outputs.power_ref }}"));
-            assertTrue(source.contains("\"$pin_state\" != \"LOCAL_CHECKPOINT\""));
-            assertTrue(source.contains("! \"$power_ref\" =~ ^[a-f0-9]{40}$"));
-            assertTrue(source.contains("! \"$bm_ref\" =~ ^[a-f0-9]{40}$"));
-            for (String hash : new String[] {"power_sha", "bm_sha", "bootstrap_sha"}) {
-                assertTrue(source.contains("! \"$" + hash + "\" =~ ^[A-F0-9]{64}$"));
-            }
-            assertTrue(source.contains("git -C \"$power\" rev-parse HEAD"));
-            assertTrue(source.contains("git -C \"$basemetals\" rev-parse HEAD"));
-            assertFalse(source.contains("5b9abe578b053d2ef59b1962cf9e04f6880c91b9"));
-            assertFalse(source.contains("799B59B06EB2AC3FC4682AA64BF42C3A2A2C1D89D7FFFE9C72745DEC7DFBE0D8"));
-            assertFalse(source.contains("dacfaa3af2e3310d5cb6b081da79f09260ae103d"));
-            assertFalse(source.contains("098d4625abc8a849bd1a11dcf697b3fee0cade7b"));
-            assertFalse(source.contains("78E58DD2AB04E2B9F3267E5735C64AAE7E93EAC97571CB04485038862C853ED3"));
-            assertFalse(source.contains("ce90c24c302d0ff3565db2db0c6c94a3b5f21f83"));
-            assertFalse(source.contains("8BBB03DD7E4AF08A7390A161ED5AA94E292BEE56EF60E550B5512E967E0E9174"));
-            assertTrue(source.contains("branches: [master-1.17.1"));
-            assertFalse(source.contains("master-1.14.4"));
+            assertTrue(dependencyBuild > source.indexOf("ref: ${{ steps.pins.outputs.power_ref }}"));
+            assertTrue(source.indexOf("\"-Pforge45MavenizerJar=$MAVENIZER\"") > dependencyBuild);
+            assertTrue(source.contains("MAVENIZER: ${{ steps.dependencies.outputs.mavenizer }}"));
+            assertTrue(source.contains("branches: [master-1.19.4"));
+            assertFalse(source.contains("1.17.1"));
         }
+        String script = Files.readString(Paths.get(".github/scripts/forge45-dependencies.sh"));
+        assertTrue(script.contains("$(value poweradvantage_pin_state)") && script.contains("'LOCAL_CHECKPOINT'"));
+        assertTrue(script.contains("=~ ^[a-f0-9]{40}$") && script.contains("=~ ^[A-F0-9]{64}$"));
+        for (String dependency : new String[] {"orespawn", "basemetals", "power"}) {
+            assertTrue(script.contains("git -C \"$" + dependency + "\" rev-parse HEAD"));
+        }
+        assertTrue(script.contains("$orespawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar"));
+        assertTrue(script.contains("check_hash \"$mavenizer\" '341B3FB10ABA6EA7DC612FBE519DC290A1C81867AED5DD320ACD783688AC49DE'"));
+        assertTrue(script.contains("mavenizer_init=\"$GITHUB_WORKSPACE/gradle/forge45-mavenizer.init.gradle\""));
+        assertTrue(script.contains("mavenizer_script=\"$GITHUB_WORKSPACE/gradle/forge45-mavenizer.gradle\""));
+        assertFalse(script.contains("$power/gradle/forge45-mavenizer"));
+        int metalsBuild = script.indexOf("(cd \"$basemetals\" && ./gradlew");
+        int powerBuild = script.indexOf("(cd \"$power\" && ./gradlew");
+        assertTrue(metalsBuild > 0 && powerBuild > metalsBuild);
+        String metals = script.substring(metalsBuild, powerBuild);
+        assertFalse(metals.contains("-I ") || metals.contains("-Pforge45Mavenizer"));
+        String power = script.substring(powerBuild);
+        assertTrue(power.contains("-I \"$mavenizer_init\""));
+        assertTrue(power.contains("\"-Pforge45MavenizerScript=$mavenizer_script\""));
+        assertTrue(power.contains("\"-Pforge45MavenizerJar=$mavenizer\""));
+        assertTrue(script.contains("git -C \"$basemetals\" diff --exit-code HEAD --"));
+        assertTrue(script.contains("git -C \"$power\" diff --exit-code HEAD --"));
     }
 }

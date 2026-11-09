@@ -34,8 +34,10 @@ verification status. Earlier port notes, including
 The local basePower `2.4.11.119041` checkpoint pins the owner's source
 revision, development JAR, player JAR, test agent and test agent source. Base Metals
 `3.1.2.119041`, OreSpawn `4.1.0.119041` and the Forge installer have
-explicit hashes in `gradle.properties`. The inherited hosted workflows
-are for 1.17.1. This branch does not enable publication.
+explicit hashes in `gradle.properties`. Forge 45 CI and CodeQL use Electric's
+init adapter only for pinned Power. Pinned Base Metals uses its own verified
+fixture. Both dependency source checkouts stay unchanged. This branch does
+not enable publication.
 
 Run from this repository with the explicit input arguments below:
 
@@ -48,7 +50,8 @@ an isolated directory (the ignored `.gradle-user-home` was used locally).
 Set `JAVA_HOME` to Java 17 for Gradle and production, with Java 25 for
 Mavenizer and Java 8 for Eclipse launch generation. The checksum-verified
 OreSpawn Mavenizer fixture fixes duplicate decompiled record accessors in
-Forge 45.4.0.
+Forge 45.4.0. The default is the sibling `MinecraftMineralogy/OS119/OreSpawn`
+checkout; use `-Pforge45MavenizerJar` for another checkout layout.
 
 Append these arguments using immutable local inputs. In particular, the build
 does not discover a basePower jar or bootstrap source in a sibling checkout:
@@ -62,7 +65,7 @@ does not discover a basePower jar or bootstrap source in a sibling checkout:
 -PoreSpawnRuntimeJar="/path/to/OreSpawn-4.1.0.119041.jar"
 -PpowerAdvantageUnitBootstrapSource="/path/to/ForgeCapabilityBootstrap.java"
 -PpowerAdvantageUnitBootstrapJar="/path/to/forge-native-unit-bootstrap.jar"
--PmavenizerCompatibilityJar="/path/to/minecraft-mavenizer-0.5.21-orespawn-compat.jar"
+-Pforge45MavenizerJar="/path/to/minecraft-mavenizer-0.5.21-orespawn-compat.jar"
 -PforgeInstallerJar="/path/to/forge-1.19.4-45.4.0-installer.jar"
 ```
 
@@ -105,7 +108,9 @@ The crusher continues to consume the real Base Metals recipe implementation;
 no replacement raw-metal conversion or balance change is introduced.
 
 Eclipse imports use the Gradle wrapper, processed resources and production-only
-launches. Generate metadata through `verifyEclipseProductionClasspath`; do not
+launches. The Eclipse and Gradle project name is `ElectricAdvantage`, matching
+the checkout folder; the mod and archives keep the baseElectric identity.
+Generate metadata through `verifyEclipseProductionClasspath`; do not
 hand-edit generated classpaths or disable restricted-reference tests.
 Repeated refreshes replace stale runtime entries while keeping the native Forge
 launcher and excluding compile-only libraries from production launches.

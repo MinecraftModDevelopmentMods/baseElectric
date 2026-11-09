@@ -61,18 +61,9 @@ def pinnedFile = { String property, String expected ->
     input
 }
 
-// OreSpawn's 1.19.4 fixture fixes duplicate accessors in Forge 45's decompiled records.
-// Its build-tool JVM is separate from the Java 17 production/test JVM.
-fgtools.configure('mavenizer') {
-    classpath.from(providers.provider {
-        pinnedFile('mavenizerCompatibilityJar', '341B3FB10ABA6EA7DC612FBE519DC290A1C81867AED5DD320ACD783688AC49DE')
-    })
-    mainClass.set('net.minecraftforge.mcmaven.cli.Main')
-    javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion = JavaLanguageVersion.of(25)
-        vendor = JvmVendorSpec.ADOPTIUM
-    })
-}
+ext.forge45MavenizerDefault =
+        '../../../../MinecraftMineralogy/OS119/OreSpawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar'
+apply from: 'gradle/forge45-mavenizer.gradle'
 
 java {
     toolchain {
@@ -129,6 +120,7 @@ tasks.named('test', Test) {
 
 tasks.withType(Javadoc).configureEach {
     failOnError = false
+    title = "${base.archivesName.get()} ${project.version} API"
     options.encoding = 'UTF-8'
     options.addStringOption('Xdoclint:none', '-quiet')
     options.addBooleanOption('notimestamp', true)
@@ -837,6 +829,7 @@ def obsoleteForgeGradle2EclipseLaunches = [
 
 eclipse {
     project {
+        name = rootProject.name
         buildCommand 'org.eclipse.buildship.core.gradleprojectbuilder'
         natures 'org.eclipse.buildship.core.gradleprojectnature'
     }
@@ -932,6 +925,7 @@ tasks.register('isolateEclipseProductionRuns') {
         }
         // ForgeGradle's legacy launch generator can leave this token unresolved,
         // so write the target version into every generated launch explicitly.
+        def parser = new groovy.xml.XmlParser()
         fileTree(project.projectDir) {
             include 'run*.launch'
         }.files.each { File launch ->
@@ -939,10 +933,21 @@ tasks.register('isolateEclipseProductionRuns') {
             contents = contents.replace(
                     'key="MC_VERSION" value="${MC_VERSION}"',
                     "key=\"MC_VERSION\" value=\"${project.minecraft_version}\"")
+            def launchXml = parser.parseText(contents)
+            launchXml.stringAttribute.findAll { it.@key == 'org.eclipse.jdt.launching.PROJECT_ATTR' }.each {
+                it.@value = project.name
+            }
+            // A reused launch may still name the old workspace project.
+            launchXml.listAttribute.find { it.@key == 'org.eclipse.jdt.launching.CLASSPATH' }
+                    ?.listEntry?.each { entry ->
+                def runtime = parser.parseText(entry.@value)
+                if (runtime.@projectName == 'baseElectric') {
+                    runtime.@projectName = project.name
+                    entry.@value = groovy.xml.XmlUtil.serialize(runtime)
+                }
+            }
             if (launch.name in ['runClient.launch', 'runServer.launch', 'runData.launch']) {
                 // Eclipse compiles into bin/main, not Gradle's merged run output.
-                def parser = new groovy.xml.XmlParser()
-                def launchXml = parser.parseText(contents)
                 def modClasses = launchXml.mapAttribute.find {
                     it.@key == 'org.eclipse.debug.core.environmentVariables'
                 }.mapEntry.findAll { it.@key == 'MOD_CLASSES' }
@@ -960,21 +965,8 @@ tasks.register('isolateEclipseProductionRuns') {
                     throw new GradleException("${launch.name} is missing its program arguments")
                 }
                 programArguments.@value = quoteEclipseLaunchPaths(launch.name, programArguments.@value)
-                // A launch reused across the rename may still point at the old Eclipse project.
-                launchXml.stringAttribute.findAll { it.@key == 'org.eclipse.jdt.launching.PROJECT_ATTR' }.each {
-                    it.@value = project.name
-                }
-                launchXml.listAttribute.find { it.@key == 'org.eclipse.jdt.launching.CLASSPATH' }
-                        ?.listEntry?.each { entry ->
-                    def runtime = parser.parseText(entry.@value)
-                    if (runtime.@projectName == 'ElectricAdvantage') {
-                        runtime.@projectName = project.name
-                        entry.@value = groovy.xml.XmlUtil.serialize(runtime)
-                    }
-                }
-                contents = groovy.xml.XmlUtil.serialize(launchXml)
             }
-            launch.setText(contents.replace('\r\n', '\n'), 'UTF-8')
+            launch.setText(groovy.xml.XmlUtil.serialize(launchXml).replace('\r\n', '\n'), 'UTF-8')
         }
         ['runClient.launch', 'runServer.launch'].each { name ->
             File launch = file(name)
@@ -1000,7 +992,6 @@ tasks.register('isolateEclipseProductionRuns') {
             }.findAll { File runtimeFile ->
                 !mainOutputs.contains(runtimeFile)
             }
-            def parser = new groovy.xml.XmlParser()
             def launchXml = parser.parseText(contents)
             def classpath = launchXml.listAttribute.find { it.@key == 'org.eclipse.jdt.launching.CLASSPATH' }
             if (classpath == null) {
@@ -1043,10 +1034,28 @@ tasks.register('verifyEclipseProductionClasspath') {
                 != gradle.gradleUserHomeDir.canonicalFile) {
             throw new GradleException('Eclipse Buildship does not use this wrapper and Gradle home')
         }
-        String projectMetadata = file('.project').getText('UTF-8')
-        if (!projectMetadata.contains('org.eclipse.buildship.core.gradleprojectnature')
-                || !projectMetadata.contains('org.eclipse.buildship.core.gradleprojectbuilder')) {
+        def eclipseProject = new groovy.xml.XmlSlurper().parse(file('.project'))
+        if (project.name != 'ElectricAdvantage' || eclipseProject.name.text() != project.name) {
+            throw new GradleException('The Eclipse and Gradle project names must both be ElectricAdvantage')
+        }
+        if (!eclipseProject.natures.nature.any { it.text() == 'org.eclipse.buildship.core.gradleprojectnature' }
+                || !eclipseProject.buildSpec.buildCommand.name.any { it.text() == 'org.eclipse.buildship.core.gradleprojectbuilder' }) {
             throw new GradleException('Eclipse project metadata is missing its Buildship nature or builder')
+        }
+        ['Client', 'Server', 'Data', 'TestClient', 'TestServer', 'TestData'].each { run ->
+            String name = "run${run}.launch"
+            def launch = new groovy.xml.XmlSlurper().parse(file(name))
+            def projectAttributes = launch.stringAttribute.findAll {
+                it.@key.text() == 'org.eclipse.jdt.launching.PROJECT_ATTR'
+            }.collect { it.@value.text() }
+            def classpathProjects = launch.listAttribute.find {
+                it.@key.text() == 'org.eclipse.jdt.launching.CLASSPATH'
+            }.listEntry.collect {
+                new groovy.xml.XmlSlurper().parseText(it.@value.text()).@projectName.text()
+            }.findAll { it }
+            if (projectAttributes != [project.name] || classpathProjects != [project.name]) {
+                throw new GradleException("${name} must use the ${project.name} Eclipse project and classpath entry")
+            }
         }
         File eclipseModMetadata = file('bin/main/META-INF/mods.toml')
         String eclipseMetadata = eclipseModMetadata.getText('UTF-8')
@@ -1103,20 +1112,11 @@ tasks.register('verifyEclipseProductionClasspath') {
                     || contents.contains('src/test') || contents.contains('bin/test')) {
                 throw new GradleException("${name} does not isolate production code")
             }
-            if (launch.stringAttribute.find {
-                it.@key.text() == 'org.eclipse.jdt.launching.PROJECT_ATTR'
-            }.@value.text() != project.name) {
-                throw new GradleException("${name} targets the wrong Eclipse project")
-            }
             def runtimeEntries = launch.listAttribute.find {
                 it.@key.text() == 'org.eclipse.jdt.launching.CLASSPATH'
             }.listEntry.collect { new groovy.xml.XmlSlurper().parseText(it.@value.text()) }
             if (runtimeEntries.any { it.@containerPath.text() == 'org.eclipse.buildship.core.gradleclasspathcontainer' }) {
                 throw new GradleException("${name} exposes compileOnly dependencies at runtime")
-            }
-            if (!runtimeEntries.any { it.@projectName.text() == project.name }
-                    || runtimeEntries.any { it.@projectName.text() == 'ElectricAdvantage' }) {
-                throw new GradleException("${name} has an incorrect Eclipse project classpath entry")
             }
             List<File> runtimeArchives = runtimeEntries.findAll { it.@externalArchive.text() }.collect {
                 file(it.@externalArchive.text()).canonicalFile
