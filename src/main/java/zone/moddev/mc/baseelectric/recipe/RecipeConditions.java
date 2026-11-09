@@ -37,7 +37,9 @@ public final class RecipeConditions {
                     inverted ? "not_recipe_mode" : "recipe_mode");
         }
 
-        @Override public boolean test() {
+        @Override public boolean test() { return test(IContext.EMPTY); }
+
+        @Override public boolean test(IContext context) {
             return (PowerAdvantage.recipeMode == mode) != inverted;
         }
     }

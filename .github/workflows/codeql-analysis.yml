@@ -2,9 +2,9 @@ name: CodeQL
 
 on:
   push:
-    branches: [master-1.17.1, 'feature/**']
+    branches: [master-1.18.2, 'feature/**']
   pull_request:
-    branches: [master-1.17.1]
+    branches: [master-1.18.2]
   schedule:
     - cron: '59 7 * * 4'
 
@@ -24,7 +24,7 @@ jobs:
       - name: Use canonical LF dependency inputs
         # Apply before every dependency checkout, including OreSpawn.
         run: git config --global core.autocrlf false
-      - name: Require coordinated 1.17.1 dependency pins
+      - name: Require coordinated 1.18.2 dependency pins
         id: pins
         shell: bash
         run: |
@@ -35,9 +35,9 @@ jobs:
           bm_ref="$(sed -n 's/^basemetals_source_commit=//p' gradle.properties | tr -d '\r')"
           bm_sha="$(sed -n 's/^basemetals_deobf_sha256=//p' gradle.properties | tr -d '\r')"
           bootstrap_sha="$(sed -n 's/^poweradvantage_unit_bootstrap_sha256=//p' gradle.properties | tr -d '\r')"
-          if [[ "$pin_state" != "LOCAL_CHECKPOINT" || ! "$power_ref" =~ ^[a-f0-9]{40}$ || ! "$bm_ref" =~ ^[a-f0-9]{40}$ ||
+          if [[ "$pin_state" != "PUBLISHED_RELEASE" || ! "$power_ref" =~ ^[a-f0-9]{40}$ || ! "$bm_ref" =~ ^[a-f0-9]{40}$ ||
                 ! "$power_sha" =~ ^[A-F0-9]{64}$ || ! "$bm_sha" =~ ^[A-F0-9]{64}$ || ! "$bootstrap_sha" =~ ^[A-F0-9]{64}$ ]]; then
-            echo "The coordinated basePower and Base Metals 1.17.1 pins are pending" >&2
+            echo "The coordinated basePower and Base Metals 1.18.2 pins are pending" >&2
             exit 1
           fi
           echo "power_ref=$power_ref" >> "$GITHUB_OUTPUT"
@@ -46,20 +46,18 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: MinecraftModDevelopmentMods/OreSpawn
-          ref: b56e2b62a1a6ea4d1dd96f8646a87801a817dbdf
+          ref: d31f52f296739f34a0c13f554abf3e1ac071ae25
           path: .ci-dependencies/OreSpawn
       - name: Check out pinned Base Metals
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: MinecraftModDevelopmentMods/BaseMetals
-          # Local-only startup fix; hosted checkout must wait for authorized source availability.
           ref: ${{ steps.pins.outputs.basemetals_ref }}
           path: .ci-dependencies/BaseMetals
-      - name: Check out basePower 1.17.1
+      - name: Check out basePower 1.18.2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: MinecraftModDevelopmentMods/basePower
-          # Local-only Power source; publish upstream before hosted builds.
           ref: ${{ steps.pins.outputs.power_ref }}
           path: .ci-dependencies/PowerAdvantage
       - name: Install pinned Java 25 Mavenizer runtime
@@ -67,11 +65,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '25.0.3+9.0.LTS'
-      - name: Install Java 16 production toolchain
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
-        with:
-          distribution: temurin
-          java-version: '16.0.2+7'
       - name: Install Java 8 build utilities
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
@@ -86,12 +79,22 @@ jobs:
         # These are Gradle project properties, not JVM system properties.
         shell: bash
         run: >-
-          echo "MMD_GRADLE_TOOLCHAINS=-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_16_X64,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64
+          echo "MMD_GRADLE_TOOLCHAINS=-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64
           -Porg.gradle.java.installations.auto-detect=false
           -Porg.gradle.java.installations.auto-download=false" >> "$GITHUB_ENV"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
-      - name: Build 1.17.1 dependency chain
+      - name: Stage the pinned Forge 40 Mavenizer compatibility fixture
+        id: mavenizer
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixture="$RUNNER_TEMP/minecraft-mavenizer-0.5.21-orespawn-1.18.jar"
+          curl --fail --silent --show-error --location --retry 3 --output "$fixture" \
+            'https://raw.githubusercontent.com/MinecraftModDevelopmentMods/IronAgeFurniture/8283a09d4c75dc01a5b62a912be722654e960de8/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-1.18.jar'
+          printf '%s  %s\n' '28A6697BDF6D9500EC0AF9C1C949B9F3ED7DDFDA649CB5CAC4BEEA2E9567570A' "$fixture" | sha256sum --check
+          echo "fixture=$fixture" >> "$GITHUB_OUTPUT"
+      - name: Build 1.18.2 dependency chain
         id: dependencies
         shell: bash
         run: |
@@ -104,12 +107,12 @@ jobs:
           chmod +x "$orespawn/gradlew" "$basemetals/gradlew" "$power/gradlew"
           (cd "$orespawn" && ./gradlew $MMD_GRADLE_TOOLCHAINS jar --no-daemon --stacktrace)
           (cd "$basemetals" && ./gradlew $MMD_GRADLE_TOOLCHAINS jar --no-daemon --stacktrace)
-          osjar="$orespawn/build/libs-dev/OreSpawn-4.1.0.117011-deobf.jar"
-          bmjar="$basemetals/build/libs-dev/BaseMetals-3.1.1.117011-deobf.jar"
+          osjar="$orespawn/build/libs-dev/OreSpawn-4.1.0.118021-deobf.jar"
+          bmjar="$basemetals/build/libs-dev/BaseMetals-3.1.2.118021-deobf.jar"
           (cd "$power" && ./gradlew $MMD_GRADLE_TOOLCHAINS jar verifyReleaseDependencies \
             -PbaseMetalsDeobfJar="$bmjar" -PoreSpawnDeobfJar="$osjar" \
             --no-daemon --stacktrace)
-          powerjar="$power/build/libs-dev/basePower-2.4.9.117011-deobf.jar"
+          powerjar="$power/build/libs-dev/basePower-2.4.10.118021-deobf.jar"
           test -f "$osjar" && test -f "$bmjar" && test -f "$powerjar"
           echo "orespawn=$osjar" >> "$GITHUB_OUTPUT"
           echo "basemetals=$bmjar" >> "$GITHUB_OUTPUT"
@@ -124,6 +127,7 @@ jobs:
           chmod +x ./gradlew
           ./gradlew $MMD_GRADLE_TOOLCHAINS clean classes --rerun-tasks --no-build-cache --no-daemon --stacktrace \
             -PpowerAdvantageDeobfJar=${{ steps.dependencies.outputs.power }} \
+          -PmavenizerCompatibilityJar=${{ steps.mavenizer.outputs.fixture }} \
             -PbaseMetalsDeobfJar=${{ steps.dependencies.outputs.basemetals }} \
             -PoreSpawnDeobfJar=${{ steps.dependencies.outputs.orespawn }}
       - name: Analyze

@@ -12,7 +12,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.server.Bootstrap;
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import org.junit.BeforeClass;
@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 
 /** Real broadcast methods with an explicit player list and forbidden chunk-backed entity queries. */
 public class ElectricOperationalSoundBroadcastTest {
-    @BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
 
     @Test public void machineBroadcastUsesOnlyExistingIntersectingConnectedPlayers() throws Exception {
         QueryRejectingWorld world = fixture();

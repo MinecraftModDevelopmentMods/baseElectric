@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.state.properties.StairsShape;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.Bootstrap;
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
@@ -41,7 +41,7 @@ public class ElectricOperationalPumpPickupTest {
     private static final float RESERVE = 8000;
     private static final float PICKUP_COST = 1000 + 32;
 
-    @BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
 
     @Test public void waterloggedSlabKeepsItsBlockAndSlabType() throws Exception {
         BlockState wet = Blocks.OAK_SLAB.defaultBlockState()

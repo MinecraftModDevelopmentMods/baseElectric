@@ -21,25 +21,20 @@ import cyano.poweradvantage.api.migration.LegacyConfigMigration.Mapping;
 import cyano.poweradvantage.api.migration.LegacyConfigMigration.ValueType;
 import cyano.poweradvantage.api.migration.LegacyOreSpawnConfigBridge;
 import zone.moddev.mc.baseelectric.config.ElectricAdvantageConfig;
-import zone.moddev.mc.baseelectric.init.Blocks;
-import zone.moddev.mc.baseelectric.init.Enchantments;
-import zone.moddev.mc.baseelectric.init.Entities;
 import zone.moddev.mc.baseelectric.init.GUI;
-import zone.moddev.mc.baseelectric.init.Items;
 import zone.moddev.mc.baseelectric.init.OreSpawnWorldGen;
-import zone.moddev.mc.baseelectric.init.Recipes;
 import zone.moddev.mc.baseelectric.init.TreasureChests;
 import zone.moddev.mc.baseelectric.init.Villages;
 import zone.moddev.mc.baseelectric.recipe.RecipeConditions;
 import zone.moddev.mc.baseelectric.migration.ElectricLegacyMigrations;
 
-/** Forge 1.17.1 entry point for baseElectric. */
+/** Forge 1.18.2 entry point for baseElectric. */
 @Mod(ElectricAdvantage.MODID)
 public final class ElectricAdvantage {
     public static final String MODID = "baseelectric";
     public static final String LEGACY_MODID = "electricadvantage";
     public static final String NAME = "baseElectric";
-    public static final String VERSION = "2.2.10.117011";
+    public static final String VERSION = "2.2.11.118021";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static ElectricAdvantage INSTANCE;
 
@@ -48,11 +43,6 @@ public final class ElectricAdvantage {
 
     public ElectricAdvantage() {
         INSTANCE = this;
-        Blocks.init();
-        Items.init();
-        Entities.init();
-        Enchantments.init();
-        GUI.init();
         ElectricLegacyMigrations.register();
 
         migrateLegacyOreSpawnConfiguration();
@@ -96,10 +86,10 @@ public final class ElectricAdvantage {
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(GUI::init);
         // CraftingHelper's shared condition map is not safe during parallel loading.
         event.enqueueWork(RecipeConditions::register);
         ElectricAdvantageConfig.apply();
-        Recipes.init();
         TreasureChests.init(FMLPaths.CONFIGDIR.get());
         Villages.init();
         LOGGER.info("{} {} common setup complete", NAME, VERSION);

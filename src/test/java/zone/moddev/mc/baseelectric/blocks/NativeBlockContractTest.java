@@ -10,7 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.server.Bootstrap;
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
@@ -23,7 +23,7 @@ import zone.moddev.mc.baseelectric.machines.PhotovoltaicGeneratorBlock;
 import static org.junit.Assert.*;
 
 public class NativeBlockContractTest {
-    @BeforeClass public static void bootstrapNativeRegistries() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrapNativeRegistries() { NativeTestBootstrap.initialize(); }
 
     @Test public void scaffoldRetainsNonSolidFullCollisionAndSharedStateProperties() {
         ElectricScaffoldBlock block = new ElectricScaffoldBlock();

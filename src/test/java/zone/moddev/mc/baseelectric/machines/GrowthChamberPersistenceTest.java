@@ -1,20 +1,20 @@
 package zone.moddev.mc.baseelectric.machines;
 
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import net.minecraft.nbt.CompoundTag;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class GrowthChamberPersistenceTest {
-    @org.junit.BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
+    @org.junit.BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
     @Test public void legacyGrowthAndProgressSurviveReadSaveBeforeWorldAttachment() {
         CompoundTag source = new CompoundTag();
         source.putByteArray("growth", new byte[] {2, 4, 6});
         source.putIntArray("prog", new int[] {245, 468, 627});
         for (int pass = 0; pass < 3; pass++) {
             GrowthChamberTileEntity chamber = new GrowthChamberTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.GrowthChamberBlock().defaultBlockState());
-            chamber.loadFrom(source);
-            CompoundTag saved = new CompoundTag();
-            chamber.saveTo(saved);
+            chamber.load(source);
+            CompoundTag saved = chamber.saveWithoutMetadata();
             assertArrayEquals(new byte[] {2, 4, 6}, saved.getByteArray("growth"));
             assertArrayEquals(new int[] {245, 468, 627}, saved.getIntArray("prog"));
             source = saved;

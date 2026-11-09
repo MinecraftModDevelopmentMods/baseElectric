@@ -9,7 +9,9 @@ import java.util.List;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.tags.TagKey;
 import net.minecraft.resources.ResourceLocation;
 
 /** Matches a crafting ingredient using flattened items or Forge item tags. */
@@ -18,8 +20,8 @@ public final class ItemMatcher {
 
     public ItemMatcher(String legacyName) {
         this.choices = new ArrayList<>();
-        for (Item item : ItemTags.getAllTags().getTagOrEmpty(tagId(legacyName)).getValues()) {
-            choices.add(new ItemStack(item));
+        for (Holder<Item> item : Registry.ITEM.getTagOrEmpty(TagKey.create(Registry.ITEM_REGISTRY, tagId(legacyName)))) {
+            choices.add(new ItemStack(item.value()));
         }
     }
 

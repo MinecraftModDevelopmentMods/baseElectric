@@ -10,9 +10,6 @@ public abstract class GUI {
 	public static void init(){
 		if(initDone) return;
 		
-		Blocks.init();
-		Entities.init();
-
 		Blocks.steam_powered_generator.setGuiID(MachineGUIRegistry.addGUI(new PowerGeneratorGUI()), PowerAdvantage.getInstance());
 		Blocks.photovoltaic_generator.setGuiID(MachineGUIRegistry.addGUI(new PowerGeneratorGUI()), PowerAdvantage.getInstance());
 		Blocks.hydroelectric_generator.setGuiID(MachineGUIRegistry.addGUI(new PowerGeneratorGUI()), PowerAdvantage.getInstance());

@@ -16,10 +16,13 @@ import net.minecraft.world.level.material.Fluid;
 import cyano.poweradvantage.api.fluid.FluidStack;
 import cyano.poweradvantage.api.fluid.FluidTank;
 import cyano.poweradvantage.api.fluid.FluidTankInfo;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.core.Registry;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
 
 public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine implements LegacyFluidHandler{
+	private static final TagKey<Item> DIRT_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("forge", "dirt"));
 
 
 	static final float ELECTRICITY_PER_UNIT = 8f;
@@ -82,7 +85,7 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	private static boolean isDirt(ItemStack i){
 		return i != null && !i.isEmpty()
 				&& (i.getItem() == net.minecraft.world.level.block.Blocks.DIRT.asItem()
-				|| ItemTags.getAllTags().getTagOrEmpty(new ResourceLocation("forge", "dirt")).contains(i.getItem()));
+				|| i.is(DIRT_TAG));
 	}
 
 	private static float lowest(float... numbers){
@@ -190,13 +193,12 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 	 * @param tagRoot An NBT tag
 	 */
 	@Override
-	public CompoundTag save(final CompoundTag tagRoot) {
-		super.save(tagRoot);
+	protected void saveAdditional(final CompoundTag tagRoot) {
+		super.saveAdditional(tagRoot);
 		CompoundTag tankTag = new CompoundTag();
 		this.getTank().writeToNBT(tankTag);
 		tagRoot.put("Tank", tankTag);
 		tagRoot.putFloat("soil", soil);
-		return tagRoot;
 	}
 	/**
 	 * Handles data saving and loading

@@ -1,26 +1,18 @@
 package zone.moddev.mc.baseelectric.blocks;
 
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import com.mojang.authlib.GameProfile;
 import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Set;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.EmptyBlockGetter;
-import net.minecraftforge.common.ForgeHooks;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.StaticTags;
-import net.minecraft.tags.SerializationTags;
-import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagCollection;
-import net.minecraft.tags.TagContainer;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,10 +20,7 @@ import static org.junit.Assert.*;
 
 public class OreHarvestContractTest {
     @BeforeClass public static void bootstrapNativeRegistries() throws Exception {
-        net.minecraft.SharedConstants.tryDetectVersion();
-        net.minecraft.server.Bootstrap.bootStrap();
-        StaticTags.resetAllToEmpty();
-        SerializationTags.bind(TagContainer.EMPTY);
+        NativeTestBootstrap.initialize();
         // A plain JVM does not run Forge's resource reload that orders vanilla tiers.
         java.lang.reflect.Method sort = net.minecraftforge.common.TierSortingRegistry.class
                 .getDeclaredMethod("recalculateItemTiers");
@@ -40,10 +29,6 @@ public class OreHarvestContractTest {
         assertTrue(net.minecraftforge.common.TierSortingRegistry.getSortedTiers()
                 .contains(net.minecraft.world.item.Tiers.STONE));
     }
-    private TagContainer previousTags;
-    @org.junit.Before public void saveTags() { previousTags = SerializationTags.getInstance(); }
-    @org.junit.After public void restoreTags() { install(previousTags); }
-
     @Test public void lithiumRetainsStonePickaxeMinimumThroughNativeHarvestChecks() throws Exception {
         BlockState lithium = new Ore(1).defaultBlockState();
         bindHarvestTags(lithium.getBlock(), "baseelectric:li_ore");
@@ -59,7 +44,9 @@ public class OreHarvestContractTest {
     }
 
     @Test public void sulfurRetainsWoodenPickaxeMinimumThroughNativeHarvestChecks() throws Exception {
-        BlockState sulfur = new Ore(new ItemStack(Items.GUNPOWDER), 0, 3).defaultBlockState();
+        BlockState sulfur = Ore.withDeferredDrop(() -> {
+            throw new AssertionError("Harvest eligibility must not require the drop item to be registered");
+        }, 0, 3).defaultBlockState();
         bindHarvestTags(sulfur.getBlock(), "baseelectric:sulfur_ore");
         assertTrue(sulfur.requiresCorrectToolForDrops());
         assertTrue(sulfur.is(BlockTags.MINEABLE_WITH_PICKAXE));
@@ -71,31 +58,17 @@ public class OreHarvestContractTest {
     }
 
     private static void bindHarvestTags(Block block, String id) throws Exception {
-        Map<ResourceLocation, Tag<Block>> tags = new HashMap<>(BlockTags.getAllTags().getAllTags());
-        for (String name : new String[]{"mineable/pickaxe", "needs_stone_tool"}) {
-            java.nio.file.Path path = java.nio.file.Paths.get("src/main/resources/data/minecraft/tags/blocks", name + ".json");
-            com.google.gson.JsonObject json = new com.google.gson.JsonParser().parse(java.nio.file.Files.readString(path)).getAsJsonObject();
-            boolean present = false;
-            for (com.google.gson.JsonElement value : json.getAsJsonArray("values")) present |= id.equals(value.getAsString());
-            tags.put(new ResourceLocation(name), Tag.fromSet(present ? Set.of(block) : Set.of()));
-        }
-        tags.putIfAbsent(new ResourceLocation("needs_iron_tool"), Tag.fromSet(Set.of()));
-        tags.putIfAbsent(new ResourceLocation("needs_diamond_tool"), Tag.fromSet(Set.of()));
-        for (Tag.Named<Block> other : java.util.List.of(BlockTags.MINEABLE_WITH_AXE,
-                BlockTags.MINEABLE_WITH_SHOVEL, BlockTags.MINEABLE_WITH_HOE)) {
-            tags.putIfAbsent(other.getName(), Tag.fromSet(Set.of()));
-        }
-        for (net.minecraft.world.item.Tier tier : net.minecraftforge.common.TierSortingRegistry.getSortedTiers()) {
-            if (tier.getTag() instanceof Tag.Named) {
-                tags.putIfAbsent(((Tag.Named<Block>) tier.getTag()).getName(), Tag.fromSet(Set.of()));
+        Set<TagKey<Block>> tags = new HashSet<>();
+        for (TagKey<Block> tag : java.util.List.of(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)) {
+            java.nio.file.Path path = java.nio.file.Paths.get("src/main/resources/data/minecraft/tags/blocks",
+                    tag.location().getPath() + ".json");
+            var json = com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(path)).getAsJsonObject();
+            for (var value : json.getAsJsonArray("values")) {
+                if (id.equals(value.getAsString())) tags.add(tag);
             }
         }
-        install(new TagContainer.Builder().add(Registry.BLOCK_REGISTRY, TagCollection.of(tags)).build());
-    }
-
-    private static void install(TagContainer tags) {
-        SerializationTags.bind(tags);
-        StaticTags.resetAll(tags);
+        // Bind only the fresh test block's holder; leave the global registry alone.
+        block.builtInRegistryHolder().bindTags(tags);
     }
 
     private static boolean canHarvest(BlockState state, ItemStack held) throws Exception {

@@ -2,7 +2,7 @@ package zone.moddev.mc.baseelectric.machines;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.Bootstrap;
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -12,8 +12,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class Native117ConstructionTest {
-    @BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
+public class Native118ConstructionTest {
+    @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
 
     @Test public void everyFactoryPreservesItsNativePositionAndState() {
         BlockPos pos = new BlockPos(-117, 83, 4917);
@@ -33,10 +33,22 @@ public class Native117ConstructionTest {
 
     @Test public void turretPacketUsesConstructorCoordinatesBeforeWorldAttachment() {
         BlockPos pos = new BlockPos(1531, 91, -475);
-        LaserTurretTileEntity turret = new LaserTurretTileEntity(pos, new LaserTurretBlock(false).defaultBlockState());
-        assertEquals(pos, turret.getUpdatePacket().getPos());
-        turret.setOpticPosition();
-        assertEquals(pos, turret.getBlockPos());
+        LaserTurretBlock block = new LaserTurretBlock(false);
+        BlockEntityType<LaserTurretTileEntity> type = BlockEntityType.Builder.of(LaserTurretTileEntity::new, block).build(null);
+        BlockEntityType<LaserTurretTileEntity> previous = zone.moddev.mc.baseelectric.init.Entities.LASER_TURRET;
+        try {
+            zone.moddev.mc.baseelectric.init.Entities.LASER_TURRET = type;
+            LaserTurretTileEntity turret = new LaserTurretTileEntity(pos, block.defaultBlockState());
+            var packet = turret.getUpdatePacket();
+            assertEquals(pos, packet.getPos());
+            assertSame(type, packet.getType());
+            assertEquals(java.util.Set.of("energy", "lock"), packet.getTag().getAllKeys());
+            assertTrue(turret.getUpdateTag().contains("player"));
+            turret.setOpticPosition();
+            assertEquals(pos, turret.getBlockPos());
+        } finally {
+            zone.moddev.mc.baseelectric.init.Entities.LASER_TURRET = previous;
+        }
     }
 
     @Test public void ledOnlyOffersItsOwnNativeTicker() {

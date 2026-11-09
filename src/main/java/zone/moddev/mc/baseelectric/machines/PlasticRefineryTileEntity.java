@@ -18,13 +18,16 @@ import net.minecraft.world.level.material.Fluid;
 import cyano.poweradvantage.api.fluid.FluidStack;
 import cyano.poweradvantage.api.fluid.FluidTank;
 import cyano.poweradvantage.api.fluid.FluidTankInfo;
-import net.minecraft.tags.ItemTags;
+import net.minecraft.core.Registry;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.Registry;
 
 import java.util.List;
 
 public class PlasticRefineryTileEntity extends ElectricMachineTileEntity implements LegacyFluidHandler{
+	private static final TagKey<Item> PLASTICS_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("forge", "plastics"));
 
 
 	public static final float ENERGY_PER_TICK = 12f;
@@ -127,9 +130,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 
 	@Override
 	protected boolean isValidInputItem(ItemStack item) {
-		return item != null && !item.isEmpty()
-				&& ItemTags.getAllTags().getTagOrEmpty(new ResourceLocation("forge", "plastics"))
-						.contains(item.getItem());
+		return item != null && !item.isEmpty() && item.is(PLASTICS_TAG);
 	}
 
 	@Override

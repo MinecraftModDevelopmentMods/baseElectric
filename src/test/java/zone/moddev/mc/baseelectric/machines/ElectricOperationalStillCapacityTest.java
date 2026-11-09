@@ -3,7 +3,7 @@ package zone.moddev.mc.baseelectric.machines;
 import cyano.poweradvantage.api.fluid.FluidStack;
 import java.lang.reflect.Method;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.server.Bootstrap;
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import zone.moddev.mc.basepower.registry.still.recipe.DistillationRecipe;
@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 
 /** Capacity preflight tests; the shared rig separately tests natural machine ticks. */
 public class ElectricOperationalStillCapacityTest {
-    @BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
 
     @Test public void aFullTankCannotConsumeInput() throws Exception {
         ElectricStillTileEntity still = fixture(1000);
