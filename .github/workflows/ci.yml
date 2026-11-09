@@ -111,6 +111,11 @@ jobs:
             --no-daemon --stacktrace)
           powerjar="$power/build/libs-dev/basePower-2.4.9.117011-deobf.jar"
           test -f "$osjar" && test -f "$bmjar" && test -f "$powerjar"
+          release="$RUNNER_TEMP/basePower-2.4.9.117011.jar"
+          curl --fail --silent --show-error --location --retry 3 --output "$release" \
+            'https://maven.moddev.zone/releases/zone/moddev/mc/basepower/basePower/2.4.9.117011/basePower-2.4.9.117011.jar'
+          power_release_sha=$(sed -n 's/^poweradvantage_runtime_sha256=//p' gradle.properties | tr -d '\r')
+          printf '%s  %s\n' "$power_release_sha" "$release" | sha256sum --check
           echo "orespawn=$osjar" >> "$GITHUB_OUTPUT"
           echo "basemetals=$bmjar" >> "$GITHUB_OUTPUT"
           echo "power=$powerjar" >> "$GITHUB_OUTPUT"

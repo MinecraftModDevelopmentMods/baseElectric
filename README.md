@@ -37,12 +37,11 @@ that this one passes.
 
 ## Dependencies
 
-The coordinated basePower `2.4.9.117011` is pinned to local source
-`308d42a89483d56d0fad4805cdb65dac483d9e31`. Its development jar, player jar,
-and test bootstrap have separate SHA-256 pins in `gradle.properties`.
-Base Metals `3.1.1.117011` is pinned to the local startup fix
-`0deeeeecdbbc1fbcdecf910c59477de8efe164d7` and its verified deobf SHA-256 in
-`gradle.properties`. That source is unpushed; hosted builds cannot fetch it.
+The build pins the merged source and the published
+[basePower 2.4.9.117011 player jar](https://maven.moddev.zone/releases/zone/moddev/mc/basepower/basePower/2.4.9.117011/basePower-2.4.9.117011.jar).
+The development jar, player jar and test bootstrap have separate SHA-256
+pins in `gradle.properties`. Base Metals `3.1.1.117011` includes the published
+startup fix; its source and artifacts are pinned there too.
 OreSpawn `4.1.0.117011` uses public source
 `b56e2b62a1a6ea4d1dd96f8646a87801a817dbdf`.
 Record the runtime SHA-256 values separately from the development jar hashes.
