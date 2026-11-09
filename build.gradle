@@ -199,8 +199,8 @@ repositories {
 }
 
 def requirePowerPin = {
-    if (project.poweradvantage_pin_state != 'LOCAL_CHECKPOINT'
-            || project.poweradvantage_source_ref != 'c9995315e2aee9d9bffec8eb8b1191ad8a0faeb7'
+    if (project.poweradvantage_pin_state != 'PUBLISHED_RELEASE'
+            || project.poweradvantage_source_ref != '4af5c7d5d490162cddc7f1e4fc72cc602b42bb32'
             || project.poweradvantage_deobf_sha256 != '512FDEC9275B33533EF773C110E6229E0F07268775FAD4B5942A15B68A9EB87D'
             || project.poweradvantage_runtime_sha256 != 'E1689C1147F6F6F93F6516D9188A279093D6CCC2FF1FBEB506468B876BA03E60'
             || project.poweradvantage_unit_bootstrap_sha256 != '0FB05554D6446BD5561BF9DE47B9F173E6F6C28E39A2BC877D359BB363CB1ABE'
@@ -422,7 +422,7 @@ tasks.register('verifyReleaseConfiguration') {
         }
         if (project.basemetals_version != '3.1.2.119041'
                 || project.orespawn_version != '4.1.0.119041'
-                || project.basemetals_source_commit != 'a9fdd6842f2a2e1e2e5b9a0abf9178d5675df044'
+                || project.basemetals_source_commit != '5791a793aa3a1ca1aa3fcb36e6d4a2d865e7d2d3'
                 || project.basemetals_deobf_sha256 != '0AA993D6BADA54B11548EB5BE150CE0939232291F2D215B7DBAF149857976B2F'
                 || project.basemetals_runtime_sha256 != '991EA843EEDF5FA1E42E9984A07573C7D03D74230482230440E44EDCA895FA39'
                 || project.orespawn_source_commit != '444d86ef48db2bf54422901b067c51d5832197fc'
@@ -802,9 +802,9 @@ publishing {
 
 tasks.register('validateMavenReleaseCredentials') {
     group = 'publishing'
-    description = 'Rejects remote publication from this local port.'
+    description = 'Keeps remote publication in the guarded release workflow.'
     doLast {
-        throw new GradleException('Remote Maven publication is disabled on the local 1.19.4 port.')
+        throw new GradleException('Use the guarded release workflow to publish the verified 1.19.4 jar.')
     }
 }
 

@@ -21,7 +21,7 @@ check_hash() {
 
 [[ "$(value minecraft_version)" == '1.19.4' && "$(value forge_version)" == '45.4.0' ]] ||
     fail 'This dependency build is only for Minecraft 1.19.4 / Forge 45.4.0'
-[[ "$(value poweradvantage_pin_state)" == 'LOCAL_CHECKPOINT' ]] || fail 'basePower checkpoint is not pinned'
+[[ "$(value poweradvantage_pin_state)" == 'PUBLISHED_RELEASE' ]] || fail 'The released basePower is not pinned'
 
 ore_ref="$(value orespawn_source_commit)"
 bm_ref="$(value basemetals_source_commit)"
@@ -91,6 +91,24 @@ curl --fail --silent --show-error --location --proto '=https' \
     'https://maven.minecraftforge.net/net/minecraftforge/forge/1.19.4-45.4.0/forge-1.19.4-45.4.0-installer.jar' \
     --output "$installer"
 check_hash "$installer" "$(value forge_installer_sha256)"
+
+# Check public player bytes separately from the source-built development jars.
+published="$RUNNER_TEMP/base-electric-published"
+mkdir -p "$published"
+fetch_public() {
+    curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --output "$1" "$2"
+    check_hash "$1" "$3"
+}
+maven='https://maven.moddev.zone/releases/zone/moddev/mc'
+powerplayer="$published/basePower-$power_version.jar"
+bmplayer="$published/BaseMetals-$bm_version.jar"
+osplayer="$published/OreSpawn-$ore_version.jar"
+fetch_public "$powerplayer" "$maven/basepower/basePower/$power_version/basePower-$power_version.jar?ci=$GITHUB_RUN_ID" \
+    "$(value poweradvantage_runtime_sha256)"
+fetch_public "$bmplayer" "$maven/basemetals/BaseMetals/$bm_version/BaseMetals-$bm_version.jar?ci=$GITHUB_RUN_ID" \
+    "$(value basemetals_runtime_sha256)"
+fetch_public "$osplayer" 'https://www.curseforge.com/api/v1/mods/245586/files/9171353/download' \
+    "$(value orespawn_runtime_sha256)"
 
 printf 'mavenizer=%s\norespawn=%s\norespawn_player=%s\nbasemetals=%s\nbasemetals_player=%s\npower=%s\npower_player=%s\nbootstrap=%s\nagent=%s\ninstaller=%s\n' \
     "$mavenizer" "$osjar" "$osplayer" "$bmjar" "$bmplayer" "$powerjar" "$powerplayer" "$bootstrap" "$agent" "$installer" >> "$GITHUB_OUTPUT"

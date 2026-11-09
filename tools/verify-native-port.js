@@ -81,20 +81,20 @@ check('Exact native 1.19.4 build target', () => {
     assert.match(metadata, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.2\.119041,4\.0\.0\)"/);
     assert(metadata.includes('modId="baseelectric"') && metadata.includes('displayName="baseElectric"'));
 });
-check('Owner-verified Power checkpoint and native local reference pins are exact', () => {
+check('Published Power and companion pins are exact', () => {
     assert.equal(properties.poweradvantage_source_repository, 'MinecraftModDevelopmentMods/basePower');
     const build = read('build.gradle');
-    assert.match(build, /poweradvantage_pin_state != 'LOCAL_CHECKPOINT'/);
+    assert.match(build, /poweradvantage_pin_state != 'PUBLISHED_RELEASE'/);
     assert.match(build, /pinnedFile\('powerAdvantageDeobfJar', project.poweradvantage_deobf_sha256\)/);
     assert(!build.includes('118021') && !build.includes('117011'));
-    assert.equal(properties.poweradvantage_pin_state, 'LOCAL_CHECKPOINT');
+    assert.equal(properties.poweradvantage_pin_state, 'PUBLISHED_RELEASE');
     for (const [key, value] of Object.entries({
-        poweradvantage_source_ref:'c9995315e2aee9d9bffec8eb8b1191ad8a0faeb7',
+        poweradvantage_source_ref:'4af5c7d5d490162cddc7f1e4fc72cc602b42bb32',
         poweradvantage_deobf_sha256:'512FDEC9275B33533EF773C110E6229E0F07268775FAD4B5942A15B68A9EB87D',
         poweradvantage_runtime_sha256:'E1689C1147F6F6F93F6516D9188A279093D6CCC2FF1FBEB506468B876BA03E60',
         poweradvantage_unit_bootstrap_sha256:'0FB05554D6446BD5561BF9DE47B9F173E6F6C28E39A2BC877D359BB363CB1ABE',
         poweradvantage_unit_bootstrap_jar_sha256:'A93CD83EC42B09B730CB7715C10C6E53D47B22B557EFE68EDC95241D53BD4EB3',
-        basemetals_source_commit:'a9fdd6842f2a2e1e2e5b9a0abf9178d5675df044',
+        basemetals_source_commit:'5791a793aa3a1ca1aa3fcb36e6d4a2d865e7d2d3',
         basemetals_deobf_sha256:'0AA993D6BADA54B11548EB5BE150CE0939232291F2D215B7DBAF149857976B2F',
         basemetals_runtime_sha256:'991EA843EEDF5FA1E42E9984A07573C7D03D74230482230440E44EDCA895FA39',
         orespawn_source_commit:'444d86ef48db2bf54422901b067c51d5832197fc',

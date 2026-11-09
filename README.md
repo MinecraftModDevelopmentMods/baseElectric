@@ -4,8 +4,7 @@ baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower, and its blocks and items
 appear in the shared basePower creative tab.
 
-This is the local **Minecraft 1.19.4 port, 2.2.12.119041**, not a published
-release. The port retains the mappings for
+This is the **Minecraft 1.19.4 port, 2.2.12.119041**. It retains the mappings for
 older Electric Advantage saves, as well as saves that already use baseElectric IDs.
 
 ## Target
@@ -31,13 +30,13 @@ verification status. Earlier port notes, including
 
 ## Dependencies
 
-The local basePower `2.4.11.119041` checkpoint pins the owner's source
-revision, development JAR, player JAR, test agent and test agent source. Base Metals
+The build pins the released basePower `2.4.11.119041` source and player jar,
+along with its separate development jar and test agent. Base Metals
 `3.1.2.119041`, OreSpawn `4.1.0.119041` and the Forge installer have
 explicit hashes in `gradle.properties`. Forge 45 CI and CodeQL use Electric's
 init adapter only for pinned Power. Pinned Base Metals uses its own verified
-fixture. Both dependency source checkouts stay unchanged. This branch does
-not enable publication.
+fixture. The dependency source checkouts stay unchanged. Releases are made
+through the guarded workflow, using the verified CI artifacts.
 
 Run from this repository with the explicit input arguments below:
 

@@ -1,8 +1,9 @@
-# baseElectric 1.19.4 local port
+# baseElectric 1.19.4 port
 
 Branch: `feature/baseelectric-1.19.4-port`. The isolated, no-hardlinks
 checkout starts at accepted 1.18.2 Electric commit
-`4914e5c8a0d8d878f0938b3a9dc59d9f35f7c85e`. No Git remote is configured.
+`4914e5c8a0d8d878f0938b3a9dc59d9f35f7c85e`. Release builds use the published
+basePower and Base Metals sources and artifacts recorded in `gradle.properties`.
 
 ## Target and inputs
 
@@ -16,21 +17,15 @@ checkout starts at accepted 1.18.2 Electric commit
   `D:/MinecraftMineralogy/OS119/OreSpawn/ci-fixtures/tools/`. It fixes the
   eight duplicate record accessors on this exact target and is never shipped.
   The local Forge installer SHA-1 matches the official download listing.
-- Base Metals `3.1.2.119041` is the owner-approved migration-hook build
-  from `a9fdd6842f2a2e1e2e5b9a0abf9178d5675df044`. Development and player JARs
-  are under `D:/PowerAdvantage/_verification/base-119-port-20261109/Base Metals hook build/build/`
-  in `libs-dev` and `libs` respectively. The original Base Metals 1.19
-  checkout supplied the read-only Forge reference setup.
+- Base Metals `3.1.2.119041` is the published migration-hook build from
+  `5791a793aa3a1ca1aa3fcb36e6d4a2d865e7d2d3`. It preserves the old
+  machine data when both mods are installed.
 - OreSpawn `4.1.0.119041` JARs are in
   `D:/MinecraftMineralogy/OS119/OreSpawn/build/libs-dev` and `build/libs`.
-- The local basePower `2.4.11.119041` audit uses owner-verified checkpoint
-  `c9995315e2aee9d9bffec8eb8b1191ad8a0faeb7`. The development JAR, player
-  JAR, unit-agent JAR and the agent's source are hash-checked and snapshotted in
-  `build/port-evidence/power-checkpoint-c9995315/inputs` before building.
-  The bootstrap source also matched the checkpoint's Git blob. Electric uses
+- The released basePower `2.4.11.119041` comes from
+  `4af5c7d5d490162cddc7f1e4fc72cc602b42bb32`. The development jar, player
+  jar, unit agent and agent source are checked separately. Electric uses
   the canonical Forge 45 unit agent without an extra event transformer.
-  This checkpoint includes Power's modern-upgrade repair. Electric's combined
-  suite and reconciliation against merged source remain separate.
 
 The exact local dependency digests are in [gradle.properties](../gradle.properties).
 Do not substitute 1.18 artifacts. No sibling build, shared Gradle write, or
