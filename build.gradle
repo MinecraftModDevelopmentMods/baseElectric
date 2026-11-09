@@ -986,6 +986,17 @@ tasks.register('isolateEclipseProductionRuns') {
                 String eclipseModClasses = "${project.mod_id}%%${mainOutput}" +
                         "${File.pathSeparator}${project.mod_id}%%${mainOutput}"
                 modClasses[0].@value = eclipseModClasses
+                def vmArguments = launchXml.stringAttribute.find { it.@key == 'org.eclipse.jdt.launching.VM_ARGUMENTS' }
+                if (vmArguments != null) {
+                    // ForgeGradle leaves these path arguments bare even when a directory contains spaces.
+                    vmArguments.@value = (vmArguments.@value as String)
+                            .replaceAll(/(?<!\S)(-DlegacyClassPath\.file=[^"].*?)(?=\s+-[A-Za-z]|$)/) { full, argument ->
+                                "\"${argument}\""
+                            }
+                            .replaceAll(/(?<!\S)-p\s+([^"\s].*?)(?=\s+--add-modules\b)/) { full, argument ->
+                                "-p \"${argument}\""
+                            }
+                }
                 def programArguments = launchXml.stringAttribute.find {
                     it.@key == 'org.eclipse.jdt.launching.PROGRAM_ARGUMENTS'
                 }
@@ -1215,6 +1226,11 @@ tasks.register('verifyEclipseProductionClasspath') {
             String vmArguments = launch.stringAttribute.find {
                 it.@key.text() == 'org.eclipse.jdt.launching.VM_ARGUMENTS'
             }.@value.text()
+            def legacyFile = vmArguments =~ /(?:^|\s)"-DlegacyClassPath\.file=([^"]+)"(?=\s|$)/
+            if (!legacyFile.find() || !file(legacyFile.group(1)).isFile()
+                    || !(vmArguments =~ /(?:^|\s)-p\s+"[^"]+"/).find()) {
+                throw new GradleException("${name} must quote the Forge classpath and module paths")
+            }
             if (contents.contains('${MC_VERSION}')
                     || !programArguments.contains('--main cpw.mods.bootstraplauncher.BootstrapLauncher')
                     || !programArguments.contains("--fml.mcVersion ${project.minecraft_version}")
