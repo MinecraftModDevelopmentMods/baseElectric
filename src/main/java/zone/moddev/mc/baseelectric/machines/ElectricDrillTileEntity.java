@@ -152,8 +152,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		BlockPos nextPos = getBlockPos().relative(trackDir);
 		w.setBlock(nextPos, w.getBlockState(getBlockPos()), 2);
 		ElectricDrillTileEntity te = (ElectricDrillTileEntity)w.getBlockEntity(nextPos);
-		CompoundTag dataTransfer = new CompoundTag();
-		this.save(dataTransfer);
+		CompoundTag dataTransfer = saveWithoutMetadata();
 		te.load(dataTransfer);
 		te.clearRemoved();
 		te.subtractEnergy(ENERGY_COST_MOVE, getEnergyType());

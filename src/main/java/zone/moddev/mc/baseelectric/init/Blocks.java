@@ -35,7 +35,7 @@ import zone.moddev.mc.baseelectric.machines.SteamPoweredElectricGeneratorBlock;
 import zone.moddev.mc.basepower.blocks.BlockPowerSwitch;
 import zone.moddev.mc.basepower.init.ItemGroups;
 
-/** Stable block registry for ElectricAdvantage 1.13. */
+/** Stable block registry for Electric Advantage. */
 @Mod.EventBusSubscriber(modid = ElectricAdvantage.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class Blocks {
     private static final Map<String, Block> ALL_BLOCKS = new LinkedHashMap<>();
@@ -67,13 +67,15 @@ public final class Blocks {
     private static boolean initialized;
     private Blocks() {}
 
-    public static synchronized void init() {
+    /** Kept for callers of the legacy bootstrap; Forge owns block construction. */
+    public static void init() { ItemGroups.init(); }
+
+    private static synchronized void constructBlocks() {
         if (initialized) return;
-        Items.initWithoutBlocks();
-        ItemGroups.init();
+        init();
         electric_conduit = add(new ElectricConduitBlock(), "electric_conduit");
         lithium_ore = add(new Ore(1), "li_ore");
-        sulfur_ore = add(new Ore(new ItemStack(Items.sulfur_powder, 1), 0, 3), "sulfur_ore");
+        sulfur_ore = add(Ore.withDeferredDrop(() -> new ItemStack(Items.sulfur_powder, 1), 0, 3), "sulfur_ore");
         electric_track = add(new ElectricScaffoldBlock(), "electric_track");
         laser_turret = (GUIBlock) add(new LaserTurretBlock(false), "laser_turret");
         laser_turret_evil = (GUIBlock) add(new LaserTurretBlock(true), "laser_turret_evil");
@@ -104,12 +106,11 @@ public final class Blocks {
     }
 
     @SubscribeEvent public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        init();
+        constructBlocks();
         event.getRegistry().registerAll(ALL_BLOCKS.values().toArray(new Block[0]));
     }
 
     @SubscribeEvent public static void registerBlockItems(RegistryEvent.Register<Item> event) {
-        init();
         for (Map.Entry<String, Block> entry : ALL_BLOCKS.entrySet()) {
             Item.Properties properties = new Item.Properties();
             if (!"pump_pipe_electric".equals(entry.getKey()) && !"laser_turret_evil".equals(entry.getKey())) {

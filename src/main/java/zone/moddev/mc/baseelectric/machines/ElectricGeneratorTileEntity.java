@@ -179,10 +179,9 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 	
 	@Override
-	public CompoundTag save(CompoundTag tagRoot){
-		super.save(tagRoot);
+	protected void saveAdditional(CompoundTag tagRoot){
+		super.saveAdditional(tagRoot);
 		saveTo(tagRoot);
-		return tagRoot;
 	}
 	
 	@Override

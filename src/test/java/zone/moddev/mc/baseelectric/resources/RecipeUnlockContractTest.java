@@ -1,5 +1,6 @@
 package zone.moddev.mc.baseelectric.resources;
 
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -77,8 +78,7 @@ public class RecipeUnlockContractTest {
     }
 
     @Test public void nativeParserRestrictsItemArraysButSilentlyIgnoresTheLegacySingularKey() {
-        net.minecraft.SharedConstants.tryDetectVersion();
-        net.minecraft.server.Bootstrap.bootStrap();
+        NativeTestBootstrap.initialize();
         JsonObject nativeShape = new JsonParser().parse("{\"items\":[\"minecraft:apple\"]}").getAsJsonObject();
         ItemPredicate nativePredicate = ItemPredicate.fromJson(nativeShape);
         assertTrue(nativePredicate.matches(new ItemStack(Items.APPLE)));
@@ -143,7 +143,7 @@ public class RecipeUnlockContractTest {
 
     private static String unlockPredicateKey(JsonObject predicate) {
         assertEquals("Unlock predicates must constrain exactly one item or tag", 1, predicate.size());
-        assertFalse("Native 1.17 ignores the singular item key in advancement predicates", predicate.has("item"));
+        assertFalse("Native 1.18 ignores the singular item key in advancement predicates", predicate.has("item"));
         if (predicate.has("tag")) {
             assertTrue("A tag predicate must be a string", predicate.get("tag").isJsonPrimitive()
                     && predicate.getAsJsonPrimitive("tag").isString());

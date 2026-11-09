@@ -1,5 +1,6 @@
 package zone.moddev.mc.baseelectric.entities;
 
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import java.lang.reflect.Field;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.BlockPos;
@@ -9,7 +10,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class HydroturbinePersistenceTest {
-    @org.junit.BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
+    @org.junit.BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
     @Test public void generatorGuiOutputIsNormalizedWithoutChangingGenerationRate() {
         HydroelectricGeneratorTileEntity active = new HydroelectricGeneratorTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.HydroelectricGeneratorBlock().defaultBlockState()) {
             @Override public boolean isActive() { return true; }

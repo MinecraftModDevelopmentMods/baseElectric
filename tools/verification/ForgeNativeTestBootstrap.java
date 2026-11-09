@@ -13,8 +13,8 @@ public final class ForgeNativeTestBootstrap {
         instrumentation.addTransformer(new ClassFileTransformer() {
             @Override public byte[] transform(ClassLoader loader, String name, Class<?> type,
                     ProtectionDomain domain, byte[] bytes) {
-                if (loader == null || name == null || !(name.equals("net/minecraftforge/fmllegacy/network/NetworkEvent")
-                        || name.startsWith("net/minecraftforge/fmllegacy/network/NetworkEvent$"))) return null;
+                if (loader == null || name == null || !(name.equals("net/minecraftforge/network/NetworkEvent")
+                        || name.startsWith("net/minecraftforge/network/NetworkEvent$"))) return null;
                 try {
                     Class<?> readerType = Class.forName("org.objectweb.asm.ClassReader", true, loader);
                     Object reader = readerType.getConstructor(byte[].class).newInstance((Object) bytes);

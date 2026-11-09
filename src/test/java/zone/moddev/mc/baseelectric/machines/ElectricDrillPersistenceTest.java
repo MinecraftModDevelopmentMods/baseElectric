@@ -4,7 +4,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.Bootstrap;
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -15,7 +15,7 @@ import org.junit.BeforeClass;
 import static org.junit.Assert.assertEquals;
 
 public class ElectricDrillPersistenceTest {
-    @BeforeClass public static void bootstrapNativeRegistries() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrapNativeRegistries() { NativeTestBootstrap.initialize(); }
 
     @Test public void retainsLegacyProgressUntilWorldIsAttached() {
         ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.ElectricDrillBlock().defaultBlockState());
@@ -81,6 +81,13 @@ public class ElectricDrillPersistenceTest {
         assertEquals(250.0F, ElectricDrillTileEntity.ENERGY_COST_MOVE, 0.0F);
         assertEquals(24.0F, ElectricDrillTileEntity.ENERGY_COST_PROGRESS_TICK, 0.0F);
         assertEquals(6, drill.numberOfOutputSlots());
+
+        CompoundTag transfer = drill.saveWithoutMetadata();
+        assertEquals(94, transfer.getShort("progress"));
+        ElectricDrillTileEntity placed = new ElectricDrillTileEntity(new BlockPos(5, 70, 9), drill.getBlockState());
+        placed.load(transfer);
+        assertEquals(416.0F, placed.getEnergy(placed.getEnergyType()), 0.0F);
+        assertEquals(new BlockPos(5, 70, 9), placed.getBlockPos());
     }
 
     private static CompoundTag target(int progress) {

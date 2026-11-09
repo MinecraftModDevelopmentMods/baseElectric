@@ -2,8 +2,7 @@ param(
     [string]$ProjectRoot = (Join-Path $PSScriptRoot '../..'),
     [Parameter(Mandatory = $true)][string]$Evidence,
     [string]$Compiler = 'C:/Users/johnb/.p2/pool/plugins/org.eclipse.jdt.core.compiler.batch_3.46.0.v20260528-0407.jar',
-    [string]$Java17Home = 'C:/Users/johnb/.jdks/temurin-17.0.1+12/jdk-17.0.1+12',
-    [string]$Java16Home = 'C:/Users/johnb/.gradle/jdks/eclipse_foundation-16-amd64-windows.2'
+    [string]$Java17Home = 'C:/Users/johnb/.jdks/temurin-17.0.1+12/jdk-17.0.1+12'
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -31,7 +30,7 @@ function Test-ClassFiles([string]$Directory) {
         if ($bytes.Length -lt 8 -or $bytes[0] -ne 0xCA -or $bytes[1] -ne 0xFE -or $bytes[2] -ne 0xBA -or $bytes[3] -ne 0xBE) {
             throw "Invalid class file: $($file.FullName)"
         }
-        if (($bytes[6] * 256 + $bytes[7]) -ne 60) { throw "Non-Java-16 ECJ output: $($file.FullName)" }
+        if (($bytes[6] * 256 + $bytes[7]) -ne 61) { throw "Non-Java-17 ECJ output: $($file.FullName)" }
     }
     return $files.Count
 }
@@ -39,9 +38,9 @@ function Invoke-Ecj([string]$Name, [string[]]$Sources, [string[]]$Libraries) {
     $output = Join-Path $Evidence $Name
     $null = New-Item -ItemType Directory -Path $output
     $xmlLog = Join-Path $Evidence "$Name.xml"
-    # Java 16 uses the JDK module image; keep forbidden/discouraged accesses fatal.
-    $arguments = @('-16', '-proc:none', '-encoding', 'UTF-8', '-err:+forbidden,discouraged', '--system',
-        ('"' + $Java16Home.Replace('\', '/') + '"'), '-classpath',
+    # Use the real Java 17 module image and keep forbidden/discouraged accesses fatal.
+    $arguments = @('-17', '-proc:none', '-encoding', 'UTF-8', '-err:+forbidden,discouraged', '--system',
+        ('"' + $Java17Home.Replace('\', '/') + '"'), '-classpath',
         ('"' + (($Libraries -replace '\\', '/') -join ';') + '"'), '-d',
         ('"' + $output.Replace('\', '/') + '"'), '-log', ('"' + $xmlLog.Replace('\', '/') + '"'))
     $arguments += @($Sources | ForEach-Object { '"' + $_.Replace('\', '/') + '"' })
@@ -62,37 +61,39 @@ function Invoke-Ecj([string]$Name, [string[]]$Sources, [string[]]$Libraries) {
 }
 
 $report = [ordered]@{ status = 'RUNNING'; project = $ProjectRoot; evidence = $Evidence
-    scope = 'Pinned baseElectric 1.17.1 candidate; fresh ECJ main/test/helper outputs and worldless Java 16 JUnit; no Gradle or Minecraft launch'
+    scope = 'Pinned local baseElectric 1.18.2 candidate; fresh ECJ main/test/helper outputs and worldless Java 17 JUnit; no Gradle or Minecraft launch'
     compiler = $null; toolchains = $null; libraries = @(); sources = @(); gradleInventory = @()
     compilations = [ordered]@{}; junit = $null; negativeControl = $null; apiPinState = $null; capabilityBootstrap = $null }
 try {
     $properties = ConvertFrom-StringData -StringData (Get-Content -LiteralPath (Join-Path $ProjectRoot 'gradle.properties') -Raw)
     $report.apiPinState = $properties.poweradvantage_pin_state
-    if ($properties.mod_id -ne 'baseelectric' -or $properties.mod_version -ne '2.2.10.117011' -or
-        $properties.poweradvantage_version -ne '2.4.9.117011' -or $properties.basemetals_version -ne '3.1.1.117011' -or
+    if ($properties.mod_id -ne 'baseelectric' -or $properties.mod_version -ne '2.2.11.118021' -or
+        $properties.poweradvantage_version -ne '2.4.10.118021' -or $properties.basemetals_version -ne '3.1.2.118021' -or
+        $properties.orespawn_version -ne '4.1.0.118021' -or
         $properties.poweradvantage_pin_state -ne 'LOCAL_CHECKPOINT' -or
         $properties.poweradvantage_source_ref -cnotmatch '^[a-f0-9]{40}$' -or
+        $properties.poweradvantage_runtime_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
         $properties.basemetals_source_commit -cnotmatch '^[a-f0-9]{40}$' -or
         $properties.poweradvantage_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
         $properties.poweradvantage_unit_bootstrap_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
-        $properties.basemetals_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$') {
-        throw 'This verifier requires the coordinated baseElectric 1.17.1 inputs'
+        $properties.basemetals_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
+        $properties.orespawn_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$') {
+        throw 'This verifier requires the source-pinned baseElectric 1.18.2 inputs'
     }
     $report.compiler = Get-Pin $Compiler
     if ($report.compiler.sha256 -ne 'D0D43F8E2D7003E5EFED612E2CBB5F01870043397D8F1BBE536FD9128F4FCBF7') { throw 'ECJ compiler pin mismatch' }
     $java17 = Join-Path $Java17Home 'bin/java.exe'
-    $java16 = Join-Path $Java16Home 'bin/java.exe'
     $capabilityBootstrap = Join-Path $ProjectRoot 'build/unit-bootstrap/forge-native-unit-bootstrap.jar'
     $report.capabilityBootstrap = Get-Pin $capabilityBootstrap
-    $report.toolchains = [ordered]@{ compilerJava = (Get-Pin $java17); runtimeJava = (Get-Pin $java16)
-        java17Release = (Get-Pin (Join-Path $Java17Home 'release')); java16Release = (Get-Pin (Join-Path $Java16Home 'release'))
-        systemModules = (Get-Pin (Join-Path $Java16Home 'lib/modules')) }
-    if ((Get-Content -LiteralPath (Join-Path $Java16Home 'release') -Raw) -notmatch 'JAVA_VERSION="16.0.2"') {
-        throw 'ECJ production system image must be Java 16.0.2'
+    $report.toolchains = [ordered]@{ java = (Get-Pin $java17)
+        java17Release = (Get-Pin (Join-Path $Java17Home 'release'))
+        systemModules = (Get-Pin (Join-Path $Java17Home 'lib/modules')) }
+    if ((Get-Content -LiteralPath (Join-Path $Java17Home 'release') -Raw) -notmatch 'JAVA_VERSION="17\.0\.1"') {
+        throw 'ECJ production system image must be Java 17.0.1'
     }
     $negativeSource = Join-Path $PSScriptRoot 'negative/RestrictedJdkReference.java'
     $negativeLog = Join-Path $Evidence 'restricted-jdk-negative.log'
-    & $java17 -jar $Compiler -16 -proc:none '-err:+forbidden,discouraged' --system $Java16Home `
+    & $java17 -jar $Compiler -17 -proc:none '-err:+forbidden,discouraged' --system $Java17Home `
         -d (Join-Path $Evidence 'negative') $negativeSource *> $negativeLog
     $negativeExit = $LASTEXITCODE
     $report.negativeControl = [ordered]@{ source = (Get-Pin $negativeSource); exitCode = $negativeExit
@@ -138,7 +139,7 @@ try {
         $expected += [int]$inventory.testsuite.tests
         $report.gradleInventory += Get-Pin $xml.FullName
     }
-    if ($classes.Count -ne 27 -or $expected -ne 96 -or $sources.test.Count -ne 27 -or $sources.main.Count -ne 85) { throw 'Unexpected Electric 1.17.1 source/test inventory' }
+    if ($classes.Count -ne 27 -or $expected -ne 96 -or $sources.test.Count -ne 28 -or $sources.main.Count -ne 85) { throw 'Unexpected Electric 1.18.2 source/test inventory' }
     $main = Invoke-Ecj 'main' $sources.main $mainLibraries
     $test = Invoke-Ecj 'test' $sources.test (@($main) + $testLibraries)
     $helperSource = Join-Path $PSScriptRoot 'AuditedJUnit.java'
@@ -149,7 +150,7 @@ try {
     $report.runtime = $runtime
     Push-Location $ProjectRoot
     try {
-        & $java16 "-javaagent:$capabilityBootstrap" -Xmx2G -cp ($runtime -join ';') zone.moddev.mc.baseelectric.verification.AuditedJUnit $junitXml $expected @classes *> (Join-Path $Evidence 'junit.log')
+        & $java17 "-javaagent:$capabilityBootstrap" -Xmx2G -cp ($runtime -join ';') zone.moddev.mc.baseelectric.verification.AuditedJUnit $junitXml $expected @classes *> (Join-Path $Evidence 'junit.log')
         $junitExit = $LASTEXITCODE
     } finally { Pop-Location }
     $report.junit = [ordered]@{ exitCode = $junitExit; expected = $expected; suites = $classes; log = 'junit.log'; xml = 'junit.xml' }
@@ -167,4 +168,4 @@ try {
     throw
 } finally { Save-Report }
 Get-Content -LiteralPath (Join-Path $Evidence 'junit.log') -Tail 8
-Write-Output "ECJ PASS: $($sources.main.Count) main, $($sources.test.Count) test sources; $expected tests; Java 16 class files"
+Write-Output "ECJ PASS: $($sources.main.Count) main, $($sources.test.Count) test sources; $expected tests; Java 17 class files"

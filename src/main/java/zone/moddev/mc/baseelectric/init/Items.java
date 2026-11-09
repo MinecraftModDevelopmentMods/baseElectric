@@ -12,7 +12,7 @@ import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.items.BatteryItem;
 import zone.moddev.mc.basepower.init.ItemGroups;
 
-/** Stable item registry for ElectricAdvantage 1.13. */
+/** Stable item registry for Electric Advantage. */
 @Mod.EventBusSubscriber(modid = ElectricAdvantage.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class Items {
     public static final Map<String, Item> allItems = new LinkedHashMap<>();
@@ -36,11 +36,13 @@ public final class Items {
     private static boolean initialized;
 
     private Items() {}
-    public static void init() { initWithoutBlocks(); Blocks.init(); }
 
-    static synchronized void initWithoutBlocks() {
+    /** Kept for callers of the legacy bootstrap; Forge owns item construction. */
+    public static void init() { ItemGroups.init(); }
+
+    private static synchronized void constructItems() {
         if (initialized) return;
-        ItemGroups.init();
+        init();
         blank_circuit_board = add("blank_circuit_board", new Item(properties()));
         control_circuit = add("control_circuit", new Item(properties()));
         integrated_circuit = add("integrated_circuit", new Item(properties()));
@@ -69,7 +71,7 @@ public final class Items {
     }
 
     @SubscribeEvent public static void register(RegistryEvent.Register<Item> event) {
-        initWithoutBlocks();
+        constructItems();
         event.getRegistry().registerAll(allItems.values().toArray(new Item[0]));
     }
 

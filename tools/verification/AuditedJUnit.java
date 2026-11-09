@@ -30,7 +30,7 @@ public final class AuditedJUnit {
             XMLStreamWriter xml = XMLOutputFactory.newFactory().createXMLStreamWriter(output, "UTF-8");
             xml.writeStartDocument("UTF-8", "1.0");
             xml.writeStartElement("testsuite");
-            xml.writeAttribute("name", "baseElectric-1.17.1-ECJ");
+            xml.writeAttribute("name", "baseElectric-1.18.2-ECJ");
             xml.writeAttribute("tests", Integer.toString(result.getRunCount()));
             xml.writeAttribute("failures", Integer.toString(result.getFailureCount()));
             xml.writeAttribute("ignored", Integer.toString(result.getIgnoreCount()));

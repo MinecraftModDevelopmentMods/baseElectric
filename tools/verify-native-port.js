@@ -7,6 +7,7 @@ const { createHash } = require('node:crypto');
 const root = path.resolve(__dirname, '..');
 const baseline = 'c5c8c9ea1d6f2010b8cff61e4bfae86f4c96c978';
 const nativeBaseline = 'ce6b075f1d0e417e46e1742b9a2ca856b24dc67f';
+const portBase = 'cf3d4b0e2d1591b2ae8e5d638002ca016e46eac4';
 const oldJavaRoot = 'src/main/java/zone/moddev/mc/electricadvantage/';
 const javaRoot = 'src/main/java/zone/moddev/mc/baseelectric/';
 const migratePath = name => name.startsWith('src/test/resources/')
@@ -18,7 +19,8 @@ const migrateText = source => source.replaceAll('\r\n', '\n').replaceAll('electr
 const read = name => fs.readFileSync(path.join(root, name), 'utf8');
 const git = (...args) => execFileSync('git', args, { cwd: root });
 const tracked = git('ls-tree', '-r', '--name-only', baseline).toString().trim().split('\n');
-const nativeFiles = git('ls-tree', '-r', '--name-only', nativeBaseline, 'src').toString().trim().split('\n');
+const portBaseFiles = git('ls-tree', '-r', '--name-only', portBase, 'src').toString().trim().split('\n');
+const sha256 = value => createHash('sha256').update(value).digest('hex');
 const results = [];
 const properties = Object.fromEntries(read('gradle.properties').split(/\r?\n/)
     .filter(line => line && !line.startsWith('#')).map(line => {
@@ -32,7 +34,7 @@ function tokens(source) {
     return source.match(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\/\/[^\n]*|\/\*[\s\S]*?\*\/|[A-Za-z_$][A-Za-z0-9_$]*|(?:0[xX][\da-fA-F_]+|(?:\d[\d_]*\.?[\d_]*|\.\d[\d_]*)(?:[eE][+-]?[\d_]+)?)[dDfFlL]?/g) || [];
 }
 const strings = source => tokens(source).filter(t => t.startsWith('"')
-    && !['"2.2.8.116051"', '"2.2.9.117011"', '"2.2.10.117011"'].includes(t)).sort();
+    && !['"2.2.8.116051"', '"2.2.9.117011"', '"2.2.10.117011"', '"2.2.11.118021"'].includes(t)).sort();
 const numbers = source => tokens(source).filter(t => /^\d|^\.\d/.test(t));
 const production = tracked.filter(n => n.startsWith(oldJavaRoot) && n.endsWith('.java'));
 const entry = javaRoot + 'ElectricAdvantage.java';
@@ -62,20 +64,21 @@ function assertNativeUnlock(source, actual) {
     return expected.converted;
 }
 
-check('Exact native 1.17.1 build target', () => {
-    for (const [key, value] of Object.entries({minecraft_version:'1.17.1', forge_version:'37.1.1',
-        mapping_channel:'official', mapping_version:'1.17.1', mcp_version:'20210706.113038',
-        mod_id:'baseelectric', mod_name:'baseElectric', mod_version:'2.2.10.117011',
+check('Exact native 1.18.2 build target', () => {
+    for (const [key, value] of Object.entries({minecraft_version:'1.18.2', forge_version:'40.3.0',
+        mapping_channel:'official', mapping_version:'1.18.2', mcp_version:'20220404.173914',
+        mod_id:'baseelectric', mod_name:'baseElectric', mod_version:'2.2.11.118021',
         mod_group:'zone.moddev.mc.baseelectric', curseforge_project_id:'1783006', cf_requirements:'basepower,base-metals',
-        java_version:'16', java_toolchain_version:'16.0.2+7', gradle_java_version:'17',
-        poweradvantage_version:'2.4.9.117011', basemetals_version:'3.1.1.117011', orespawn_version:'4.1.0.117011'})) {
+        java_version:'17', java_toolchain_version:'17.0.1+12', gradle_java_version:'17',
+        poweradvantage_version:'2.4.10.118021', basemetals_version:'3.1.2.118021', orespawn_version:'4.1.0.118021'})) {
         assert.equal(properties[key], value, key);
     }
-    assert.deepEqual(JSON.parse(read('src/main/resources/pack.mcmeta')).pack, {pack_format:7, description:'baseElectric'});
-    assert(read('build.gradle').includes('major != 60'));
+    assert.deepEqual(JSON.parse(read('src/main/resources/pack.mcmeta')).pack,
+        {pack_format:9, 'forge:resource_pack_format':8, 'forge:data_pack_format':9, description:'baseElectric'});
+    assert(read('build.gradle').includes('major != 61'));
     const metadata = read('src/main/resources/META-INF/mods.toml');
-    assert.match(metadata, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.9\.117011,3\.0\.0\)"/);
-    assert.match(metadata, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.1\.117011,4\.0\.0\)"/);
+    assert.match(metadata, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.10\.118021,3\.0\.0\)"/);
+    assert.match(metadata, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.1\.118021,4\.0\.0\)"/);
     assert(metadata.includes('modId="baseelectric"') && metadata.includes('displayName="baseElectric"'));
 });
 check('Exact local basePower, Base Metals and OreSpawn pins are retained', () => {
@@ -83,27 +86,30 @@ check('Exact local basePower, Base Metals and OreSpawn pins are retained', () =>
     assert.equal(properties.poweradvantage_pin_state, 'LOCAL_CHECKPOINT');
     const build = read('build.gradle');
     assert.match(build, /poweradvantage_pin_state != 'LOCAL_CHECKPOINT'/);
-    assert.match(build, /requireDevelopmentPins\(\)\s+def powerAdvantageDeobfJarPath/);
-    assert(!build.includes('defaultPowerAdvantageDeobfJar'));
+    assert.match(build, /requirePowerPin\(\)\s+pinnedFile\('powerAdvantageDeobfJar', project.poweradvantage_deobf_sha256\)/);
+    assert(!build.includes('PA117') && !build.includes('117011-deobf.jar'));
     for (const [key, value] of Object.entries({
-        poweradvantage_source_ref:'308d42a89483d56d0fad4805cdb65dac483d9e31',
-        poweradvantage_deobf_sha256:'312FA3012CB57C91F5F22079DA4778D481BA45EF7B8A0587D9993899E1B6D08E',
-        poweradvantage_runtime_sha256:'C55782CA1B0F3B8F7B358BE3150229F5AD92F8C8CE15E3989AAAD1B4F182886F',
-        poweradvantage_unit_bootstrap_sha256:'28080BD563D6D2F378AD2735BBEFEBB079DBFC87A9457E066DDB99F43C3D4095',
-        basemetals_source_commit:'0deeeeecdbbc1fbcdecf910c59477de8efe164d7',
-        basemetals_deobf_sha256:'83A8C32C633B56BB7E4405E8B3B24A4DEA32B9119216E5097B884056D679CAD1',
-        orespawn_source_commit:'b56e2b62a1a6ea4d1dd96f8646a87801a817dbdf',
-        orespawn_deobf_sha256:'CB7A736314842B110B2E4788FBD5E21D4AE8803C5ED34A49199B034BE572DA39',
-        orespawn_runtime_sha256:'1BDEDCBB179CB5A3B169E5C8A6B301E3888AE15B94108B0AEC627D705CFAD833'})) {
+        poweradvantage_source_ref:'bab9971cc2d593eee1f4a3de6dafc7ec268d25c2',
+        poweradvantage_deobf_sha256:'C00F835A7A80BAF332355EF1F181F252B603A017A979D2F41EA3BBEAE314E280',
+        poweradvantage_runtime_sha256:'595991E8BB6B831C4F3A291251F283CD5FB1EC1F9BC48C1BB54BC5D88490ECB9',
+        poweradvantage_unit_bootstrap_sha256:'025F16FCA9FD5CFC585931E7C8BCFAB22FC1DF933BE7DAAD490B8E4FC824B76E',
+        basemetals_source_commit:'3488ed58403722ac3ff203cff7680dfc16e0fd3f',
+        basemetals_deobf_sha256:'9371C976B890BF875FCD3A845B0E9FCF3DAF16F2FB76DADF5386A7BA28C12BAE',
+        basemetals_runtime_sha256:'9EA9DE0E5D548FD77BBAB05565D3C2004E1C2C985353C626F6610CDA07EE3BBF',
+        orespawn_source_commit:'d31f52f296739f34a0c13f554abf3e1ac071ae25',
+        orespawn_deobf_sha256:'34B25B2116FD91B0050C80393F8356A5CA256E707BF443E4882BE5CFAD1335B6',
+        orespawn_runtime_sha256:'BD8D84A96DAFB7668E95D61B9D72C62AEF3440675473E41244C182C64653356F',
+        forge_installer_sha256:'9434C29790504DCD11CE97CB30DD8891B4B18848982357BC1B5ABFA79FB95103'})) {
         assert.equal(properties[key], value, key);
     }
 });
-check('Resources retained except namespace moves, canonical LF and exact native advancement conversion', () => {
+check('Resources retained except namespace moves, exact advancement conversion and the native fog shader', () => {
     let changedFiles = 0, changedPredicates = 0;
     for (const name of tracked.filter(n => n.startsWith('src/main/resources/')
         && !['src/main/resources/pack.mcmeta', 'src/main/resources/META-INF/mods.toml'].includes(n))) {
         const before = git('show', `${baseline}:${name}`);
         const target = migratePath(name);
+        if (/\/shaders\/core\/unshaded\.(vsh|json)$/.test(target)) continue; // Exact 1.18 delta audited below.
         const expected = /\.(json|fsh|vsh|mcmeta)$/.test(name)
             ? Buffer.from(migrateText(before.toString())) : before;
         if (name.startsWith('src/main/resources/data/electricadvantage/advancements/recipes/')) {
@@ -151,7 +157,12 @@ check('Registry, asset, provider and NBT string identities retained', () => {
 check('Machine balance and renderer test tolerances retained', () => {
     const renderer = 'src/test/java/zone/moddev/mc/electricadvantage/graphics/RendererBufferContractTest.java';
     for (const name of [...production, renderer]) {
-        const expected = numbers(git('show', `${baseline}:${name}`).toString());
+        let before = git('show', `${baseline}:${name}`).toString();
+        if (name.endsWith('/LaserTurretTileEntity.java')) {
+            assert(before.includes('this.getBlockPos(), 0, nbtTag'));
+            before = before.replace('this.getBlockPos(), 0, nbtTag', 'this.getBlockPos(), nbtTag');
+        }
+        const expected = numbers(before);
         if (name.endsWith('/ElectricRenderTypes.java')) {
             assert.equal(expected.splice(expected.indexOf('7'), 1)[0], '7'); // Native enum replaces GL_QUADS.
         }
@@ -165,7 +176,8 @@ check('Inherited regression tests remain present with no skip or assume bypass',
         const after = read(migratePath(name));
         const methods = s => [...s.matchAll(/@Test\s+public void (\w+)\(/g)].map(m => m[1]);
         const expected = methods(before).map(n => n.replace('resourcePackDeclaresTheNativeOneSixteenFormat',
-            'resourcePackDeclaresTheNativeOneSeventeenFormat'));
+            'resourcePackDeclaresTheNativeOneEighteenFormats')
+            .replace('publishedOneSeventeenRecipesKeepRawAndOreOutputsDistinct', 'nativeCrushingRecipesKeepRawAndOreOutputsDistinct'));
         count += expected.length;
         if (name.endsWith('/RecipeUnlockContractTest.java')) {
             expected.splice(2, 0, 'nativeParserRestrictsItemArraysButSilentlyIgnoresTheLegacySingularKey');
@@ -226,20 +238,21 @@ check('Shared capabilities, legacy cyano API and first-tick interlocks retained'
     assert(read(javaRoot + 'ElectricAdvantage.java').includes('event.enqueueWork(RecipeConditions::register)'));
     assert(read(javaRoot + 'machines/PhotovoltaicGeneratorTileEntity.java').includes('BlockPos lightPos = pos.above()'));
 });
-check('Native 1.17 source, tests and binary assets are preserved beyond the identity changes', () => {
+check('Only the reviewed 1.18.2 source, shader, metadata and fixture deltas are present', () => {
     const actualFiles = fs.readdirSync(path.join(root, 'src'), {recursive:true, withFileTypes:true})
         .filter(file => file.isFile()).map(file => path.relative(root, path.join(file.parentPath, file.name))
             .split(path.sep).join('/')).sort();
-    assert.deepEqual(actualFiles, nativeFiles.map(migratePath).sort(), 'Source path inventory');
-    for (const name of nativeFiles) {
-        const target = migratePath(name);
-        if ([entry, migration, 'src/main/resources/META-INF/mods.toml', 'src/main/resources/pack.mcmeta'].includes(target)
-                || /\/(ElectricLegacyMigrationsTest|BuildWorkflowContractTest)\.java$/.test(target)) continue;
-        const before = git('show', `${nativeBaseline}:${name}`);
-        const expected = !name.startsWith('src/test/resources/') && /\.(java|json|fsh|vsh|mcmeta)$/.test(name)
-            ? Buffer.from(migrateText(before.toString())) : before;
-        assert.deepEqual(fs.readFileSync(path.join(root, target)), expected, target);
-    }
+    const expectedFiles = portBaseFiles.map(name => name.replace('/Native117ConstructionTest.java', '/Native118ConstructionTest.java'));
+    expectedFiles.push('src/test/java/zone/moddev/mc/baseelectric/verification/NativeTestBootstrap.java');
+    assert.deepEqual(actualFiles, expectedFiles.sort(), 'Source path inventory');
+    const sourceChanges = [...new Set([
+        ...git('diff', '--no-renames', '--name-only', portBase, '--', 'src').toString().trim().split('\n'),
+        ...git('ls-files', '--others', '--exclude-standard', '--', 'src').toString().trim().split('\n')
+    ])].filter(Boolean).sort();
+    const fingerprints = sourceChanges.map(file => [file, fs.existsSync(path.join(root, file))
+        ? sha256(fs.readFileSync(path.join(root, file))) : null]);
+    assert.equal(sha256(JSON.stringify(fingerprints)), 'c684a77312129f3b90b367b6f0bf9b6a81402992e8bb2440b5795e99f9c60898',
+        'Exact reviewed source delta from the PA117 clone point');
 });
 check('Original and baseElectric aliases retain the native registry paths and state decoding', () => {
     const old = git('show', `${nativeBaseline}:${oldJavaRoot}migration/ElectricLegacyMigrations.java`).toString();
@@ -272,14 +285,16 @@ const changedFiles = [...new Set([
     ...git('diff', '--name-only', baseline).toString().trim().split('\n'),
     ...git('ls-files', '--others', '--exclude-standard').toString().trim().split('\n')
 ])].filter(Boolean).sort();
-const testFiles = nativeFiles.map(migratePath).filter(n => n.startsWith('src/test/java/')
-    && n.endsWith('.java') && fs.existsSync(path.join(root, n)));
+const testFiles = fs.readdirSync(path.join(root, 'src/test/java'), {recursive:true, withFileTypes:true})
+    .filter(file => file.isFile() && file.name.endsWith('.java'))
+    .map(file => path.relative(root, path.join(file.parentPath, file.name)));
 const tests = testFiles.reduce((n, file) => n + (read(file).match(/@Test\b/g) || []).length, 0);
-check('The complete native 1.17.1 test inventory is retained', () => {
-    assert.equal(testFiles.length, 27);
+check('All 27 inherited suites and 96 tests remain present', () => {
+    assert.equal(testFiles.length, 28);
+    assert.equal(testFiles.filter(file => /@Test\b/.test(read(file))).length, 27);
     assert.equal(tests, 96);
 });
-const report = {baseline, nativeBaseline, scope:'Static source/resource contracts only; not compilation, runtime or manual acceptance',
+const report = {baseline, nativeBaseline, portBase, scope:'Static source/resource contracts only; not compilation, runtime or manual acceptance',
     inventory: {productionFiles:production.length, testFiles:testFiles.length, tests},
     changedFiles:changedFiles.map(file => ({file, sha256:fs.existsSync(path.join(root, file))
         ? createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex') : null})),

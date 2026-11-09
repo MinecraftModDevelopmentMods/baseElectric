@@ -8,8 +8,5 @@ package zone.moddev.mc.baseelectric.init;
 public final class Recipes {
     private Recipes() {}
 
-    public static void init() {
-        Blocks.init();
-        Items.init();
-    }
+    public static void init() {}
 }

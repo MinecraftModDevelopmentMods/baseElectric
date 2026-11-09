@@ -11,7 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.server.Bootstrap;
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import org.junit.BeforeClass;
@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 
 /** Focused regressions for retained independent native operating failures. */
 public class ElectricOperationalNativeDefectsTest {
-    @BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
 
     @Test public void controllerCannotRequestMoreThanItsHundredUnitElectricalBuffer() throws Exception {
         GrowthChamberControllerTileEntity controller = controller();

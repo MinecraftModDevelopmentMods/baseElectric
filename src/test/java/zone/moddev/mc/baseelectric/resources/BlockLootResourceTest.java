@@ -33,9 +33,11 @@ public class BlockLootResourceTest {
         assertFalse(Files.exists(root.resolve("pump_pipe_electric.json")));
     }
 
-    @Test public void resourcePackDeclaresTheNativeOneSeventeenFormat() throws Exception {
-        assertEquals(7, read(Paths.get("src/main/resources/pack.mcmeta"))
-                .getAsJsonObject("pack").get("pack_format").getAsInt());
+    @Test public void resourcePackDeclaresTheNativeOneEighteenFormats() throws Exception {
+        JsonObject pack = read(Paths.get("src/main/resources/pack.mcmeta")).getAsJsonObject("pack");
+        assertEquals(9, pack.get("pack_format").getAsInt());
+        assertEquals(8, pack.get("forge:resource_pack_format").getAsInt());
+        assertEquals(9, pack.get("forge:data_pack_format").getAsInt());
     }
 
     private static JsonObject read(Path path) throws Exception {

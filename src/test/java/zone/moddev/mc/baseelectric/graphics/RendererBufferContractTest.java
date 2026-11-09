@@ -10,7 +10,7 @@ import com.mojang.math.Matrix4f;
 import net.minecraft.client.renderer.RenderType;
 import com.mojang.math.Vector3f;
 import net.minecraft.core.Direction;
-import net.minecraft.server.Bootstrap;
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import zone.moddev.mc.baseelectric.init.Power;
@@ -25,7 +25,7 @@ public class RendererBufferContractTest {
     private static final int FULL_BRIGHT = 15 << 20 | 15 << 4;
 
     @BeforeClass public static void bootstrapNativeRegistries() {
-        net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap();
+        NativeTestBootstrap.initialize();
     }
 
     @Test public void quadNormalsUseWindingAndTheNativeNormalMatrix() {

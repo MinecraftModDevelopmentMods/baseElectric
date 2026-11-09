@@ -3,6 +3,7 @@ package zone.moddev.mc.baseelectric.blocks;
 import java.util.Random;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -13,32 +14,43 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
 
 /** Legacy ElectricAdvantage ore block retaining its original drops and harvest level. */
 public class Ore extends Block {
-    private final ItemStack dropItem;
+    private final Supplier<ItemStack> drop;
     private final int dropRange;
 
     public Ore(ItemStack oreDrop, int pickLevel, int variation) {
+        this(fixedDrop(oreDrop), pickLevel, variation);
+    }
+
+    public static Ore withDeferredDrop(Supplier<ItemStack> drop, int pickLevel, int variation) {
+        return new Ore(drop, pickLevel, variation);
+    }
+
+    private static Supplier<ItemStack> fixedDrop(ItemStack oreDrop) {
+        ItemStack copy = oreDrop.copy();
+        return () -> copy;
+    }
+
+    private Ore(Supplier<ItemStack> drop, int pickLevel, int variation) {
         super(Properties.of(Material.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
                 .strength(1.5F + pickLevel, 5.0F * (1 + pickLevel)));
-        dropItem = oreDrop.copy();
+        this.drop = drop;
         dropRange = variation + 1;
     }
 
     public Ore(int pickLevel) {
         super(Properties.of(Material.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
                 .strength(1.5F + pickLevel, 5.0F * (1 + pickLevel)));
-        dropItem = ItemStack.EMPTY;
+        drop = () -> ItemStack.EMPTY;
         dropRange = 0;
     }
 
     @Override
     public List<ItemStack> getDrops(BlockState state, LootContext.Builder context) {
         ItemStack tool = context.getOptionalParameter(LootContextParams.TOOL);
+        ItemStack dropItem = drop.get();
         if (dropItem.isEmpty() || (tool != null
                 && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, tool) > 0)) {
             return Collections.singletonList(new ItemStack(this));

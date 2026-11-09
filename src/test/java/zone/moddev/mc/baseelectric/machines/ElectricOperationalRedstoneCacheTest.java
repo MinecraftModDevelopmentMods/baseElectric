@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.Bootstrap;
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
 import org.junit.BeforeClass;
@@ -20,7 +20,7 @@ public class ElectricOperationalRedstoneCacheTest {
     private static final BlockPos EVEN = new BlockPos(8, 80, 8);
     private static final BlockPos ODD = new BlockPos(9, 81, 9);
 
-    @BeforeClass public static void bootstrap() { net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap(); }
+    @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
 
     @Test public void signalledFirstUseDoesNotWaitForPowerUpdate() throws Exception {
         ProbeMachine machine = fixture(EVEN, true);

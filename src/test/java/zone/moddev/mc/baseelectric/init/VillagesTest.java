@@ -3,14 +3,14 @@ package zone.moddev.mc.baseelectric.init;
 import java.util.Random;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.Bootstrap;
+import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class VillagesTest {
     @BeforeClass public static void bootstrapVanillaItems() {
-        net.minecraft.SharedConstants.tryDetectVersion(); net.minecraft.server.Bootstrap.bootStrap();
+        NativeTestBootstrap.initialize();
     }
 
     @Test public void nativeNegativePricesKeepBulkGoodsForOneEmerald() {

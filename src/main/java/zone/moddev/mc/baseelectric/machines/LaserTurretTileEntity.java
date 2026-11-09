@@ -496,14 +496,16 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	 */
 	@Override 
 	public ClientboundBlockEntityDataPacket getUpdatePacket(){
-		CompoundTag nbtTag = new CompoundTag();
-		writeRenderSync(nbtTag);
-		return new ClientboundBlockEntityDataPacket(this.getBlockPos(), 0, nbtTag);
+		return ClientboundBlockEntityDataPacket.create(this, tile -> {
+			CompoundTag tag = new CompoundTag();
+			writeRenderSync(tag);
+			return tag;
+		});
 	}
 
 	@Override
 	public CompoundTag getUpdateTag() {
-		CompoundTag nbtTag = save(new CompoundTag());
+		CompoundTag nbtTag = super.getUpdateTag();
 		writeRenderSync(nbtTag);
 		return nbtTag;
 	}
