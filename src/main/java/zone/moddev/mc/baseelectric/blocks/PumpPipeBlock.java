@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level;
 /** Hidden pump intake column. */
 public class PumpPipeBlock extends Block {
     private static final VoxelShape SHAPE = Shapes.box(0.25D, 0.0D, 0.25D, 0.75D, 1.0D, 0.75D);
-    public PumpPipeBlock() { super(Properties.of(Material.METAL).strength(5.0F, 10.0F).dynamicShape().noOcclusion().isRedstoneConductor((state, world, pos) -> false).noDrops()); }
+    public PumpPipeBlock() { super(Properties.of(Material.METAL).strength(5.0F, 10.0F).dynamicShape().noOcclusion().isRedstoneConductor((state, world, pos) -> false).noLootTable()); }
     @Override public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) { return SHAPE; }
     @Override public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) { return SHAPE; }
     @Override public java.util.List<ItemStack> getDrops(BlockState state, LootContext.Builder context) { return java.util.Collections.emptyList(); }

@@ -1,3 +1,10 @@
+baseElectric 2.2.12.119041 (Minecraft 1.19.4 local port)
+
+- Target Forge 45.4.0, official mappings, Java 17 and ForgeGradle 7.
+- Register the same Electric content in the shared basePower creative tab.
+- Retain machine data, recipe unlocks, ore drops and optional Base Metals recipes.
+- Use native registry-aware crafting, sound, damage and renderer APIs.
+
 baseElectric 2.2.10.117011 (Minecraft 1.17.1)
 
 - Continue Electric Advantage as baseElectric, with its blocks and items in the shared basePower creative tab.

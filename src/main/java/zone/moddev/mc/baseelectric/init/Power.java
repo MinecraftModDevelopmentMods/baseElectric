@@ -1,7 +1,13 @@
 package zone.moddev.mc.baseelectric.init;
 
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import cyano.poweradvantage.api.ConduitType;
+import zone.moddev.mc.baseelectric.ElectricAdvantage;
 
 public abstract class Power {
 
@@ -22,6 +28,14 @@ public abstract class Power {
 	// made from lead and sulfur
 	public static final float LEAD_ACID_BATTERY_CAPACITY = 1000f;
 	
-	public static final DamageSource laser_damage = new DamageSource("laser");
-	public static final DamageSource propeller_damage = new DamageSource("propeller");
+	public static final ResourceKey<DamageType> LASER_DAMAGE = damageType("laser");
+	public static final ResourceKey<DamageType> PROPELLER_DAMAGE = damageType("propeller");
+
+	private static ResourceKey<DamageType> damageType(String id) {
+		return ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(ElectricAdvantage.MODID, id));
+	}
+
+	public static DamageSource damageSource(Level level, ResourceKey<DamageType> type) {
+		return new DamageSource(level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolderOrThrow(type));
+	}
 }

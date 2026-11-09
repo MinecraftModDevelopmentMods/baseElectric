@@ -5,7 +5,7 @@ import zone.moddev.mc.baseelectric.machines.ElectricDrillTileEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
@@ -76,8 +76,8 @@ public class LaserDrillRenderer implements BlockEntityRenderer<ElectricDrillTile
 			
 			matrices.pushPose();
 			matrices.translate(0.5f, 0.5f, 0.5f);
-			matrices.mulPose(Vector3f.YP.rotationDegrees(rotY));
-			matrices.mulPose(Vector3f.XP.rotationDegrees(rotX));
+			matrices.mulPose(Axis.YP.rotationDegrees(rotY));
+			matrices.mulPose(Axis.XP.rotationDegrees(rotX));
             final BufferedQuads worldRenderer = new BufferedQuads(matrices,
                     buffers.getBuffer(beamType), 15 << 20 | 15 << 4, packedOverlay);
 

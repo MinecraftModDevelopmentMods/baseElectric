@@ -1,13 +1,15 @@
 package zone.moddev.mc.baseelectric.init;
 
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.entities.HydroturbineEntity;
 import zone.moddev.mc.baseelectric.machines.ElectricBatteryArrayTileEntity;
@@ -51,7 +53,11 @@ public final class Entities {
     private Entities() {}
     public static void init() {}
 
-    @SubscribeEvent public static void registerTiles(RegistryEvent.Register<BlockEntityType<?>> event) {
+    @SubscribeEvent public static void registerTiles(RegisterEvent event) {
+        event.register(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES, Entities::registerTiles);
+    }
+
+    private static void registerTiles(RegisterEvent.RegisterHelper<BlockEntityType<?>> event) {
         ELECTRIC_FURNACE = tile(event, "electric_furnace", ElectricFurnaceTileEntity::new, Blocks.arc_furnace);
         ELECTRIC_CRUSHER = tile(event, "electric_crusher", ElectricCrusherTileEntity::new, Blocks.rock_crusher);
         ELECTRIC_DRILL = tile(event, "electric_drill", ElectricDrillTileEntity::new, Blocks.laser_drill);
@@ -70,22 +76,22 @@ public final class Entities {
         PLASTIC_REFINERY = tile(event, "plastic_refinery", PlasticRefineryTileEntity::new, Blocks.plastic_refinery);
     }
 
-    @SubscribeEvent public static void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
-        HYDROTURBINE = EntityType.Builder.<HydroturbineEntity>of(
-                HydroturbineEntity::new, MobCategory.MISC)
-                .sized(0.9375F, 0.9375F)
-                .setTrackingRange(64).setUpdateInterval(1).setShouldReceiveVelocityUpdates(true)
-                .build(ElectricAdvantage.MODID + ":hydroturbine");
-        HYDROTURBINE.setRegistryName(ElectricAdvantage.MODID, "hydroturbine");
-        event.getRegistry().register(HYDROTURBINE);
+    @SubscribeEvent public static void registerEntities(RegisterEvent event) {
+        event.register(ForgeRegistries.Keys.ENTITY_TYPES, registry -> {
+            ResourceLocation id = new ResourceLocation(ElectricAdvantage.MODID, "hydroturbine");
+            HYDROTURBINE = EntityType.Builder.<HydroturbineEntity>of(HydroturbineEntity::new, MobCategory.MISC)
+                    .sized(0.9375F, 0.9375F)
+                    .setTrackingRange(64).setUpdateInterval(1).setShouldReceiveVelocityUpdates(true)
+                    .build(id.toString());
+            registry.register(id, HYDROTURBINE);
+        });
     }
 
     private static <T extends BlockEntity> BlockEntityType<T> tile(
-            RegistryEvent.Register<BlockEntityType<?>> event, String id, BlockEntityType.BlockEntitySupplier<T> factory,
+            RegisterEvent.RegisterHelper<BlockEntityType<?>> event, String id, BlockEntityType.BlockEntitySupplier<T> factory,
             net.minecraft.world.level.block.Block... blocks) {
         BlockEntityType<T> type = BlockEntityType.Builder.<T>of(factory, blocks).build(null);
-        type.setRegistryName(ElectricAdvantage.MODID, id);
-        event.getRegistry().register(type);
+        event.register(new ResourceLocation(ElectricAdvantage.MODID, id), type);
         return type;
     }
 

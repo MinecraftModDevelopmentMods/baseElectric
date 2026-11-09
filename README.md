@@ -4,18 +4,18 @@ baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower, and its blocks and items
 appear in the shared basePower creative tab.
 
-This is the local **Minecraft 1.18.2 candidate, 2.2.11.118021**, not a published
-release. Back up your world before upgrading. The port retains the mappings for
+This is the local **Minecraft 1.19.4 port, 2.2.12.119041**, not a published
+release. The port retains the mappings for
 older Electric Advantage saves, as well as saves that already use baseElectric IDs.
 
 ## Target
 
-- Forge `40.3.0`, official `1.18.2` mappings, MCP `20220404.173914`.
+- Forge `45.4.0`, official `1.19.4` mappings, MCP `20230314.122934`.
 - ForgeGradle `7.0.34`, Renamer `1.1.5`, Gradle `9.6.1`.
 - Java 17 runs Gradle; Java 25 runs Mavenizer. Production and tests use
   Java 17, class major `61`. The Eclipse generator also needs Java 8
   for ForgeGradle's Slime Launcher tooling; the game launches use Java 17.
-- Player artifact: `build/libs/baseElectric-2.2.11.118021.jar`.
+- Player artifact path: `build/libs/baseElectric-2.2.12.119041.jar`.
   The separate deobfuscated API artifact stays under `build/libs-dev`.
 
 basePower is required. Base Metals remains optional in Forge metadata;
@@ -24,18 +24,18 @@ basePower, Base Metals and OreSpawn are separate dependencies, never embedded.
 
 ## Current State
 
-The port keeps the 96-test suite, registry paths, machine NBT, loot and recipes.
-See [the 1.18.2 port notes](docs/NATIVE118.md) for the exact inputs, evidence and
-remaining gates. Results in the [1.17.1 notes](docs/NATIVE117.md) and
-[1.16.5 notes](docs/NATIVE116.md) are historical.
+The port keeps the 96-test inventory, registry paths, machine NBT, loot and
+recipes. See [the 1.19.4 port notes](docs/NATIVE119.md) for exact inputs and
+verification status. Earlier port notes, including
+[1.18.2](docs/NATIVE118.md), are historical.
 
 ## Dependencies
 
-The local basePower `2.4.10.118021` checkpoint pins the source revision,
-development JAR, player JAR and test bootstrap separately. Base Metals
-`3.1.2.118021`, OreSpawn `4.1.0.118021` and the Forge installer also have
+The local basePower `2.4.11.119041` checkpoint pins the owner's source
+revision, development JAR, player JAR, test agent and test agent source. Base Metals
+`3.1.2.119041`, OreSpawn `4.1.0.119041` and the Forge installer have
 explicit hashes in `gradle.properties`. The inherited hosted workflows
-are for 1.17.1. This branch does not enable 1.18.2 publication.
+are for 1.17.1. This branch does not enable publication.
 
 Run from this repository with the explicit input arguments below:
 
@@ -43,24 +43,27 @@ Run from this repository with the explicit input arguments below:
 ./gradlew --no-build-cache --rerun-tasks build verifyLocalRuntimeInputs writeReleaseChecksums prepareEclipse verifyEclipseProductionClasspath
 ```
 
-On Windows, use `gradlew.bat` instead of `./gradlew`. Set `JAVA_HOME` to Java 17
-for Gradle and production, with Java 25 for Mavenizer and Java 8 for Eclipse
-launch generation. The checksum-verified IAF118 Mavenizer fixture fixes a
-decompiler error in Forge 40's `Holder.Direct` record.
+On Windows, use `gradlew.bat` instead of `./gradlew`. Set `GRADLE_USER_HOME` to
+an isolated directory (the ignored `.gradle-user-home` was used locally).
+Set `JAVA_HOME` to Java 17 for Gradle and production, with Java 25 for
+Mavenizer and Java 8 for Eclipse launch generation. The checksum-verified
+OreSpawn Mavenizer fixture fixes duplicate decompiled record accessors in
+Forge 45.4.0.
 
 Append these arguments using immutable local inputs. In particular, the build
 does not discover a basePower jar or bootstrap source in a sibling checkout:
 
 ```text
--PpowerAdvantageDeobfJar="/path/to/basePower-2.4.10.118021-deobf.jar"
--PpowerAdvantageRuntimeJar="/path/to/basePower-2.4.10.118021.jar"
--PbaseMetalsDeobfJar="/path/to/BaseMetals-3.1.2.118021-deobf.jar"
--PbaseMetalsRuntimeJar="/path/to/BaseMetals-3.1.2.118021.jar"
--PoreSpawnDeobfJar="/path/to/OreSpawn-4.1.0.118021-deobf.jar"
--PoreSpawnRuntimeJar="/path/to/OreSpawn-4.1.0.118021.jar"
+-PpowerAdvantageDeobfJar="/path/to/basePower-2.4.11.119041-deobf.jar"
+-PpowerAdvantageRuntimeJar="/path/to/basePower-2.4.11.119041.jar"
+-PbaseMetalsDeobfJar="/path/to/BaseMetals-3.1.2.119041-deobf.jar"
+-PbaseMetalsRuntimeJar="/path/to/BaseMetals-3.1.2.119041.jar"
+-PoreSpawnDeobfJar="/path/to/OreSpawn-4.1.0.119041-deobf.jar"
+-PoreSpawnRuntimeJar="/path/to/OreSpawn-4.1.0.119041.jar"
 -PpowerAdvantageUnitBootstrapSource="/path/to/ForgeCapabilityBootstrap.java"
--PmavenizerCompatibilityJar="/path/to/minecraft-mavenizer-0.5.21-orespawn-1.18.jar"
--PforgeInstallerJar="/path/to/forge-1.18.2-40.3.0-installer.jar"
+-PpowerAdvantageUnitBootstrapJar="/path/to/forge-native-unit-bootstrap.jar"
+-PmavenizerCompatibilityJar="/path/to/minecraft-mavenizer-0.5.21-orespawn-compat.jar"
+-PforgeInstallerJar="/path/to/forge-1.19.4-45.4.0-installer.jar"
 ```
 
 The build checks these inputs against the pinned hashes; do not substitute jars
@@ -69,23 +72,23 @@ from another Minecraft version. If Gradle cannot find the installed JDKs, pass
 For a prepared offline cache, also set `ORESPAWN_MAVENIZER_OFFLINE=true` and use
 Gradle's `--offline` flag.
 
-Tests use basePower's hash-checked, build-only Forge capability bootstrap source
-from `-PpowerAdvantageUnitBootstrapSource`. Electric's build-only wrapper also
-runs Forge's event-bus plugin for the native tier/harvest checks. Neither replaces
-capability tokens or events, and neither is included in production jars.
+Tests use the exact basePower agent supplied by
+`-PpowerAdvantageUnitBootstrapJar` and verify its checkpoint source via
+`-PpowerAdvantageUnitBootstrapSource`. The build-only agent runs Forge's
+native capability and event transforms and is not included in production jars.
 Independent ECJ verification uses `tools/verification/Verify-ElectricEcj.ps1`
 after Gradle has produced a fresh classpath, unit bootstrap jar and complete test inventory.
 
 Static checks need no Gradle or game launch:
 
 ```text
-node tools/verify-native-port.js --report build/baseelectric-118-static-unique.json
+node tools/verify-native-port.js --report build/port-evidence/static-119-unique.json
 node tools/generate-recipe-unlocks.js --check
 ```
 
-Use a new report name on each run. The audit checks the historical native
-baselines and the exact port delta from the PA117 clone point. It does not prove compilation, native ticking,
-shader compilation or migration safety.
+Use a new report name on each run. The audit checks preservation against the
+accepted 1.18.2 clone point and historical migration contracts. It does not
+prove compilation, native ticking, shader compilation or migration safety.
 
 ## Compatibility
 

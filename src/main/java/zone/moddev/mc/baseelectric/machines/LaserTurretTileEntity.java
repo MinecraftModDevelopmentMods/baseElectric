@@ -86,7 +86,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 
 	public LaserTurretTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state){
 		super(zone.moddev.mc.baseelectric.init.Entities.LASER_TURRET, pos, state, "tile.baseelectric.laser_turret.name",MAX_BUFFER,0,0,0);
-		SoundEvent soundEvent = ElectricAdvantage.INSTANCE == null ? SoundEvents.NOTE_BLOCK_BASS
+		SoundEvent soundEvent = ElectricAdvantage.INSTANCE == null ? SoundEvents.NOTE_BLOCK_BASS.value()
 				: ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation(ElectricAdvantage.INSTANCE.LASER_SOUND));
 		if(soundEvent == null){
 			LASER_SOUND = SoundEvents.ENDERMAN_TELEPORT;
@@ -274,7 +274,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	private void hurtVictim(Entity e){
 		e.setSecondsOnFire(BURN_TIME);
 		if(e instanceof LivingEntity){
-			((LivingEntity)e).hurt(Power.laser_damage, ATTACK_DAMAGE);
+			((LivingEntity)e).hurt(Power.damageSource(getLevel(), Power.LASER_DAMAGE), ATTACK_DAMAGE);
 			BlockPos bp = e.blockPosition();
 			if(getLevel().isEmptyBlock(bp) && !getLevel().isEmptyBlock(bp.below())){
 				getLevel().setBlockAndUpdate(bp, Blocks.FIRE.defaultBlockState());

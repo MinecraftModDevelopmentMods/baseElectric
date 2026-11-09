@@ -17,6 +17,7 @@
 # Gradle, Forge, and generated dependency output
 /build/
 /.gradle/
+/.gradle-user-home/
 /eclipse/
 /run/
 /run-data/

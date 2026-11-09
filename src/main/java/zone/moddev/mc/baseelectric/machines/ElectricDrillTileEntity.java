@@ -290,7 +290,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 			List<LivingEntity> victims = getLevel().getEntitiesOfClass(LivingEntity.class, beamArea);
 			for(Entity e : victims){
 				e.setSecondsOnFire(3);
-				e.hurt(Power.laser_damage, 2f);
+			e.hurt(Power.damageSource(getLevel(), Power.LASER_DAMAGE), 2f);
 			}
 		}
 	}

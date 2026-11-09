@@ -41,7 +41,13 @@ public class ElectricOperationalPumpPickupTest {
     private static final float RESERVE = 8000;
     private static final float PICKUP_COST = 1000 + 32;
 
-    @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
+    @BeforeClass public static void bootstrap() {
+        NativeTestBootstrap.initialize();
+        // Forge normally initializes fluid caches after posting its registry events.
+        for (Block block : new Block[]{Blocks.WATER, Blocks.LAVA, Blocks.SEAGRASS, Blocks.OAK_SLAB, Blocks.OAK_STAIRS}) {
+            block.getStateDefinition().getPossibleStates().forEach(BlockState::initCache);
+        }
+    }
 
     @Test public void waterloggedSlabKeepsItsBlockAndSlabType() throws Exception {
         BlockState wet = Blocks.OAK_SLAB.defaultBlockState()
@@ -174,7 +180,7 @@ public class ElectricOperationalPumpPickupTest {
         Map<BlockPos, BlockState> blocks;
         int writes;
         private PumpWorld() {
-            super(null, null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
+            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
         }
         @Override public boolean hasChunkAt(BlockPos pos) { return true; }
         @Override public BlockState getBlockState(BlockPos pos) {
@@ -195,6 +201,7 @@ public class ElectricOperationalPumpPickupTest {
         RefusingSource(boolean returnNull) {
             super(Block.Properties.of(Material.STONE));
             this.returnNull = returnNull;
+            defaultBlockState().initCache();
         }
         @Override public FluidState getFluidState(BlockState state) { return Fluids.WATER.getSource(false); }
         @Override public net.minecraft.world.item.ItemStack pickupBlock(LevelAccessor world, BlockPos pos, BlockState state) {

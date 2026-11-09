@@ -6,9 +6,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.renderer.MultiBufferSource;
-import com.mojang.math.Matrix4f;
+import org.joml.Matrix4f;
 import net.minecraft.client.renderer.RenderType;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.core.Direction;
 import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import org.junit.BeforeClass;
@@ -31,7 +31,7 @@ public class RendererBufferContractTest {
     @Test public void quadNormalsUseWindingAndTheNativeNormalMatrix() {
         PoseStack matrices = new PoseStack();
         matrices.translate(3, 4, 5);
-        matrices.mulPose(Vector3f.YP.rotationDegrees(90));
+        matrices.mulPose(Axis.YP.rotationDegrees(90));
         RecordingBuffer buffer = new RecordingBuffer();
         BufferedQuads quads = new BufferedQuads(matrices, buffer, 0x123456, 0x789abc);
         quad(quads, false);
@@ -59,7 +59,7 @@ public class RendererBufferContractTest {
             PoseStack matrices = new PoseStack();
             matrices.translate(11, -5, 7);
             PoseStack.Pose before = matrices.last();
-            Matrix4f matrix = before.pose().copy();
+            Matrix4f matrix = new Matrix4f(before.pose());
             RecordingBuffer buffer = new RecordingBuffer();
             renderer.render(drill, 0.5F, matrices, buffer, 0, 17);
             assertSame(before, matrices.last());
@@ -100,7 +100,7 @@ public class RendererBufferContractTest {
             set(LaserTurretTileEntity.class, turret, "laserAttack", charge);
             PoseStack matrices = new PoseStack();
             PoseStack.Pose before = matrices.last();
-            Matrix4f matrix = before.pose().copy();
+            Matrix4f matrix = new Matrix4f(before.pose());
             RecordingBuffer buffer = new RecordingBuffer();
             renderer.render(turret, 0.5F, matrices, buffer, 0x340012, 23);
             boolean beam = charge == 1 || charge == 10;

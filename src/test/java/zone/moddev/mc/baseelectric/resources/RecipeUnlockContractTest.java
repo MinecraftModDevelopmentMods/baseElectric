@@ -143,7 +143,7 @@ public class RecipeUnlockContractTest {
 
     private static String unlockPredicateKey(JsonObject predicate) {
         assertEquals("Unlock predicates must constrain exactly one item or tag", 1, predicate.size());
-        assertFalse("Native 1.18 ignores the singular item key in advancement predicates", predicate.has("item"));
+        assertFalse("The native parser ignores the singular item key in advancement predicates", predicate.has("item"));
         if (predicate.has("tag")) {
             assertTrue("A tag predicate must be a string", predicate.get("tag").isJsonPrimitive()
                     && predicate.getAsJsonPrimitive("tag").isString());

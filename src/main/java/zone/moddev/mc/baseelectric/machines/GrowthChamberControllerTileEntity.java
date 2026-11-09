@@ -16,13 +16,13 @@ import net.minecraft.world.level.material.Fluid;
 import cyano.poweradvantage.api.fluid.FluidStack;
 import cyano.poweradvantage.api.fluid.FluidTank;
 import cyano.poweradvantage.api.fluid.FluidTankInfo;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
 
 public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine implements LegacyFluidHandler{
-	private static final TagKey<Item> DIRT_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("forge", "dirt"));
+	private static final TagKey<Item> DIRT_TAG = TagKey.create(Registries.ITEM, new ResourceLocation("forge", "dirt"));
 
 
 	static final float ELECTRICITY_PER_UNIT = 8f;

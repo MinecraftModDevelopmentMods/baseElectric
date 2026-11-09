@@ -109,7 +109,7 @@ public class ElectricOperationalNativeDefectsTest {
         BlockPos surface;
         int brightness, skyReads, lightReads;
         private LightWorld() {
-            super(null, null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
+            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
         }
         @Override public boolean canSeeSky(BlockPos pos) {
             assertEquals("Sky access must be sampled above the solid panel", surface, pos);
@@ -127,7 +127,7 @@ public class ElectricOperationalNativeDefectsTest {
         BlockPos turret;
         int traces;
         private BeamWorld() {
-            super(null, null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
+            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
         }
         @Override public BlockHitResult clip(ClipContext context) {
             traces++;
@@ -135,7 +135,7 @@ public class ElectricOperationalNativeDefectsTest {
                     context.getBlockShape(new LaserTurretBlock(false).defaultBlockState(), this, turret).isEmpty());
             assertFalse("An immediately adjacent solid block must still stop the beam",
                     context.getBlockShape(Blocks.STONE.defaultBlockState(), this, turret.east()).isEmpty());
-            return BlockHitResult.miss(context.getTo(), Direction.EAST, new BlockPos(context.getTo()));
+            return BlockHitResult.miss(context.getTo(), Direction.EAST, BlockPos.containing(context.getTo()));
         }
     }
 
