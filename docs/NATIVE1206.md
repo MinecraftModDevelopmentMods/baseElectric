@@ -27,38 +27,53 @@
   availability is conditional; generated advancements use native item
   predicates but stay loaded across recipe-mode or provider changes. Ordinary
   block loot table data is unchanged.
+- Electric uses Power's `basepower:tag_not_empty` for material guards. Forge
+  50's built-in tag-empty condition does not correctly test tag contents on
+  the registry-ops load path.
 
 ## Local evidence and gates
 
 The pinned OreSpawn input is `4.1.0.120061` at
 `4085315345ff043448b316d75e03f4b8da45402d`, with the native jar hash recorded in
 `gradle.properties`. Base Metals is pinned to its shared-hook checkpoint
-`3.1.2.120061` at `0c2cdd4d0e8c3bf2e5fa234d49e57960bbf80bde`. The approved
-local basePower checkpoint is `2.4.13.120061` at
-`5fdbb2c2b2d9bbc760aca3919e5b5b648f4545e2`, with native jar SHA-256
-`E192657CC426BC8CD0E3809F6CBF53A135E5C49C6E34A8936DE2DD034D701A04`.
-The three supplied Power test-support hashes were also verified and recorded
-in `build/port-evidence/exact-inputs-5fdbb2c/input-hashes.json`. Electric uses
-its own worldless test fixture; those support files are not runtime inputs.
+`3.1.2.120061` at `9e706db5c85fa2bc7f36dee94f39a5f2fa8ab367`, SHA-256
+`6186AC62C7E2E333373EA0D8AD8DE53FF859C520EBF568DFB47517C4F77C8C5D`.
+The basePower input is `2.4.13.120061` at
+`e6ecfb341006186d0adba9dcc3f296297cd34aec`, with native jar SHA-256
+`29C1BD5EF384F8BB2441029061615E52A4B7302B9FC5480F2CE9C84C357A3181`.
+The frozen inputs, including the unchanged Power bootstrap, are recorded in
+`build/port-evidence/final-e6ecfb3-9e706db/input-hashes.json`. Electric uses
+its own worldless test fixture; the bootstrap is not a runtime input.
 
-The local Electric candidate is `build/libs/baseElectric-2.2.14.120061.jar`,
-SHA-256 `445418F7AEB046CCBE69D7397619A3674E4FAA8DFC59B7880C08D8BE3314E529`.
-It supersedes the first exact jar, whose conditioned advancements failed the
-combined discovery probe. The shared failure receipt remains in
+The frozen candidate is
+`build/port-evidence/final-e6ecfb3-9e706db/candidate/baseElectric-2.2.14.120061.jar`,
+SHA-256 `E9002244F220D7DDBCDBD7B512AB0F34710D8B49276DB4CD72BA131536FE0330`.
+The same directory contains the sources and Javadoc jars and `SHA256SUMS`.
+The forced Gradle rebuild reproduced the player jar byte for byte. The
+entry-by-entry comparison with the corrected provisional jar showed only
+the new Power source reference in the manifest.
+
+Receipts under `build/port-evidence/final-e6ecfb3-9e706db`:
+
+- `full-audit.log`: 102 JUnit tests, 11 isolated resource tests, release
+  artifact and runtime input audits, checksums and Eclipse configuration.
+- `gametest.log`: 4 required Forge GameTests, including material recipes.
+- `packaged/receipt.json`: dedicated Forge smoke on the frozen jar, including
+  legacy inventory conversion, sulfur loot, damage types and clean shutdown.
+- `jar-comparison.json` and `static-audit.json`: archive and recipe parity.
+
+Local Electric qualification is separate from family endurance, client visual
+acceptance and whole-world upgrade coverage. The jar is not manual-ready
+until the combined gate is met.
+
+Earlier exact receipts, including `jar-comparison-75297fd.json` and
+`packaged-exact-75297fd/receipt.json`, remain under `build/port-evidence`.
+The comparison in `jar-material-guards-75297fd-comparison.json` documents
+137 restored guards in 48 recipes, with no ingredient or output changes.
+Earlier runs with Power `75297fd` predate the new Base Metals migration pin.
+Integrated runs with Power `E192657C...` are provisional because of its loot regression.
+The earlier advancement failure is recorded in
 `D:/PowerAdvantage/_verification/base-1206-port-20261110/native1206-recipes-provisional-a.log`.
-
-- `build/port-evidence/exact-gradle-final.log`: exact-pin Gradle
-  checks, 102 JUnit tests, 11 isolated resource tests, artifact audit,
-  checksums and Eclipse configuration passed.
-- `build/port-evidence/exact-gametest-c.log`: 3 required Forge GameTests
-  passed for advancement discovery and recipe encoding, legacy drill battery
-  transfer and turret update packets. Earlier structure and offline-cache
-  failures are retained.
-- `build/port-evidence/packaged-exact-recipe-fix/receipt.json`: exact jar
-  passed the dedicated smoke, including live legacy inventory conversion,
-  sulfur loot, damage types and clean shutdown.
-- This is a local candidate, not manual-ready. Combined verification,
-  client visual acceptance and whole-world upgrade coverage are separate.
 
 - `build/port-evidence/static-first.json`: accepted-resource, registry and
   test inventory checks; all 58 recipe conversions checked.
