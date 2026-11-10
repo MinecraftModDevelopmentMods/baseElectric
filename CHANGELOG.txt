@@ -1,10 +1,10 @@
-baseElectric 2.2.13.120011 (Minecraft 1.20.1)
+baseElectric 2.2.13.120011 (Minecraft 1.20.1 / Forge)
 
 - Update to Forge 47.4.10 with Java 17.
 - Keep machine save data, the shared creative tab, and older Electric Advantage world mappings.
 - Keep the original ore tool levels, drops, machine block properties and drill track appearance on the new Forge APIs.
 
-baseElectric 2.2.12.119041 (Minecraft 1.19.4 local port)
+baseElectric 2.2.12.119041 (Minecraft 1.19.4 / Forge)
 
 - Target Forge 45.4.0, official mappings, Java 17 and ForgeGradle 7.
 - Register the same Electric content in the shared basePower creative tab.

@@ -34,10 +34,11 @@ public class BuildWorkflowContractTest {
         for (String workflow : new String[] {"ci.yml", "codeql-analysis.yml"}) {
             String source = new String(Files.readAllBytes(Paths.get(".github/workflows", workflow)), StandardCharsets.UTF_8);
             int policy = source.indexOf("git config --global core.autocrlf false");
+            int published = source.indexOf("bash .github/verify-published-pins.sh");
             int pins = source.indexOf("bash .github/scripts/forge47-dependencies.sh pins");
             int dependencyBuild = source.indexOf("bash .github/scripts/forge47-dependencies.sh build");
             assertTrue(policy > 0);
-            assertTrue(policy < pins);
+            assertTrue(policy < published && published < pins);
             for (String repository : new String[] {"OreSpawn", "BaseMetals", "basePower"}) {
                 assertTrue(pins < source.indexOf("repository: MinecraftModDevelopmentMods/" + repository));
             }
@@ -49,6 +50,9 @@ public class BuildWorkflowContractTest {
             assertTrue(source.contains("MAVENIZER: ${{ steps.dependencies.outputs.mavenizer }}"));
             assertTrue(source.contains("branches: [master-1.20.1"));
             assertFalse(source.contains("1.17.1"));
+            if (workflow.equals("ci.yml")) {
+                assertTrue(source.contains("POWER_PLAYER: ${{ steps.public-pins.outputs.power_player }}"));
+            }
         }
         String script = Files.readString(Paths.get(".github/scripts/forge47-dependencies.sh"));
         assertTrue(script.contains("$(value poweradvantage_pin_state)") && script.contains("'LOCAL_CHECKPOINT'"));

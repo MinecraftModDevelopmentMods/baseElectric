@@ -5,9 +5,12 @@ generation, storage, automation and defence to basePower. Its equipment appears
 in the shared basePower creative tab.
 
 This branch targets Minecraft **1.20.1** with Forge **47.4.10**, official mappings,
-ForgeGradle **7.0.34**, and Java **17**. The local candidate is **2.2.13.120011**.
+ForgeGradle **7.0.34**, and Java **17**. The version is **2.2.13.120011**.
 Registry names, machine save data, and legacy Electric Advantage migration
 mappings are unchanged.
+
+Back up your world and try the upgrade on a copy. Replace Electric Advantage
+and Power Advantage with baseElectric and basePower; do not install both sets.
 
 ## Building locally
 
@@ -18,6 +21,8 @@ Use an isolated Gradle user home for clean-room checks.
 
 Pass the following input paths to the Gradle wrapper. Each input is checked against
 the version and SHA-256 recorded in `gradle.properties`.
+Hosted release checks also require the merged basePower source and a matching
+public player download.
 
 ```text
 -PpowerAdvantageDeobfJar="/path/to/basePower-2.4.12.120011-deobf.jar"

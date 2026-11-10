@@ -23,6 +23,11 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Use canonical LF dependency inputs
         run: git config --global core.autocrlf false
+      - name: Verify merged dependency pins and public basePower bytes
+        id: public-pins
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/verify-published-pins.sh
       - name: Require coordinated 1.20.1 dependency pins
         id: pins
         run: bash .github/scripts/forge47-dependencies.sh pins
@@ -75,7 +80,7 @@ jobs:
         env:
           MAVENIZER: ${{ steps.dependencies.outputs.mavenizer }}
           POWER_DEV: ${{ steps.dependencies.outputs.power }}
-          POWER_PLAYER: ${{ steps.dependencies.outputs.power_player }}
+          POWER_PLAYER: ${{ steps.public-pins.outputs.power_player }}
           POWER_BOOTSTRAP: ${{ steps.dependencies.outputs.bootstrap }}
           POWER_AGENT: ${{ steps.dependencies.outputs.agent }}
           METALS_DEV: ${{ steps.dependencies.outputs.basemetals }}
