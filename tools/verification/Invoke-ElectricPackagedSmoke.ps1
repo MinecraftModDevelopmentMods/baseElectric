@@ -30,7 +30,7 @@ $target = "$($pins.minecraft_version)-$($pins.forge_version)"
 $forgeDir = "libraries/net/minecraftforge/forge/$target"
 $winArgs = "$forgeDir/win_args.txt"
 $receipt = [ordered]@{
-    status = 'FAIL'; scope = 'Packaged, loopback-only Forge 1.20.6 dedicated server smoke; no client or migration proof'
+    status = 'FAIL'; scope = 'Packaged Forge 1.20.6 dedicated server and legacy inventory probe; no client or whole-world upgrade proof'
     baseMetalsIncluded = !$WithoutBaseMetals
     seed = $seed; java = $javaPath; inputs = @(); checks = [ordered]@{}; exitCode = $null; error = $null
 }
@@ -89,6 +89,8 @@ try {
     Copy-Item -LiteralPath (Join-Path $seed 'libraries') -Destination $output -Recurse
     Copy-Item -LiteralPath (Join-Path $seed $shim) -Destination $output
     Copy-Item -LiteralPath $EulaFile -Destination (Join-Path $output 'eula.txt')
+    $config = (New-Item -ItemType Directory -Path (Join-Path $output 'config')).FullName
+    [IO.File]::WriteAllText((Join-Path $config 'fml.toml'), "versionCheck = false`n")
     $modDir = (New-Item -ItemType Directory -Path (Join-Path $output 'mods')).FullName
     $modInputs = @(
         @{ path = $ElectricJar; hash = $ElectricSha256; name = "baseElectric-$($pins.mod_version).jar" },

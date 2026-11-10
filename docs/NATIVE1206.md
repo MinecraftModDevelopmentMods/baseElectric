@@ -46,10 +46,11 @@ Metals API jar cannot be used to package or qualify Electric.
 - `build/port-evidence/native-api-unit-full-third.log`: all 102 worldless
   tests passed against the provisional Power API and shared-hook Base Metals.
   The Electric test fixture does not need Power's earlier unit agent.
-- `build/port-evidence/packaged-prepin-b/receipt.json`: real packaged Forge
-  dedicated server passed common setup, drill placement and battery component
-  readback, sulfur loot, both damage types, save and clean shutdown. This is a
-  provisional diagnostic with recorded jar hashes, not the exact-source gate.
+- `build/port-evidence/packaged-prepin-c/receipt.json`: real packaged Forge
+  dedicated server passed common setup, drill placement, live conversion of a
+  legacy battery entry, sulfur loot, both damage types, save and clean shutdown.
+  This is a provisional diagnostic with recorded jar hashes, not the
+  exact-source gate.
 - The exact-pin Gradle build and packaged Forge smoke are separate gates.
   Client and world upgrade acceptance remain separate as well.
 
