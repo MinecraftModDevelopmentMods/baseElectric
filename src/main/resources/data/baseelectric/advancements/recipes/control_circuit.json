@@ -52,24 +52,5 @@
     "recipes": [
       "baseelectric:control_circuit"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:microchips"
-        }
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:solder"
-        }
-      }
-    ]
   }
 }

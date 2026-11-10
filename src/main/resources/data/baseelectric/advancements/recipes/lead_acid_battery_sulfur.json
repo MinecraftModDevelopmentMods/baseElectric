@@ -63,31 +63,5 @@
     "recipes": [
       "baseelectric:lead_acid_battery_sulfur"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:ingots/lead"
-        }
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:plastic"
-        }
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:sulfur"
-        }
-      }
-    ]
   }
 }

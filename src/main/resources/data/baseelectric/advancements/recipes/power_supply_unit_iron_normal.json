@@ -50,35 +50,5 @@
     "recipes": [
       "baseelectric:power_supply_unit_iron_normal"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "baseelectric:recipe_mode",
-        "mode": "NORMAL"
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:circuit_boards"
-        }
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:ingots/iron"
-        }
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:wires"
-        }
-      }
-    ]
   }
 }

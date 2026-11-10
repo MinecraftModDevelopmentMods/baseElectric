@@ -15,8 +15,7 @@ fixture uses Java 25, and ForgeGradle's Slime Launcher tooling uses Java 8. Set
 `-Porg.gradle.java.installations.paths=<java21-home>,<java25-home>,<java8-home>`
 if Gradle cannot discover all three.
 
-Until the exact coordinated basePower checkpoint is pinned,
-the independent Forge/resource checks are available:
+The independent Forge/resource checks do not require sibling jars:
 
 ```text
 ./gradlew --offline nativeResourceChecks verifyRecipeTagGuards processResources
@@ -24,7 +23,7 @@ node tools/verify-native-port.js
 node tools/generate-recipe-unlocks.js --check
 ```
 
-After the pins are recorded, supply the matching files using:
+For the full local build, supply the files matching the pins in `gradle.properties`:
 
 ```text
 -PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.13.120061.jar
@@ -47,6 +46,11 @@ remain separate mods. The inherited Forge 47 hosted and ECJ scripts are
 historical; they do not qualify this local Forge 50 port.
 
 ## Verification
+
+Run `runGameTestServer` with the same pinned mod inputs, an existing accepted
+EULA passed as `-PelectricGameTestEula=<path>`, and a new directory passed as
+`-PelectricGameTestRunDirectory=build/port-evidence/<run>`. The test code and
+its structure are not in the production jar.
 
 Run the packaged smoke script only with the exact pinned jars, a matching Forge
 server seed and an already accepted EULA. It stages launcher files only and

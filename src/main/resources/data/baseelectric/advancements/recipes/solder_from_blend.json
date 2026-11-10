@@ -30,9 +30,5 @@
     "recipes": [
       "baseelectric:solder_from_blend"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": []
   }
 }

@@ -63,31 +63,5 @@
     "recipes": [
       "baseelectric:alkaline_battery"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:ingots/iron"
-        }
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:ingots/zinc"
-        }
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:plastic"
-        }
-      }
-    ]
   }
 }

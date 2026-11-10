@@ -23,19 +23,42 @@
 - Common machine definitions remain available on dedicated servers; render
   overrides and helpers with client signatures are stripped by Forge. The
   unshaded client shader uses the native 1.20.6 fog function.
-- Recipe stacks use `id`, Forge conditions are registered as codecs, and
-  generated recipe advancements use native item predicates and the same guards
-  as their recipes. Ordinary block loot table data is unchanged; the Forge
-  smoke runner now checks the 1.20.6 item stack representation.
+- Recipe stacks use `id` and Forge conditions are registered as codecs. Recipe
+  availability is conditional; generated advancements use native item
+  predicates but stay loaded across recipe-mode or provider changes. Ordinary
+  block loot table data is unchanged.
 
 ## Local evidence and gates
 
 The pinned OreSpawn input is `4.1.0.120061` at
 `4085315345ff043448b316d75e03f4b8da45402d`, with the native jar hash recorded in
 `gradle.properties`. Base Metals is pinned to its shared-hook checkpoint
-`3.1.2.120061` at `0c2cdd4d0e8c3bf2e5fa234d49e57960bbf80bde`. The exact
-coordinated basePower pin is required before packaging. A compile-only Base
-Metals API jar cannot be used to package or qualify Electric.
+`3.1.2.120061` at `0c2cdd4d0e8c3bf2e5fa234d49e57960bbf80bde`. The approved
+local basePower checkpoint is `2.4.13.120061` at
+`5fdbb2c2b2d9bbc760aca3919e5b5b648f4545e2`, with native jar SHA-256
+`E192657CC426BC8CD0E3809F6CBF53A135E5C49C6E34A8936DE2DD034D701A04`.
+The three supplied Power test-support hashes were also verified and recorded
+in `build/port-evidence/exact-inputs-5fdbb2c/input-hashes.json`. Electric uses
+its own worldless test fixture; those support files are not runtime inputs.
+
+The local Electric candidate is `build/libs/baseElectric-2.2.14.120061.jar`,
+SHA-256 `445418F7AEB046CCBE69D7397619A3674E4FAA8DFC59B7880C08D8BE3314E529`.
+It supersedes the first exact jar, whose conditioned advancements failed the
+combined discovery probe. The shared failure receipt remains in
+`D:/PowerAdvantage/_verification/base-1206-port-20261110/native1206-recipes-provisional-a.log`.
+
+- `build/port-evidence/exact-gradle-final.log`: exact-pin Gradle
+  checks, 102 JUnit tests, 11 isolated resource tests, artifact audit,
+  checksums and Eclipse configuration passed.
+- `build/port-evidence/exact-gametest-c.log`: 3 required Forge GameTests
+  passed for advancement discovery and recipe encoding, legacy drill battery
+  transfer and turret update packets. Earlier structure and offline-cache
+  failures are retained.
+- `build/port-evidence/packaged-exact-recipe-fix/receipt.json`: exact jar
+  passed the dedicated smoke, including live legacy inventory conversion,
+  sulfur loot, damage types and clean shutdown.
+- This is a local candidate, not manual-ready. Combined verification,
+  client visual acceptance and whole-world upgrade coverage are separate.
 
 - `build/port-evidence/static-first.json`: accepted-resource, registry and
   test inventory checks; all 58 recipe conversions checked.
@@ -51,8 +74,6 @@ Metals API jar cannot be used to package or qualify Electric.
   legacy battery entry, sulfur loot, both damage types, save and clean shutdown.
   This is a provisional diagnostic with recorded jar hashes, not the
   exact-source gate.
-- The exact-pin Gradle build and packaged Forge smoke are separate gates.
-  Client and world upgrade acceptance remain separate as well.
 
 For the packaged smoke, use the pinned installer and an existing installed
 Forge 50.2.0 Windows server seed (for example, the IronAgeFurniture

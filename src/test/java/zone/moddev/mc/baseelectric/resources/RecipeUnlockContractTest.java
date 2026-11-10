@@ -113,10 +113,11 @@ public class RecipeUnlockContractTest {
             JsonObject criterion = unlock.getAsJsonObject("criteria").getAsJsonObject("has_recipe");
             assertEquals("minecraft:recipe_unlocked", criterion.get("trigger").getAsString());
             assertEquals(id, criterion.getAsJsonObject("conditions").get("recipe").getAsString());
-            JsonObject recipe = read(DATA.resolve("recipes").resolve(file.getFileName()));
-            assertEquals(recipe.get("forge:condition"), unlock.get("forge:condition"));
+            assertFalse("Recipe availability must not remove the unlock: " + id, unlock.has("forge:condition"));
             assertFalse(unlock.has("conditions"));
         }
+        assertTrue("The material-gated control must remain conditional",
+                read(DATA.resolve("recipes/alkaline_battery.json")).has("forge:condition"));
     }
 
     @Test public void recipeBookGroupsIdentifyTheOutputNotABroadMachineCategory() throws IOException {

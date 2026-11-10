@@ -39,28 +39,5 @@
     "recipes": [
       "baseelectric:blank_circuit_board_ingot_normal"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "baseelectric:recipe_mode",
-        "mode": "NORMAL"
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:ingots/copper"
-        }
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:plastic"
-        }
-      }
-    ]
   }
 }

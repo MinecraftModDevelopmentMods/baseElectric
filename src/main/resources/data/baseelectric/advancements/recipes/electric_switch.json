@@ -52,24 +52,5 @@
     "recipes": [
       "baseelectric:electric_switch"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:frames/steel"
-        }
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:wires"
-        }
-      }
-    ]
   }
 }

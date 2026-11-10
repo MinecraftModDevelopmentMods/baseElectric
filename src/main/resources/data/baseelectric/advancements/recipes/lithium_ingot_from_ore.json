@@ -30,9 +30,5 @@
     "recipes": [
       "baseelectric:lithium_ingot_from_ore"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": []
   }
 }

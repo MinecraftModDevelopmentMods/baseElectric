@@ -28,12 +28,5 @@
     "recipes": [
       "baseelectric:lithium_nuggets"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:not",
-    "value": {
-      "type": "forge:tag_empty",
-      "tag": "forge:ingots/lithium"
-    }
   }
 }

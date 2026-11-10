@@ -39,24 +39,5 @@
     "recipes": [
       "baseelectric:blank_circuit_board_plate"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:plastic"
-        }
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:plates/copper"
-        }
-      }
-    ]
   }
 }

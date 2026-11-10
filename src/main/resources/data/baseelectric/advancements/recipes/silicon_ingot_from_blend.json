@@ -30,9 +30,5 @@
     "recipes": [
       "baseelectric:silicon_ingot_from_blend"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": []
   }
 }

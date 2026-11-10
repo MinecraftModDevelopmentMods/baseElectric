@@ -75,7 +75,9 @@ check('Unrelated shipped resources and fixtures retain accepted 1.20.1 bytes', (
         .filter(entry => entry.isFile()).map(entry => path.relative(root, path.join(entry.parentPath, entry.name))
             .split(path.sep).join('/')).sort();
     assert.deepEqual(actual, [...tracked, javaRoot.replace('main', 'test') + 'items/BatteryComponentTest.java',
-        javaRoot.replace('main', 'test') + 'items/LegacyBatteryDataTest.java'].sort(),
+        javaRoot.replace('main', 'test') + 'items/LegacyBatteryDataTest.java',
+        javaRoot.replace('main', 'gametest') + 'gametest/ElectricGameTests.java',
+        'src/gametest/resources/gameteststructures/empty.snbt'].sort(),
         'Source and resource inventory');
 });
 

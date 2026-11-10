@@ -39,7 +39,7 @@ for (const file of fs.readdirSync(recipes).filter(name => name.endsWith('.json')
     parent: 'minecraft:recipes/root', criteria,
     requirements: [Object.keys(criteria)], rewards: {recipes: [id]}
   };
-  if (recipe['forge:condition']) advancement['forge:condition'] = recipe['forge:condition'];
+  // Discovery survives recipe-mode and optional-provider changes.
   const text = JSON.stringify(advancement, null, 2) + '\n';
   const target = path.join(output, file);
   expected.add(file);

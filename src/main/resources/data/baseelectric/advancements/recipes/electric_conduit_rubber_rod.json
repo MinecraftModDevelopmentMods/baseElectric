@@ -39,24 +39,5 @@
     "recipes": [
       "baseelectric:electric_conduit_rubber_rod"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:rods/copper"
-        }
-      },
-      {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:rubber"
-        }
-      }
-    ]
   }
 }

@@ -121,7 +121,24 @@ def normalizeArchiveLineEndings = { details ->
             eof: FixCrLfFilter.AddAsisRemove.newInstance('asis'))
 }
 
+def electricGameTestRunDirectory = layout.projectDirectory.dir(
+        providers.gradleProperty('electricGameTestRunDirectory').getOrElse('build/port-evidence/game-test-run'))
+sourceSets {
+    gameTestValidation {
+        java.srcDir 'src/gametest/java'
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+configurations {
+    gameTestValidationImplementation.extendsFrom implementation
+    gameTestValidationCompileOnly.extendsFrom compileOnly
+    gameTestValidationRuntimeOnly.extendsFrom runtimeOnly
+}
+def gameTestModOutput = layout.buildDirectory.dir('forge-run-mod-classes/gametest')
+
 minecraft {
+    if (gradle.startParameter.offline) mavenizerArguments.add('--cache-only')
     mappings channel: project.mapping_channel, version: project.mapping_version
     String configuredRunDirectory = providers.gradleProperty('electricAdvantageRunDirectory')
             .getOrElse('run')
@@ -140,6 +157,12 @@ minecraft {
         register('client')
         register('server') {
             args '--nogui'
+        }
+        register('gameTestServer') {
+            workingDir.set(electricGameTestRunDirectory)
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+            mods { baseelectric { source sourceSets.gameTestValidation } }
+            environment 'MOD_CLASSES', "${mod_id}%%${gameTestModOutput.get().asFile}"
         }
         register('data') {
             workingDir.convention layout.projectDirectory.dir('run-data')
@@ -162,9 +185,52 @@ def prepareForgeRunModClasses = tasks.register('prepareForgeRunModClasses', Sync
     from sourceSets.main.output
     into forgeRunModClassesDirectory
 }
+def gameTestStructures = layout.buildDirectory.dir('generated-electric-gametest')
+def emptyGameTestStructure = layout.projectDirectory.file('src/gametest/resources/gameteststructures/empty.snbt')
+def encodeElectricGameTestStructure = tasks.register('encodeElectricGameTestStructure', JavaExec) {
+    dependsOn tasks.named('gameTestValidationClasses')
+    classpath = sourceSets.gameTestValidation.runtimeClasspath
+    mainClass = 'zone.moddev.mc.baseelectric.gametest.ElectricGameTests'
+    def structure = gameTestStructures.map { it.file('data/baseelectric/structures/empty.nbt') }
+    inputs.file(emptyGameTestStructure)
+    outputs.file(structure)
+    args emptyGameTestStructure.asFile.absolutePath, structure.get().asFile.absolutePath
+}
+def prepareElectricGameTestMod = tasks.register('prepareElectricGameTestMod', Sync) {
+    dependsOn tasks.named('classes'), encodeElectricGameTestStructure
+    from sourceSets.main.output, sourceSets.gameTestValidation.output
+    from gameTestStructures
+    into gameTestModOutput
+}
+def prepareElectricGameTestFixture = tasks.register('prepareElectricGameTestFixture') {
+    doLast {
+        File directory = electricGameTestRunDirectory.asFile.canonicalFile
+        if (!directory.toPath().startsWith(layout.buildDirectory.dir('port-evidence').get().asFile.canonicalFile.toPath())
+                || directory.exists()) {
+            throw new GradleException('Use a new GameTest run directory inside build/port-evidence.')
+        }
+        String eulaPath = providers.gradleProperty('electricGameTestEula').getOrElse('')
+        if (!eulaPath || !file(eulaPath).isFile() || !(file(eulaPath).text =~ /(?m)^eula=true\s*$/).find()) {
+            throw new GradleException('Pass an existing accepted EULA with -PelectricGameTestEula=<path>.')
+        }
+        if (!directory.mkdirs()) throw new GradleException("Cannot create GameTest directory ${directory}")
+        new File(directory, 'eula.txt').text = 'eula=true\n'
+        new File(directory, 'server.properties').text = 'online-mode=false\nserver-ip=127.0.0.1\nserver-port=0\n'
+        File config = new File(directory, 'config')
+        config.mkdirs()
+        new File(config, 'fml.toml').text = 'versionCheck = false\n'
+    }
+}
 tasks.withType(JavaExec).configureEach {
     if (name in ['runClient', 'runServer', 'runData']) {
         dependsOn prepareForgeRunModClasses
+    }
+    if (name == 'runGameTestServer') {
+        dependsOn prepareElectricGameTestMod, prepareElectricGameTestFixture
+        doFirst {
+            Set<File> splitOutputs = sourceSets.collectMany { it.output.files }.collect { it.canonicalFile } as Set
+            classpath = files(gameTestModOutput, classpath.files.findAll { !splitOutputs.contains(it.canonicalFile) })
+        }
     }
 }
 
@@ -638,7 +704,8 @@ tasks.register('verifyReleaseArtifacts') {
                     throw new GradleException("Release jar is missing ${required}")
                 }
             }
-            ['agent-notes/', '.codex/', 'src/test/', 'fernflower_abstract_parameter_names.txt',
+            ['agent-notes/', '.codex/', 'src/test/', 'zone/moddev/mc/baseelectric/gametest/',
+             'data/baseelectric/structures/empty.nbt', 'fernflower_abstract_parameter_names.txt',
               'cyano/poweradvantage/',
               'zone/moddev/mc/basepower/', 'zone/moddev/mc/poweradvantage/', 'zone/moddev/mc/electricadvantage/',
               'assets/electricadvantage/', 'data/electricadvantage/',
@@ -1209,18 +1276,26 @@ tasks.register('verifyEclipseProductionClasspath') {
             String vmArguments = launch.stringAttribute.find {
                 it.@key.text() == 'org.eclipse.jdt.launching.VM_ARGUMENTS'
             }.@value.text()
-            def legacyFile = vmArguments =~ /(?:^|\s)"-DlegacyClassPath\.file=([^"]+)"(?=\s|$)/
-            if (!legacyFile.find() || !file(legacyFile.group(1)).isFile()
-                    || !(vmArguments =~ /(?:^|\s)-p\s+"[^"]+"/).find()) {
-                throw new GradleException("${name} must quote the Forge classpath and module paths")
-            }
+            String mainType = launch.stringAttribute.find {
+                it.@key.text() == 'org.eclipse.jdt.launching.MAIN_TYPE'
+            }.@value.text()
+            String target = name == 'runClient.launch' ? 'forge_userdev_client' : 'forge_userdev_server'
             if (contents.contains('${MC_VERSION}')
-                    || !programArguments.contains('--main cpw.mods.bootstraplauncher.BootstrapLauncher')
-                    || !programArguments.contains("--fml.mcVersion ${project.minecraft_version}")
-                    || !programArguments.contains("--fml.forgeVersion ${project.forge_version}")
-                    || !programArguments.contains("--fml.mcpVersion ${project.mcp_version}")
+                    || mainType != 'net.minecraftforge.launcher.Main'
+                    || !programArguments.startsWith('--main net.minecraftforge.bootstrap.ForgeBootstrap ')
+                    || !programArguments.contains(" -- --launchTarget ${target} ")
                     || !vmArguments.contains('--add-opens java.base/java.lang.invoke=ALL-UNNAMED')) {
-                throw new GradleException("${name} does not define the native Forge 47 bootstrap and literal target versions")
+                throw new GradleException("${name} does not define the Forge 50 bootstrap and native launch target")
+            }
+            ['--cache', '--metadata', '--to-srg', '--to-obf'].each { option ->
+                def argument = programArguments =~ /(?:^|\s)${option}\s+(?:"([^"]+)"|([^"\s]+))(?=\s+--|$)/
+                if (!argument.find()) {
+                    throw new GradleException("${name} must keep ${option} as one Slime Launcher argument")
+                }
+                File path = file(argument.group(1) ?: argument.group(2))
+                if (option != '--cache' && !path.isFile()) {
+                    throw new GradleException("${name} ${option} points to a missing file: ${path}")
+                }
             }
         }
     }
