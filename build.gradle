@@ -1482,10 +1482,14 @@ tasks.register('verifyRecipeTagGuards') {
             if (conditions.any { !(it instanceof Map) }) {
                 throw new GradleException("${recipeFile.path} contains a non-object recipe condition")
             }
+            if (conditions.any { it.type == 'forge:tag_empty'
+                    || (it.type == 'forge:not' && it.value?.type == 'forge:tag_empty') }) {
+                throw new GradleException("${recipeFile.path} must use Power's content-aware tag conditions")
+            }
             Set<String> guards = conditions
-                    .findAll { it.type == 'forge:not' && it.value?.type == 'forge:tag_empty' }
-                    .collect { it.value.tag as String } as Set<String>
-            Set<String> emptyGuards = conditions.findAll { it.type == 'forge:tag_empty' }
+                    .findAll { it.type == 'basepower:tag_not_empty' }
+                    .collect { it.tag as String } as Set<String>
+            Set<String> emptyGuards = conditions.findAll { it.type == 'basepower:tag_empty' }
                     .collect { it.tag as String } as Set<String>
             if (!(emptyGuards.intersect(guards)).isEmpty()) {
                 throw new GradleException("${recipeFile.path} requires the same tag to be empty and nonempty")

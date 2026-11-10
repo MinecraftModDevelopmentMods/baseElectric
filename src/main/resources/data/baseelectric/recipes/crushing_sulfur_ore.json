@@ -15,11 +15,8 @@
         "modid": "basemetals"
       },
       {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:ores/sulfur"
-        }
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:ores/sulfur"
       }
     ]
   }

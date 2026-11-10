@@ -20,18 +20,12 @@
     "type": "forge:and",
     "values": [
       {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:dusts/silver"
-        }
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:dusts/silver"
       },
       {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:dusts/tin"
-        }
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:dusts/tin"
       }
     ]
   }

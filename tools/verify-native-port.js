@@ -123,8 +123,7 @@ check('Recipe results and guards retain their meaning under Forge 50 codecs', ()
             expected.result = {id: item, ...other};
         }
         if (expected.conditions) {
-            const conditions = expected.conditions.map(condition => condition.type === 'basepower:tag_not_empty'
-                ? {type:'forge:not', value:{type:'forge:tag_empty', tag:condition.tag}} : condition);
+            const conditions = expected.conditions;
             delete expected.conditions;
             expected['forge:condition'] = conditions.length === 1 ? conditions[0]
                 : {type:'forge:and', values:conditions};

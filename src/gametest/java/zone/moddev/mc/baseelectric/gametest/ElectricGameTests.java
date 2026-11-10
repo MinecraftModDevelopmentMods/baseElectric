@@ -14,6 +14,7 @@ import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.gametest.GameTestDontPrefix;
@@ -100,6 +101,28 @@ public final class ElectricGameTests {
         }
         helper.assertTrue(checked > 0, "No Electric recipes were present for the network check");
         helper.succeed();
+    }
+
+    @GameTest(batch = ElectricAdvantage.MODID, template = "empty")
+    public static void siliconAndSolderResolveRealMaterialTags(GameTestHelper helper) {
+        assertLoadedRecipe(helper, "silicon_blend", Items.silicon_blend, 1);
+        assertLoadedRecipe(helper, "silicon_ingot_from_blend", Items.silicon_ingot, 1);
+        assertLoadedRecipe(helper, "solder_blend_tin_lead", Items.solder_blend, 3);
+        assertLoadedRecipe(helper, "solder_blend_tin_silver", Items.solder_blend, 3);
+        assertLoadedRecipe(helper, "solder_from_blend", Items.solder, 1);
+        helper.succeed();
+    }
+
+    private static void assertLoadedRecipe(GameTestHelper helper, String path, Item item, int count) {
+        var id = ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, path);
+        var level = helper.getLevel();
+        var holder = level.getRecipeManager().byKey(id);
+        helper.assertTrue(holder.isPresent(), "Recipe was gated despite valid materials: " + id);
+        var recipe = holder.orElseThrow().value();
+        helper.assertTrue(recipe.getIngredients().stream().allMatch(ingredient -> ingredient.getItems().length > 0),
+                "Recipe loaded with an empty ingredient: " + id);
+        helper.assertTrue(ItemStack.matches(new ItemStack(item, count), recipe.getResultItem(level.registryAccess())),
+                "Unexpected output for " + id);
     }
 
     @GameTest(batch = ElectricAdvantage.MODID, template = "empty")

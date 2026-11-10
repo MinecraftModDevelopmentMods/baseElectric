@@ -27,25 +27,16 @@
     "type": "forge:and",
     "values": [
       {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:dusts/sulfur"
-        }
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:dusts/sulfur"
       },
       {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:ingots/lead"
-        }
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:ingots/lead"
       },
       {
-        "type": "forge:not",
-        "value": {
-          "type": "forge:tag_empty",
-          "tag": "forge:plastic"
-        }
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:plastic"
       }
     ]
   }

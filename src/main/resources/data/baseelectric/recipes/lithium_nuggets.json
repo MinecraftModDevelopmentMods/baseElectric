@@ -11,10 +11,7 @@
   },
   "group": "baseelectric:li_nugget",
   "forge:condition": {
-    "type": "forge:not",
-    "value": {
-      "type": "forge:tag_empty",
-      "tag": "forge:ingots/lithium"
-    }
+    "type": "basepower:tag_not_empty",
+    "tag": "forge:ingots/lithium"
   }
 }
