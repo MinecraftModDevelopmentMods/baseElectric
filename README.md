@@ -4,64 +4,63 @@ baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower. Its equipment appears
 in the shared basePower creative tab.
 
-This branch targets Minecraft **1.20.1** with Forge **47.4.10**, official mappings,
-ForgeGradle **7.0.34**, and Java **17**. The version is **2.2.13.120011**.
-Registry names, machine save data, and legacy Electric Advantage migration
-mappings are unchanged.
+This version targets Minecraft **1.20.6**, Forge **50.2.0**, official mappings,
+ForgeGradle **7.0.34**, and Java **21**. The version is **2.2.14.120061**.
+Install [basePower 2.4.13.120061](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9545972)
+for Minecraft 1.20.6. CurseForge also installs
+[Base Metals](https://www.curseforge.com/minecraft/mc-mods/base-metals); this
+build was tested with 3.1.2.120061 and OreSpawn 4.1.0.120061.
+See the [1.20.6 notes](docs/NATIVE1206.md) for save compatibility and test coverage.
 
 Back up your world and try the upgrade on a copy. Replace Electric Advantage
 and Power Advantage with baseElectric and basePower; do not install both sets.
 
 ## Building locally
 
-Use Java 17 for Gradle, the game and Eclipse Buildship. ForgeGradle uses Java 25
-for Mavenizer and Java 8 for its Slime Launcher tooling. If necessary, supply
-`-Porg.gradle.java.installations.paths=<java17-home>,<java25-home>,<java8-home>`.
-Use an isolated Gradle user home for clean-room checks.
+Use Temurin 21.0.7+6 for Gradle and Minecraft. The pinned OreSpawn Mavenizer
+fixture uses Java 25, and ForgeGradle's Slime Launcher tooling uses Java 8. Set
+`-Porg.gradle.java.installations.paths=<java21-home>,<java25-home>,<java8-home>`
+if Gradle cannot discover all three.
 
-Pass the following input paths to the Gradle wrapper. Each input is checked against
-the version and SHA-256 recorded in `gradle.properties`.
-Hosted release checks also require the merged basePower source and a matching
-public player download.
+The independent Forge/resource checks do not require sibling jars:
 
 ```text
--PpowerAdvantageDeobfJar="/path/to/basePower-2.4.12.120011-deobf.jar"
--PpowerAdvantageRuntimeJar="/path/to/basePower-2.4.12.120011.jar"
--PpowerAdvantageUnitBootstrapSource="/path/to/ForgeCapabilityBootstrap.java"
--PpowerAdvantageUnitBootstrapJar="/path/to/forge-native-unit-bootstrap.jar"
--PbaseMetalsDeobfJar="/path/to/BaseMetals-3.1.2.120011-deobf.jar"
--PbaseMetalsRuntimeJar="/path/to/BaseMetals-3.1.2.120011.jar"
--PforgeInstallerJar="/path/to/forge-1.20.1-47.4.10-installer.jar"
-```
-
-By default the OreSpawn development and player jars, and its audited Forge 47
-Mavenizer fixture, come from the sibling `MinecraftMineralogy/OS1201/OreSpawn`
-checkout. Use `-PoreSpawnDeobfJar`, `-PoreSpawnRuntimeJar` and
-`-Pforge47MavenizerJar` to point to the exact same inputs in another layout.
-For a prepared offline cache, use `--offline` and
-`ORESPAWN_MAVENIZER_OFFLINE=true`.
-
-```text
-./gradlew clean check build javadoc verifyLocalRuntimeInputs writeReleaseChecksums verifyEclipseProductionClasspath --no-build-cache
+./gradlew --offline nativeResourceChecks verifyRecipeTagGuards processResources
 node tools/verify-native-port.js
 node tools/generate-recipe-unlocks.js --check
 ```
 
-Use `gradlew.bat` on Windows. The player, sources and Javadoc jars go to
-`build/libs`; the deobfuscated jar goes to `build/libs-dev`. The test agent is
-used only by the unit tests. basePower, Base Metals and OreSpawn remain separate
-mods. Base Metals is optional in Forge metadata and remains required on
-CurseForge.
+For the full local build, supply the files matching the pins in `gradle.properties`:
 
-## Eclipse and testing
+```text
+-PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.13.120061.jar
+-PbaseMetalsRuntimeJar=/path/to/BaseMetals-3.1.2.120061.jar
+-PforgeInstallerJar=/path/to/forge-1.20.6-50.2.0-installer.jar
+```
 
-Import this checkout as an existing Gradle project named `ElectricAdvantage`.
-Use the generated `runClient.launch` or `runServer.launch` after
-`verifyEclipseProductionClasspath`. The build checks package paths against
-Gradle and Eclipse source roots and keeps test classes out of production runs.
-`tools/verification/Verify-ElectricEcj.ps1` independently compiles and runs the
-test inventory using Eclipse's compiler.
+Forge 50 uses the ordinary native jar for both play and development. The former
+`*DeobfJar` path flags remain aliases for the same bytes. OreSpawn and the
+Mavenizer fixture default to the sibling `MinecraftMineralogy/OS1206/OreSpawn`
+checkout. Use `-PoreSpawnRuntimeJar` and `-Pforge50MavenizerJar` to override paths.
+For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
 
-The [1.19.4 notes](docs/NATIVE119.md) and [1.18.2 notes](docs/NATIVE118.md) are
-historical. To check a world upgrade, test only a disposable copy. A build and
-resource audit do not substitute for a migration, gameplay or client check.
+```text
+./gradlew check build javadoc verifyLocalRuntimeInputs writeReleaseChecksums verifyEclipseProductionClasspath --no-build-cache
+```
+
+Use `gradlew.bat` on Windows. Output jars go to `build/libs`. Dependencies
+remain separate mods. The 1.20.6 CI jobs check against the pinned Forge 50
+runtime and public dependencies.
+
+## Verification
+
+Run `runGameTestServer` with the same pinned mod inputs, an existing accepted
+EULA passed as `-PelectricGameTestEula=<path>`, and a new directory passed as
+`-PelectricGameTestRunDirectory=build/port-evidence/<run>`. The test code and
+its structure are not in the production jar.
+
+Run the packaged smoke script only with the exact pinned jars, a matching Forge
+server seed and an already accepted EULA. It stages launcher files only and
+creates a fresh loopback-only world under `build/port-evidence`. For an upgrade,
+use a separate disposable copy of a world. Neither a build nor this smoke
+substitutes for manual gameplay or client verification.

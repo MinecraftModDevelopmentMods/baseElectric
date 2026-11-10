@@ -6,28 +6,55 @@ value() { sed -n "s/^$1=//p" gradle.properties | tr -d '\r'; }
 require_merged() {
     local repo="$1" ref="$2" status
     [[ "$ref" =~ ^[a-f0-9]{40}$ ]]
-    status="$(gh api "repos/MinecraftModDevelopmentMods/$repo/compare/$ref...master-1.20.1" --jq '.status')"
+    status="$(gh api "repos/MinecraftModDevelopmentMods/$repo/compare/$ref...master-1.20.6" --jq '.status')"
     case "$status" in
         identical|ahead) ;;
-        *) echo "::error::$repo $ref is not on upstream master-1.20.1 ($status)."; exit 1 ;;
+        *) echo "::error::$repo $ref is not on upstream master-1.20.6 ($status)."; exit 1 ;;
     esac
 }
 
-file_id="$(value poweradvantage_public_file_id)"
-expected="$(value poweradvantage_runtime_sha256)"
-if [[ ! "$file_id" =~ ^[1-9][0-9]*$ || ! "$expected" =~ ^[A-F0-9]{64}$ ]]; then
-    echo '::error::A verified public basePower 1.20.1 file ID and player checksum are required.'
-    exit 1
-fi
-require_merged basePower "$(value poweradvantage_source_ref)"
-require_merged BaseMetals "$(value basemetals_source_commit)"
+download() {
+    local url="$1" expected="$2" path="$3"
+    [[ "$expected" =~ ^[A-F0-9]{64}$ ]]
+    curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+        --retry 3 --output "$path" "$url"
+    printf '%s  %s\n' "$expected" "$path" | sha256sum -c -
+}
 
-player="${RUNNER_TEMP:?}/basePower-public-player.jar"
-curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
-    --output "$player" "https://www.curseforge.com/api/v1/mods/1780140/files/$file_id/download"
-read -r actual _ < <(sha256sum < "$player")
-if [[ "${actual^^}" != "$expected" ]]; then
-    echo "::error::Public basePower file $file_id SHA-256 is ${actual^^}, expected $expected."
-    exit 1
-fi
-printf 'power_player=%s\n' "$player" >> "${GITHUB_OUTPUT:?}"
+public_jar() {
+    local name="$1" project="$2" id="$3" sha="$4" jar="$5"
+    if [[ ! "$id" =~ ^[1-9][0-9]*$ ]]; then
+        echo "::error::A verified public $name file ID is required."
+        exit 1
+    fi
+    download "https://www.curseforge.com/api/v1/mods/$project/files/$id/download" "$sha" "$jar"
+}
+
+power_ref="$(value poweradvantage_source_ref)"
+orespawn_ref="$(value orespawn_source_commit)"
+require_merged basePower "$power_ref"
+require_merged BaseMetals "$(value basemetals_source_commit)"
+require_merged OreSpawn "$orespawn_ref"
+
+inputs="${RUNNER_TEMP:?}/forge50-release-dependencies"
+mkdir -p "$inputs"
+power="$inputs/basePower-$(value poweradvantage_version).jar"
+metals="$inputs/BaseMetals-$(value basemetals_version).jar"
+orespawn="$inputs/OreSpawn-$(value orespawn_version).jar"
+public_jar basePower 1780140 "$(value poweradvantage_public_file_id)" "$(value poweradvantage_deobf_sha256)" "$power"
+public_jar BaseMetals 240967 "$(value basemetals_public_file_id)" "$(value basemetals_deobf_sha256)" "$metals"
+public_jar OreSpawn 245586 "$(value orespawn_public_file_id)" "$(value orespawn_deobf_sha256)" "$orespawn"
+
+installer="$inputs/forge-1.20.6-50.2.0-installer.jar"
+download 'https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.6-50.2.0/forge-1.20.6-50.2.0-installer.jar' \
+    "$(value forge_installer_sha256)" "$installer"
+{
+    printf 'power_ref=%s\n' "$power_ref"
+    printf 'orespawn_ref=%s\n' "$orespawn_ref"
+} >> "${GITHUB_OUTPUT:?}"
+{
+    printf 'POWER_PLAYER=%s\n' "$power"
+    printf 'METALS_PLAYER=%s\n' "$metals"
+    printf 'ORESPAWN_PLAYER=%s\n' "$orespawn"
+    printf 'FORGE_INSTALLER=%s\n' "$installer"
+} >> "${GITHUB_ENV:?}"

@@ -2,7 +2,7 @@ package zone.moddev.mc.baseelectric.machines;
 
 import zone.moddev.mc.baseelectric.init.Power;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.Item;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
@@ -51,8 +51,7 @@ public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 	
 	public static boolean isFoodItem(ItemStack item){
 		if(item == null) return false;
-		Item i = item.getItem();
-		return !item.isEmpty() && i.isEdible();
+		return !item.isEmpty() && item.has(DataComponents.FOOD);
 	}
 	
 	public boolean becomesFoodItem(ItemStack item){

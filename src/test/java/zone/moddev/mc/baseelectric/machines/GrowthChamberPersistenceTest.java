@@ -13,8 +13,8 @@ public class GrowthChamberPersistenceTest {
         source.putIntArray("prog", new int[] {245, 468, 627});
         for (int pass = 0; pass < 3; pass++) {
             GrowthChamberTileEntity chamber = new GrowthChamberTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.GrowthChamberBlock().defaultBlockState());
-            chamber.load(source);
-            CompoundTag saved = chamber.saveWithoutMetadata();
+            chamber.loadWithComponents(source, NativeTestBootstrap.registries());
+            CompoundTag saved = chamber.saveWithoutMetadata(NativeTestBootstrap.registries());
             assertArrayEquals(new byte[] {2, 4, 6}, saved.getByteArray("growth"));
             assertArrayEquals(new int[] {245, 468, 627}, saved.getIntArray("prog"));
             source = saved;

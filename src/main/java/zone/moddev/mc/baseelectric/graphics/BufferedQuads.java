@@ -53,7 +53,7 @@ final class BufferedQuads {
             buffer.vertex(transform.pose(), vertex[0], vertex[1], vertex[2])
                     .color(255, 255, 255, 255).uv(vertex[3], vertex[4])
                     .overlayCoords(overlay).uv2(light)
-                    .normal(transform.normal(), nx, ny, nz).endVertex();
+                    .normal(transform, nx, ny, nz).endVertex();
         }
         count = 0;
     }

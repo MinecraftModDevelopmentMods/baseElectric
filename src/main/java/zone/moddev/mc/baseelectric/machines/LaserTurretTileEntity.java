@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.scores.Team;
@@ -25,6 +26,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
@@ -272,7 +274,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	
 
 	private void hurtVictim(Entity e){
-		e.setSecondsOnFire(BURN_TIME);
+		e.igniteForSeconds(BURN_TIME);
 		if(e instanceof LivingEntity){
 			((LivingEntity)e).hurt(Power.damageSource(getLevel(), Power.LASER_DAMAGE), ATTACK_DAMAGE);
 			BlockPos bp = e.blockPosition();
@@ -304,7 +306,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	private Vec3 followRayToSolidBlock(Vec3 origin, Vec3 dir, double maxRange){
 		Vec3 max = origin.add(maxRange * dir.x, maxRange * dir.y, maxRange * dir.z);
 		BlockHitResult impact = getLevel().clip(new ClipContext(origin, max,
-				ClipContext.Block.COLLIDER, ClipContext.Fluid.SOURCE_ONLY, null) {
+				ClipContext.Block.COLLIDER, ClipContext.Fluid.SOURCE_ONLY, CollisionContext.empty()) {
 			@Override public VoxelShape getBlockShape(BlockState state, BlockGetter world, BlockPos pos) {
 				// The optic is inside our collision post; ignore only this block, not nearby cover.
 				return pos.equals(LaserTurretTileEntity.this.getBlockPos()) ? Shapes.empty()
@@ -394,7 +396,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 		Vec3 offsetOrigin = getOpticPosition().add(e.position().subtract(getOpticPosition()).normalize());
 		BlockHitResult collision = getLevel().clip(new ClipContext(offsetOrigin,
 				e.position().add(0, e.getBbHeight()*0.5, 0), ClipContext.Block.COLLIDER,
-				ClipContext.Fluid.SOURCE_ONLY, null));
+				ClipContext.Fluid.SOURCE_ONLY, CollisionContext.empty()));
 		if(collision.getType() == HitResult.Type.BLOCK){
 			return false;
 		}
@@ -496,7 +498,8 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	 */
 	@Override 
 	public ClientboundBlockEntityDataPacket getUpdatePacket(){
-		return ClientboundBlockEntityDataPacket.create(this, tile -> {
+		if (getLevel() == null) return null;
+		return ClientboundBlockEntityDataPacket.create(this, (tile, registries) -> {
 			CompoundTag tag = new CompoundTag();
 			writeRenderSync(tag);
 			return tag;
@@ -504,15 +507,15 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	}
 
 	@Override
-	public CompoundTag getUpdateTag() {
-		CompoundTag nbtTag = super.getUpdateTag();
+	public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+		CompoundTag nbtTag = super.getUpdateTag(registries);
 		writeRenderSync(nbtTag);
 		return nbtTag;
 	}
 
 	@Override
-	public void handleUpdateTag(CompoundTag tag) {
-		load(tag);
+	public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+		super.handleUpdateTag(tag, registries);
 		readRenderSync(tag);
 	}
 
@@ -537,7 +540,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	 * Receives the network packet made by <code>getDescriptionPacket()</code>
 	 */
 	@Override
-	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
 		readRenderSync(packet.getTag());
 	}
 
@@ -654,6 +657,6 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	@OnlyIn(Dist.CLIENT)
 	public AABB getRenderBoundingBox()
 	{
-		return new AABB(getBlockPos().offset(-renderRange, -renderRange, -renderRange), getBlockPos().offset(renderRange, renderRange, renderRange));
+		return new AABB(getBlockPos()).inflate(renderRange);
 	}
 }

@@ -6,14 +6,12 @@
     }
   ],
   "result": {
-    "item": "baseelectric:li_nugget",
+    "id": "baseelectric:li_nugget",
     "count": 9
   },
   "group": "baseelectric:li_nugget",
-  "conditions": [
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:ingots/lithium"
-    }
-  ]
+  "forge:condition": {
+    "type": "basepower:tag_not_empty",
+    "tag": "forge:ingots/lithium"
+  }
 }

@@ -7,6 +7,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.core.Direction;
@@ -221,23 +222,23 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 		SimpleContainer inventory = new SimpleContainer(1);
 		inventory.setItem(0, input);
 		return getLevel().getRecipeManager().getRecipeFor(RecipeType.SMELTING, inventory, getLevel())
-				.map(recipe -> recipe.assemble(inventory, getLevel().registryAccess())).orElse(ItemStack.EMPTY);
+				.map(recipe -> recipe.value().assemble(inventory, getLevel().registryAccess())).orElse(ItemStack.EMPTY);
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag tagRoot){
-		super.saveAdditional(tagRoot);
+	protected void saveAdditional(CompoundTag tagRoot, HolderLookup.Provider registries){
+		super.saveAdditional(tagRoot, registries);
 		saveTo(tagRoot);
 	}
 
 	@Override
-	public CompoundTag getUpdateTag() {
-		return saveWithoutMetadata();
+	public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+		return saveWithoutMetadata(registries);
 	}
 
 	@Override
-	public void load(CompoundTag tagRoot){
-		super.load(tagRoot);
+	protected void loadAdditional(CompoundTag tagRoot, HolderLookup.Provider registries){
+		super.loadAdditional(tagRoot, registries);
 		loadFrom(tagRoot);
 	}
 

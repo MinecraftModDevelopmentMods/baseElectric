@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:glass_panes"
+            "items": "#forge:glass_panes"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:ingots/silicon"
+            "items": "#forge:ingots/silicon"
           }
         ]
       }
@@ -26,7 +26,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:wires"
+            "items": "#forge:wires"
           }
         ]
       }
@@ -36,7 +36,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:power_supply_units"
+            "items": "#forge:power_supply_units"
           }
         ]
       }

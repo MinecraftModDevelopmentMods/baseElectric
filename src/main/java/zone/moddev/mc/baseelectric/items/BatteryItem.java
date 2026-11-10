@@ -8,7 +8,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.Level;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.component.CustomData;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -28,30 +30,17 @@ public class BatteryItem extends net.minecraft.world.item.Item implements IRecha
 	
 	@Override
 	public float getEnergy(ItemStack stack) {
-		if(stack.getItem() instanceof IRechargeableItem){
-			BatteryItem battery = (BatteryItem)stack.getItem();
-			CompoundTag dataTag;
-			if(!stack.hasTag()){
-				return battery.capacity; // new battery starts with 100% charge
-			} else {
-				dataTag = stack.getTag();
-				if(dataTag.contains("energy", 99)){
-					return dataTag.getFloat("energy");
-				} else {
-					return battery.capacity; // new battery starts with 100% charge
-				}
-			}
-		} else {
-			return 0;
-		}
+		if (!(stack.getItem() instanceof BatteryItem battery)) return 0;
+		// Vanilla moves unknown 1.20.1 item tags to CUSTOM_DATA on world upgrade.
+		CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
+		if (!data.contains("energy")) return battery.capacity;
+		CompoundTag tag = data.copyTag();
+		return tag.contains("energy", Tag.TAG_ANY_NUMERIC) ? tag.getFloat("energy") : battery.capacity;
 	}
 	@Override
 	public void setEnergy(ItemStack stack, float energy){
 		if(stack.getItem() instanceof BatteryItem){
-			CompoundTag dataTag;
-			dataTag = stack.getOrCreateTag();
-			dataTag.putFloat("energy", energy);
-			stack.setTag(dataTag);
+			CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putFloat("energy", energy));
 		}
 	}
 	/**
@@ -64,17 +53,9 @@ public class BatteryItem extends net.minecraft.world.item.Item implements IRecha
 	public float addEnergy(ItemStack stack, float energy, ConduitType type){
 		if(ConduitType.areSameType(type, Power.ELECTRIC_POWER) && stack.getItem() instanceof BatteryItem){
 			BatteryItem battery = (BatteryItem)stack.getItem();
-			CompoundTag dataTag;
-			dataTag = stack.getOrCreateTag();
-			float currentEnergy;
-			if(dataTag.contains("energy", 99)){
-				currentEnergy = dataTag.getFloat("energy");
-			} else {
-				currentEnergy = battery.capacity;
-			}
+			float currentEnergy = getEnergy(stack);
 			float newEnergy = Math.max(0, Math.min(currentEnergy+energy, battery.capacity));
-			dataTag.putFloat("energy", newEnergy);
-			stack.setTag(dataTag);
+			setEnergy(stack, newEnergy);
 			return newEnergy - currentEnergy;
 		} else {
 			return 0;
@@ -93,8 +74,8 @@ public class BatteryItem extends net.minecraft.world.item.Item implements IRecha
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, Level world, List<Component> list, TooltipFlag flag){
-		super.appendHoverText(stack, world, list, flag);
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag){
+		super.appendHoverText(stack, context, list, flag);
 		float max = getMaxEnergy(stack);
 		if(max <= 0) return; // not a battery!
 		float e = getEnergy(stack);

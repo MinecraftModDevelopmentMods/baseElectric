@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:sand"
+            "items": "#forge:sand"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:dusts/carbon"
+            "items": "#forge:dusts/carbon"
           }
         ]
       }

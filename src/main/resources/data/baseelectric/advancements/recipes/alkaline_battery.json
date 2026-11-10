@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:ingots/iron"
+            "items": "#forge:ingots/iron"
           }
         ]
       }
@@ -28,7 +28,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:ingots/zinc"
+            "items": "#forge:ingots/zinc"
           }
         ]
       }
@@ -38,7 +38,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:plastic"
+            "items": "#forge:plastic"
           }
         ]
       }

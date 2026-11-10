@@ -30,7 +30,7 @@ $target = "$($pins.minecraft_version)-$($pins.forge_version)"
 $forgeDir = "libraries/net/minecraftforge/forge/$target"
 $winArgs = "$forgeDir/win_args.txt"
 $receipt = [ordered]@{
-    status = 'FAIL'; scope = 'Packaged, loopback-only Forge 1.20.1 dedicated server smoke; no client or migration proof'
+    status = 'FAIL'; scope = 'Packaged Forge 1.20.6 dedicated server and legacy inventory probe; no client or whole-world upgrade proof'
     baseMetalsIncluded = !$WithoutBaseMetals
     seed = $seed; java = $javaPath; inputs = @(); checks = [ordered]@{}; exitCode = $null; error = $null
 }
@@ -63,24 +63,23 @@ function Send-Command([string]$Command) {
 }
 
 try {
-    if ($target -cne '1.20.1-47.4.10' -or $pins.mod_version -cne '2.2.13.120011') {
-        throw 'This smoke runner is bound to baseElectric 2.2.13.120011 on Forge 47.4.10.'
+    if ($target -cne '1.20.6-50.2.0' -or $pins.mod_version -cne '2.2.14.120061') {
+        throw 'This smoke runner is bound to baseElectric 2.2.14.120061 on Forge 50.2.0.'
     }
     if ($pins.poweradvantage_pin_state -ne 'MERGED_SOURCE' -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
         throw 'Packaged smoke requires the exact source-pinned basePower player JAR.'
     }
     $receipt.powerSourceRef = $pins.poweradvantage_source_ref
     $javaRelease = Join-Path (Split-Path (Split-Path $javaPath)) 'release'
-    if ((Get-Content -LiteralPath $javaRelease -Raw) -notmatch 'JAVA_VERSION="17\.') {
-        throw 'The dedicated-server smoke requires Java 17.'
+    if ((Get-Content -LiteralPath $javaRelease -Raw) -notmatch 'JAVA_VERSION="21\.') {
+        throw 'The dedicated-server smoke requires Java 21.'
     }
     $receipt.javaRelease = (Get-FileHash -LiteralPath $javaRelease).Hash
     $receipt.javaSha256 = (Get-FileHash -LiteralPath $javaPath).Hash
     $argsText = Get-Content -LiteralPath (Join-Path $seed $winArgs) -Raw
-    foreach ($marker in @('--launchTarget forgeserver', "--fml.forgeVersion $($pins.forge_version)",
-            "--fml.mcVersion $($pins.minecraft_version)", "--fml.mcpVersion $($pins.mcp_version)")) {
-        if (!$argsText.Contains($marker)) { throw "Unexpected Forge seed arguments: missing $marker" }
-    }
+    $shim = "forge-$target-shim.jar"
+    if (!$argsText.Contains("-jar $shim")) { throw 'Unexpected Forge 50 server argument file.' }
+    $receipt.shimSha256 = (Get-FileHash -LiteralPath (Join-Path $seed $shim)).Hash
     $receipt.seedArgumentsSha256 = (Get-FileHash -LiteralPath (Join-Path $seed $winArgs)).Hash
     $forgeUniversal = Join-Path $seed "$forgeDir/forge-$target-universal.jar"
     $receipt.forgeUniversalSha256 = (Get-FileHash -LiteralPath $forgeUniversal).Hash
@@ -88,7 +87,10 @@ try {
         throw 'Pass the existing accepted EULA from the local smoke fixture.'
     }
     Copy-Item -LiteralPath (Join-Path $seed 'libraries') -Destination $output -Recurse
+    Copy-Item -LiteralPath (Join-Path $seed $shim) -Destination $output
     Copy-Item -LiteralPath $EulaFile -Destination (Join-Path $output 'eula.txt')
+    $config = (New-Item -ItemType Directory -Path (Join-Path $output 'config')).FullName
+    [IO.File]::WriteAllText((Join-Path $config 'fml.toml'), "versionCheck = false`n")
     $modDir = (New-Item -ItemType Directory -Path (Join-Path $output 'mods')).FullName
     $modInputs = @(
         @{ path = $ElectricJar; hash = $ElectricSha256; name = "baseElectric-$($pins.mod_version).jar" },
@@ -109,8 +111,8 @@ try {
         $receipt.inputs += [ordered]@{ path = $actual.Path; sha256 = $actual.Hash; copy = $copy }
     }
     [IO.File]::WriteAllLines((Join-Path $output 'server.properties'), @(
-        'server-ip=127.0.0.1', 'server-port=0', 'enable-rcon=false', 'enable-query=false',
-        'level-name=electric-smoke', 'level-seed=120011', 'generate-structures=false',
+        'server-ip=127.0.0.1', 'server-port=0', 'online-mode=false', 'enable-rcon=false', 'enable-query=false',
+        'level-name=electric-smoke', 'level-seed=120061', 'generate-structures=false',
         'view-distance=3', 'simulation-distance=3', 'spawn-protection=0'
     ))
     $start = [Diagnostics.ProcessStartInfo]::new($javaPath)
@@ -148,12 +150,30 @@ try {
             throw "Drill did not serialize the expected $key tag."
         }
     }
+    Send-Command 'item replace block 0 300 0 container.0 with baseelectric:lead_acid_battery[minecraft:custom_data={energy:0.0f,probe:"electric-smoke"}]'
+    $receipt.checks.drillBatterySlot = Wait-ForLine 'Replaced a slot at 0, 300, 0' 20
+    Send-Command 'data get block 0 300 0 Items'
+    $receipt.checks.drillBatteryData = Wait-ForLine 'block data:.*baseelectric:lead_acid_battery' 20
+    if ($receipt.checks.drillBatteryData -notmatch 'minecraft:custom_data' -or
+            $receipt.checks.drillBatteryData -notmatch 'energy:\s*0(?:\.0)?f' -or
+            $receipt.checks.drillBatteryData -notmatch 'electric-smoke') {
+        throw 'The live drill inventory did not retain the battery components.'
+    }
+    Send-Command 'data merge block 0 300 0 {Items:[{Slot:0b,id:"baseelectric:lead_acid_battery",Count:1b,tag:{energy:0.0f,probe:"legacy-inventory"}}]}'
+    $receipt.checks.legacyBatteryMerge = Wait-ForLine 'Modified block data of 0, 300, 0' 20
+    Send-Command 'data get block 0 300 0 Items'
+    $receipt.checks.legacyBatteryData = Wait-ForLine 'block data:.*baseelectric:lead_acid_battery' 20
+    if ($receipt.checks.legacyBatteryData -notmatch 'minecraft:custom_data' -or
+            $receipt.checks.legacyBatteryData -notmatch 'energy:\s*0(?:\.0)?f' -or
+            $receipt.checks.legacyBatteryData -notmatch 'legacy-inventory') {
+        throw 'The live drill did not upgrade its 1.20.1 battery inventory entry.'
+    }
     Send-Command 'setblock 1 300 0 baseelectric:sulfur_ore'
     $receipt.checks.placeSulfur = Wait-ForLine 'Changed the block at 1, 300, 0' 20
     Send-Command 'setblock 2 299 0 minecraft:stone'
     $receipt.checks.sulfurLanding = Wait-ForLine 'Changed the block at 2, 299, 0' 20
     Send-Command 'loot spawn 2 301 0 mine 1 300 0 minecraft:wooden_pickaxe'
-    $receipt.checks.sulfurLoot = Wait-ForLine 'Dropped [1-4] \[Powdered Sulfur\] from loot table baseelectric:blocks/sulfur_ore' 20
+    $receipt.checks.sulfurLoot = Wait-ForLine 'Dropped [1-4] \[(?:Powdered Sulfur|item\.baseelectric\.sulfur_powder)\] from loot table baseelectric:blocks/sulfur_ore' 20
     for ($attempt = 0; $attempt -lt 5; $attempt++) {
         Send-Command 'data get entity @e[type=minecraft:item,sort=nearest,limit=1,x=2,y=301,z=0,distance=..5] Item'
         $result = Wait-ForLine 'entity data:|No entity was found' 10
@@ -162,7 +182,7 @@ try {
     }
     $expectedCount = [regex]::Match($receipt.checks.sulfurLoot, 'Dropped ([1-4]) ').Groups[1].Value
     if (!$receipt.checks.Contains('sulfurItem') -or $receipt.checks.sulfurItem -notmatch 'baseelectric:sulfur_powder' -or
-            $receipt.checks.sulfurItem -notmatch "Count: ${expectedCount}b") {
+            ($expectedCount -ne '1' -and $receipt.checks.sulfurItem -notmatch "count:\s*${expectedCount}\b")) {
         throw 'No live sulfur item stack matched the sulfur loot response.'
     }
     foreach ($type in @('laser', 'propeller')) {

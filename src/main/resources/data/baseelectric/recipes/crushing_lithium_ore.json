@@ -4,17 +4,20 @@
     "tag": "forge:ores/lithium"
   },
   "result": {
-    "item": "baseelectric:li_powder",
+    "id": "baseelectric:li_powder",
     "count": 2
   },
-  "conditions": [
-    {
-      "type": "forge:mod_loaded",
-      "modid": "basemetals"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:ores/lithium"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:mod_loaded",
+        "modid": "basemetals"
+      },
+      {
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:ores/lithium"
+      }
+    ]
+  }
 }

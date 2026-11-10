@@ -124,14 +124,14 @@ public class ElectricOperationalSoundBroadcastTest {
 
     private static final class StubPlayer extends ServerPlayer {
         boolean spectator;
-        private StubPlayer() { super(null, null, null); }
+        private StubPlayer() { super(null, null, null, null); }
         @Override public boolean isSpectator() { return spectator; }
     }
 
     private static final class RecordingConnection extends ServerGamePacketListenerImpl {
         int sent;
         Packet<?> last;
-        private RecordingConnection() { super(null, null, null); }
+        private RecordingConnection() { super(null, null, null, null); }
         @Override public void send(Packet<?> packet) { sent++; last = packet; }
     }
 }

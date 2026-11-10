@@ -23,7 +23,8 @@ public class ShaderResourceContractTest {
         assertNotNull(getClass().getResource("/assets/minecraft/shaders/core/rendertype_entity_translucent.fsh"));
         var uniformNames = java.util.stream.StreamSupport.stream(json.getAsJsonArray("uniforms").spliterator(), false)
                 .map(value -> value.getAsJsonObject().get("name").getAsString()).collect(Collectors.toSet());
-        assertTrue(uniformNames.containsAll(java.util.Set.of("IViewRotMat", "FogShape")));
+        assertTrue(uniformNames.contains("FogShape"));
+        assertFalse(uniformNames.contains("IViewRotMat"));
     }
 
     @Test public void noDiffuseLightingDoesNotRemoveLightmapOrOverlaySampling() throws Exception {
@@ -33,7 +34,7 @@ public class ShaderResourceContractTest {
         assertTrue(vertex.contains("overlayColor = texelFetch(Sampler1, UV1, 0);"));
         assertFalse(vertex.contains("minecraft_mix_light"));
         assertTrue(vertex.contains("#moj_import <fog.glsl>"));
-        String fog = "vertexDistance = fog_distance(ModelViewMat, IViewRotMat * Position, FogShape);";
+        String fog = "vertexDistance = fog_distance(Position, FogShape);";
         assertTrue(vertex.contains(fog));
         try (var vanilla = getClass().getResourceAsStream("/assets/minecraft/shaders/core/rendertype_entity_translucent.vsh")) {
             assertNotNull(vanilla);

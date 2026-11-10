@@ -14,13 +14,11 @@
     }
   },
   "result": {
-    "item": "baseelectric:electric_furnace"
+    "id": "baseelectric:electric_furnace"
   },
   "group": "baseelectric:electric_furnace",
-  "conditions": [
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:power_supply_units"
-    }
-  ]
+  "forge:condition": {
+    "type": "basepower:tag_not_empty",
+    "tag": "forge:power_supply_units"
+  }
 }

@@ -3,9 +3,14 @@
   "ingredient": {
     "item": "baseelectric:silicon_mix"
   },
-  "result": "baseelectric:silicon_ingot",
+  "result": {
+    "id": "baseelectric:silicon_ingot"
+  },
   "experience": 0.5,
   "cookingtime": 200,
-  "conditions": [],
-  "group": "baseelectric:silicon_ingot"
+  "group": "baseelectric:silicon_ingot",
+  "forge:condition": {
+    "type": "forge:and",
+    "values": []
+  }
 }

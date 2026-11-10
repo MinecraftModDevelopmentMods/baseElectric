@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:glass_panes"
+            "items": "#forge:glass_panes"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:microchips"
+            "items": "#forge:microchips"
           }
         ]
       }
@@ -26,7 +26,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:wires"
+            "items": "#forge:wires"
           }
         ]
       }

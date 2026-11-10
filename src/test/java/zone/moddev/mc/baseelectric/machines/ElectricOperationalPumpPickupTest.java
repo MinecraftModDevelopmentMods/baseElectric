@@ -204,7 +204,7 @@ public class ElectricOperationalPumpPickupTest {
             defaultBlockState().initCache();
         }
         @Override public FluidState getFluidState(BlockState state) { return Fluids.WATER.getSource(false); }
-        @Override public net.minecraft.world.item.ItemStack pickupBlock(LevelAccessor world, BlockPos pos, BlockState state) {
+        @Override public net.minecraft.world.item.ItemStack pickupBlock(net.minecraft.world.entity.player.Player player, LevelAccessor world, BlockPos pos, BlockState state) {
             calls++;
             return returnNull ? null : net.minecraft.world.item.ItemStack.EMPTY;
         }

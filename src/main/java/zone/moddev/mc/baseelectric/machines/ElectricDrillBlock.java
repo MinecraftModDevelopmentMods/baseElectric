@@ -12,6 +12,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -105,7 +106,7 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     @Override
     public void setPlacedBy(Level world, BlockPos pos, BlockState state,
                                 LivingEntity placer, ItemStack stack) {
-        if (stack.hasCustomHoverName()) {
+        if (stack.has(DataComponents.CUSTOM_NAME)) {
             BlockEntity tile = world.getBlockEntity(pos);
             if (tile instanceof PoweredEntity) {
                 ((PoweredEntity) tile).setCustomInventoryName(stack.getHoverName().getString());

@@ -1,5 +1,8 @@
 package zone.moddev.mc.baseelectric.util.farming;
 
+import com.mojang.serialization.JsonOps;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import zone.moddev.mc.baseelectric.util.crafting.ItemRecord;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.StemBlock;
@@ -63,8 +66,8 @@ public class VirtualCrop {
 			BlockState startingState = plantable.getPlant(w, pos);
 			Block block = startingState.getBlock();
 			int numStages = getNumberOfGrowthStages(startingState);
-			if(block instanceof StemBlock){
-				Block product = ((StemBlock)block).getFruit();
+			if(block instanceof StemBlock stem){
+				Block product = resolveStemFruit(stem, w);
 				if(product == null) {
 					return null;
 				}
@@ -80,6 +83,16 @@ public class VirtualCrop {
 	}
 	
 	
+	private static Block resolveStemFruit(StemBlock stem, Level world) {
+		// Forge 50 exposes the registered fruit key through the native stem codec.
+		var ops = world.registryAccess().createSerializationContext(JsonOps.INSTANCE);
+		return StemBlock.CODEC.codec().encodeStart(ops, stem).result()
+				.flatMap(data -> ResourceKey.codec(Registries.BLOCK)
+						.parse(ops, data.getAsJsonObject().get("fruit")).result())
+				.map(key -> world.registryAccess().registryOrThrow(Registries.BLOCK).get(key))
+				.orElse(null);
+	}
+
 	public VirtualCrop copy(){
 		return new VirtualCrop(this.prematureHarvest,this.numberOfStages, this.harvest);
 	}

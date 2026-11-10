@@ -18,8 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -80,18 +80,18 @@ public class RecipeUnlockContractTest {
     @Test public void nativeParserRestrictsItemArraysButSilentlyIgnoresTheLegacySingularKey() {
         NativeTestBootstrap.initialize();
         JsonObject nativeShape = new JsonParser().parse("{\"items\":[\"minecraft:apple\"]}").getAsJsonObject();
-        ItemPredicate nativePredicate = ItemPredicate.fromJson(nativeShape);
-        assertTrue(nativePredicate.matches(new ItemStack(Items.APPLE)));
+        ItemPredicate nativePredicate = ItemPredicate.CODEC.parse(NativeTestBootstrap.registries().createSerializationContext(JsonOps.INSTANCE), nativeShape).getOrThrow();
+        assertTrue(nativePredicate.items().orElseThrow().contains(Items.APPLE.builtInRegistryHolder()));
         assertFalse("An unrelated item must not unlock an apple recipe",
-                nativePredicate.matches(new ItemStack(Items.DIRT)));
+                nativePredicate.items().orElseThrow().contains(Items.DIRT.builtInRegistryHolder()));
         assertEquals("item:minecraft:apple", unlockPredicateKey(nativeShape));
 
         JsonObject legacyShape = new JsonParser().parse("{\"item\":\"minecraft:apple\"}").getAsJsonObject();
         assertEquals("The old singular spelling remains valid for recipe ingredients",
                 "item:minecraft:apple", ingredientKey(legacyShape));
-        ItemPredicate legacyPredicate = ItemPredicate.fromJson(legacyShape);
+        ItemPredicate legacyPredicate = ItemPredicate.CODEC.parse(NativeTestBootstrap.registries().createSerializationContext(JsonOps.INSTANCE), legacyShape).getOrThrow();
         assertTrue("Negative control: the native parser silently loses this item's restriction",
-                legacyPredicate.matches(new ItemStack(Items.DIRT)));
+                legacyPredicate.items().isEmpty());
         assertThrows("The resource contract must reject that silently unrestricted trigger",
                 AssertionError.class, () -> unlockPredicateKey(legacyShape));
         for (String malformed : new String[] {
@@ -113,8 +113,11 @@ public class RecipeUnlockContractTest {
             JsonObject criterion = unlock.getAsJsonObject("criteria").getAsJsonObject("has_recipe");
             assertEquals("minecraft:recipe_unlocked", criterion.get("trigger").getAsString());
             assertEquals(id, criterion.getAsJsonObject("conditions").get("recipe").getAsString());
-            assertFalse("Forge recipe conditions are not valid advancement conditions", unlock.has("conditions"));
+            assertFalse("Recipe availability must not remove the unlock: " + id, unlock.has("forge:condition"));
+            assertFalse(unlock.has("conditions"));
         }
+        assertTrue("The material-gated control must remain conditional",
+                read(DATA.resolve("recipes/alkaline_battery.json")).has("forge:condition"));
     }
 
     @Test public void recipeBookGroupsIdentifyTheOutputNotABroadMachineCategory() throws IOException {
@@ -123,7 +126,7 @@ public class RecipeUnlockContractTest {
             if (!crafting(recipe)) continue;
             JsonElement result = recipe.get("result");
             String output = result.isJsonPrimitive() ? result.getAsString()
-                    : result.getAsJsonObject().get("item").getAsString();
+                    : result.getAsJsonObject().get("id").getAsString();
             assertTrue("Missing output-specific group: " + file, recipe.has("group"));
             assertEquals("Different items must not share a recipe-book cell: " + file,
                     output, recipe.get("group").getAsString());
@@ -144,10 +147,11 @@ public class RecipeUnlockContractTest {
     private static String unlockPredicateKey(JsonObject predicate) {
         assertEquals("Unlock predicates must constrain exactly one item or tag", 1, predicate.size());
         assertFalse("The native parser ignores the singular item key in advancement predicates", predicate.has("item"));
-        if (predicate.has("tag")) {
-            assertTrue("A tag predicate must be a string", predicate.get("tag").isJsonPrimitive()
-                    && predicate.getAsJsonPrimitive("tag").isString());
-            return "tag:" + predicate.get("tag").getAsString();
+        if (predicate.has("items") && predicate.get("items").isJsonPrimitive()) {
+            assertTrue(predicate.getAsJsonPrimitive("items").isString());
+            String tag = predicate.get("items").getAsString();
+            assertTrue("A tag predicate must use a hash prefix", tag.startsWith("#") && tag.length() > 1);
+            return "tag:" + tag.substring(1);
         }
         assertTrue("A native item predicate requires the items array", predicate.has("items")
                 && predicate.get("items").isJsonArray());

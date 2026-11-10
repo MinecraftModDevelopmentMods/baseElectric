@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:ingots/lithium"
+            "items": "#forge:ingots/lithium"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:dusts/redstone"
+            "items": "#forge:dusts/redstone"
           }
         ]
       }
@@ -26,7 +26,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:dusts/carbon"
+            "items": "#forge:dusts/carbon"
           }
         ]
       }
@@ -36,7 +36,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:plastic"
+            "items": "#forge:plastic"
           }
         ]
       }

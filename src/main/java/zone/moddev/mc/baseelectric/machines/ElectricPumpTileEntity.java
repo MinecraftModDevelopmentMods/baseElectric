@@ -86,7 +86,7 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 							if(blockstate.getBlock() instanceof BucketPickup && getEnergy() >= cost){
 								// Native pickup drains waterlogging without deleting the containing block.
 								Fluid f = blockstate.getFluidState().getType();
-								ItemStack pickup = ((BucketPickup)blockstate.getBlock()).pickupBlock(w, fluidSource, blockstate);
+								ItemStack pickup = ((BucketPickup)blockstate.getBlock()).pickupBlock(null, w, fluidSource, blockstate);
 								if(pickup != null && !pickup.isEmpty() && f != net.minecraft.world.level.material.Fluids.EMPTY){
 									this.getTank().fill(new FluidStack(f, FluidTank.BUCKET_VOLUME), true);
 									this.subtractEnergy(cost, Power.ELECTRIC_POWER);

@@ -48,7 +48,7 @@ public class NativeBlockContractTest {
         assertSame(BlockSimplePowerConduit.WEST, ElectricScaffoldBlock.WEST);
         assertSame(BlockSimplePowerConduit.UP, ElectricScaffoldBlock.UP);
         assertSame(BlockSimplePowerConduit.DOWN, ElectricScaffoldBlock.DOWN);
-        for (PathComputationType type : PathComputationType.values()) assertFalse(block.isPathfindable(state, null, BlockPos.ZERO, type));
+        for (PathComputationType type : PathComputationType.values()) assertFalse(block.isPathfindable(state, type));
     }
 
     @Test public void scaffoldInheritsSharedPlacementAndNetworkCallbacks() throws Exception {

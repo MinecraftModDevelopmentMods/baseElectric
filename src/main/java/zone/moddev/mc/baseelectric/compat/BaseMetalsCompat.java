@@ -5,7 +5,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.ModList;
@@ -35,8 +35,8 @@ public final class BaseMetalsCompat {
         if (isLoaded()) {
             SimpleContainer inventory = new SimpleContainer(1);
             inventory.setItem(0, input.copy());
-            for (Recipe<?> candidate : world.getRecipeManager().getRecipes()) {
-                if (candidate instanceof CrushingRecipe && ((CrushingRecipe) candidate).matches(inventory, world)) {
+            for (RecipeHolder<?> holder : world.getRecipeManager().getRecipes()) {
+                if (holder.value() instanceof CrushingRecipe candidate && candidate.matches(inventory, world)) {
                     return candidate.getResultItem(world.registryAccess()).copy();
                 }
             }

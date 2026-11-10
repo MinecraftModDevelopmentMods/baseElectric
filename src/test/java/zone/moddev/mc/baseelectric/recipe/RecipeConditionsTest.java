@@ -2,6 +2,7 @@ package zone.moddev.mc.baseelectric.recipe;
 
 import java.util.Locale;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import org.junit.Test;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import zone.moddev.mc.basepower.PowerAdvantage;
@@ -13,19 +14,17 @@ public class RecipeConditionsTest {
         RecipeMode original = PowerAdvantage.recipeMode;
         try {
             for (boolean inverted : new boolean[] {false, true}) {
-                RecipeConditions.ModeSerializer serializer = new RecipeConditions.ModeSerializer(inverted);
+                var codec = inverted ? RecipeConditions.NOT_MATCH : RecipeConditions.MATCH;
                 for (RecipeMode expected : RecipeMode.values()) {
                     JsonObject source = new JsonObject();
                     source.addProperty("mode", expected.name().toLowerCase(Locale.ROOT));
-                    RecipeConditions.ModeCondition condition = serializer.read(source);
-                    assertEquals(serializer.getID(), condition.getID());
-                    JsonObject saved = new JsonObject();
-                    serializer.write(saved, condition);
-                    assertEquals(source, saved);
+                    var condition = codec.codec().parse(JsonOps.INSTANCE, source).getOrThrow();
+                    assertSame(codec, condition.codec());
+                    assertEquals(source, codec.codec().encodeStart(JsonOps.INSTANCE, condition).getOrThrow());
                     for (RecipeMode selected : RecipeMode.values()) {
                         PowerAdvantage.recipeMode = selected;
-                        assertEquals((selected == expected) != inverted, condition.test());
-                        assertEquals(condition.test(), condition.test(ICondition.IContext.EMPTY));
+                        assertEquals((selected == expected) != inverted,
+                                condition.test(ICondition.IContext.EMPTY, JsonOps.INSTANCE));
                     }
                 }
             }
@@ -40,7 +39,8 @@ public class RecipeConditionsTest {
             Locale.setDefault(new Locale("tr", "TR"));
             JsonObject json = new JsonObject();
             json.addProperty("mode", "apocalyptic");
-            new RecipeConditions.ModeSerializer(false).read(json);
+            assertEquals(RecipeMode.APOCALYPTIC,
+                    RecipeConditions.MATCH.codec().parse(JsonOps.INSTANCE, json).getOrThrow().mode());
         } finally {
             Locale.setDefault(original);
         }

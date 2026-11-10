@@ -4,6 +4,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,11 +35,14 @@ public class VillagesTest {
         };
         MerchantOffer offer = Villages.sell(net.minecraft.world.item.Items.APPLE, minimum, maximum)
                 .getOffer(null, random);
-        CompoundTag nbt = offer.createTag();
+        CompoundTag nbt = (CompoundTag) MerchantOffer.CODEC.encodeStart(
+                NativeTestBootstrap.registries().createSerializationContext(NbtOps.INSTANCE), offer).getOrThrow();
         assertEquals("minecraft:emerald", nbt.getCompound("buy").getString("id"));
-        assertEquals(emeralds, nbt.getCompound("buy").getByte("Count"));
+        CompoundTag payment = nbt.getCompound("buy");
+        assertEquals(emeralds, payment.contains("count") ? payment.getInt("count") : 1);
         assertEquals("minecraft:apple", nbt.getCompound("sell").getString("id"));
-        assertEquals(goods, nbt.getCompound("sell").getByte("Count"));
+        CompoundTag sale = nbt.getCompound("sell");
+        assertEquals(goods, sale.contains("count") ? sale.getInt("count") : 1);
         assertEquals(7, nbt.getInt("maxUses"));
         assertEquals(0.0F, nbt.getFloat("priceMultiplier"), 0.0F);
     }
