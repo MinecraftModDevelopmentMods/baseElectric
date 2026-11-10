@@ -7,9 +7,6 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -28,33 +25,29 @@ import zone.moddev.mc.baseelectric.init.Villages;
 import zone.moddev.mc.baseelectric.recipe.RecipeConditions;
 import zone.moddev.mc.baseelectric.migration.ElectricLegacyMigrations;
 
-/** Forge 1.19.4 entry point for baseElectric. */
+/** Forge 1.20.1 entry point for baseElectric. */
 @Mod(ElectricAdvantage.MODID)
 public final class ElectricAdvantage {
     public static final String MODID = "baseelectric";
     public static final String LEGACY_MODID = "electricadvantage";
     public static final String NAME = "baseElectric";
-    public static final String VERSION = "2.2.12.119041";
+    public static final String VERSION = "2.2.13.120011";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static ElectricAdvantage INSTANCE;
 
     public final Set<String> PLASTIC_FLUID_MATERIALS = new HashSet<>();
     public String LASER_SOUND = "minecraft:block.note_block.bass";
 
-    public ElectricAdvantage() {
+    public ElectricAdvantage(FMLJavaModLoadingContext context) {
         INSTANCE = this;
         ElectricLegacyMigrations.register();
 
         migrateLegacyOreSpawnConfiguration();
         migrateLegacyConfiguration();
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ElectricAdvantageConfig.SPEC);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(ElectricAdvantageConfig::onConfigLoading);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::enqueueInterModCommunication);
-
-        DistExecutor.runWhenOn(Dist.CLIENT, () -> () ->
-                FMLJavaModLoadingContext.get().getModEventBus().addListener(
-                        zone.moddev.mc.baseelectric.graphics.ClientRegistration::onClientSetup));
+        context.registerConfig(ModConfig.Type.COMMON, ElectricAdvantageConfig.SPEC);
+        context.getModEventBus().addListener(ElectricAdvantageConfig::onConfigLoading);
+        context.getModEventBus().addListener(this::commonSetup);
+        context.getModEventBus().addListener(this::enqueueInterModCommunication);
     }
 
     private static void migrateLegacyOreSpawnConfiguration() {

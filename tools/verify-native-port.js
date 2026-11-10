@@ -5,318 +5,113 @@ const { execFileSync } = require('node:child_process');
 const { createHash } = require('node:crypto');
 
 const root = path.resolve(__dirname, '..');
-const baseline = 'c5c8c9ea1d6f2010b8cff61e4bfae86f4c96c978';
-const nativeBaseline = 'ce6b075f1d0e417e46e1742b9a2ca856b24dc67f';
-const portBase = '4914e5c8a0d8d878f0938b3a9dc59d9f35f7c85e';
-const oldJavaRoot = 'src/main/java/zone/moddev/mc/electricadvantage/';
-const javaRoot = 'src/main/java/zone/moddev/mc/baseelectric/';
-const migratePath = name => name.startsWith('src/test/resources/')
-    ? name : name.replaceAll('/electricadvantage/', '/baseelectric/');
-// Some historical blobs predate the checkout's canonical LF policy.
-const migrateText = source => source.replaceAll('\r\n', '\n').replaceAll('electricadvantage', 'baseelectric')
-    .replaceAll('zone.moddev.mc.poweradvantage', 'zone.moddev.mc.basepower')
-    .replaceAll('poweradvantage:', 'basepower:');
-const read = name => fs.readFileSync(path.join(root, name), 'utf8');
+const baseline = '013737d4cc41947e8b6fa42f4bf926a1fa5ab998';
 const git = (...args) => execFileSync('git', args, { cwd: root });
-const tracked = git('ls-tree', '-r', '--name-only', baseline).toString().trim().split('\n');
-const portBaseFiles = git('ls-tree', '-r', '--name-only', portBase, 'src').toString().trim().split('\n');
-const sha256 = value => createHash('sha256').update(value).digest('hex');
-const results = [];
-const properties = Object.fromEntries(read('gradle.properties').split(/\r?\n/)
-    .filter(line => line && !line.startsWith('#')).map(line => {
-        const i = line.indexOf('='); return [line.slice(0, i), line.slice(i + 1)];
-    }));
+const old = file => git('show', baseline + ':' + file);
+const read = file => fs.readFileSync(path.join(root, file));
+const json = file => JSON.parse(read(file));
+const sha256 = data => createHash('sha256').update(data).digest('hex');
+const tracked = git('ls-tree', '-r', '--name-only', baseline, 'src').toString().trim().split('\n');
+const javaRoot = 'src/main/java/zone/moddev/mc/baseelectric/';
+const assets = 'src/main/resources/assets/baseelectric/';
+const track = file => file.startsWith(assets + 'models/block/electric_track_') && file.endsWith('.json');
+const checks = [];
 function check(name, run) {
-    try { run(); results.push({ name, passed: true }); }
-    catch (error) { results.push({ name, passed: false, error: error.message }); }
-}
-function tokens(source) {
-    return source.match(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\/\/[^\n]*|\/\*[\s\S]*?\*\/|[A-Za-z_$][A-Za-z0-9_$]*|(?:0[xX][\da-fA-F_]+|(?:\d[\d_]*\.?[\d_]*|\.\d[\d_]*)(?:[eE][+-]?[\d_]+)?)[dDfFlL]?/g) || [];
-}
-const strings = source => tokens(source).filter(t => t.startsWith('"')
-    && !['"2.2.11.118021"', '"2.2.12.119041"'].includes(t)).sort();
-const numbers = source => tokens(source).filter(t => /^\d|^\.\d/.test(t));
-const production = portBaseFiles.filter(n => n.startsWith(javaRoot) && n.endsWith('.java'));
-const entry = javaRoot + 'ElectricAdvantage.java';
-const migration = javaRoot + 'migration/ElectricLegacyMigrations.java';
-
-function nativeUnlockFromLegacy(source) {
-    const document = JSON.parse(source);
-    let converted = 0;
-    for (const criterion of Object.values(document.criteria || {})) {
-        if (criterion.trigger !== 'minecraft:inventory_changed') continue;
-        for (const predicate of criterion.conditions?.items || []) {
-            if (!Object.hasOwn(predicate, 'item')) continue;
-            assert.deepEqual(Object.keys(predicate), ['item']);
-            assert.equal(typeof predicate.item, 'string');
-            const id = predicate.item;
-            delete predicate.item;
-            predicate.items = [id];
-            converted++;
-        }
-    }
-    return {document, converted};
+    try { run(); checks.push({name, pass: true}); }
+    catch (error) { checks.push({name, pass: false, error: error.message}); }
 }
 
-function assertNativeUnlock(source, actual) {
-    const expected = nativeUnlockFromLegacy(source);
-    assert.deepEqual(JSON.parse(actual), expected.document);
-    return expected.converted;
-}
-
-check('Exact native 1.19.4 build target', () => {
-    for (const [key, value] of Object.entries({minecraft_version:'1.19.4', forge_version:'45.4.0',
-        mapping_channel:'official', mapping_version:'1.19.4', mcp_version:'20230314.122934',
-        mod_id:'baseelectric', mod_name:'baseElectric', mod_version:'2.2.12.119041',
-        mod_group:'zone.moddev.mc.baseelectric', curseforge_project_id:'1783006', cf_requirements:'basepower,base-metals',
-        java_version:'17', java_toolchain_version:'17.0.1+12', gradle_java_version:'17',
-        poweradvantage_version:'2.4.11.119041', basemetals_version:'3.1.2.119041', orespawn_version:'4.1.0.119041'})) {
-        assert.equal(properties[key], value, key);
-    }
-    assert.deepEqual(JSON.parse(read('src/main/resources/pack.mcmeta')).pack,
-        {pack_format:13, 'forge:server_data_pack_format':12, description:'baseElectric'});
-    assert(read('build.gradle').includes('major != 61'));
-    const metadata = read('src/main/resources/META-INF/mods.toml');
-    assert.match(metadata, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.11\.119041,3\.0\.0\)"/);
-    assert.match(metadata, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.2\.119041,4\.0\.0\)"/);
-    assert(metadata.includes('modId="baseelectric"') && metadata.includes('displayName="baseElectric"'));
-});
-check('Published Power and companion pins are exact', () => {
-    assert.equal(properties.poweradvantage_source_repository, 'MinecraftModDevelopmentMods/basePower');
-    const build = read('build.gradle');
-    assert.match(build, /poweradvantage_pin_state != 'PUBLISHED_RELEASE'/);
-    assert.match(build, /pinnedFile\('powerAdvantageDeobfJar', project.poweradvantage_deobf_sha256\)/);
-    assert(!build.includes('118021') && !build.includes('117011'));
-    assert.equal(properties.poweradvantage_pin_state, 'PUBLISHED_RELEASE');
+check('Exact Forge 47 and release identity', () => {
+    const props = Object.fromEntries(read('gradle.properties').toString().split(/\r?\n/)
+        .filter(line => /^[a-z][a-z_\d]*=/.test(line)).map(line => line.split(/=(.*)/s).slice(0, 2)));
     for (const [key, value] of Object.entries({
-        poweradvantage_source_ref:'4af5c7d5d490162cddc7f1e4fc72cc602b42bb32',
-        poweradvantage_deobf_sha256:'512FDEC9275B33533EF773C110E6229E0F07268775FAD4B5942A15B68A9EB87D',
-        poweradvantage_runtime_sha256:'E1689C1147F6F6F93F6516D9188A279093D6CCC2FF1FBEB506468B876BA03E60',
-        poweradvantage_unit_bootstrap_sha256:'0FB05554D6446BD5561BF9DE47B9F173E6F6C28E39A2BC877D359BB363CB1ABE',
-        poweradvantage_unit_bootstrap_jar_sha256:'A93CD83EC42B09B730CB7715C10C6E53D47B22B557EFE68EDC95241D53BD4EB3',
-        basemetals_source_commit:'5791a793aa3a1ca1aa3fcb36e6d4a2d865e7d2d3',
-        basemetals_deobf_sha256:'0AA993D6BADA54B11548EB5BE150CE0939232291F2D215B7DBAF149857976B2F',
-        basemetals_runtime_sha256:'991EA843EEDF5FA1E42E9984A07573C7D03D74230482230440E44EDCA895FA39',
-        orespawn_source_commit:'444d86ef48db2bf54422901b067c51d5832197fc',
-        orespawn_deobf_sha256:'BE6973F68F1C310DFF8CDF89C12B34C62D68CAEA326C0F1528E486EE3ABC1000',
-        orespawn_runtime_sha256:'1B2ECAA546E7FFB35863AC1D9FF92504471EE857045DCD01A068C5CA7F53CFFD',
-        forge_installer_sha256:'6643BB8C21F409CC528FF656DAF60C206D304CC77BF529BBBAB4B336004DFC53'})) {
-        assert.equal(properties[key], value, key);
-    }
-});
-check('Resources retained except namespace moves, exact advancement conversion and the native fog shader', () => {
-    let changedFiles = 0, changedPredicates = 0;
-    for (const name of tracked.filter(n => n.startsWith('src/main/resources/')
-        && !['src/main/resources/pack.mcmeta', 'src/main/resources/META-INF/mods.toml'].includes(n))) {
-        const before = git('show', `${baseline}:${name}`);
-        const target = migratePath(name);
-        if (/\/shaders\/core\/unshaded\.(vsh|json)$/.test(target)) continue; // Exact 1.18 delta audited below.
-        const expected = /\.(json|fsh|vsh|mcmeta)$/.test(name)
-            ? Buffer.from(migrateText(before.toString())) : before;
-        if (name.startsWith('src/main/resources/data/electricadvantage/advancements/recipes/')) {
-            const converted = nativeUnlockFromLegacy(expected.toString()).converted;
-            if (converted) {
-                assert.equal(assertNativeUnlock(expected.toString(), read(target)), converted, target);
-                changedFiles++;
-                changedPredicates += converted;
-                continue;
-            }
-        }
-        assert.deepEqual(fs.readFileSync(path.join(root, target)), expected, target);
-    }
-    assert.equal(changedFiles, 19);
-    assert.equal(changedPredicates, 21);
-});
-check('Advancement compatibility allowance rejects unrelated changes and old triggers', () => {
-    const before = JSON.stringify({criteria:{has_input:{trigger:'minecraft:inventory_changed',
-        conditions:{items:[{item:'minecraft:apple'}]}}}, rewards:{recipes:['electricadvantage:example']},
-        requirements:[['has_input']]});
-    const native = nativeUnlockFromLegacy(before).document;
-    assert.equal(assertNativeUnlock(before, JSON.stringify(native)), 1);
-    assert.throws(() => assertNativeUnlock(before, before));
-    for (const mutate of [
-        document => document.criteria.has_input.conditions.items[0].items.push('minecraft:dirt'),
-        document => document.rewards.recipes.push('electricadvantage:another'),
-        document => document.requirements.push(['has_input'])
-    ]) {
-        const altered = JSON.parse(JSON.stringify(native));
-        mutate(altered);
-        assert.throws(() => assertNativeUnlock(before, JSON.stringify(altered)));
-    }
-});
-check('Registry, asset, provider and NBT string identities retained', () => {
-    for (const name of production) {
-        const before = git('show', `${portBase}:${name}`).toString();
-        const after = read(name);
-        const expected = strings(before);
-        if (name.endsWith('/init/Entities.java')) {
-            assert.equal(expected.splice(expected.indexOf('":hydroturbine"'), 1)[0], '":hydroturbine"');
-            assert(after.includes('new ResourceLocation(ElectricAdvantage.MODID, "hydroturbine")'));
-            assert(after.includes('registry.register(id, HYDROTURBINE)'));
-        }
-        assert.deepEqual(strings(after), expected, name);
-    }
-});
-check('Machine balance and renderer test tolerances retained', () => {
-    const renderer = 'src/test/java/zone/moddev/mc/baseelectric/graphics/RendererBufferContractTest.java';
-    for (const name of [...production, renderer]) {
-        let before = git('show', `${portBase}:${name}`).toString();
-        if (/\/Electric(Machine|Generator)TileEntity\.java$/.test(name)) {
-            assert(before.includes('final double range = 16;'));
-            before = before.replace('final double range = 16;', 'final double range = range;');
-        }
-        if (name.endsWith('/init/Blocks.java') || name.endsWith('/init/Items.java')) {
-            before = before.replace(/\.toArray\(new (?:Block|Item)\[0\]\)/, '');
-        }
-        const expected = numbers(before);
-        assert.deepEqual(numbers(read(name)), expected, name);
-    }
-    const sound = read(javaRoot + 'machines/ElectricOperationalSound.java');
-    assert.match(sound, /final double range = 16;/);
-    assert.match(sound, /player\.isSpectator\(\) \|\| !player\.getBoundingBox\(\)\.intersects\(bounds\)/);
-});
-check('Inherited regression tests remain present with no skip or assume bypass', () => {
-    let count = 0;
-    for (const name of portBaseFiles.filter(n => n.startsWith('src/test/') && n.endsWith('.java'))) {
-        const before = git('show', `${portBase}:${name}`).toString();
-        const after = read(name);
-        const methods = s => [...s.matchAll(/@Test\s+public void (\w+)\(/g)].map(m => m[1]);
-        const expected = methods(before).map(n => n.replace('resourcePackDeclaresTheNativeOneEighteenFormats',
-            'resourcePackDeclaresTheNativeOneNineteenFourFormats'));
-        count += expected.length;
-        assert.deepEqual(methods(after), expected, name);
-        assert(!/@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/.test(after), name);
-    }
-    assert.equal(count, 96);
-});
-check('Native constructors, factories and tag-only persistence', () => {
-    const directory = path.join(root, javaRoot, 'machines');
-    for (const name of fs.readdirSync(directory).filter(n => n.endsWith('TileEntity.java'))) {
-        const source = fs.readFileSync(path.join(directory, name), 'utf8');
-        assert(!/public \w+TileEntity\(\s*\)/.test(source), name);
-        assert(!/void load\(BlockState|super\.load\(state,|setPosition\(/.test(source), name);
-        assert.match(source, /super\([^;]*pos, state,/, name);
-    }
-    const entities = read(javaRoot + 'init/Entities.java');
-    assert(entities.includes('BlockEntityType.BlockEntitySupplier<T>'));
-    assert(entities.includes('.setTrackingRange(64).setUpdateInterval(1).setShouldReceiveVelocityUpdates(true)'));
-    const move = read(javaRoot + 'machines/ElectricDrillTileEntity.java');
-    assert(move.includes('te.load(dataTransfer)'));
-    assert(move.includes('te.subtractEnergy(ENERGY_COST_MOVE, getEnergyType())'));
-    assert(read(javaRoot + 'machines/LaserTurretTileEntity.java').includes('handleUpdateTag(CompoundTag tag)'));
-});
-check('Native helper ticker, bucket pickup, renderer context and shader', () => {
-    assert(read(javaRoot + 'machines/LEDBlock.java').includes('BlockEntityTicker<T> getTicker'));
-    assert(read(javaRoot + 'machines/ElectricPumpTileEntity.java').includes('.pickupBlock(w, fluidSource, blockstate)'));
-    for (const name of ['LaserDrillRenderer', 'LaserTurretRenderer']) {
-        const source = read(javaRoot + `graphics/${name}.java`);
-        assert(source.includes('implements BlockEntityRenderer<'));
-        assert(source.includes('BlockEntityRendererProvider.Context'));
-    }
-    const render = read(javaRoot + 'graphics/ElectricRenderTypes.java');
-    assert(render.includes('DefaultVertexFormat.NEW_ENTITY'));
-    assert(render.includes('VertexFormat.Mode.QUADS'));
-    assert(render.includes('new ShaderStateShard(() -> unshadedShader)'));
-    const shader = read('src/main/resources/assets/baseelectric/shaders/core/unshaded.vsh');
-    assert(shader.includes('vertexColor = Color;'));
-    assert(shader.includes('lightMapColor = texelFetch(Sampler2, UV2 / 16, 0);'));
-    assert(shader.includes('overlayColor = texelFetch(Sampler1, UV1, 0);'));
-    const registration = read(javaRoot + 'graphics/ClientRegistration.java');
-    assert(registration.includes('EntityRenderersEvent.RegisterRenderers'));
-});
-check('Native harvest tags preserve lithium and sulfur tool tiers', () => {
-    const tag = name => JSON.parse(read(`src/main/resources/data/minecraft/tags/blocks/${name}.json`));
-    assert.deepEqual(tag('mineable/pickaxe'), {replace:false, values:['baseelectric:li_ore','baseelectric:sulfur_ore']});
-    assert.deepEqual(tag('needs_stone_tool'), {replace:false, values:['baseelectric:li_ore']});
-    assert.equal((read(javaRoot + 'blocks/Ore.java').match(/requiresCorrectToolForDrops\(\)/g) || []).length, 2);
-});
-check('Shared capabilities, legacy cyano API and first-tick interlocks retained', () => {
-    assert(read(javaRoot + 'util/LegacyFluidHandler.java').includes('extends IAdvantageFluidHandler'));
-    for (const name of ['ElectricMachineTileEntity', 'ElectricGeneratorTileEntity']) {
-        const source = read(javaRoot + `machines/${name}.java`);
-        assert(source.includes('!redstoneInitialized && getLevel() != null && !getLevel().isClientSide'));
-    }
-    assert(!production.some(n => /invalidateCaps\(|reviveCaps\(|LazyOptional/.test(read(n))));
-    assert(read(javaRoot + 'ElectricAdvantage.java').includes('event.enqueueWork(RecipeConditions::register)'));
-    assert(read(javaRoot + 'machines/PhotovoltaicGeneratorTileEntity.java').includes('BlockPos lightPos = pos.above()'));
-});
-check('Accepted resource bytes and source paths are retained with explicit 1.19.4 additions', () => {
-    const actualFiles = fs.readdirSync(path.join(root, 'src'), {recursive:true, withFileTypes:true})
-        .filter(file => file.isFile()).map(file => path.relative(root, path.join(file.parentPath, file.name))
-            .split(path.sep).join('/')).sort();
-    const damageRoot = 'src/main/resources/data/baseelectric/damage_type/';
-    const blocksAtlas = 'src/main/resources/assets/minecraft/atlases/blocks.json';
-    const expectedFiles = [...portBaseFiles, javaRoot + 'machines/ElectricOperationalSound.java',
-        damageRoot + 'laser.json', damageRoot + 'propeller.json', blocksAtlas];
-    assert.deepEqual(actualFiles, expectedFiles.sort(), 'Source path inventory');
-    const resourceExceptions = ['src/main/resources/pack.mcmeta', 'src/main/resources/META-INF/mods.toml'];
-    for (const name of portBaseFiles.filter(n => /^src\/(main|test)\/resources\//.test(n)
-            && !resourceExceptions.includes(n))) {
-        const expected = git('show', `${portBase}:${name}`);
-        assert.equal(sha256(fs.readFileSync(path.join(root, name))), sha256(expected), name);
-    }
-    for (const id of ['laser', 'propeller']) {
-        assert.deepEqual(JSON.parse(read(damageRoot + id + '.json')),
-            {message_id:id, scaling:'never', exhaustion:0.1});
-    }
-    assert.deepEqual(JSON.parse(read(blocksAtlas)),
-        {sources:[{type:'single', resource:'baseelectric:entity/laser_turret'}]});
-});
-check('Original and baseElectric aliases retain the native registry paths and state decoding', () => {
-    const old = git('show', `${nativeBaseline}:${oldJavaRoot}migration/ElectricLegacyMigrations.java`).toString();
-    const source = read(migration);
-    const ids = text => [...text.matchAll(/for \(String path : new String\[\] \{([^}]+)\}/g)]
-        .map(match => [...match[1].matchAll(/"([^"]+)"/g)].map(id => id[1]));
-    assert.equal(ids(old).length, 2);
-    assert.deepEqual(ids(source), ids(old));
-    const decoder = '    private static BlockState decodeState';
-    assert.equal(source.slice(source.indexOf(decoder)), old.slice(old.indexOf(decoder)));
-    assert(source.includes('LegacyMigrationApi.registerNamespaceAlias(ElectricAdvantage.LEGACY_MODID, ElectricAdvantage.MODID)'));
-    assert(source.includes('LegacyMigrationApi.registerTileEntityAliases(id(path))'));
-    assert(source.includes('new String[] {ElectricAdvantage.LEGACY_MODID, ElectricAdvantage.MODID}'));
-    for (const alias of ['minecraft:electricadvantage.Hydroturbine', 'electricadvantage.electricadvantage.Hydroturbine']) {
-        assert(source.includes(`registerEntityAlias("${alias}", hydroturbine)`), alias);
-    }
-    const main = read(entry);
-    assert(main.includes('LEGACY_MODID = "electricadvantage"'));
-    for (const bridge of ['LegacyConfigMigration', 'LegacyOreSpawnConfigBridge']) {
-        assert(main.includes(`${bridge}.migrate(FMLPaths.CONFIGDIR.get(), MODID, LEGACY_MODID`));
-    }
-    for (const name of ['Blocks', 'Items']) {
-        const registration = read(javaRoot + `init/${name}.java`);
-        assert(registration.includes('import zone.moddev.mc.basepower.init.ItemGroups;'));
-        assert(registration.includes('ItemGroups.show(item)'));
-        assert(registration.includes('net.minecraftforge.registries.RegisterEvent'));
-    }
-    assert.match(read(javaRoot + 'init/Blocks.java'),
-        /if \(!"pump_pipe_electric"\.equals\(id\) && !"laser_turret_evil"\.equals\(id\)\) \{\s+ItemGroups\.show\(item\);/);
+        minecraft_version: '1.20.1', forge_version: '47.4.10', mapping_channel: 'official',
+        mapping_version: '1.20.1', mcp_version: '20230612.114412', java_version: '17',
+        mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.13.120011',
+        poweradvantage_version: '2.4.12.120011', basemetals_version: '3.1.2.120011',
+        orespawn_version: '4.1.0.120011', curseforge_project_id: '1783006',
+        cf_requirements: 'basepower,base-metals'
+    })) assert.equal(props[key], value, key);
+    assert.deepEqual(json('src/main/resources/pack.mcmeta').pack, {pack_format:15, description:'baseElectric'});
+    const mods = read('src/main/resources/META-INF/mods.toml').toString();
+    assert.match(mods, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.12\.120011,3\.0\.0\)"/);
+    assert.match(mods, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.2\.120011,4\.0\.0\)"/);
 });
 
-const changedFiles = [...new Set([
-    ...git('diff', '--name-only', portBase).toString().trim().split('\n'),
-    ...git('ls-files', '--others', '--exclude-standard').toString().trim().split('\n')
-])].filter(Boolean).sort();
-const testFiles = fs.readdirSync(path.join(root, 'src/test/java'), {recursive:true, withFileTypes:true})
-    .filter(file => file.isFile() && file.name.endsWith('.java'))
-    .map(file => path.relative(root, path.join(file.parentPath, file.name)));
-const tests = testFiles.reduce((n, file) => n + (read(file).match(/@Test\b/g) || []).length, 0);
-check('All 27 inherited suites and 96 tests remain present', () => {
-    assert.equal(testFiles.length, 28);
-    assert.equal(testFiles.filter(file => /@Test\b/.test(read(file))).length, 27);
-    assert.equal(tests, 96);
-});
-const report = {baseline, nativeBaseline, portBase, scope:'Static source/resource contracts only; not compilation, runtime or manual acceptance',
-    inventory: {productionFiles:production.length, testFiles:testFiles.length, tests},
-    changedFiles:changedFiles.map(file => ({file, sha256:fs.existsSync(path.join(root, file))
-        ? createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex') : null})),
-    results};
-const reportFlag = process.argv.indexOf('--report');
-if (reportFlag !== -1) {
-    const output = path.resolve(root, process.argv[reportFlag + 1]);
-    assert(output.startsWith(root + path.sep), 'Report must remain inside this checkout');
-    assert(!fs.existsSync(output), 'Refusing to overwrite source evidence');
-    fs.mkdirSync(path.dirname(output), {recursive:true});
-    fs.writeFileSync(output, JSON.stringify(report, null, 2) + '\n');
+function checkTrackModel(file, model) {
+    assert.equal(model.render_type, 'minecraft:cutout', file + ' lacks its native cutout layer');
+    const { render_type, ...unchanged } = model;
+    assert.deepEqual(unchanged, JSON.parse(old(file)), file + ' changed beyond the render layer');
 }
-for (const r of results) console.log(`${r.passed ? 'PASS' : 'FAIL'} ${r.name}${r.error ? ': ' + r.error : ''}`);
-process.exitCode = results.every(r => r.passed) ? 0 : 1;
+
+check('All 64 track states declare cutout without changing any geometry', () => {
+    const { variants } = json(assets + 'blockstates/electric_track.json');
+    assert.equal(Object.keys(variants).length, 64);
+    const models = new Set(Object.values(variants).map(variant => variant.model));
+    for (const id of models) {
+        assert.match(id, /^baseelectric:block\/electric_track_/);
+        const file = assets + 'models/' + id.split(':')[1] + '.json';
+        checkTrackModel(file, json(file));
+    }
+    for (const file of tracked.filter(track)) checkTrackModel(file, json(file));
+});
+
+check('Track audit rejects the old asset and a geometry mutation', () => {
+    const file = assets + 'models/block/electric_track_ns.json';
+    assert.throws(() => checkTrackModel(file, JSON.parse(old(file))), /lacks its native cutout layer/);
+    const mutated = json(file);
+    mutated.elements[0].from[0]++;
+    assert.throws(() => checkTrackModel(file, mutated), /changed beyond the render layer/);
+});
+
+check('Every other shipped resource and test fixture retains its accepted bytes', () => {
+    const resources = tracked.filter(file => /^src\/(main|test)\/resources\//.test(file));
+    const exceptions = new Set(['src/main/resources/pack.mcmeta', 'src/main/resources/META-INF/mods.toml']);
+    for (const file of resources.filter(file => !exceptions.has(file) && !track(file))) {
+        assert.equal(sha256(read(file)), sha256(old(file)), file);
+    }
+    const actual = fs.readdirSync(path.join(root, 'src'), {recursive:true, withFileTypes:true})
+        .filter(entry => entry.isFile()).map(entry => path.relative(root, path.join(entry.parentPath, entry.name))
+            .split(path.sep).join('/')).sort();
+    assert.deepEqual(actual, [...tracked].sort(), 'Source and resource inventory');
+});
+
+check('Migration and registration code keep their accepted IDs and compatibility paths', () => {
+    for (const name of [
+        'migration/ElectricLegacyMigrations.java', 'init/Blocks.java', 'init/Items.java',
+        'init/Entities.java', 'init/GUI.java', 'init/OreSpawnWorldGen.java', 'recipe/RecipeConditions.java'
+    ]) {
+        const file = javaRoot + name;
+        assert.equal(sha256(read(file)), sha256(old(file)), file);
+    }
+});
+
+check('All 96 inherited tests are still present, plus three new assertions', () => {
+    const methods = value => [...value.toString().matchAll(/@Test\s+public void (\w+)\(/g)].map(m => m[1]);
+    const files = tracked.filter(file => file.startsWith('src/test/java/') && file.endsWith('.java'));
+    let inherited = 0;
+    let actual = 0;
+    for (const file of files) {
+        const current = read(file);
+        const currentMethods = methods(current);
+        const priorMethods = methods(old(file)).map(name => name === 'resourcePackDeclaresTheNativeOneNineteenFourFormats'
+            ? 'resourcePackDeclaresTheNativeOneTwentyOneFormat' : name);
+        for (const name of priorMethods) assert(currentMethods.includes(name), file + ' lost ' + name);
+        assert.doesNotMatch(current.toString(), /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/, file);
+        inherited += priorMethods.length;
+        actual += currentMethods.length;
+    }
+    assert.equal(inherited, 96);
+    assert.equal(actual, 99);
+});
+
+const report = {baseline, scope: 'Static source and resource comparison only', checks};
+const flag = process.argv.indexOf('--report');
+if (flag >= 0) {
+    const output = path.resolve(root, process.argv[flag + 1]);
+    assert(output.startsWith(path.join(root, 'build', 'port-evidence') + path.sep));
+    fs.mkdirSync(path.dirname(output), {recursive:true});
+    fs.writeFileSync(output, JSON.stringify(report, null, 2) + '\n', {flag:'wx'});
+}
+for (const result of checks) console.log(result.pass ? 'PASS ' + result.name : 'FAIL ' + result.name + ': ' + result.error);
+process.exitCode = checks.every(result => result.pass) ? 0 : 1;

@@ -101,7 +101,7 @@ public class ElectricOperationalHydroturbineAnchorTest {
 
     private static final class NoTickWorld extends ServerLevel {
         private NoTickWorld() {
-            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
+            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
         }
     }
 

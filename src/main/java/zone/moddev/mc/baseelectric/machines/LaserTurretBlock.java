@@ -1,7 +1,6 @@
 package zone.moddev.mc.baseelectric.machines;
 
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,8 +23,7 @@ public class LaserTurretBlock extends ElectricMachineBlock {
 	// Evil laser turrets target players and not hostile mobs
 	public final boolean evil;
 	public LaserTurretBlock(boolean isEvil) {
-		super(Block.Properties.of(Material.PISTON)
-				.strength(5.0F, 100.0F).dynamicShape().noOcclusion());
+		super(machineProperties(5.0F).strength(5.0F, 100.0F));
 		this.evil = isEvil;
 	}
 

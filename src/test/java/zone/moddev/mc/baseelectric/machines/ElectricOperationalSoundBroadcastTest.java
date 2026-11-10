@@ -108,7 +108,7 @@ public class ElectricOperationalSoundBroadcastTest {
         int playerListReads;
 
         private QueryRejectingWorld() {
-            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
+            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
         }
 
         @Override public List<ServerPlayer> players() {

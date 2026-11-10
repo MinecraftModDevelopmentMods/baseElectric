@@ -2,9 +2,9 @@ name: CodeQL
 
 on:
   push:
-    branches: [master-1.19.4, 'feature/**']
+    branches: [master-1.20.1, 'feature/**']
   pull_request:
-    branches: [master-1.19.4]
+    branches: [master-1.20.1]
   schedule:
     - cron: '59 7 * * 4'
 
@@ -23,9 +23,9 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Use canonical LF dependency inputs
         run: git config --global core.autocrlf false
-      - name: Require coordinated 1.19.4 dependency pins
+      - name: Require coordinated 1.20.1 dependency pins
         id: pins
-        run: bash .github/scripts/forge45-dependencies.sh pins
+        run: bash .github/scripts/forge47-dependencies.sh pins
       - name: Check out pinned OreSpawn
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -67,9 +67,9 @@ jobs:
           -Porg.gradle.java.installations.auto-download=false" >> "$GITHUB_ENV"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
-      - name: Build 1.19.4 dependency chain
+      - name: Build 1.20.1 dependency chain
         id: dependencies
-        run: bash .github/scripts/forge45-dependencies.sh build
+        run: bash .github/scripts/forge47-dependencies.sh build
       - name: Initialize CodeQL
         uses: github/codeql-action/init@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4
         with:
@@ -84,7 +84,7 @@ jobs:
           ORESPAWN_DEV: ${{ steps.dependencies.outputs.orespawn }}
         run: |
           ./gradlew $MMD_GRADLE_TOOLCHAINS classes verifyReleaseDependencies --rerun-tasks --no-build-cache --no-daemon --stacktrace \
-            "-Pforge45MavenizerJar=$MAVENIZER" "-PpowerAdvantageDeobfJar=$POWER_DEV" \
+            "-Pforge47MavenizerJar=$MAVENIZER" "-PpowerAdvantageDeobfJar=$POWER_DEV" \
             "-PbaseMetalsDeobfJar=$METALS_DEV" "-PoreSpawnDeobfJar=$ORESPAWN_DEV"
       - name: Analyze
         uses: github/codeql-action/analyze@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4

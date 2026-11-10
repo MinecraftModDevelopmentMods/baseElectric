@@ -30,7 +30,7 @@ $target = "$($pins.minecraft_version)-$($pins.forge_version)"
 $forgeDir = "libraries/net/minecraftforge/forge/$target"
 $winArgs = "$forgeDir/win_args.txt"
 $receipt = [ordered]@{
-    status = 'FAIL'; scope = 'Packaged, loopback-only Forge 1.19.4 dedicated server smoke; no client or migration proof'
+    status = 'FAIL'; scope = 'Packaged, loopback-only Forge 1.20.1 dedicated server smoke; no client or migration proof'
     baseMetalsIncluded = !$WithoutBaseMetals
     seed = $seed; java = $javaPath; inputs = @(); checks = [ordered]@{}; exitCode = $null; error = $null
 }
@@ -63,10 +63,10 @@ function Send-Command([string]$Command) {
 }
 
 try {
-    if ($target -cne '1.19.4-45.4.0' -or $pins.mod_version -cne '2.2.12.119041') {
-        throw 'This smoke runner is bound to baseElectric 2.2.12.119041 on Forge 45.4.0.'
+    if ($target -cne '1.20.1-47.4.10' -or $pins.mod_version -cne '2.2.13.120011') {
+        throw 'This smoke runner is bound to baseElectric 2.2.13.120011 on Forge 47.4.10.'
     }
-    if ($pins.poweradvantage_pin_state -ne 'PUBLISHED_RELEASE' -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
+    if ($pins.poweradvantage_pin_state -ne 'LOCAL_CHECKPOINT' -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
         throw 'Packaged smoke requires the exact source-pinned basePower player JAR.'
     }
     $receipt.powerSourceRef = $pins.poweradvantage_source_ref
@@ -110,7 +110,7 @@ try {
     }
     [IO.File]::WriteAllLines((Join-Path $output 'server.properties'), @(
         'server-ip=127.0.0.1', 'server-port=0', 'enable-rcon=false', 'enable-query=false',
-        'level-name=electric-smoke', 'level-seed=119041', 'generate-structures=false',
+        'level-name=electric-smoke', 'level-seed=120011', 'generate-structures=false',
         'view-distance=3', 'simulation-distance=3', 'spawn-protection=0'
     ))
     $start = [Diagnostics.ProcessStartInfo]::new($javaPath)

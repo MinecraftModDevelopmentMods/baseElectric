@@ -1,5 +1,6 @@
 {
   "parent": "basepower:block/steel_frame",
+  "render_type": "minecraft:cutout",
   "textures": {
         "texture": "baseelectric:blocks/electric_conduit",
         "particle": "baseelectric:materials/machine_case",
