@@ -213,7 +213,7 @@ def requireCommittedPins = { String prefix ->
 }
 def requirePowerPin = {
     requireCommittedPins('poweradvantage_')
-    if (project.poweradvantage_pin_state != 'LOCAL_CHECKPOINT'
+    if (project.poweradvantage_pin_state != 'MERGED_SOURCE'
             || !(project.poweradvantage_source_ref ==~ /[a-f0-9]{40}/)
             || ![project.poweradvantage_deobf_sha256, project.poweradvantage_runtime_sha256]
                     .every { it ==~ /[A-F0-9]{64}/ }) {

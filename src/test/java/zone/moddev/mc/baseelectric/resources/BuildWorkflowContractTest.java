@@ -55,7 +55,7 @@ public class BuildWorkflowContractTest {
             }
         }
         String script = Files.readString(Paths.get(".github/scripts/forge47-dependencies.sh"));
-        assertTrue(script.contains("$(value poweradvantage_pin_state)") && script.contains("'LOCAL_CHECKPOINT'"));
+        assertTrue(script.contains("$(value poweradvantage_pin_state)") && script.contains("'MERGED_SOURCE'"));
         assertTrue(script.contains("=~ ^[a-f0-9]{40}$") && script.contains("=~ ^[A-F0-9]{64}$"));
         for (String dependency : new String[] {"orespawn", "basemetals", "power"}) {
             assertTrue(script.contains("git -C \"$" + dependency + "\" rev-parse HEAD"));
