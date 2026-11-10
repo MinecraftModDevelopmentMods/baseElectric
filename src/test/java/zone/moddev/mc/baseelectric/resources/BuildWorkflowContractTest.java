@@ -11,7 +11,7 @@ public class BuildWorkflowContractTest {
         for (String workflow : new String[] {"ci.yml", "codeql-analysis.yml"}) {
             String source = new String(Files.readAllBytes(Paths.get(".github/workflows", workflow)), StandardCharsets.UTF_8);
             int setup = source.indexOf("- name: Set up Gradle");
-            for (String version : new String[] {"25.0.3+9.0.LTS", "8.0.502+7", "17.0.1+12"}) {
+            for (String version : new String[] {"25.0.3+9.0.LTS", "8.0.502+7", "21.0.7+6.0.LTS"}) {
                 int pin = source.indexOf("java-version: '" + version + "'");
                 assertTrue(workflow + " missing pinned JDK " + version, pin >= 0 && pin < setup);
             }
@@ -35,42 +35,26 @@ public class BuildWorkflowContractTest {
             String source = new String(Files.readAllBytes(Paths.get(".github/workflows", workflow)), StandardCharsets.UTF_8);
             int policy = source.indexOf("git config --global core.autocrlf false");
             int published = source.indexOf("bash .github/verify-published-pins.sh");
-            int pins = source.indexOf("bash .github/scripts/forge47-dependencies.sh pins");
-            int dependencyBuild = source.indexOf("bash .github/scripts/forge47-dependencies.sh build");
             assertTrue(policy > 0);
-            assertTrue(policy < published && published < pins);
-            for (String repository : new String[] {"OreSpawn", "BaseMetals", "basePower"}) {
-                assertTrue(pins < source.indexOf("repository: MinecraftModDevelopmentMods/" + repository));
+            assertTrue(policy < published);
+            for (String repository : new String[] {"OreSpawn", "basePower"}) {
+                assertTrue(published < source.indexOf("repository: MinecraftModDevelopmentMods/" + repository));
             }
-            assertTrue(source.contains("ref: ${{ steps.pins.outputs.orespawn_ref }}"));
-            assertTrue(source.contains("ref: ${{ steps.pins.outputs.basemetals_ref }}"));
-            assertTrue(source.contains("ref: ${{ steps.pins.outputs.power_ref }}"));
-            assertTrue(dependencyBuild > source.indexOf("ref: ${{ steps.pins.outputs.power_ref }}"));
-            assertTrue(source.indexOf("\"-Pforge47MavenizerJar=$MAVENIZER\"") > dependencyBuild);
-            assertTrue(source.contains("MAVENIZER: ${{ steps.dependencies.outputs.mavenizer }}"));
-            assertTrue(source.contains("branches: [master-1.20.1"));
-            assertFalse(source.contains("1.17.1"));
+            assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.orespawn_ref }}"));
+            assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.power_ref }}"));
+            assertTrue(source.contains("branches: [master-1.20.6"));
+            assertTrue(source.contains("-Pforge50MavenizerJar=$MAVENIZER"));
+            assertTrue(source.contains("-PpowerAdvantageDeobfJar=$POWER_PLAYER"));
+            assertFalse(source.contains("forge47"));
             if (workflow.equals("ci.yml")) {
-                assertTrue(source.contains("POWER_PLAYER: ${{ steps.public-pins.outputs.power_player }}"));
+                assertTrue(source.contains("-PforgeInstallerJar=$FORGE_INSTALLER"));
             }
         }
-        String script = Files.readString(Paths.get(".github/scripts/forge47-dependencies.sh"));
-        assertTrue(script.contains("$(value poweradvantage_pin_state)") && script.contains("'MERGED_SOURCE'"));
+        String script = Files.readString(Paths.get(".github/verify-published-pins.sh"));
         assertTrue(script.contains("=~ ^[a-f0-9]{40}$") && script.contains("=~ ^[A-F0-9]{64}$"));
-        for (String dependency : new String[] {"orespawn", "basemetals", "power"}) {
-            assertTrue(script.contains("git -C \"$" + dependency + "\" rev-parse HEAD"));
+        for (String dependency : new String[] {"poweradvantage", "basemetals", "orespawn"}) {
+            assertTrue(script.contains("$(value " + dependency + "_public_file_id)"));
         }
-        assertTrue(script.contains("$orespawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar"));
-        assertTrue(script.contains("check_hash \"$mavenizer\" '416DCA4797BC55826F0DDCF03FDC405F1990FC15C2133FA27A1F143BF7976177'"));
-        int metalsBuild = script.indexOf("(cd \"$basemetals\" && ./gradlew");
-        int powerBuild = script.indexOf("(cd \"$power\" && ./gradlew");
-        assertTrue(metalsBuild > 0 && powerBuild > metalsBuild);
-        String metals = script.substring(metalsBuild, powerBuild);
-        assertFalse(metals.contains("-I ") || metals.contains("-Pforge47Mavenizer"));
-        String power = script.substring(powerBuild);
-        assertFalse(power.contains("-I ") || power.contains("MavenizerScript"));
-        assertTrue(power.contains("\"-Pforge47MavenizerJar=$mavenizer\""));
-        assertTrue(script.contains("git -C \"$basemetals\" diff --exit-code HEAD --"));
-        assertTrue(script.contains("git -C \"$power\" diff --exit-code HEAD --"));
+        assertTrue(script.contains("sha256sum -c -"));
     }
 }
