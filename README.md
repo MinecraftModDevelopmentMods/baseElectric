@@ -6,7 +6,11 @@ in the shared basePower creative tab.
 
 This version targets Minecraft **1.20.6**, Forge **50.2.0**, official mappings,
 ForgeGradle **7.0.34**, and Java **21**. The version is **2.2.14.120061**.
-See [the local port record](docs/NATIVE1206.md) for the checkpoint and test status.
+Install [basePower 2.4.13.120061](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9545972)
+for Minecraft 1.20.6. CurseForge also installs
+[Base Metals](https://www.curseforge.com/minecraft/mc-mods/base-metals); this
+build was tested with 3.1.2.120061 and OreSpawn 4.1.0.120061.
+See the [1.20.6 notes](docs/NATIVE1206.md) for save compatibility and test coverage.
 
 Back up your world and try the upgrade on a copy. Replace Electric Advantage
 and Power Advantage with baseElectric and basePower; do not install both sets.
@@ -45,8 +49,8 @@ For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
 ```
 
 Use `gradlew.bat` on Windows. Output jars go to `build/libs`. Dependencies
-remain separate mods. The inherited Forge 47 hosted and ECJ scripts are
-historical; they do not qualify this local Forge 50 port.
+remain separate mods. The 1.20.6 CI jobs check against the pinned Forge 50
+runtime and public dependencies.
 
 ## Verification
 
