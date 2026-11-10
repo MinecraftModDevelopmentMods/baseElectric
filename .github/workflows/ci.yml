@@ -1,16 +1,16 @@
-name: baseElectric 1.19.4 CI
+name: baseElectric 1.20.1 CI
 
 on:
   push:
-    branches: [master-1.19.4, 'feature/**']
+    branches: [master-1.20.1, 'feature/**']
   pull_request:
-    branches: [master-1.19.4]
+    branches: [master-1.20.1]
 
 permissions:
   contents: read
 
 concurrency:
-  group: baseelectric-1.19.4-${{ github.workflow }}-${{ github.ref }}
+  group: baseelectric-1.20.1-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -23,9 +23,14 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Use canonical LF dependency inputs
         run: git config --global core.autocrlf false
-      - name: Require coordinated 1.19.4 dependency pins
+      - name: Verify merged dependency pins and public basePower bytes
+        id: public-pins
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/verify-published-pins.sh
+      - name: Require coordinated 1.20.1 dependency pins
         id: pins
-        run: bash .github/scripts/forge45-dependencies.sh pins
+        run: bash .github/scripts/forge47-dependencies.sh pins
       - name: Check out pinned OreSpawn
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -67,15 +72,15 @@ jobs:
           -Porg.gradle.java.installations.auto-download=false" >> "$GITHUB_ENV"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
-      - name: Build 1.19.4 dependency chain
+      - name: Build 1.20.1 dependency chain
         id: dependencies
-        run: bash .github/scripts/forge45-dependencies.sh build
+        run: bash .github/scripts/forge47-dependencies.sh build
       - name: Build and audit release artifacts
         shell: bash
         env:
           MAVENIZER: ${{ steps.dependencies.outputs.mavenizer }}
           POWER_DEV: ${{ steps.dependencies.outputs.power }}
-          POWER_PLAYER: ${{ steps.dependencies.outputs.power_player }}
+          POWER_PLAYER: ${{ steps.public-pins.outputs.power_player }}
           POWER_BOOTSTRAP: ${{ steps.dependencies.outputs.bootstrap }}
           POWER_AGENT: ${{ steps.dependencies.outputs.agent }}
           METALS_DEV: ${{ steps.dependencies.outputs.basemetals }}
@@ -85,7 +90,7 @@ jobs:
           FORGE_INSTALLER: ${{ steps.dependencies.outputs.installer }}
         run: |
           ./gradlew $MMD_GRADLE_TOOLCHAINS build writeReleaseChecksums verifyEclipseProductionClasspath \
-            "-Pforge45MavenizerJar=$MAVENIZER" "-PpowerAdvantageDeobfJar=$POWER_DEV" \
+            "-Pforge47MavenizerJar=$MAVENIZER" "-PpowerAdvantageDeobfJar=$POWER_DEV" \
             "-PpowerAdvantageRuntimeJar=$POWER_PLAYER" "-PpowerAdvantageUnitBootstrapSource=$POWER_BOOTSTRAP" \
             "-PpowerAdvantageUnitBootstrapJar=$POWER_AGENT" "-PbaseMetalsDeobfJar=$METALS_DEV" \
             "-PbaseMetalsRuntimeJar=$METALS_PLAYER" "-PoreSpawnDeobfJar=$ORESPAWN_DEV" \
@@ -94,20 +99,20 @@ jobs:
       - name: Upload audited release candidate
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: baseElectric-1.19.4-${{ github.sha }}
+          name: baseElectric-1.20.1-${{ github.sha }}
           if-no-files-found: error
           retention-days: 30
           path: |
-            build/libs/baseElectric-2.2.12.119041.jar
-            build/libs/baseElectric-2.2.12.119041-sources.jar
-            build/libs/baseElectric-2.2.12.119041-javadoc.jar
+            build/libs/baseElectric-2.2.13.120011.jar
+            build/libs/baseElectric-2.2.13.120011-sources.jar
+            build/libs/baseElectric-2.2.13.120011-javadoc.jar
             build/release/SHA256SUMS
             CHANGELOG.txt
       - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: baseElectric-1.19.4-diagnostics-${{ github.sha }}
+          name: baseElectric-1.20.1-diagnostics-${{ github.sha }}
           if-no-files-found: ignore
           retention-days: 14
           path: |

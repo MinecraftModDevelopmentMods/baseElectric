@@ -3,7 +3,6 @@ package zone.moddev.mc.baseelectric.machines;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.simple.BlockSimplePowerMachine;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
@@ -21,16 +20,15 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
     public static final BooleanProperty POWERED = BooleanProperty.create("powered");
 
     public ElectricMachineBlock() {
-        this(Material.PISTON);
+        this(machineProperties(0.75f));
     }
 
-    public ElectricMachineBlock(Material material, ConduitType type) {
-        super(material, 0.75f, type);
-		initializeDefaultState();
+	protected ElectricMachineBlock(Block.Properties properties) {
+		this(properties, Power.ELECTRIC_POWER);
 	}
 
-	protected ElectricMachineBlock(Block.Properties properties) {
-		super(properties, Power.ELECTRIC_POWER);
+	protected ElectricMachineBlock(Block.Properties properties, ConduitType type) {
+		super(properties, type);
 		initializeDefaultState();
 	}
 
@@ -39,10 +37,6 @@ public abstract class ElectricMachineBlock extends BlockSimplePowerMachine {
                 .setValue(ACTIVE, false)
                 .setValue(POWERED, false)
                 .setValue(FACING, Direction.NORTH));
-    }
-
-    public ElectricMachineBlock(Material material) {
-        this(material, Power.ELECTRIC_POWER);
     }
 
     @Override

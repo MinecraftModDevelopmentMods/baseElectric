@@ -223,7 +223,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 						break;
 					}
 
-					if(getLevel().isEmptyBlock(n) || getLevel().getBlockState(n).getMaterial().isReplaceable()){
+					if(getLevel().isEmptyBlock(n) || getLevel().getBlockState(n).canBeReplaced()){
 						// this block is not worth mining, replace it
 						n = n.relative(f);
 						if(n.getY() == 0 || n.getY() == 255){
@@ -457,8 +457,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 							inv.setChanged();
 							this.setChanged();
 							return;
-						} else if(ItemStack.isSame(theirItem, inventory[mySlot])
-								&& ItemStack.tagMatches(theirItem, inventory[mySlot])
+						} else if(ItemStack.isSameItemSameTags(theirItem, inventory[mySlot])
 								&& theirItem.getCount() < theirItem.getMaxStackSize()
 								&& theirItem.getCount() < inv.getMaxStackSize()){
 							theirItem.grow(1);

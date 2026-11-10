@@ -3,7 +3,6 @@ package zone.moddev.mc.baseelectric.machines;
 import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.simple.BlockSimplePowerMachine;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
@@ -20,13 +19,8 @@ public abstract class ElectricGeneratorBlock extends BlockSimplePowerMachine {
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
     public ElectricGeneratorBlock() {
-        this(Material.PISTON);
+        this(machineProperties(0.75f));
     }
-
-    public ElectricGeneratorBlock(Material material) {
-        super(material, 0.75f, Power.ELECTRIC_POWER);
-		initializeDefaultState();
-	}
 
 	protected ElectricGeneratorBlock(Block.Properties properties) {
 		super(properties, Power.ELECTRIC_POWER);

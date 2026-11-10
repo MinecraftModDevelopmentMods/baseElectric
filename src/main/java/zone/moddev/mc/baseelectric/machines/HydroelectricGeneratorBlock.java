@@ -19,6 +19,6 @@ public class HydroelectricGeneratorBlock extends ElectricGeneratorBlock {
 	public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos)
 	{
 		return super.canSurvive(state, worldIn, pos)
-				&& !worldIn.getBlockState(pos.below()).getMaterial().isSolid();
+				&& !worldIn.getBlockState(pos.below()).blocksMotion();
 	}
 }

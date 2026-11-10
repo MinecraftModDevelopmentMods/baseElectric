@@ -19,9 +19,9 @@ check_hash() {
     [[ "${actual^^}" == "$expected" ]] || fail "SHA-256 mismatch for $file: expected $expected, got ${actual^^}"
 }
 
-[[ "$(value minecraft_version)" == '1.19.4' && "$(value forge_version)" == '45.4.0' ]] ||
-    fail 'This dependency build is only for Minecraft 1.19.4 / Forge 45.4.0'
-[[ "$(value poweradvantage_pin_state)" == 'PUBLISHED_RELEASE' ]] || fail 'The released basePower is not pinned'
+[[ "$(value minecraft_version)" == '1.20.1' && "$(value forge_version)" == '47.4.10' ]] ||
+    fail 'This dependency build is only for Minecraft 1.20.1 / Forge 47.4.10'
+[[ "$(value poweradvantage_pin_state)" == 'MERGED_SOURCE' ]] || fail 'basePower merged source is not pinned'
 
 ore_ref="$(value orespawn_source_commit)"
 bm_ref="$(value basemetals_source_commit)"
@@ -52,7 +52,7 @@ test "$(git -C "$basemetals" rev-parse HEAD)" = "$bm_ref"
 test "$(git -C "$power" rev-parse HEAD)" = "$power_ref"
 
 mavenizer="$orespawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar"
-check_hash "$mavenizer" '341B3FB10ABA6EA7DC612FBE519DC290A1C81867AED5DD320ACD783688AC49DE'
+check_hash "$mavenizer" '416DCA4797BC55826F0DDCF03FDC405F1990FC15C2133FA27A1F143BF7976177'
 
 read -r -a toolchains <<< "${MMD_GRADLE_TOOLCHAINS:?}"
 ore_version="$(value orespawn_version)"
@@ -66,7 +66,7 @@ powerjar="$power/build/libs-dev/basePower-$power_version-deobf.jar"
 powerplayer="$power/build/libs/basePower-$power_version.jar"
 bootstrap="$power/test-rig/unit-bootstrap/ForgeCapabilityBootstrap.java"
 agent="$power/build/unit-bootstrap/forge-native-unit-bootstrap.jar"
-installer="${RUNNER_TEMP:?}/forge-1.19.4-45.4.0-installer.jar"
+installer="${RUNNER_TEMP:?}/forge-1.20.1-47.4.10-installer.jar"
 
 (cd "$orespawn" && ./gradlew "${toolchains[@]}" assemble --no-daemon --stacktrace)
 check_hash "$osjar" "$(value orespawn_deobf_sha256)"
@@ -78,33 +78,15 @@ check_hash "$bmjar" "$(value basemetals_deobf_sha256)"
 check_hash "$bmplayer" "$(value basemetals_runtime_sha256)"
 check_hash "$bootstrap" "$(value poweradvantage_unit_bootstrap_sha256)"
 (cd "$power" && ./gradlew "${toolchains[@]}" assemble unitBootstrapJar verifyReleaseDependencies --no-daemon --stacktrace \
-    "-Pforge45MavenizerJar=$mavenizer" "-PbaseMetalsDeobfJar=$bmjar" "-PoreSpawnDeobfJar=$osjar")
+    "-Pforge47MavenizerJar=$mavenizer" "-PbaseMetalsDeobfJar=$bmjar" "-PoreSpawnDeobfJar=$osjar")
 git -C "$power" diff --exit-code HEAD --
 check_hash "$powerjar" "$(value poweradvantage_deobf_sha256)"
 check_hash "$powerplayer" "$(value poweradvantage_runtime_sha256)"
 check_hash "$agent" "$(value poweradvantage_unit_bootstrap_jar_sha256)"
 curl --fail --silent --show-error --location --proto '=https' \
-    'https://maven.minecraftforge.net/net/minecraftforge/forge/1.19.4-45.4.0/forge-1.19.4-45.4.0-installer.jar' \
+    'https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.1-47.4.10/forge-1.20.1-47.4.10-installer.jar' \
     --output "$installer"
 check_hash "$installer" "$(value forge_installer_sha256)"
-
-# Check public player bytes separately from the source-built development jars.
-published="$RUNNER_TEMP/base-electric-published"
-mkdir -p "$published"
-fetch_public() {
-    curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --output "$1" "$2"
-    check_hash "$1" "$3"
-}
-maven='https://maven.moddev.zone/releases/zone/moddev/mc'
-powerplayer="$published/basePower-$power_version.jar"
-bmplayer="$published/BaseMetals-$bm_version.jar"
-osplayer="$published/OreSpawn-$ore_version.jar"
-fetch_public "$powerplayer" "$maven/basepower/basePower/$power_version/basePower-$power_version.jar?ci=$GITHUB_RUN_ID" \
-    "$(value poweradvantage_runtime_sha256)"
-fetch_public "$bmplayer" "$maven/basemetals/BaseMetals/$bm_version/BaseMetals-$bm_version.jar?ci=$GITHUB_RUN_ID" \
-    "$(value basemetals_runtime_sha256)"
-fetch_public "$osplayer" 'https://www.curseforge.com/api/v1/mods/245586/files/9171353/download' \
-    "$(value orespawn_runtime_sha256)"
 
 printf 'mavenizer=%s\norespawn=%s\norespawn_player=%s\nbasemetals=%s\nbasemetals_player=%s\npower=%s\npower_player=%s\nbootstrap=%s\nagent=%s\ninstaller=%s\n' \
     "$mavenizer" "$osjar" "$osplayer" "$bmjar" "$bmplayer" "$powerjar" "$powerplayer" "$bootstrap" "$agent" "$installer" >> "$GITHUB_OUTPUT"

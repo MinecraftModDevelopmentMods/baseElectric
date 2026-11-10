@@ -5,7 +5,6 @@ import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerConnectorContext;
 import cyano.poweradvantage.api.PoweredEntity;
 import zone.moddev.mc.basepower.init.Fluids;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -21,7 +20,8 @@ public class GrowthChamberControllerBlock extends cyano.poweradvantage.api.simpl
 
 
 	public GrowthChamberControllerBlock() {
-		super(Material.PISTON, 0.75f, Power.GROWTHCHAMBER_POWER, Power.ELECTRIC_POWER, Fluids.fluidConduit_general);
+		super(machineProperties(0.75f),
+				Power.GROWTHCHAMBER_POWER, Power.ELECTRIC_POWER, Fluids.fluidConduit_general);
 	}
 
 	@Override

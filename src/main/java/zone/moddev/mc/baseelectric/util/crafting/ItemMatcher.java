@@ -55,7 +55,7 @@ public final class ItemMatcher {
     public boolean matches(ItemStack candidate) {
         if (candidate == null || candidate.isEmpty()) return false;
         for (ItemStack choice : choices) {
-            if (ItemStack.isSame(choice, candidate)) return true;
+            if (ItemStack.isSameItem(choice, candidate)) return true;
         }
         return false;
     }

@@ -14,10 +14,17 @@ import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.storage.loot.LootParams;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import zone.moddev.mc.baseelectric.init.Power;
 import zone.moddev.mc.baseelectric.machines.ElectricDrillBlock;
+import zone.moddev.mc.baseelectric.machines.ElectricFurnaceBlock;
+import zone.moddev.mc.baseelectric.machines.GrowthChamberBlock;
+import zone.moddev.mc.baseelectric.machines.GrowthChamberControllerBlock;
 import zone.moddev.mc.baseelectric.machines.LaserTurretBlock;
 import zone.moddev.mc.baseelectric.machines.PhotovoltaicGeneratorBlock;
 import static org.junit.Assert.*;
@@ -76,9 +83,34 @@ public class NativeBlockContractTest {
     }
 
     @Test public void hiddenPumpPipeRemainsNonSolidAndSolarPanelRemainsSolid() {
-        assertFalse(new PumpPipeBlock().defaultBlockState().canOcclude());
+        BlockState pipe = new PumpPipeBlock().defaultBlockState();
+        pipe.initCache();
+        assertFalse(pipe.canOcclude());
+        assertTrue("The metal pipe was solid independently of its occlusion shape", pipe.blocksMotion());
+        assertSame(PushReaction.NORMAL, pipe.getPistonPushReaction());
         PhotovoltaicGeneratorBlock panel = new PhotovoltaicGeneratorBlock();
+        panel.defaultBlockState().initCache();
         assertTrue("The 1.14 photovoltaic block explicitly overrides isSolid to true", panel.defaultBlockState().canOcclude());
+        assertTrue(panel.defaultBlockState().blocksMotion());
         assertTrue(panel.defaultBlockState().isRedstoneConductor(net.minecraft.world.level.EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
+    }
+
+    @Test public void removedPistonMaterialKeepsItsMapColorAndBlocksPistons() {
+        for (var block : java.util.List.of(new ElectricConduitBlock(), new ElectricScaffoldBlock(),
+                new ElectricDrillBlock(), new ElectricFurnaceBlock(), new GrowthChamberBlock(),
+                new GrowthChamberControllerBlock(), new LaserTurretBlock(false))) {
+            BlockState state = block.defaultBlockState();
+            // Forge fills this cache for registered blocks after the registry events.
+            state.initCache();
+            String name = block.getClass().getSimpleName();
+            assertSame(name, PushReaction.BLOCK, state.getPistonPushReaction());
+            assertTrue(name, state.blocksMotion());
+            assertSame(name, MapColor.STONE, state.getMapColor(EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
+        }
+    }
+
+    @Test public void hiddenPumpPipeUsesNativeNoLootTable() {
+        BlockState state = new PumpPipeBlock().defaultBlockState();
+        assertTrue(state.getDrops(new LootParams.Builder(null)).isEmpty());
     }
 }
