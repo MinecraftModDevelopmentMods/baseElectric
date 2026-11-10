@@ -58,17 +58,14 @@ public class BuildWorkflowContractTest {
         }
         assertTrue(script.contains("$orespawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar"));
         assertTrue(script.contains("check_hash \"$mavenizer\" '341B3FB10ABA6EA7DC612FBE519DC290A1C81867AED5DD320ACD783688AC49DE'"));
-        assertTrue(script.contains("mavenizer_init=\"$GITHUB_WORKSPACE/gradle/forge45-mavenizer.init.gradle\""));
-        assertTrue(script.contains("mavenizer_script=\"$GITHUB_WORKSPACE/gradle/forge45-mavenizer.gradle\""));
-        assertFalse(script.contains("$power/gradle/forge45-mavenizer"));
+        assertFalse(script.contains("forge45-mavenizer.init.gradle") || script.contains("-Pforge45MavenizerScript"));
         int metalsBuild = script.indexOf("(cd \"$basemetals\" && ./gradlew");
         int powerBuild = script.indexOf("(cd \"$power\" && ./gradlew");
         assertTrue(metalsBuild > 0 && powerBuild > metalsBuild);
         String metals = script.substring(metalsBuild, powerBuild);
         assertFalse(metals.contains("-I ") || metals.contains("-Pforge45Mavenizer"));
         String power = script.substring(powerBuild);
-        assertTrue(power.contains("-I \"$mavenizer_init\""));
-        assertTrue(power.contains("\"-Pforge45MavenizerScript=$mavenizer_script\""));
+        assertFalse(power.contains("-I ") || power.contains("--init-script"));
         assertTrue(power.contains("\"-Pforge45MavenizerJar=$mavenizer\""));
         assertTrue(script.contains("git -C \"$basemetals\" diff --exit-code HEAD --"));
         assertTrue(script.contains("git -C \"$power\" diff --exit-code HEAD --"));

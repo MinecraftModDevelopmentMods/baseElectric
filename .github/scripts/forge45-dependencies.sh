@@ -53,9 +53,6 @@ test "$(git -C "$power" rev-parse HEAD)" = "$power_ref"
 
 mavenizer="$orespawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar"
 check_hash "$mavenizer" '341B3FB10ABA6EA7DC612FBE519DC290A1C81867AED5DD320ACD783688AC49DE'
-mavenizer_init="$GITHUB_WORKSPACE/gradle/forge45-mavenizer.init.gradle"
-mavenizer_script="$GITHUB_WORKSPACE/gradle/forge45-mavenizer.gradle"
-test -f "$mavenizer_init" && test -f "$mavenizer_script" || fail 'Electric Forge 45 Mavenizer adapter is missing'
 
 read -r -a toolchains <<< "${MMD_GRADLE_TOOLCHAINS:?}"
 ore_version="$(value orespawn_version)"
@@ -81,7 +78,6 @@ check_hash "$bmjar" "$(value basemetals_deobf_sha256)"
 check_hash "$bmplayer" "$(value basemetals_runtime_sha256)"
 check_hash "$bootstrap" "$(value poweradvantage_unit_bootstrap_sha256)"
 (cd "$power" && ./gradlew "${toolchains[@]}" assemble unitBootstrapJar verifyReleaseDependencies --no-daemon --stacktrace \
-    -I "$mavenizer_init" "-Pforge45MavenizerScript=$mavenizer_script" \
     "-Pforge45MavenizerJar=$mavenizer" "-PbaseMetalsDeobfJar=$bmjar" "-PoreSpawnDeobfJar=$osjar")
 git -C "$power" diff --exit-code HEAD --
 check_hash "$powerjar" "$(value poweradvantage_deobf_sha256)"

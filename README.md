@@ -33,9 +33,9 @@ verification status. Earlier port notes, including
 The build pins the released basePower `2.4.11.119041` source and player jar,
 along with its separate development jar and test agent. Base Metals
 `3.1.2.119041`, OreSpawn `4.1.0.119041` and the Forge installer have
-explicit hashes in `gradle.properties`. Forge 45 CI and CodeQL use Electric's
-init adapter only for pinned Power. Pinned Base Metals uses its own verified
-fixture. The dependency source checkouts stay unchanged. Releases are made
+explicit hashes in `gradle.properties`. The pinned basePower and Base Metals
+builds configure their own verified Forge 45 tool. The dependency source
+checkouts stay unchanged. Releases are made
 through the guarded workflow, using the verified CI artifacts.
 
 Run from this repository with the explicit input arguments below:
