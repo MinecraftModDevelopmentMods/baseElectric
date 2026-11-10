@@ -62,9 +62,10 @@ Receipts under `build/port-evidence/final-e6ecfb3-9e706db`:
   legacy inventory conversion, sulfur loot, damage types and clean shutdown.
 - `jar-comparison.json` and `static-audit.json`: archive and recipe parity.
 
-Local Electric qualification is separate from family endurance, client visual
-acceptance and whole-world upgrade coverage. The jar is not manual-ready
-until the combined gate is met.
+This exact jar passed the combined 21-station rig, the recipe progression
+checks, and both 30-minute endurance runs with a full restart. The combined
+Eclipse client passed its resource and screen checks. Live turbine animation
+still needs a manual look. This is ready for manual testing, not a release.
 
 Earlier exact receipts, including `jar-comparison-75297fd.json` and
 `packaged-exact-75297fd/receipt.json`, remain under `build/port-evidence`.
