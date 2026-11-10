@@ -21,7 +21,7 @@ check_hash() {
 
 [[ "$(value minecraft_version)" == '1.20.1' && "$(value forge_version)" == '47.4.10' ]] ||
     fail 'This dependency build is only for Minecraft 1.20.1 / Forge 47.4.10'
-[[ "$(value poweradvantage_pin_state)" == 'LOCAL_CHECKPOINT' ]] || fail 'basePower checkpoint is not pinned'
+[[ "$(value poweradvantage_pin_state)" == 'MERGED_SOURCE' ]] || fail 'basePower merged source is not pinned'
 
 ore_ref="$(value orespawn_source_commit)"
 bm_ref="$(value basemetals_source_commit)"

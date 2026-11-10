@@ -8,6 +8,9 @@ This local port targets Minecraft **1.20.6**, Forge **50.2.0**, official mapping
 ForgeGradle **7.0.34**, and Java **21**. The tentative version is **2.2.14.120061**.
 See [the local port record](docs/NATIVE1206.md) for the checkpoint and test status.
 
+Back up your world and try the upgrade on a copy. Replace Electric Advantage
+and Power Advantage with baseElectric and basePower; do not install both sets.
+
 ## Building locally
 
 Use Temurin 21.0.7+6 for Gradle and Minecraft. The pinned OreSpawn Mavenizer

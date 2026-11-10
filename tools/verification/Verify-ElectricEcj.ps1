@@ -71,7 +71,7 @@ try {
         $properties.minecraft_version -ne '1.20.1' -or $properties.forge_version -ne '47.4.10' -or
         $properties.poweradvantage_version -ne '2.4.12.120011' -or $properties.basemetals_version -ne '3.1.2.120011' -or
         $properties.orespawn_version -ne '4.1.0.120011' -or
-        $properties.poweradvantage_pin_state -ne 'LOCAL_CHECKPOINT' -or
+        $properties.poweradvantage_pin_state -ne 'MERGED_SOURCE' -or
         $properties.poweradvantage_source_ref -cnotmatch '^[a-f0-9]{40}$' -or
         $properties.poweradvantage_runtime_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
         $properties.basemetals_source_commit -cnotmatch '^[a-f0-9]{40}$' -or
