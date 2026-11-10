@@ -38,7 +38,7 @@ public final class RecipeDeconstructor {
         if (cachedRecipeCount == recipes.size() && !recipeCache.isEmpty()) return;
         recipeCache.clear();
         for (Recipe<?> recipe : recipes) {
-            ItemStack output = recipe.getResultItem();
+            ItemStack output = recipe.getResultItem(world.registryAccess());
             if (output == null || output.isEmpty()) continue;
             recipeCache.computeIfAbsent(new ItemRecord(output), ignored -> new ArrayList<>()).add(recipe);
         }
@@ -93,7 +93,7 @@ public final class RecipeDeconstructor {
                 }
             }
             if (!failed) {
-                output.set(recipe.getResultItem().copy());
+                output.set(recipe.getResultItem(world.registryAccess()).copy());
                 return candidate;
             }
         }

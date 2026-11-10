@@ -4,10 +4,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.items.BatteryItem;
 import zone.moddev.mc.basepower.init.ItemGroups;
@@ -38,11 +40,10 @@ public final class Items {
     private Items() {}
 
     /** Kept for callers of the legacy bootstrap; Forge owns item construction. */
-    public static void init() { ItemGroups.init(); }
+    public static void init() {}
 
     private static synchronized void constructItems() {
         if (initialized) return;
-        init();
         blank_circuit_board = add("blank_circuit_board", new Item(properties()));
         control_circuit = add("control_circuit", new Item(properties()));
         integrated_circuit = add("integrated_circuit", new Item(properties()));
@@ -63,16 +64,18 @@ public final class Items {
         initialized = true;
     }
 
-    private static Item.Properties properties() { return new Item.Properties().tab(ItemGroups.tab_powerAdvantage); }
+    private static Item.Properties properties() { return new Item.Properties(); }
     private static Item add(String id, Item item) {
-        item.setRegistryName(ElectricAdvantage.MODID, id);
         allItems.put(id, item);
         return item;
     }
 
-    @SubscribeEvent public static void register(RegistryEvent.Register<Item> event) {
-        constructItems();
-        event.getRegistry().registerAll(allItems.values().toArray(new Item[0]));
+    @SubscribeEvent public static void register(RegisterEvent event) {
+        event.register(ForgeRegistries.Keys.ITEMS, registry -> {
+            constructItems();
+            allItems.forEach((id, item) ->
+                    registry.register(new ResourceLocation(ElectricAdvantage.MODID, id), ItemGroups.show(item)));
+        });
     }
 
     public static Item getItemByName(String id) { return allItems.get(id); }

@@ -2,7 +2,7 @@ package zone.moddev.mc.baseelectric.entities;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
-import java.util.Random;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.EntityType;
@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.world.phys.Vec3;
 import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import net.minecraft.world.level.Level;
@@ -20,7 +21,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class ElectricOperationalHydroturbineAnchorTest {
-    @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
+    @BeforeClass public static void bootstrap() throws ReflectiveOperationException {
+        NativeTestBootstrap.registerVanillaFluidTypes();
+    }
 
     @Test public void nativeEntityLoadStillClampsOverspeedMotionAndPreservesItsBoundary() throws Exception {
         ControlEntity control = new ControlEntity(controlType(), world());
@@ -92,13 +95,13 @@ public class ElectricOperationalHydroturbineAnchorTest {
                 .invoke(field.get(null), NoTickWorld.class);
         Field random = Level.class.getField("random");
         random.setAccessible(true);
-        random.set(world, new Random(0));
+        random.set(world, RandomSource.create(0));
         return world;
     }
 
     private static final class NoTickWorld extends ServerLevel {
         private NoTickWorld() {
-            super(null, null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
+            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
         }
     }
 
@@ -107,6 +110,6 @@ public class ElectricOperationalHydroturbineAnchorTest {
         @Override protected void defineSynchedData() {}
         @Override protected void readAdditionalSaveData(CompoundTag tag) {}
         @Override protected void addAdditionalSaveData(CompoundTag tag) {}
-        @Override public Packet<?> getAddEntityPacket() { return null; }
+        @Override public Packet<ClientGamePacketListener> getAddEntityPacket() { return null; }
     }
 }

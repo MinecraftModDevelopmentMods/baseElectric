@@ -5,7 +5,7 @@ import zone.moddev.mc.baseelectric.entities.HydroturbineEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -40,7 +40,7 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 			final float shaftMaxV = 1.0f;
 			
 			matrices.translate(0f, 0.5f, 0f);
-			matrices.mulPose(Vector3f.YP.rotationDegrees(e.getYRot()));
+			matrices.mulPose(Axis.YP.rotationDegrees(e.getYRot()));
             final BufferedQuads worldRenderer = new BufferedQuads(matrices,
                     buffers.getBuffer(RenderType.entitySolid(texture)), packedLight, OverlayTexture.NO_OVERLAY);
 

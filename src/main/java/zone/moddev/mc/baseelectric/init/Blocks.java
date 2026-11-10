@@ -4,13 +4,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cyano.poweradvantage.api.GUIBlock;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.blocks.ElectricConduitBlock;
 import zone.moddev.mc.baseelectric.blocks.ElectricScaffoldBlock;
@@ -68,11 +70,10 @@ public final class Blocks {
     private Blocks() {}
 
     /** Kept for callers of the legacy bootstrap; Forge owns block construction. */
-    public static void init() { ItemGroups.init(); }
+    public static void init() {}
 
     private static synchronized void constructBlocks() {
         if (initialized) return;
-        init();
         electric_conduit = add(new ElectricConduitBlock(), "electric_conduit");
         lithium_ore = add(new Ore(1), "li_ore");
         sulfur_ore = add(Ore.withDeferredDrop(() -> new ItemStack(Items.sulfur_powder, 1), 0, 3), "sulfur_ore");
@@ -100,25 +101,24 @@ public final class Blocks {
     }
 
     private static Block add(Block block, String id) {
-        block.setRegistryName(ElectricAdvantage.MODID, id);
         ALL_BLOCKS.put(id, block);
         return block;
     }
 
-    @SubscribeEvent public static void registerBlocks(RegistryEvent.Register<Block> event) {
-        constructBlocks();
-        event.getRegistry().registerAll(ALL_BLOCKS.values().toArray(new Block[0]));
+    @SubscribeEvent public static void registerBlocks(RegisterEvent event) {
+        event.register(ForgeRegistries.Keys.BLOCKS, registry -> {
+            constructBlocks();
+            ALL_BLOCKS.forEach((id, block) -> registry.register(new ResourceLocation(ElectricAdvantage.MODID, id), block));
+        });
     }
 
-    @SubscribeEvent public static void registerBlockItems(RegistryEvent.Register<Item> event) {
-        for (Map.Entry<String, Block> entry : ALL_BLOCKS.entrySet()) {
-            Item.Properties properties = new Item.Properties();
-            if (!"pump_pipe_electric".equals(entry.getKey()) && !"laser_turret_evil".equals(entry.getKey())) {
-                properties.tab(ItemGroups.tab_powerAdvantage);
+    @SubscribeEvent public static void registerBlockItems(RegisterEvent event) {
+        event.register(ForgeRegistries.Keys.ITEMS, registry -> ALL_BLOCKS.forEach((id, block) -> {
+            BlockItem item = new BlockItem(block, new Item.Properties());
+            if (!"pump_pipe_electric".equals(id) && !"laser_turret_evil".equals(id)) {
+                ItemGroups.show(item);
             }
-            BlockItem item = new BlockItem(entry.getValue(), properties);
-            item.setRegistryName(ElectricAdvantage.MODID, entry.getKey());
-            event.getRegistry().register(item);
-        }
+            registry.register(new ResourceLocation(ElectricAdvantage.MODID, id), item);
+        }));
     }
 }

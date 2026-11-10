@@ -5,7 +5,7 @@ import zone.moddev.mc.baseelectric.machines.LaserTurretTileEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
@@ -58,8 +58,8 @@ public class LaserTurretRenderer implements BlockEntityRenderer<LaserTurretTileE
 
 		matrices.pushPose();
 		matrices.translate(0.5f, 0.75f, 0.5f);
-		matrices.mulPose(Vector3f.YP.rotationDegrees(yaw));
-		matrices.mulPose(Vector3f.XP.rotationDegrees(pitch));
+		matrices.mulPose(Axis.YP.rotationDegrees(yaw));
+		matrices.mulPose(Axis.XP.rotationDegrees(pitch));
         BufferedQuads worldRenderer = new BufferedQuads(matrices,
                 buffers.getBuffer(renderType), packedLight, packedOverlay);
 		

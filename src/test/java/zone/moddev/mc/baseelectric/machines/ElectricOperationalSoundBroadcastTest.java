@@ -9,7 +9,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.AABB;
 import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
@@ -83,7 +83,16 @@ public class ElectricOperationalSoundBroadcastTest {
             if (player.connection == null) continue;
             RecordingConnection connection = (RecordingConnection)player.connection;
             assertEquals("Player " + i, i < 3 ? 1 : 0, connection.sent);
-            if (i < 3) assertTrue(connection.last instanceof ClientboundCustomSoundPacket);
+            if (i < 3) {
+                assertTrue(connection.last instanceof ClientboundSoundPacket);
+                ClientboundSoundPacket packet = (ClientboundSoundPacket) connection.last;
+                assertSame(SoundEvents.ANVIL_LAND, packet.getSound().value());
+                assertEquals(100, packet.getX(), 0.0);
+                assertEquals(80, packet.getY(), 0.0);
+                assertEquals(-20, packet.getZ(), 0.0);
+                assertEquals(0.25f, packet.getVolume(), 0.0f);
+                assertEquals(0.75f, packet.getPitch(), 0.0f);
+            }
         }
     }
 
@@ -99,7 +108,7 @@ public class ElectricOperationalSoundBroadcastTest {
         int playerListReads;
 
         private QueryRejectingWorld() {
-            super(null, null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
+            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
         }
 
         @Override public List<ServerPlayer> players() {

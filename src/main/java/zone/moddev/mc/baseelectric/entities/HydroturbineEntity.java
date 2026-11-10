@@ -8,6 +8,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraftforge.network.NetworkHooks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
@@ -51,7 +52,7 @@ public class HydroturbineEntity extends net.minecraft.world.entity.Entity{
 	}
 
 	@Override
-	public Packet<?> getAddEntityPacket() {
+	public Packet<ClientGamePacketListener> getAddEntityPacket() {
 		return NetworkHooks.getEntitySpawningPacket(this);
 	}
 
@@ -100,7 +101,7 @@ public class HydroturbineEntity extends net.minecraft.world.entity.Entity{
 				// slice-n-dice unfortunate souls caught in the blades
 				List<LivingEntity> victims = getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox());
 				for(Entity e : victims){
-					e.hurt(Power.propeller_damage, PROPELLER_DAMAGE);
+					e.hurt(Power.damageSource(getCommandSenderWorld(), Power.PROPELLER_DAMAGE), PROPELLER_DAMAGE);
 				}
 			}
 		}

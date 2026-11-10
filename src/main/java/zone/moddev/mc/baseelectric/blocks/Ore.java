@@ -1,6 +1,6 @@
 package zone.moddev.mc.baseelectric.blocks;
 
-import java.util.Random;
+import net.minecraft.util.RandomSource;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -55,7 +55,7 @@ public class Ore extends Block {
                 && EnchantmentHelper.getItemEnchantmentLevel(Enchantments.SILK_TOUCH, tool) > 0)) {
             return Collections.singletonList(new ItemStack(this));
         }
-        Random random = context.getLevel().random;
+        RandomSource random = context.getLevel().random;
         ItemStack result = dropItem.copy();
         result.setCount(dropItem.getCount() + (dropRange > 1 ? random.nextInt(dropRange) : 0));
         return Collections.singletonList(result);

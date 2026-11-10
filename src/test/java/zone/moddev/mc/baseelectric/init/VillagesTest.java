@@ -1,6 +1,7 @@
 package zone.moddev.mc.baseelectric.init;
 
-import java.util.Random;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.nbt.CompoundTag;
 import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
@@ -28,7 +29,7 @@ public class VillagesTest {
     }
 
     private static void assertOffer(int minimum, int maximum, boolean upper, int emeralds, int goods) {
-        Random random = new Random(0L) {
+        RandomSource random = new LegacyRandomSource(0L) {
             @Override public int nextInt(int bound) { return upper ? bound - 1 : 0; }
         };
         MerchantOffer offer = Villages.sell(net.minecraft.world.item.Items.APPLE, minimum, maximum)

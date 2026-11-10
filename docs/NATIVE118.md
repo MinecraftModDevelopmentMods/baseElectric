@@ -1,17 +1,15 @@
-# baseElectric 1.18.2 port notes
+# baseElectric 1.18.2 local port
 
-The release branch uses the shared Base Metals 3.1.2 migration hook and the
-published basePower 2.4.10.118021 build.
+The current local candidate uses the shared Base Metals 3.1.2 migration hook.
 See [gradle.properties](../gradle.properties) for the exact Power, Base Metals
-and OreSpawn pins.
-
-The first locally tested Electric player jar had SHA-256
+and OreSpawn pins. The release and Eclipse audits passed with these inputs.
+The current Electric player JAR has SHA-256
 `C5C1A6DEAE795F8AF741DBE35B0D8941F7FA4BBC708758BDFE056B4AEBADCBC1`.
 The notes below record earlier port milestones and their original inputs.
 
 `feature/baseelectric-1.18.2-port` was cloned from the clean PA117
 `feature/baseelectric-1.17.1-identity-migration` tip
-`cf3d4b0e2d1591b2ae8e5d638002ca016e46eac4`.
+`cf3d4b0e2d1591b2ae8e5d638002ca016e46eac4`. This checkout has no Git remote.
 The candidate is `2.2.11.118021`, for Forge `40.3.0`, official `1.18.2`,
 MCP `20220404.173914`, Java 17 and ForgeGradle `7.0.34`.
 

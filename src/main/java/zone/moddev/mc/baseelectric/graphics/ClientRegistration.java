@@ -33,7 +33,7 @@ public final class ClientRegistration {
 
     @SubscribeEvent
     public static void registerShaders(RegisterShadersEvent event) throws IOException {
-        event.registerShader(new ShaderInstance(event.getResourceManager(), ElectricRenderTypes.UNSHADED,
+        event.registerShader(new ShaderInstance(event.getResourceProvider(), ElectricRenderTypes.UNSHADED,
                 DefaultVertexFormat.NEW_ENTITY), ElectricRenderTypes::setUnshadedShader);
     }
 }

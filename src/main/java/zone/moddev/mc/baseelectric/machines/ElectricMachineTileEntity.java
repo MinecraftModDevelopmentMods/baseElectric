@@ -3,21 +3,15 @@ package zone.moddev.mc.baseelectric.machines;
 import zone.moddev.mc.baseelectric.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.item.crafting.RecipeType;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
@@ -227,7 +221,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 		SimpleContainer inventory = new SimpleContainer(1);
 		inventory.setItem(0, input);
 		return getLevel().getRecipeManager().getRecipeFor(RecipeType.SMELTING, inventory, getLevel())
-				.map(recipe -> recipe.assemble(inventory)).orElse(ItemStack.EMPTY);
+				.map(recipe -> recipe.assemble(inventory, getLevel().registryAccess())).orElse(ItemStack.EMPTY);
 	}
 	
 	@Override
@@ -347,19 +341,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	}
 
 	protected void playSoundEffect(double x, double y, double z, SoundEvent sound, float volume, float pitch){
-		if(getLevel().isClientSide) return;
-		final double range = 16;
-		AABB bounds = new AABB(
-				x - range, y - range, z - range,
-				x + range, y + range, z + range);
-		// A world-wide entity query can load chunks just to broadcast a sound.
-		for(Player candidate : getLevel().players()){
-			if(!(candidate instanceof ServerPlayer)) continue;
-			ServerPlayer player = (ServerPlayer)candidate;
-			if(player.connection == null || player.isSpectator() || !player.getBoundingBox().intersects(bounds)) continue;
-			player.connection.send(new ClientboundCustomSoundPacket(sound.getRegistryName(), SoundSource.BLOCKS,
-					new net.minecraft.world.phys.Vec3(x, y, z), volume, pitch));
-		}
+		ElectricOperationalSound.broadcast(getLevel(), x, y, z, sound, volume, pitch);
 	}
 	
 	public ItemStack insertItemToOutputSlots(ItemStack itemStack){

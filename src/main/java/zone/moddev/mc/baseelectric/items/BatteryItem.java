@@ -8,8 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.level.Level;
 
 import java.text.NumberFormat;
@@ -100,10 +98,10 @@ public class BatteryItem extends net.minecraft.world.item.Item implements IRecha
 		float max = getMaxEnergy(stack);
 		if(max <= 0) return; // not a battery!
 		float e = getEnergy(stack);
-		list.add(new TextComponent(nf.format(100 * e / max) + "% ")
-				.append(new TranslatableComponent("tooltip.battery.charge")));
-		list.add(new TextComponent("(" + nf.format(max) + "kJ ")
-				.append(new TranslatableComponent("tooltip.battery.capacity"))
+		list.add(Component.literal(nf.format(100 * e / max) + "% ")
+				.append(Component.translatable("tooltip.battery.charge")));
+		list.add(Component.literal("(" + nf.format(max) + "kJ ")
+				.append(Component.translatable("tooltip.battery.capacity"))
 				.append(")"));
 	}
 }

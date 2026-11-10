@@ -7,7 +7,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -38,7 +37,7 @@ public final class BaseMetalsCompat {
             inventory.setItem(0, input.copy());
             for (Recipe<?> candidate : world.getRecipeManager().getRecipes()) {
                 if (candidate instanceof CrushingRecipe && ((CrushingRecipe) candidate).matches(inventory, world)) {
-                    return candidate.getResultItem().copy();
+                    return candidate.getResultItem(world.registryAccess()).copy();
                 }
             }
         }
@@ -50,7 +49,7 @@ public final class BaseMetalsCompat {
     }
 
     private static ItemStack getVanillaCrusherOutput(ItemStack input) {
-        String key = String.valueOf(input.getItem().getRegistryName());
+        String key = String.valueOf(ForgeRegistries.ITEMS.getKey(input.getItem()));
         if ("minecraft:stone".equals(key) || "minecraft:stone_bricks".equals(key)) {
             return stack("minecraft:cobblestone", 1);
         }

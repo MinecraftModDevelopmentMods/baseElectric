@@ -1,15 +1,16 @@
-baseElectric 2.2.11.118021 (Minecraft 1.18.2)
+baseElectric 2.2.12.119041 (Minecraft 1.19.4)
 
-- Bring baseElectric to Minecraft 1.18.2, with the same machines and recipes.
-- Keep saved power, inventories, drill facings and hydroturbines when upgrading.
-- Use the released basePower 2.4.10.118021 and Base Metals 3.1.2 save hook.
+- Target Forge 45.4.0, official mappings, Java 17 and ForgeGradle 7.
+- Register the same Electric content in the shared basePower creative tab.
+- Retain machine data, recipe unlocks, ore drops and optional Base Metals recipes.
+- Use native registry-aware crafting, sound, damage and renderer APIs.
+- Pin the released basePower 2.4.11.119041 and the Base Metals migration fix.
 
 baseElectric 2.2.10.117011 (Minecraft 1.17.1)
 
 - Continue Electric Advantage as baseElectric, with its blocks and items in the shared basePower creative tab.
 - Recognize older Electric Advantage blocks, items, machines and hydroturbines when upgrading.
 - Keep the native 1.17.1 machine controls, drops and recipe discoveries.
-- Build and test against the published basePower 2.4.9.117011 release.
 
 Electric Advantage 2.2.9.117011 - Minecraft 1.17.1 local port candidate
 

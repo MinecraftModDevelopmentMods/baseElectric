@@ -1,0 +1,5 @@
+{
+  "sources": [
+    {"type":"single","resource":"baseelectric:entity/laser_turret"}
+  ]
+}
