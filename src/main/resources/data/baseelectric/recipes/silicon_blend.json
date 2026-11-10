@@ -9,17 +9,26 @@
     }
   ],
   "result": {
-    "item": "baseelectric:silicon_mix"
+    "id": "baseelectric:silicon_mix"
   },
   "group": "baseelectric:silicon_mix",
-  "conditions": [
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:dusts/carbon"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:sand"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:dusts/carbon"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:sand"
+        }
+      }
+    ]
+  }
 }

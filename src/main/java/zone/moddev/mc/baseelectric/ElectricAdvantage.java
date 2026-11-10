@@ -25,13 +25,13 @@ import zone.moddev.mc.baseelectric.init.Villages;
 import zone.moddev.mc.baseelectric.recipe.RecipeConditions;
 import zone.moddev.mc.baseelectric.migration.ElectricLegacyMigrations;
 
-/** Forge 1.20.1 entry point for baseElectric. */
+/** Forge 1.20.6 entry point for baseElectric. */
 @Mod(ElectricAdvantage.MODID)
 public final class ElectricAdvantage {
     public static final String MODID = "baseelectric";
     public static final String LEGACY_MODID = "electricadvantage";
     public static final String NAME = "baseElectric";
-    public static final String VERSION = "2.2.13.120011";
+    public static final String VERSION = "2.2.14.120061";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static ElectricAdvantage INSTANCE;
 
@@ -41,6 +41,7 @@ public final class ElectricAdvantage {
     public ElectricAdvantage(FMLJavaModLoadingContext context) {
         INSTANCE = this;
         ElectricLegacyMigrations.register();
+        RecipeConditions.register(context.getModEventBus());
 
         migrateLegacyOreSpawnConfiguration();
         migrateLegacyConfiguration();
@@ -80,8 +81,6 @@ public final class ElectricAdvantage {
 
     private void commonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(GUI::init);
-        // CraftingHelper's shared condition map is not safe during parallel loading.
-        event.enqueueWork(RecipeConditions::register);
         ElectricAdvantageConfig.apply();
         TreasureChests.init(FMLPaths.CONFIGDIR.get());
         Villages.init();

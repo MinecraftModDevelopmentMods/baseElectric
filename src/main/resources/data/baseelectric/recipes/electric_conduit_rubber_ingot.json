@@ -14,18 +14,27 @@
     }
   },
   "result": {
-    "item": "baseelectric:electric_conduit",
+    "id": "baseelectric:electric_conduit",
     "count": 6
   },
   "group": "baseelectric:electric_conduit",
-  "conditions": [
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:ingots/copper"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:rubber"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:ingots/copper"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:rubber"
+        }
+      }
+    ]
+  }
 }

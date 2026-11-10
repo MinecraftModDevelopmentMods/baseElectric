@@ -19,16 +19,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class OreHarvestContractTest {
-    @BeforeClass public static void bootstrapNativeRegistries() throws Exception {
-        NativeTestBootstrap.initialize();
-        // A plain JVM does not run Forge's resource reload that orders vanilla tiers.
-        java.lang.reflect.Method sort = net.minecraftforge.common.TierSortingRegistry.class
-                .getDeclaredMethod("recalculateItemTiers");
-        sort.setAccessible(true);
-        sort.invoke(null);
-        assertTrue(net.minecraftforge.common.TierSortingRegistry.getSortedTiers()
-                .contains(net.minecraft.world.item.Tiers.STONE));
-    }
+    @BeforeClass public static void bootstrapNativeRegistries() { NativeTestBootstrap.initialize(); }
     @Test public void lithiumRetainsStonePickaxeMinimumThroughNativeHarvestChecks() throws Exception {
         BlockState lithium = new Ore(1).defaultBlockState();
         bindHarvestTags(lithium.getBlock(), "baseelectric:li_ore");
@@ -66,6 +57,11 @@ public class OreHarvestContractTest {
             for (var value : json.getAsJsonArray("values")) {
                 if (id.equals(value.getAsString())) tags.add(tag);
             }
+        }
+        // Vanilla's wooden and golden incorrect-tool tags both include needs_stone_tool.
+        if (tags.contains(BlockTags.NEEDS_STONE_TOOL)) {
+            tags.add(net.minecraft.world.item.Tiers.WOOD.getIncorrectBlocksForDrops());
+            tags.add(net.minecraft.world.item.Tiers.GOLD.getIncorrectBlocksForDrops());
         }
         // Bind only the fresh test block's holder; leave the global registry alone.
         block.builtInRegistryHolder().bindTags(tags);

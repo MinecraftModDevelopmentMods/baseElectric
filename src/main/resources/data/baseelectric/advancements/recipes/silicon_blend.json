@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:sand"
+            "items": "#forge:sand"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:dusts/carbon"
+            "items": "#forge:dusts/carbon"
           }
         ]
       }
@@ -38,6 +38,25 @@
   "rewards": {
     "recipes": [
       "baseelectric:silicon_blend"
+    ]
+  },
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:dusts/carbon"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:sand"
+        }
+      }
     ]
   }
 }

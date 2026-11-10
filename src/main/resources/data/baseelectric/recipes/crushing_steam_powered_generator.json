@@ -4,17 +4,20 @@
     "item": "baseelectric:steam_powered_generator"
   },
   "result": {
-    "item": "baseelectric:psu",
+    "id": "baseelectric:psu",
     "count": 1
   },
-  "conditions": [
-    {
-      "type": "forge:mod_loaded",
-      "modid": "basemetals"
-    },
-    {
-      "type": "baseelectric:recipe_mode",
-      "mode": "APOCALYPTIC"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:mod_loaded",
+        "modid": "basemetals"
+      },
+      {
+        "type": "baseelectric:recipe_mode",
+        "mode": "APOCALYPTIC"
+      }
+    ]
+  }
 }

@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:nuggets/lithium"
+            "items": "#forge:nuggets/lithium"
           }
         ]
       }
@@ -28,5 +28,12 @@
     "recipes": [
       "baseelectric:lithium_ingot_from_nuggets"
     ]
+  },
+  "forge:condition": {
+    "type": "forge:not",
+    "value": {
+      "type": "forge:tag_empty",
+      "tag": "forge:nuggets/lithium"
+    }
   }
 }

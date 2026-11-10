@@ -1,5 +1,8 @@
 package zone.moddev.mc.baseelectric.gui;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.machines.ElectricMachineTileEntity;
 import cyano.poweradvantage.api.simple.SimpleMachineGUI;
@@ -47,6 +50,7 @@ guiContainer.blit(x+79, y+35, 0, 0, arrowLength, 17); // x, y, textureOffsetX, t
 	 * @param z This is the z coordinate (no units) into the depth of the screen
 	 */
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	public void drawGUIDecorations(Object srcEntity, GUIContainer guiContainer, int x, int y, float  z){
 		if(srcEntity instanceof ElectricMachineTileEntity){
 			ElectricMachineTileEntity te = (ElectricMachineTileEntity)srcEntity;

@@ -20,21 +20,33 @@
     }
   },
   "result": {
-    "item": "baseelectric:alkaline_battery"
+    "id": "baseelectric:alkaline_battery"
   },
   "group": "baseelectric:alkaline_battery",
-  "conditions": [
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:ingots/iron"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:ingots/zinc"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:plastic"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:ingots/iron"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:ingots/zinc"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:plastic"
+        }
+      }
+    ]
+  }
 }

@@ -12,17 +12,26 @@
     }
   ],
   "result": {
-    "item": "baseelectric:control_circuit"
+    "id": "baseelectric:control_circuit"
   },
   "group": "baseelectric:control_circuit",
-  "conditions": [
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:microchips"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:solder"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:microchips"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:solder"
+        }
+      }
+    ]
+  }
 }

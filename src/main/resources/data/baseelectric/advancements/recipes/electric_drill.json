@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:storage_blocks/diamond"
+            "items": "#forge:storage_blocks/diamond"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:power_supply_units"
+            "items": "#forge:power_supply_units"
           }
         ]
       }
@@ -26,7 +26,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:plates/steel"
+            "items": "#forge:plates/steel"
           }
         ]
       }
@@ -36,7 +36,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:frames/steel"
+            "items": "#forge:frames/steel"
           }
         ]
       }
@@ -60,6 +60,39 @@
   "rewards": {
     "recipes": [
       "baseelectric:electric_drill"
+    ]
+  },
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:frames/steel"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:plates/steel"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:power_supply_units"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:storage_blocks/diamond"
+        }
+      }
     ]
   }
 }

@@ -4,17 +4,20 @@
     "item": "baseelectric:psu"
   },
   "result": {
-    "item": "baseelectric:control_circuit",
+    "id": "baseelectric:control_circuit",
     "count": 1
   },
-  "conditions": [
-    {
-      "type": "forge:mod_loaded",
-      "modid": "basemetals"
-    },
-    {
-      "type": "baseelectric:recipe_mode",
-      "mode": "APOCALYPTIC"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:mod_loaded",
+        "modid": "basemetals"
+      },
+      {
+        "type": "baseelectric:recipe_mode",
+        "mode": "APOCALYPTIC"
+      }
+    ]
+  }
 }

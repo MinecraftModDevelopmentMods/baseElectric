@@ -152,8 +152,8 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		BlockPos nextPos = getBlockPos().relative(trackDir);
 		w.setBlock(nextPos, w.getBlockState(getBlockPos()), 2);
 		ElectricDrillTileEntity te = (ElectricDrillTileEntity)w.getBlockEntity(nextPos);
-		CompoundTag dataTransfer = saveWithoutMetadata();
-		te.load(dataTransfer);
+		CompoundTag dataTransfer = saveWithoutMetadata(w.registryAccess());
+		te.loadWithComponents(dataTransfer, w.registryAccess());
 		te.clearRemoved();
 		te.subtractEnergy(ENERGY_COST_MOVE, getEnergyType());
 		te.setChanged();
@@ -289,7 +289,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 					pos.getX()+1,pos.getY()+1,pos.getZ()+1);
 			List<LivingEntity> victims = getLevel().getEntitiesOfClass(LivingEntity.class, beamArea);
 			for(Entity e : victims){
-				e.setSecondsOnFire(3);
+				e.igniteForSeconds(3);
 			e.hurt(Power.damageSource(getLevel(), Power.LASER_DAMAGE), 2f);
 			}
 		}
@@ -457,7 +457,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 							inv.setChanged();
 							this.setChanged();
 							return;
-						} else if(ItemStack.isSameItemSameTags(theirItem, inventory[mySlot])
+						} else if(ItemStack.isSameItemSameComponents(theirItem, inventory[mySlot])
 								&& theirItem.getCount() < theirItem.getMaxStackSize()
 								&& theirItem.getCount() < inv.getMaxStackSize()){
 							theirItem.grow(1);
@@ -546,7 +546,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	@OnlyIn(Dist.CLIENT)
 	public AABB getRenderBoundingBox()
 	{
-		return new AABB(getBlockPos().offset(-renderRange, -renderRange, -renderRange), getBlockPos().offset(renderRange, renderRange, renderRange));
+		return new AABB(getBlockPos()).inflate(renderRange);
 		//return super.INFINITE_EXTENT_AABB;
 	}
 }

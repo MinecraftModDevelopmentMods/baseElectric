@@ -16,17 +16,26 @@
     }
   },
   "result": {
-    "item": "baseelectric:electric_switch"
+    "id": "baseelectric:electric_switch"
   },
   "group": "baseelectric:electric_switch",
-  "conditions": [
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:frames/steel"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:wires"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:frames/steel"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:wires"
+        }
+      }
+    ]
+  }
 }

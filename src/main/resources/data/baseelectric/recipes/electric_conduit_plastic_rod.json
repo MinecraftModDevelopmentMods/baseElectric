@@ -13,17 +13,26 @@
     }
   },
   "result": {
-    "item": "baseelectric:electric_conduit"
+    "id": "baseelectric:electric_conduit"
   },
   "group": "baseelectric:electric_conduit",
-  "conditions": [
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:plastic"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:rods/copper"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:plastic"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:rods/copper"
+        }
+      }
+    ]
+  }
 }

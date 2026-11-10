@@ -6,6 +6,7 @@ import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
+import net.minecraft.world.item.trading.ItemCost;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 
@@ -38,7 +39,7 @@ public final class Villages {
             int price = minimumPrice + random.nextInt(maximumPrice - minimumPrice + 1);
             int emeralds = price < 0 ? 1 : price;
             int count = price < 0 ? -price : 1;
-            return new MerchantOffer(new ItemStack(net.minecraft.world.item.Items.EMERALD, emeralds),
+            return new MerchantOffer(new ItemCost(net.minecraft.world.item.Items.EMERALD, emeralds),
                     new ItemStack(item, count), 7, 1, 0.0F);
         };
     }

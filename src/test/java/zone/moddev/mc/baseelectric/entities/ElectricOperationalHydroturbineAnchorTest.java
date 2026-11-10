@@ -107,7 +107,7 @@ public class ElectricOperationalHydroturbineAnchorTest {
 
     private static final class ControlEntity extends Entity {
         ControlEntity(EntityType<?> type, Level world) { super(type, world); }
-        @Override protected void defineSynchedData() {}
+        @Override protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {}
         @Override protected void readAdditionalSaveData(CompoundTag tag) {}
         @Override protected void addAdditionalSaveData(CompoundTag tag) {}
         @Override public Packet<ClientGamePacketListener> getAddEntityPacket() { return null; }

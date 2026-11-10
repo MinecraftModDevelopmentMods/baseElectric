@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:glass_panes"
+            "items": "#forge:glass_panes"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:ingots/silicon"
+            "items": "#forge:ingots/silicon"
           }
         ]
       }
@@ -26,7 +26,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:wires"
+            "items": "#forge:wires"
           }
         ]
       }
@@ -36,7 +36,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:power_supply_units"
+            "items": "#forge:power_supply_units"
           }
         ]
       }
@@ -60,6 +60,43 @@
   "rewards": {
     "recipes": [
       "baseelectric:photovoltaic_generator"
+    ]
+  },
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "baseelectric:not_recipe_mode",
+        "mode": "APOCALYPTIC"
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:glass_panes"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:ingots/silicon"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:power_supply_units"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:wires"
+        }
+      }
     ]
   }
 }

@@ -35,7 +35,10 @@ public class BlockLootResourceTest {
 
     @Test public void resourcePackDeclaresTheNativeOneTwentyOneFormat() throws Exception {
         JsonObject pack = read(Paths.get("src/main/resources/pack.mcmeta")).getAsJsonObject("pack");
-        assertEquals(15, pack.get("pack_format").getAsInt());
+        assertEquals(32, pack.get("pack_format").getAsInt());
+        JsonObject formats = pack.getAsJsonObject("supported_formats");
+        assertEquals(32, formats.get("min_inclusive").getAsInt());
+        assertEquals(41, formats.get("max_inclusive").getAsInt());
         assertFalse(pack.has("forge:server_data_pack_format"));
     }
 

@@ -18,7 +18,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:microchips"
+            "items": "#forge:microchips"
           }
         ]
       }
@@ -28,7 +28,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:solder"
+            "items": "#forge:solder"
           }
         ]
       }
@@ -51,6 +51,25 @@
   "rewards": {
     "recipes": [
       "baseelectric:control_circuit"
+    ]
+  },
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:microchips"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:solder"
+        }
+      }
     ]
   }
 }

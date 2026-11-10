@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:dusts/tin"
+            "items": "#forge:dusts/tin"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "forge:dusts/lead"
+            "items": "#forge:dusts/lead"
           }
         ]
       }
@@ -38,6 +38,25 @@
   "rewards": {
     "recipes": [
       "baseelectric:solder_blend_tin_lead"
+    ]
+  },
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:dusts/lead"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:dusts/tin"
+        }
+      }
     ]
   }
 }

@@ -22,21 +22,33 @@
     }
   },
   "result": {
-    "item": "baseelectric:electric_still"
+    "id": "baseelectric:electric_still"
   },
   "group": "baseelectric:electric_still",
-  "conditions": [
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:frames/steel"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:plates/steel"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:power_supply_units"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:frames/steel"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:plates/steel"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:power_supply_units"
+        }
+      }
+    ]
+  }
 }

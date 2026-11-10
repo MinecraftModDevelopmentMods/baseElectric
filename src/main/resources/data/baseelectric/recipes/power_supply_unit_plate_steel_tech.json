@@ -16,25 +16,37 @@
     }
   },
   "result": {
-    "item": "baseelectric:psu"
+    "id": "baseelectric:psu"
   },
-  "conditions": [
-    {
-      "type": "baseelectric:recipe_mode",
-      "mode": "TECH_PROGRESSION"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:circuit_boards"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:plates/steel"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:wires"
-    }
-  ],
-  "group": "baseelectric:psu"
+  "group": "baseelectric:psu",
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "baseelectric:recipe_mode",
+        "mode": "TECH_PROGRESSION"
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:circuit_boards"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:plates/steel"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:wires"
+        }
+      }
+    ]
+  }
 }

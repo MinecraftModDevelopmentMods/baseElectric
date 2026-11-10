@@ -31,7 +31,7 @@ for (const file of fs.readdirSync(recipes).filter(name => name.endsWith('.json')
   unique.forEach((ingredient, index) => {
     criteria[`has_ingredient_${index + 1}`] = {
       trigger: 'minecraft:inventory_changed',
-      conditions: {items: [ingredient.item ? {items: [ingredient.item]} : ingredient]}
+      conditions: {items: [{items: ingredient.item ? [ingredient.item] : '#' + ingredient.tag}]}
     };
   });
   criteria.has_recipe = {trigger: 'minecraft:recipe_unlocked', conditions: {recipe: id}};
@@ -39,6 +39,7 @@ for (const file of fs.readdirSync(recipes).filter(name => name.endsWith('.json')
     parent: 'minecraft:recipes/root', criteria,
     requirements: [Object.keys(criteria)], rewards: {recipes: [id]}
   };
+  if (recipe['forge:condition']) advancement['forge:condition'] = recipe['forge:condition'];
   const text = JSON.stringify(advancement, null, 2) + '\n';
   const target = path.join(output, file);
   expected.add(file);

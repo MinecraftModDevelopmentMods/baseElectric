@@ -4,17 +4,20 @@
     "item": "baseelectric:control_circuit"
   },
   "result": {
-    "item": "baseelectric:integrated_circuit",
+    "id": "baseelectric:integrated_circuit",
     "count": 1
   },
-  "conditions": [
-    {
-      "type": "forge:mod_loaded",
-      "modid": "basemetals"
-    },
-    {
-      "type": "baseelectric:recipe_mode",
-      "mode": "APOCALYPTIC"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:mod_loaded",
+        "modid": "basemetals"
+      },
+      {
+        "type": "baseelectric:recipe_mode",
+        "mode": "APOCALYPTIC"
+      }
+    ]
+  }
 }

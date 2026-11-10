@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
@@ -34,10 +35,11 @@ public final class RecipeDeconstructor {
     }
 
     private void initializeRecipeCache(Level world) {
-        Collection<Recipe<?>> recipes = world.getRecipeManager().getRecipes();
+        Collection<RecipeHolder<?>> recipes = world.getRecipeManager().getRecipes();
         if (cachedRecipeCount == recipes.size() && !recipeCache.isEmpty()) return;
         recipeCache.clear();
-        for (Recipe<?> recipe : recipes) {
+        for (RecipeHolder<?> holder : recipes) {
+            Recipe<?> recipe = holder.value();
             ItemStack output = recipe.getResultItem(world.registryAccess());
             if (output == null || output.isEmpty()) continue;
             recipeCache.computeIfAbsent(new ItemRecord(output), ignored -> new ArrayList<>()).add(recipe);

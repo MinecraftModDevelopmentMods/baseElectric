@@ -21,8 +21,8 @@ public class BaseMetalsRawRecipeContractTest {
                     assertEquals("basemetals:crushing", recipe.get("type").getAsString());
                     assertEquals("forge:" + (input.equals("ore") ? "ores/" : "raw_materials/") + metal,
                             recipe.getAsJsonObject("ingredient").get("tag").getAsString());
-                    assertEquals("basemetals:" + metal + "_powder", recipe.getAsJsonObject("result").get("item").getAsString());
-                    // Base Metals delegates to CraftingHelper, whose omitted count defaults to one.
+                    assertEquals("basemetals:" + metal + "_powder", recipe.getAsJsonObject("result").get("id").getAsString());
+                    // The native item stack codec defaults an omitted count to one.
                     assertEquals(input.equals("ore") ? 2 : 1, GsonHelper.getAsInt(recipe.getAsJsonObject("result"), "count", 1));
                 }
             }

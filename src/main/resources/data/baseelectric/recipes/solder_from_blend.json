@@ -3,9 +3,14 @@
   "ingredient": {
     "item": "baseelectric:solder_mix"
   },
-  "result": "baseelectric:solder",
+  "result": {
+    "id": "baseelectric:solder"
+  },
   "experience": 0.5,
   "cookingtime": 200,
-  "conditions": [],
-  "group": "baseelectric:solder"
+  "group": "baseelectric:solder",
+  "forge:condition": {
+    "type": "forge:and",
+    "values": []
+  }
 }

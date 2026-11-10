@@ -9,18 +9,27 @@
     }
   ],
   "result": {
-    "item": "baseelectric:blank_circuit_board",
+    "id": "baseelectric:blank_circuit_board",
     "count": 2
   },
   "group": "baseelectric:blank_circuit_board",
-  "conditions": [
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:plastic"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:plates/copper"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:plastic"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:plates/copper"
+        }
+      }
+    ]
+  }
 }

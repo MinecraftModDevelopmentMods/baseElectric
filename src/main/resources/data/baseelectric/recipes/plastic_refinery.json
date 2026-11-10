@@ -22,25 +22,40 @@
     }
   },
   "result": {
-    "item": "baseelectric:plastic_refinery"
+    "id": "baseelectric:plastic_refinery"
   },
   "group": "baseelectric:plastic_refinery",
-  "conditions": [
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:frames/steel"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:plates/steel"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:power_supply_units"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:sprockets"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:frames/steel"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:plates/steel"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:power_supply_units"
+        }
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:sprockets"
+        }
+      }
+    ]
+  }
 }

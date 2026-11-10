@@ -4,17 +4,23 @@
     "tag": "forge:ores/sulfur"
   },
   "result": {
-    "item": "baseelectric:sulfur_powder",
+    "id": "baseelectric:sulfur_powder",
     "count": 4
   },
-  "conditions": [
-    {
-      "type": "forge:mod_loaded",
-      "modid": "basemetals"
-    },
-    {
-      "type": "basepower:tag_not_empty",
-      "tag": "forge:ores/sulfur"
-    }
-  ]
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "forge:mod_loaded",
+        "modid": "basemetals"
+      },
+      {
+        "type": "forge:not",
+        "value": {
+          "type": "forge:tag_empty",
+          "tag": "forge:ores/sulfur"
+        }
+      }
+    ]
+  }
 }
