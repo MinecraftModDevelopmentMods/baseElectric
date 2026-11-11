@@ -13,7 +13,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /** Matches a crafting ingredient using flattened items or Forge item tags. */
 public final class ItemMatcher {
@@ -66,8 +66,8 @@ public final class ItemMatcher {
         return copy;
     }
 
-    private static ResourceLocation tagId(String name) {
-        if (name.indexOf(':') >= 0) return ResourceLocation.parse(name);
+    private static Identifier tagId(String name) {
+        if (name.indexOf(':') >= 0) return Identifier.parse(name);
         String[][] forms = {
                 {"ingot", "ingots"}, {"nugget", "nuggets"}, {"dust", "dusts"},
                 {"ore", "ores"}, {"block", "storage_blocks"}, {"plate", "plates"},
@@ -76,10 +76,10 @@ public final class ItemMatcher {
         for (String[] form : forms) {
             if (name.startsWith(form[0]) && name.length() > form[0].length()) {
                 String material = name.substring(form[0].length()).toLowerCase(java.util.Locale.ROOT);
-                return ResourceLocation.fromNamespaceAndPath("forge", form[1] + "/" + material);
+                return Identifier.fromNamespaceAndPath("forge", form[1] + "/" + material);
             }
         }
-        return ResourceLocation.fromNamespaceAndPath("forge", name.toLowerCase(java.util.Locale.ROOT));
+        return Identifier.fromNamespaceAndPath("forge", name.toLowerCase(java.util.Locale.ROOT));
     }
 
     @Override

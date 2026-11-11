@@ -6,18 +6,10 @@
     "pZp"
   ],
   "key": {
-    "X": {
-      "tag": "forge:ingots/iron"
-    },
-    "Y": {
-      "item": "minecraft:gunpowder"
-    },
-    "Z": {
-      "tag": "forge:ingots/zinc"
-    },
-    "p": {
-      "tag": "forge:plastic"
-    }
+    "X": "#forge:ingots/iron",
+    "Y": "minecraft:gunpowder",
+    "Z": "#forge:ingots/zinc",
+    "p": "#forge:plastic"
   },
   "result": {
     "id": "baseelectric:alkaline_battery"

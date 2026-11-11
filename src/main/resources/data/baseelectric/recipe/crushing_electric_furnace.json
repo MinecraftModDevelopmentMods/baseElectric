@@ -1,8 +1,6 @@
 {
   "type": "basemetals:crushing",
-  "ingredient": {
-    "item": "baseelectric:electric_furnace"
-  },
+  "ingredient": "baseelectric:electric_furnace",
   "result": {
     "id": "baseelectric:psu",
     "count": 1

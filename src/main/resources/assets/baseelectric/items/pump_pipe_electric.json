@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "baseelectric:item/pump_pipe_electric"
+  }
+}

@@ -5,15 +5,9 @@
     " s "
   ],
   "key": {
-    "w": {
-      "tag": "forge:wires"
-    },
-    "c": {
-      "tag": "forge:circuit_boards"
-    },
-    "s": {
-      "tag": "forge:ingots/steel"
-    }
+    "w": "#forge:wires",
+    "c": "#forge:circuit_boards",
+    "s": "#forge:ingots/steel"
   },
   "result": {
     "id": "baseelectric:psu"

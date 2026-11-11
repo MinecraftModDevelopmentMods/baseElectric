@@ -6,12 +6,8 @@
     "bbb"
   ],
   "key": {
-    "b": {
-      "item": "minecraft:bricks"
-    },
-    "u": {
-      "tag": "forge:power_supply_units"
-    }
+    "b": "minecraft:bricks",
+    "u": "#forge:power_supply_units"
   },
   "result": {
     "id": "baseelectric:electric_furnace"

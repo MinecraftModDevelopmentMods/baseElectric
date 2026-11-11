@@ -6,18 +6,10 @@
     "wuw"
   ],
   "key": {
-    "g": {
-      "tag": "forge:glass_panes"
-    },
-    "s": {
-      "tag": "forge:ingots/silicon"
-    },
-    "w": {
-      "tag": "forge:wires"
-    },
-    "u": {
-      "tag": "forge:power_supply_units"
-    }
+    "g": "#forge:glass_panes",
+    "s": "#forge:ingots/silicon",
+    "w": "#forge:wires",
+    "u": "#forge:power_supply_units"
   },
   "result": {
     "id": "baseelectric:photovoltaic_generator"

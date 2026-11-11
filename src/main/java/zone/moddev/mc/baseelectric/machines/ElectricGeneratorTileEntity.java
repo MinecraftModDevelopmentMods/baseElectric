@@ -58,7 +58,7 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 	
 	protected boolean hasRedstoneSignal(){
 		// Generators can check the interlock before their first power-update refresh.
-		if(!redstoneInitialized && getLevel() != null && !getLevel().isClientSide){
+		if(!redstoneInitialized && getLevel() != null && !getLevel().isClientSide()){
 			redstone = getLevel().hasNeighborSignal(getBlockPos());
 			redstoneInitialized = true;
 		}
@@ -163,15 +163,17 @@ public abstract class ElectricGeneratorTileEntity extends cyano.poweradvantage.a
 
 	
 	@Override
-	protected void saveAdditional(CompoundTag tagRoot, HolderLookup.Provider registries){
-		super.saveAdditional(tagRoot, registries);
+	protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput output){
+		super.saveAdditional(output);
+        CompoundTag tagRoot = new CompoundTag();
 		saveTo(tagRoot);
+        output.store(zone.moddev.mc.baseelectric.util.LegacyNbt.ROOT, tagRoot);
 	}
 	
 	@Override
-	protected void loadAdditional(CompoundTag tagRoot, HolderLookup.Provider registries){
-		super.loadAdditional(tagRoot, registries);
-		loadFrom(tagRoot);
+	protected void loadAdditional(net.minecraft.world.level.storage.ValueInput input){
+		super.loadAdditional(input);
+		loadFrom(input.read(zone.moddev.mc.baseelectric.util.LegacyNbt.ROOT).orElseGet(CompoundTag::new));
 	}
 	
 	protected abstract void saveTo(CompoundTag tagRoot);

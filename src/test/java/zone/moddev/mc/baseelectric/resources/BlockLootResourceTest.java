@@ -35,11 +35,50 @@ public class BlockLootResourceTest {
 
     @Test public void resourcePackDeclaresTheNativeOneTwentyOneFormat() throws Exception {
         JsonObject pack = read(Paths.get("src/main/resources/pack.mcmeta")).getAsJsonObject("pack");
-        assertEquals(34, pack.get("pack_format").getAsInt());
-        JsonObject formats = pack.getAsJsonObject("supported_formats");
-        assertEquals(34, formats.get("min_inclusive").getAsInt());
-        assertEquals(48, formats.get("max_inclusive").getAsInt());
+        assertEquals(JsonParser.parseString("[94,1]"), pack.get("min_format"));
+        assertEquals(JsonParser.parseString("[94,1]"), pack.get("max_format"));
+        assertFalse(pack.has("pack_format"));
+        assertFalse(pack.has("supported_formats"));
         assertFalse(pack.has("forge:server_data_pack_format"));
+        assertTrue(java.util.regex.Pattern.compile("(?m)^showAsResourcePack=false\\r?$")
+                .matcher(Files.readString(Path.of("src/main/resources/META-INF/mods.toml"))).find());
+        zone.moddev.mc.baseelectric.verification.NativeTestBootstrap.initialize();
+        var version = net.minecraft.SharedConstants.getCurrentVersion();
+        assertEquals(new net.minecraft.server.packs.metadata.pack.PackFormat(75, 0),
+                version.packVersion(net.minecraft.server.packs.PackType.CLIENT_RESOURCES));
+        assertEquals(new net.minecraft.server.packs.metadata.pack.PackFormat(94, 1),
+                version.packVersion(net.minecraft.server.packs.PackType.SERVER_DATA));
+        var proof = zone.moddev.mc.baseelectric.verification.NativePackResourceProof.read();
+        assertEquals(0, proof.getAsJsonArray("warningsAndErrors").size());
+        for (var type : net.minecraft.server.packs.PackType.values()) {
+            var side = proof.getAsJsonObject(type.name());
+            var metadata = side.getAsJsonObject("nativeMetadata");
+            var range = net.minecraft.server.packs.metadata.pack.PackFormat.packCodec(type).codec()
+                    .parse(com.mojang.serialization.JsonOps.INSTANCE, metadata).getOrThrow();
+            assertTrue(type.toString(), range.isValueInRange(version.packVersion(type)));
+            assertEquals("COMPATIBLE", side.get("currentCompatibility").getAsString());
+            assertTrue(side.get("resourcesVerified").getAsInt() > 0);
+            assertFalse(range.isValueInRange(new net.minecraft.server.packs.metadata.pack.PackFormat(74, 0)));
+            assertFalse(range.isValueInRange(new net.minecraft.server.packs.metadata.pack.PackFormat(95, 0)));
+            var codec = net.minecraft.server.packs.metadata.pack.PackMetadataSection.forPackType(type).codec();
+            var decoded = codec.parse(com.mojang.serialization.JsonOps.INSTANCE, metadata).getOrThrow();
+            assertEquals(metadata, codec.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, decoded).getOrThrow());
+        }
+        var client = proof.getAsJsonObject("CLIENT_RESOURCES");
+        var server = proof.getAsJsonObject("SERVER_DATA");
+        assertEquals("mod_resources", client.get("id").getAsString());
+        assertEquals("net.minecraftforge.resource.DelegatingPackResources", client.get("resourcesClass").getAsString());
+        assertEquals("mod:baseelectric", server.get("id").getAsString());
+        assertEquals("net.minecraft.server.packs.PathPackResources", server.get("resourcesClass").getAsString());
+        assertEquals("COMPATIBLE", client.get("loaderCompatibility").getAsString());
+        assertEquals("TOO_NEW", server.get("loaderCompatibility").getAsString());
+        JsonObject insufficient = pack.deepCopy();
+        insufficient.add("min_format", JsonParser.parseString("[75,0]"));
+        insufficient.remove("pack_format");
+        insufficient.remove("supported_formats");
+        assertTrue(net.minecraft.server.packs.metadata.pack.PackFormat.packCodec(
+                net.minecraft.server.packs.PackType.SERVER_DATA).codec()
+                .parse(com.mojang.serialization.JsonOps.INSTANCE, insufficient).error().isPresent());
     }
 
     @Test public void eachTrackStateUsesTheNativeCutoutRenderLayer() throws Exception {

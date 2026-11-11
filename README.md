@@ -4,13 +4,13 @@ baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower. Its equipment appears
 in the shared basePower creative tab.
 
-This local port targets Minecraft **1.21.1**, Forge **52.1.0**, official mappings
-with MCP **20240808.132146**, ForgeGradle **7.0.34**, Gradle **9.6.1**, and Java
-**21**. The version is **2.2.15.121011**. It requires basePower **2.4.14.121011**.
-The coordinated dependencies are Base Metals **3.1.2.121011** and OreSpawn
-**4.1.0.121011**. The migration-hook Base Metals jar is approved for local use
+This local port targets Minecraft **1.21.11**, Forge **61.1.0**, official mappings
+with MCP **20251223.124241**, ForgeGradle **7.0.34**, Gradle **9.6.1**, and Java
+**21**. The version is **2.2.16.121111**. It requires basePower **2.4.15.121111**.
+The coordinated dependencies are Base Metals **3.1.2.121111** and OreSpawn
+**4.1.0.121111**. The migration-hook Base Metals jar is approved for local use
 only. This port is not published or ready for release promotion.
-See the [1.21.1 notes](docs/NATIVE1211.md) for compatibility and verification status.
+See the [1.21.11 notes](docs/NATIVE12111.md) for compatibility and verification status.
 
 Back up your world and try the upgrade on a copy. Replace Electric Advantage
 and Power Advantage with baseElectric and basePower; do not install both sets.
@@ -31,19 +31,20 @@ node tools/generate-recipe-unlocks.js --check
 ```
 
 For a full local build, supply files matching the exact coordinated source
-and jar pins recorded in `gradle.properties`. The current basePower pin is an
-approved local commit, not merged or publicly released:
+and jar pins recorded in `gradle.properties`. The target-native basePower pin
+is a stable local integration input, not a public release. The sibling paths
+are the defaults and these flags are optional path overrides:
 
 ```text
--PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.14.121011.jar
--PbaseMetalsRuntimeJar=/path/to/BaseMetals-3.1.2.121011.jar
--PforgeInstallerJar=/path/to/forge-1.21.1-52.1.0-installer.jar
+-PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.15.121111.jar
+-PbaseMetalsRuntimeJar=/path/to/BaseMetals-3.1.2.121111.jar
+-PforgeInstallerJar=/path/to/forge-1.21.11-61.1.0-installer.jar
 ```
 
-Forge 52 uses the ordinary native jar for both play and development. The former
+Forge 61 uses the ordinary native jar for both play and development. The former
 `*DeobfJar` path flags remain aliases for the same bytes. OreSpawn and the
-Mavenizer fixture default to the sibling `MinecraftMineralogy/OS1211/OreSpawn`
-checkout. Use `-PoreSpawnRuntimeJar` and `-Pforge52MavenizerJar` to override paths.
+Mavenizer fixture default to the sibling `MinecraftMineralogy/OS12111/OreSpawn`
+checkout. Use `-PoreSpawnRuntimeJar` and `-Pforge61MavenizerJar` to override paths.
 For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
 
 ```text
@@ -51,7 +52,7 @@ For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
 ```
 
 Use `gradlew.bat` on Windows. Output jars go to `build/libs`. Dependencies
-remain separate mods. The 1.21.1 CI and CodeQL jobs require merged source pins
+remain separate mods. The 1.21.11 CI and CodeQL jobs require merged source pins
 and checksum-matching public dependencies before checkout or compilation.
 Local jars do not satisfy that gate.
 

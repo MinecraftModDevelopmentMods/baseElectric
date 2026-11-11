@@ -25,13 +25,13 @@ import zone.moddev.mc.baseelectric.init.Villages;
 import zone.moddev.mc.baseelectric.recipe.RecipeConditions;
 import zone.moddev.mc.baseelectric.migration.ElectricLegacyMigrations;
 
-/** Forge 1.21.1 entry point for baseElectric. */
+/** Forge 1.21.11 entry point for baseElectric. */
 @Mod(ElectricAdvantage.MODID)
 public final class ElectricAdvantage {
     public static final String MODID = "baseelectric";
     public static final String LEGACY_MODID = "electricadvantage";
     public static final String NAME = "baseElectric";
-    public static final String VERSION = "2.2.15.121011";
+    public static final String VERSION = "2.2.16.121111";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static ElectricAdvantage INSTANCE;
 
@@ -41,14 +41,18 @@ public final class ElectricAdvantage {
     public ElectricAdvantage(FMLJavaModLoadingContext context) {
         INSTANCE = this;
         ElectricLegacyMigrations.register();
-        RecipeConditions.register(context.getModEventBus());
+        var bus = context.getModBusGroup();
+        RecipeConditions.register(bus);
 
         migrateLegacyOreSpawnConfiguration();
         migrateLegacyConfiguration();
         context.registerConfig(ModConfig.Type.COMMON, ElectricAdvantageConfig.SPEC);
-        context.getModEventBus().addListener(ElectricAdvantageConfig::onConfigLoading);
-        context.getModEventBus().addListener(this::commonSetup);
-        context.getModEventBus().addListener(this::enqueueInterModCommunication);
+        net.minecraftforge.fml.event.config.ModConfigEvent.Loading.getBus(bus)
+                .addListener(ElectricAdvantageConfig::onConfigLoading);
+        net.minecraftforge.fml.event.config.ModConfigEvent.Reloading.getBus(bus)
+                .addListener(ElectricAdvantageConfig::onConfigReloading);
+        FMLCommonSetupEvent.getBus(bus).addListener(this::commonSetup);
+        InterModEnqueueEvent.getBus(bus).addListener(this::enqueueInterModCommunication);
     }
 
     private static void migrateLegacyOreSpawnConfiguration() {

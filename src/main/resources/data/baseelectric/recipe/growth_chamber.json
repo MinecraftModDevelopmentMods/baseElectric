@@ -5,21 +5,11 @@
     "pmp"
   ],
   "key": {
-    "X": {
-      "item": "minecraft:flower_pot"
-    },
-    "Y": {
-      "tag": "forge:microchips"
-    },
-    "u": {
-      "tag": "forge:power_supply_units"
-    },
-    "p": {
-      "tag": "forge:plates/steel"
-    },
-    "m": {
-      "tag": "forge:frames/steel"
-    }
+    "X": "minecraft:flower_pot",
+    "Y": "#forge:microchips",
+    "u": "#forge:power_supply_units",
+    "p": "#forge:plates/steel",
+    "m": "#forge:frames/steel"
   },
   "result": {
     "id": "baseelectric:growth_chamber"

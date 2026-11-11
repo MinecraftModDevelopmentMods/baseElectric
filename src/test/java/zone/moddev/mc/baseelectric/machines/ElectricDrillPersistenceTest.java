@@ -27,15 +27,15 @@ public class ElectricDrillPersistenceTest {
 
     @Test public void retainsLegacyProgressUntilWorldIsAttached() {
         ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricDrillBlock.class));
-        drill.loadWithComponents(target(94), NativeTestBootstrap.registries());
+        drill.loadWithComponents(NativeTestBootstrap.input(target(94)));
         drill.prepareDataFieldsForSync();
         assertEquals(94, drill.getDataFieldArray()[1]);
     }
 
     @Test public void clearsPreviousProgressOnReadingAnUntargetedTile() {
         ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricDrillBlock.class));
-        drill.loadWithComponents(target(94), NativeTestBootstrap.registries());
-        drill.loadWithComponents(new CompoundTag(), NativeTestBootstrap.registries());
+        drill.loadWithComponents(NativeTestBootstrap.input(target(94)));
+        drill.loadWithComponents(NativeTestBootstrap.input(new CompoundTag()));
         drill.prepareDataFieldsForSync();
         assertEquals(0, drill.getDataFieldArray()[1]);
     }
@@ -81,7 +81,7 @@ public class ElectricDrillPersistenceTest {
 
     @Test public void nativeDataFieldsRetainEnergyAndMiningProgress() {
         ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricDrillBlock.class));
-        drill.loadWithComponents(target(94), NativeTestBootstrap.registries());
+        drill.loadWithComponents(NativeTestBootstrap.input(target(94)));
         drill.setEnergy(416.0F, drill.getEnergyType());
         drill.prepareDataFieldsForSync();
         assertEquals(416.0F, Float.intBitsToFloat(drill.getDataFieldArray()[0]), 0.0F);
@@ -104,16 +104,16 @@ public class ElectricDrillPersistenceTest {
         oldItems.add(oldStack);
         CompoundTag legacy = target(94);
         legacy.put("Items", oldItems);
-        drill.loadWithComponents(legacy, NativeTestBootstrap.registries());
+        drill.loadWithComponents(NativeTestBootstrap.input(legacy));
         drill.setEnergy(416.0F, drill.getEnergyType());
         ItemStack payload = drill.getOutputSlot(0);
         assertEquals(Items.DIAMOND, payload.getItem());
         assertEquals(3, payload.getCount());
         assertEquals(Component.literal("Track transfer payload"), payload.get(DataComponents.CUSTOM_NAME));
         CompoundTag transfer = drill.saveWithoutMetadata(NativeTestBootstrap.registries());
-        assertEquals(94, transfer.getShort("progress"));
+        assertEquals(94, transfer.getShort("progress").orElseThrow().shortValue());
         ElectricDrillTileEntity placed = new ElectricDrillTileEntity(new BlockPos(5, 70, 9), drill.getBlockState());
-        placed.loadWithComponents(transfer, NativeTestBootstrap.registries());
+        placed.loadWithComponents(NativeTestBootstrap.input(transfer));
         assertEquals(416.0F, placed.getEnergy(placed.getEnergyType()), 0.0F);
         assertEquals(new BlockPos(5, 70, 9), placed.getBlockPos());
         assertEquals(3, placed.getOutputSlot(0).getCount());

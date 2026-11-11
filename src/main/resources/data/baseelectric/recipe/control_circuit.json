@@ -1,15 +1,9 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "item": "baseelectric:blank_circuit_board"
-    },
-    {
-      "tag": "forge:microchips"
-    },
-    {
-      "tag": "forge:solder"
-    }
+    "baseelectric:blank_circuit_board",
+    "#forge:microchips",
+    "#forge:solder"
   ],
   "result": {
     "id": "baseelectric:control_circuit"

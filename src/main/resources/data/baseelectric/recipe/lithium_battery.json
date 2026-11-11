@@ -6,18 +6,10 @@
     "pZp"
   ],
   "key": {
-    "X": {
-      "tag": "forge:ingots/lithium"
-    },
-    "Y": {
-      "tag": "forge:dusts/redstone"
-    },
-    "Z": {
-      "tag": "forge:dusts/carbon"
-    },
-    "p": {
-      "tag": "forge:plastic"
-    }
+    "X": "#forge:ingots/lithium",
+    "Y": "#forge:dusts/redstone",
+    "Z": "#forge:dusts/carbon",
+    "p": "#forge:plastic"
   },
   "result": {
     "id": "baseelectric:lithium_battery"

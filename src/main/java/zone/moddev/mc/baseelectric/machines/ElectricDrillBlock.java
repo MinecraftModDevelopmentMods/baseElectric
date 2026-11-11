@@ -14,7 +14,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -27,13 +27,13 @@ import zone.moddev.mc.baseelectric.init.Power;
 import zone.moddev.mc.basepower.conduitnetwork.ConduitRegistry;
 
 public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
-    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
     private final ConduitType[] types = {Power.ELECTRIC_POWER};
 
     public ElectricDrillBlock() {
-        super(machineProperties(0.75F));
+        super(machineProperties(0.75F).setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("electric_drill")));
         registerDefaultState(getStateDefinition().any()
                 .setValue(ACTIVE, false)
                 .setValue(FACING, Direction.DOWN));
@@ -58,17 +58,10 @@ public class ElectricDrillBlock extends GUIBlock implements ITypedConduit {
     }
 
     @Override
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (state.getBlock() != newState.getBlock()) {
-            ConduitRegistry.getInstance().conduitBlockRemovedEvent(
-                    world, pos, Power.ELECTRIC_POWER);
-            BlockEntity tile = world.getBlockEntity(pos);
-            if (tile instanceof Container) {
-                Containers.dropContents(world, pos, (Container) tile);
-                world.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, world, pos, newState, isMoving);
+    public void affectNeighborsAfterRemoval(BlockState state, net.minecraft.server.level.ServerLevel world, BlockPos pos, boolean isMoving) {
+        ConduitRegistry.getInstance().conduitBlockRemovedEvent(world, pos, Power.ELECTRIC_POWER);
+        world.updateNeighbourForOutputSignal(pos, this);
+        super.affectNeighborsAfterRemoval(state, world, pos, isMoving);
     }
 
     @Override

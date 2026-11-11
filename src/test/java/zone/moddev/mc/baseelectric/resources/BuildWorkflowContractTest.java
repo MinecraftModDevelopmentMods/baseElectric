@@ -42,8 +42,8 @@ public class BuildWorkflowContractTest {
             }
             assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.orespawn_ref }}"));
             assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.power_ref }}"));
-            assertTrue(source.contains("branches: [master-1.21.1"));
-            assertTrue(source.contains("-Pforge52MavenizerJar=$MAVENIZER"));
+            assertTrue(source.contains("branches: [master-1.21.11"));
+            assertTrue(source.contains("-Pforge61MavenizerJar=$MAVENIZER"));
             assertTrue(source.contains("-PpowerAdvantageDeobfJar=$POWER_PLAYER"));
             assertFalse(source.contains("forge47"));
             if (workflow.equals("ci.yml")) {

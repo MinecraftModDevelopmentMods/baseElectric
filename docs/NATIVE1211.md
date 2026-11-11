@@ -1,8 +1,8 @@
 # Electric on Minecraft 1.21.1
 
 baseElectric 2.2.15.121011 targets Forge 52.1.0 and Java 21 with basePower
-2.4.14.121011. It remains a local port until the coordinated dependency pins
-and qualification gates are complete. Nothing has been published.
+2.4.14.121011. The dependency pins now use merged source and verified public
+CurseForge downloads, with matching Maven and GitHub artifacts.
 
 ## Saves and Machines
 
@@ -36,11 +36,13 @@ paths and real block-entity fixture types, including cleanup after failures.
 `nativeResourceChecks` and `compileNativeApiDiagnostics` are independent of
 basePower. Full native and ECJ runs pass 106 tests without skips. The four
 GameTests, archive and dependency audits, Javadoc and Eclipse checks pass
-against the coordinated local basePower commit. GameTest and client-only
+against the coordinated basePower release. GameTest and client-only
 contract sources compile separately from the player jar.
 
-These checks do not replace whole-world upgrade, family gameplay, restart or
-visual acceptance. Rebuilt dependencies require fresh qualification.
+The combined suite also passed old-world migration, connected machine jobs,
+saved-state checks, chunk unloading and two 30-minute endurance runs. The
+client visuals and recipe unlocks were accepted before publication. Keep a
+backup and test upgrades on a copy; no suite covers every modpack.
 
 Hosted CI and publication remain gated on merged and public dependency pins.
 Local compilation is not evidence of runtime, migration or visual acceptance.

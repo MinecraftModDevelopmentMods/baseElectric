@@ -5,7 +5,7 @@ import net.minecraft.world.level.Level;
 public class ElectricCrusherBlock extends ElectricMachineBlock{
 	// NOTE: If a block's meta value goes above 0xF, then the block turns into a different block when it state changes
 	public ElectricCrusherBlock(){
-		super();
+		super(machineProperties(0.75F).setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("electric_crusher")));
 	}
 
 	@Override

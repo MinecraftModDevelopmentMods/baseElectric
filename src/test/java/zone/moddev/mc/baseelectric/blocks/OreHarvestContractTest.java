@@ -60,8 +60,8 @@ public class OreHarvestContractTest {
         }
         // Vanilla's wooden and golden incorrect-tool tags both include needs_stone_tool.
         if (tags.contains(BlockTags.NEEDS_STONE_TOOL)) {
-            tags.add(net.minecraft.world.item.Tiers.WOOD.getIncorrectBlocksForDrops());
-            tags.add(net.minecraft.world.item.Tiers.GOLD.getIncorrectBlocksForDrops());
+            tags.add(net.minecraft.world.item.ToolMaterial.WOOD.incorrectBlocksForDrops());
+            tags.add(net.minecraft.world.item.ToolMaterial.GOLD.incorrectBlocksForDrops());
         }
         // Bind only the fresh test block's holder; leave the global registry alone.
         block.builtInRegistryHolder().bindTags(tags);
@@ -80,12 +80,13 @@ public class OreHarvestContractTest {
     // Only omit world construction. Harvest eligibility still executes Forge's native hook.
     private static final class HarvestPlayer extends Player {
         private ItemStack held;
-        private HarvestPlayer() { super(null, BlockPos.ZERO, 0, (GameProfile) null); }
+        private HarvestPlayer() { super(null, (GameProfile) null); }
         @Override public ItemStack getMainHandItem() { return held; }
         @Override public boolean hasCorrectToolForDrops(BlockState state) {
             return !state.requiresCorrectToolForDrops() || held.isCorrectToolForDrops(state);
         }
         @Override public boolean isSpectator() { return false; }
         @Override public boolean isCreative() { return false; }
+        @Override public net.minecraft.world.level.GameType gameMode() { return net.minecraft.world.level.GameType.SURVIVAL; }
     }
 }

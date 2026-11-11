@@ -34,16 +34,18 @@ public class VillagesTest {
             @Override public int nextInt(int bound) { return upper ? bound - 1 : 0; }
         };
         MerchantOffer offer = Villages.sell(net.minecraft.world.item.Items.APPLE, minimum, maximum)
-                .getOffer(null, random);
+                .getOffer(null, null, random);
         CompoundTag nbt = (CompoundTag) MerchantOffer.CODEC.encodeStart(
                 NativeTestBootstrap.registries().createSerializationContext(NbtOps.INSTANCE), offer).getOrThrow();
-        assertEquals("minecraft:emerald", nbt.getCompound("buy").getString("id"));
-        CompoundTag payment = nbt.getCompound("buy");
-        assertEquals(emeralds, payment.contains("count") ? payment.getInt("count") : 1);
-        assertEquals("minecraft:apple", nbt.getCompound("sell").getString("id"));
-        CompoundTag sale = nbt.getCompound("sell");
-        assertEquals(goods, sale.contains("count") ? sale.getInt("count") : 1);
-        assertEquals(7, nbt.getInt("maxUses"));
-        assertEquals(0.0F, nbt.getFloat("priceMultiplier"), 0.0F);
+        assertEquals("minecraft:emerald", nbt.getCompound("buy").orElseThrow().getString("id").orElseThrow());
+        CompoundTag payment = nbt.getCompound("buy").orElseThrow();
+        assertEquals(emeralds, payment.contains("count") ? payment.getInt("count").orElseThrow() : 1);
+        assertEquals("minecraft:apple", nbt.getCompound("sell").orElseThrow().getString("id").orElseThrow());
+        CompoundTag sale = nbt.getCompound("sell").orElseThrow();
+        assertEquals(goods, sale.contains("count") ? sale.getInt("count").orElseThrow() : 1);
+        assertEquals(7, nbt.getInt("maxUses").orElseThrow().intValue());
+        assertEquals(0.0F, offer.getPriceMultiplier(), 0.0F);
+        // Native MerchantOffer.CODEC omits its zero price-multiplier default.
+        assertEquals(0.0F, nbt.getFloatOr("priceMultiplier", 0.0F), 0.0F);
     }
 }

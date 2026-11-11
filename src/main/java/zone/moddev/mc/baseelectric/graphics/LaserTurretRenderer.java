@@ -4,28 +4,81 @@ import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.machines.LaserTurretTileEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.world.phys.Vec3;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-@OnlyIn(Dist.CLIENT) // This is needed for classes that extend client-only classes
-public class LaserTurretRenderer implements BlockEntityRenderer<LaserTurretTileEntity>{
+import net.minecraft.resources.Identifier;
+public class LaserTurretRenderer implements BlockEntityRenderer<LaserTurretTileEntity, LaserTurretRenderer.State>{
 
 	
-	private final ResourceLocation texture = ResourceLocation.parse(ElectricAdvantage.MODID+":textures/entity/laser_turret.png");
+	private final Identifier texture = Identifier.parse(ElectricAdvantage.MODID+":textures/entity/laser_turret.png");
 	private final RenderType renderType = ElectricRenderTypes.unshaded(texture, true);
 	
 	public LaserTurretRenderer(BlockEntityRendererProvider.Context context) {
 	}
 
 	
-	@Override
+	public static final class State extends BlockEntityRenderState {
+        boolean active;
+        boolean showBeam;
+        double length;
+        float yaw;
+        float pitch;
+    }
+
+    @Override public State createRenderState() { return new State(); }
+
+    private static void capture(LaserTurretTileEntity entity, State state, float partialTick) {
+        state.active = entity.isActive();
+        state.showBeam = entity.showLaserLine();
+        state.length = entity.laserBlastLength;
+        state.yaw = -((1 - partialTick) * entity.rotOldYaw + partialTick * entity.rotYaw) - 90;
+        state.pitch = (1 - partialTick) * entity.rotOldPitch + partialTick * entity.rotPitch;
+    }
+
+    @Override public void extractRenderState(LaserTurretTileEntity entity, State state, float partialTick,
+            Vec3 camera, ModelFeatureRenderer.CrumblingOverlay breaking) {
+        BlockEntityRenderer.super.extractRenderState(entity, state, partialTick, camera, breaking);
+        capture(entity, state, partialTick);
+    }
+
+    @Override public void submit(State state, PoseStack matrices, SubmitNodeCollector collector, CameraRenderState camera) {
+        State snapshot = new State();
+        snapshot.active = state.active;
+        snapshot.showBeam = state.showBeam;
+        snapshot.length = state.length;
+        transform(matrices, state.yaw, state.pitch);
+        int light = state.lightCoords;
+        collector.submitCustomGeometry(matrices, renderType,
+                (pose, vertices) -> draw(snapshot, pose, vertices, light, OverlayTexture.NO_OVERLAY));
+        matrices.popPose();
+    }
+
 	public void render(final LaserTurretTileEntity e, final float partialTick, final PoseStack matrices,
             final MultiBufferSource buffers, final int packedLight, final int packedOverlay) {
+        State state = new State();
+        capture(e, state, partialTick);
+        transform(matrices, state.yaw, state.pitch);
+        draw(state, matrices.last(), buffers.getBuffer(renderType), packedLight, packedOverlay);
+        matrices.popPose();
+    }
+
+    private static void transform(PoseStack matrices, float yaw, float pitch) {
+        matrices.pushPose();
+        matrices.translate(0.5f, 0.75f, 0.5f);
+        matrices.mulPose(Axis.YP.rotationDegrees(yaw));
+        matrices.mulPose(Axis.XP.rotationDegrees(pitch));
+    }
+
+    private static void draw(State state, PoseStack.Pose pose,
+            com.mojang.blaze3d.vertex.VertexConsumer vertices, int packedLight, int packedOverlay) {
 		final float sideU0 = 0;
 		final float sideU1 = 0.5f;
 		final float sideV0 = 0;
@@ -34,7 +87,7 @@ public class LaserTurretRenderer implements BlockEntityRenderer<LaserTurretTileE
 		final float endU1 = 1;
 		final float endV0;
 		final float endV1;
-		if(e.isActive()){
+		if(state.active){
 			endV0 = 0;
 			endV1 = 0.5f;
 		}else{
@@ -51,17 +104,7 @@ public class LaserTurretRenderer implements BlockEntityRenderer<LaserTurretTileE
 		final float laserRadius = 0.125f;
 		
 
-		float tickRemainder = 1 - partialTick;
-		float yaw = -1*(tickRemainder * e.rotOldYaw + partialTick * e.rotYaw) - 90;
-		float pitch = tickRemainder * e.rotOldPitch + partialTick * e.rotPitch;
-		
-
-		matrices.pushPose();
-		matrices.translate(0.5f, 0.75f, 0.5f);
-		matrices.mulPose(Axis.YP.rotationDegrees(yaw));
-		matrices.mulPose(Axis.XP.rotationDegrees(pitch));
-        BufferedQuads worldRenderer = new BufferedQuads(matrices,
-                buffers.getBuffer(renderType), packedLight, packedOverlay);
+        BufferedQuads worldRenderer = new BufferedQuads(pose, vertices, packedLight, packedOverlay);
 		
 		worldRenderer.pos( radius, radius, -radius).tex(endU0, endV0).endVertex();
 		worldRenderer.pos( radius,-radius, -radius).tex(endU0, endV1).endVertex();
@@ -93,14 +136,14 @@ public class LaserTurretRenderer implements BlockEntityRenderer<LaserTurretTileE
 		worldRenderer.pos( radius,-radius, -radius).tex(sideU1, sideV1).endVertex();
 		worldRenderer.pos( radius,-radius,  radius).tex(sideU1, sideV0).endVertex();
 
-		if(e.showLaserLine() && e.laserBlastLength > 0){
+		if(state.showBeam && state.length > 0){
 			final double x1, y1, z1, x2, y2, z2,  x3, y3, z3, x4, y4, z4;
 			x1 = 0;
 			y1 = -laserRadius;
 			z1 = 0;
 			x2 = 0;
 			y2 = laserRadius;
-			z2 = -e.laserBlastLength;
+			z2 = -state.length;
 			
 			x3 = -laserRadius;
 			y3 = 0;
@@ -109,8 +152,7 @@ public class LaserTurretRenderer implements BlockEntityRenderer<LaserTurretTileE
 			y4 = 0;
 			z4 = z2;
 			
-            worldRenderer = new BufferedQuads(matrices,
-                    buffers.getBuffer(renderType), 15 << 20 | 15 << 4, packedOverlay);
+            worldRenderer = new BufferedQuads(pose, vertices, 15 << 20 | 15 << 4, packedOverlay);
 			
 			worldRenderer.pos( x1, y1, z1).tex(laserU0, laserV1).endVertex();
 			worldRenderer.pos( x2, y1, z2).tex(laserU1, laserV1).endVertex();
@@ -135,7 +177,6 @@ public class LaserTurretRenderer implements BlockEntityRenderer<LaserTurretTileE
 			
 		}
 
-		matrices.popPose();
 	}
 
 	

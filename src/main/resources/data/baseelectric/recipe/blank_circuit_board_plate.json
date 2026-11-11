@@ -1,12 +1,8 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "tag": "forge:plastic"
-    },
-    {
-      "tag": "forge:plates/copper"
-    }
+    "#forge:plastic",
+    "#forge:plates/copper"
   ],
   "result": {
     "id": "baseelectric:blank_circuit_board",

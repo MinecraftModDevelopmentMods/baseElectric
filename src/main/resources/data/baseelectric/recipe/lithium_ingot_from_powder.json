@@ -1,8 +1,6 @@
 {
   "type": "minecraft:smelting",
-  "ingredient": {
-    "item": "baseelectric:li_powder"
-  },
+  "ingredient": "baseelectric:li_powder",
   "result": {
     "id": "baseelectric:li_ingot"
   },

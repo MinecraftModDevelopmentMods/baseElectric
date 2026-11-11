@@ -58,7 +58,7 @@ public class ElectricOperationalRedstoneCacheTest {
         Field clientSide = Level.class.getDeclaredField("isClientSide");
         clientSide.setAccessible(true);
         clientSide.setBoolean(client, true);
-        assertTrue(client.isClientSide);
+        assertTrue(client.isClientSide());
         assertFalse(machine.signal());
         client.signalled = false;
         assertFalse(machine.signal());
@@ -208,7 +208,7 @@ public class ElectricOperationalRedstoneCacheTest {
         long time;
         List<Long> queryTimes;
         private SignalWorld() {
-            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
+            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
         }
         @Override public boolean hasNeighborSignal(BlockPos position) {
             assertEquals(this.position, position);

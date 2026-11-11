@@ -80,8 +80,8 @@ public class ElectricOvenTileEntity extends ElectricMachineTileEntity{
 
 	@Override
 	protected void loadFrom(CompoundTag tagRoot) {
-		if(tagRoot.contains("cookTime", 99)){
-			progress = tagRoot.getShort("cookTime");
+		if((tagRoot.get("cookTime") instanceof net.minecraft.nbt.NumericTag)){
+			progress = tagRoot.getShortOr("cookTime", (short) 0);
 		}
 	}
 

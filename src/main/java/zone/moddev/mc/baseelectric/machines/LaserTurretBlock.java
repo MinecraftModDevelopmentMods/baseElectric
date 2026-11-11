@@ -23,7 +23,8 @@ public class LaserTurretBlock extends ElectricMachineBlock {
 	// Evil laser turrets target players and not hostile mobs
 	public final boolean evil;
 	public LaserTurretBlock(boolean isEvil) {
-		super(machineProperties(5.0F).strength(5.0F, 100.0F));
+		super(machineProperties(5.0F).strength(5.0F, 100.0F).setId(
+                zone.moddev.mc.baseelectric.util.RegistryIds.block(isEvil ? "laser_turret_evil" : "laser_turret")));
 		this.evil = isEvil;
 	}
 

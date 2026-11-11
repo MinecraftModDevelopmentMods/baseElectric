@@ -13,12 +13,13 @@ import static org.junit.Assert.*;
 public class LegacyBatteryDataTest {
     @Test public void nativeDataFixerKeepsTheModdedItemAndMovesItsLegacyCharge() {
         CompoundTag upgraded = upgradeBattery();
-        assertEquals("baseelectric:lead_acid_battery", upgraded.getString("id"));
+        assertEquals("baseelectric:lead_acid_battery", upgraded.getString("id").orElseThrow());
         assertFalse(upgraded.contains("tag"));
-        CompoundTag custom = upgraded.getCompound("components").getCompound("minecraft:custom_data");
+        CompoundTag custom = upgraded.getCompound("components").orElseThrow()
+                .getCompound("minecraft:custom_data").orElseThrow();
         assertTrue("Zero charge must be explicitly preserved", custom.contains("energy"));
-        assertEquals(0, custom.getFloat("energy"), 0);
-        assertEquals("preserved", custom.getString("probe"));
+        assertEquals(0, custom.getFloat("energy").orElseThrow(), 0);
+        assertEquals("preserved", custom.getString("probe").orElseThrow());
     }
 
     static CompoundTag upgradeBattery() {
@@ -32,6 +33,6 @@ public class LegacyBatteryDataTest {
         item.put("tag", tag);
         return (CompoundTag) DataFixers.getDataFixer().update(References.ITEM_STACK,
                 new Dynamic<>(NbtOps.INSTANCE, item), 3465,
-                SharedConstants.getCurrentVersion().getDataVersion().getVersion()).getValue();
+                SharedConstants.getCurrentVersion().dataVersion().version()).getValue();
     }
 }

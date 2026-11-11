@@ -96,7 +96,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	
 	protected boolean hasRedstoneSignal(){
 		// tickUpdate runs before the first scheduled powerUpdate after loading.
-		if(!redstoneInitialized && getLevel() != null && !getLevel().isClientSide){
+		if(!redstoneInitialized && getLevel() != null && !getLevel().isClientSide()){
 			redstone = getLevel().hasNeighborSignal(getBlockPos());
 			redstoneInitialized = true;
 		}
@@ -219,14 +219,17 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	protected ItemStack getSmeltingResult(ItemStack input) {
 		if (isEmptyStack(input) || getLevel() == null) return ItemStack.EMPTY;
 		SingleRecipeInput inventory = new SingleRecipeInput(input);
-		return getLevel().getRecipeManager().getRecipeFor(RecipeType.SMELTING, inventory, getLevel())
+		if (!(getLevel() instanceof net.minecraft.server.level.ServerLevel server)) return ItemStack.EMPTY;
+		return server.recipeAccess().getRecipeFor(RecipeType.SMELTING, inventory, getLevel())
 				.map(recipe -> recipe.value().assemble(inventory, getLevel().registryAccess())).orElse(ItemStack.EMPTY);
 	}
 	
 	@Override
-	protected void saveAdditional(CompoundTag tagRoot, HolderLookup.Provider registries){
-		super.saveAdditional(tagRoot, registries);
+	protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput output){
+		super.saveAdditional(output);
+        CompoundTag tagRoot = new CompoundTag();
 		saveTo(tagRoot);
+        output.store(zone.moddev.mc.baseelectric.util.LegacyNbt.ROOT, tagRoot);
 	}
 
 	@Override
@@ -235,9 +238,9 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 	}
 
 	@Override
-	protected void loadAdditional(CompoundTag tagRoot, HolderLookup.Provider registries){
-		super.loadAdditional(tagRoot, registries);
-		loadFrom(tagRoot);
+	protected void loadAdditional(net.minecraft.world.level.storage.ValueInput input){
+		super.loadAdditional(input);
+		loadFrom(input.read(zone.moddev.mc.baseelectric.util.LegacyNbt.ROOT).orElseGet(CompoundTag::new));
 	}
 
 	protected abstract void saveTo(CompoundTag tagRoot);

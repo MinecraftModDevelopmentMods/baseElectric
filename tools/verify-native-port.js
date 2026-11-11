@@ -5,7 +5,7 @@ const { execFileSync } = require('node:child_process');
 const { createHash } = require('node:crypto');
 
 const root = path.resolve(__dirname, '..');
-const baseline = '8160dba30c5146ff50b8ce0c314085f965fb2964';
+const baseline = 'b81645579c3330476b84149402c3ce78183df85f';
 const legacyTrackBaseline = '013737d4cc41947e8b6fa42f4bf926a1fa5ab998';
 const git = (...args) => execFileSync('git', args, { cwd: root });
 const old = file => git('show', baseline + ':' + file);
@@ -20,9 +20,14 @@ const relocated = file => file.replace(/(data\/[^/]+\/)recipes\//, '$1recipe/')
     .replace(/(data\/[^/]+\/)loot_tables\//, '$1loot_table/')
     .replace(/(data\/[^/]+\/tags\/)items\//, '$1item/')
     .replace(/(data\/[^/]+\/tags\/)blocks\//, '$1block/');
-const nativeLocations = source => source.toString()
-    .replace(/new ResourceLocation\(\s*([\w.]+|"[^"]+"),/g, 'ResourceLocation.fromNamespaceAndPath($1,')
-    .replaceAll('new ResourceLocation(', 'ResourceLocation.parse(');
+function nativeIngredients(recipe) {
+    const ingredient = value => Array.isArray(value) ? value.map(ingredient)
+        : typeof value === 'string' ? value : value.item || '#' + value.tag;
+    if (recipe.key) recipe.key = Object.fromEntries(Object.entries(recipe.key).map(([key, value]) => [key, ingredient(value)]));
+    if (recipe.ingredient) recipe.ingredient = ingredient(recipe.ingredient);
+    if (recipe.ingredients) recipe.ingredients = ingredient(recipe.ingredients);
+    return recipe;
+}
 const track = file => file.startsWith(assets + 'models/block/electric_track_') && file.endsWith('.json');
 const checks = [];
 function check(name, run) {
@@ -30,24 +35,31 @@ function check(name, run) {
     catch (error) { checks.push({name, pass: false, error: error.message}); }
 }
 
-check('Exact Forge 52 and local port identity', () => {
+check('Exact Forge 61 and local port identity', () => {
     const props = Object.fromEntries(read('gradle.properties').toString().split(/\r?\n/)
         .filter(line => /^[a-z][a-z_\d]*=/.test(line)).map(line => line.split(/=(.*)/s).slice(0, 2)));
     for (const [key, value] of Object.entries({
-        minecraft_version: '1.21.1', forge_version: '52.1.0', mapping_channel: 'official',
-        mapping_version: '1.21.1', mcp_version: '20240808.132146', java_version: '21',
-        mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.15.121011',
-        poweradvantage_version: '2.4.14.121011', basemetals_version: '3.1.2.121011',
-        basemetals_source_commit: 'b42b92b0e6f60ac5baf07a6b74042b2fa8427904',
-        basemetals_deobf_sha256: '7C0B961A8D4991C9B69379518AAD700A71C1E4B2076CF5DEF292C58029408A07',
-        orespawn_source_commit: '62c08169c71f4d4fd8f107289e63fd2a4c7c655c',
-        orespawn_version: '4.1.0.121011', curseforge_project_id: '1783006',
+        minecraft_version: '1.21.11', forge_version: '61.1.0', mapping_channel: 'official',
+        mapping_version: '1.21.11', mcp_version: '20251223.124241', java_version: '21',
+        mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.16.121111',
+        poweradvantage_version: '2.4.15.121111', basemetals_version: '3.1.2.121111',
+        poweradvantage_pin_state: 'LOCAL_SOURCE',
+        poweradvantage_source_ref: '398439074a60bf9b8f8872f92485cffc4aa96be9',
+        poweradvantage_deobf_sha256: '0240E032075AF6B158887FBF98CE038504942329527036B82FD7CF9EEE602503',
+        poweradvantage_runtime_sha256: '0240E032075AF6B158887FBF98CE038504942329527036B82FD7CF9EEE602503',
+        basemetals_source_commit: 'e6b869ffe7d6fd6a011a99f1844d2a7995394daf',
+        basemetals_deobf_sha256: '6D24D760E8E025960095DE04C51E6B79CFF93071618FC0B6BF64E05C346CC097',
+        orespawn_source_commit: 'ecad75b24309a344f712d898d717c6a8823fc9f2',
+        orespawn_deobf_sha256: 'DE39929057288CEA110196C9E9D708E129B80BC360A2E53976337FFA6A84A67B',
+        orespawn_version: '4.1.0.121111', curseforge_project_id: '1783006',
         cf_requirements: 'basepower,base-metals'
     })) assert.equal(props[key], value, key);
-    assert.deepEqual(json('src/main/resources/pack.mcmeta').pack, {pack_format:34, supported_formats:{min_inclusive:34,max_inclusive:48}, description:'baseElectric'});
+    assert.deepEqual(json('src/main/resources/pack.mcmeta').pack,
+        {min_format:[94,1], max_format:[94,1], description:'baseElectric'});
     const mods = read('src/main/resources/META-INF/mods.toml').toString();
-    assert.match(mods, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.14\.121011,3\.0\.0\)"/);
-    assert.match(mods, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.2\.121011,4\.0\.0\)"/);
+    assert.match(mods, /^showAsResourcePack=false$/m);
+    assert.match(mods, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.15\.121111,3\.0\.0\)"/);
+    assert.match(mods, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.2\.121111,4\.0\.0\)"/);
 });
 
 function checkTrackModel(file, model) {
@@ -76,20 +88,35 @@ check('Track audit rejects the old asset and a geometry mutation', () => {
     assert.throws(() => checkTrackModel(file, mutated), /changed beyond the render layer/);
 });
 
-check('Shipped resources and fixtures retain released 1.20.6 bytes under singular registry folders', () => {
+check('Accepted 1.21.1 resources retain bytes except native recipe schema and pack metadata', () => {
     const resources = tracked.filter(file => /^src\/(main|test)\/resources\//.test(file));
     const exceptions = new Set(['src/main/resources/pack.mcmeta', 'src/main/resources/META-INF/mods.toml']);
     for (const file of resources.filter(file => !exceptions.has(file))) {
+        if (file.startsWith('src/main/resources/data/baseelectric/recipe/')) {
+            assert.deepEqual(json(file), nativeIngredients(JSON.parse(old(file))), file);
+            continue;
+        }
         assert.equal(sha256(read(relocated(file))), sha256(old(file)), file);
         if (relocated(file) !== file) assert(!fs.existsSync(path.join(root, file)), 'Obsolete registry path: ' + file);
     }
     const actual = fs.readdirSync(path.join(root, 'src'), {recursive:true, withFileTypes:true})
         .filter(entry => entry.isFile()).map(entry => path.relative(root, path.join(entry.parentPath, entry.name))
             .split(path.sep).join('/')).sort();
-    assert.deepEqual(actual, [...tracked.map(relocated),
-        javaRoot.replace('main', 'test') + 'resources/DatapackLayoutTest.java',
-        javaRoot.replace('main', 'test') + 'verification/NativeMachineFixture.java',
-        javaRoot.replace('main', 'test') + 'verification/NativeMachineFixtureTest.java'].sort(),
+    const definitions = tracked.filter(file => file.startsWith(assets + 'models/item/') && file.endsWith('.json'))
+        .map(file => file.replace('/models/item/', '/items/'));
+    assert.equal(definitions.length, 44);
+    for (const file of definitions) {
+        const id = path.basename(file, '.json');
+        assert.deepEqual(json(file), {model:{type:'minecraft:model', model:'baseelectric:item/' + id}}, file);
+    }
+    assert.deepEqual(actual, [...tracked.map(relocated), ...definitions,
+        javaRoot + 'util/RegistryIds.java', javaRoot + 'util/LegacyNbt.java',
+        javaRoot.replace('main', 'test') + 'util/crafting/RecipeDeconstructorTest.java',
+        javaRoot.replace('main', 'test') + 'resources/NativePackRangeContractTest.java',
+        javaRoot.replace('main', 'test') + 'verification/NativePackResourceProof.java',
+        ...['drillupgradesandtransferslegacybattery', 'recipeavailabilitydoesnotremovediscovery',
+            'siliconandsolderresolverealmaterialtags', 'turretusesnativeupdatepacket']
+            .map(name => 'src/gametest/resources/data/baseelectric/test_instance/' + name + '.json')].sort(),
         'Source and resource inventory');
 });
 
@@ -99,11 +126,16 @@ check('Migration and registration code keep their accepted IDs and compatibility
         'init/Entities.java', 'init/GUI.java', 'init/OreSpawnWorldGen.java'
     ]) {
         const file = javaRoot + name;
-        assert.equal(read(file).toString().replace(/\s/g, ''), nativeLocations(old(file)).replace(/\s/g, ''), file);
+        const strings = source => new Set(source.toString().match(/"(?:\\.|[^"\\])*"/g));
+        const current = strings(read(file));
+        for (const id of strings(old(file))) assert(current.has(id), file + ' lost ' + id);
     }
+    const migration = javaRoot + 'migration/ElectricLegacyMigrations.java';
+    assert.equal(read(migration).toString().replace(/\s/g,''), old(migration).toString()
+        .replaceAll('ResourceLocation', 'Identifier').replace(/\s/g,''));
 });
 
-check('All 102 released tests and their semantic assertions are retained', () => {
+check('All 106 accepted tests and their assertions are retained without skips', () => {
     const methods = value => [...value.toString().matchAll(/@Test\s+public void (\w+)\(/g)].map(m => m[1]);
     const files = tracked.filter(file => file.startsWith('src/test/java/') && file.endsWith('.java'));
     let inherited = 0;
@@ -119,8 +151,14 @@ check('All 102 released tests and their semantic assertions are retained', () =>
         inherited += priorMethods.length;
         actual += currentMethods.length;
     }
-    assert.equal(inherited, 102);
-    assert.equal(actual, 102);
+    assert.equal(inherited, 106);
+    assert.equal(actual, 106);
+    const added = read(javaRoot.replace('main','test') + 'util/crafting/RecipeDeconstructorTest.java');
+    assert.equal(methods(added).length, 2);
+    assert.doesNotMatch(added.toString(), /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/);
+    const pack = read(javaRoot.replace('main', 'test') + 'resources/NativePackRangeContractTest.java');
+    assert.equal(methods(pack).length, 3);
+    assert.doesNotMatch(pack.toString(), /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/);
     const gameTests = javaRoot.replace('main', 'gametest') + 'gametest/ElectricGameTests.java';
     const names = value => [...value.toString().matchAll(/public static void (\w+)\(GameTestHelper/g)].map(m => m[1]);
     for (const name of names(old(gameTests))) assert(names(read(gameTests)).includes(name), 'Lost GameTest: ' + name);
@@ -128,10 +166,10 @@ check('All 102 released tests and their semantic assertions are retained', () =>
 
 
 check('All 58 recipe IDs, results, guards and ingredients are unchanged', () => {
-    const files = tracked.filter(file => /\/data\/baseelectric\/recipes\/.*\.json$/.test(file));
+    const files = tracked.filter(file => /\/data\/baseelectric\/recipe\/.*\.json$/.test(file));
     assert.equal(files.length, 58);
     for (const file of files) {
-        const expected = JSON.parse(old(file));
+        const expected = nativeIngredients(JSON.parse(old(file)));
         assert.deepEqual(json(relocated(file)), expected, file);
     }
 });

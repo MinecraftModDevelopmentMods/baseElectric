@@ -71,8 +71,8 @@ public class HydroelectricGeneratorTileEntity extends ElectricGeneratorTileEntit
 
 	@Override
 	protected void loadFrom(CompoundTag tagRoot) {
-		if(tagRoot.contains("initDone", 1)){
-			this.isInitialized = tagRoot.getBoolean("initDone");
+		if((tagRoot.get("initDone") instanceof net.minecraft.nbt.ByteTag)){
+			this.isInitialized = tagRoot.getBooleanOr("initDone", false);
 		}
 	}
 

@@ -1,8 +1,6 @@
 {
   "type": "basemetals:crushing",
-  "ingredient": {
-    "tag": "forge:ingots/lithium"
-  },
+  "ingredient": "#forge:ingots/lithium",
   "result": {
     "id": "baseelectric:li_powder",
     "count": 1

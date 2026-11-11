@@ -8,7 +8,8 @@ import net.minecraft.world.level.Level;
 public class PhotovoltaicGeneratorBlock extends ElectricGeneratorBlock{
 
 	public PhotovoltaicGeneratorBlock(){
-		super(net.minecraft.world.level.block.Block.Properties.of().mapColor(MapColor.STONE)
+		super(net.minecraft.world.level.block.Block.Properties.of().setId(
+                zone.moddev.mc.baseelectric.util.RegistryIds.block("photovoltaic_generator")).mapColor(MapColor.STONE)
 				.forceSolidOn().strength(0.75F).sound(SoundType.GLASS).dynamicShape()
                 .isRedstoneConductor((state, world, pos) -> true));
 	}

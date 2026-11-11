@@ -36,7 +36,7 @@ public class HydroturbinePersistenceTest {
             turbine.readAdditionalSaveData(source);
             CompoundTag saved = new CompoundTag();
             turbine.addAdditionalSaveData(saved);
-            assertArrayEquals(new int[] {164, 81, 8}, saved.getIntArray("parentPos"));
+            assertArrayEquals(new int[] {164, 81, 8}, saved.getIntArray("parentPos").orElseThrow());
             source = saved;
         }
     }
@@ -49,7 +49,7 @@ public class HydroturbinePersistenceTest {
         turbine.readAdditionalSaveData(new CompoundTag());
         CompoundTag saved = new CompoundTag();
         turbine.addAdditionalSaveData(saved);
-        assertFalse(saved.contains("parentPos", 11));
+        assertFalse((saved.get("parentPos") instanceof net.minecraft.nbt.IntArrayTag));
     }
 
     @Test public void savesAttachedGeneratorUsingTheSameLegacyCoordinateKey() throws Exception {
@@ -58,7 +58,7 @@ public class HydroturbinePersistenceTest {
         turbine.parent = generator;
         CompoundTag saved = new CompoundTag();
         turbine.addAdditionalSaveData(saved);
-        assertArrayEquals(new int[] {31, 72, -18}, saved.getIntArray("parentPos"));
+        assertArrayEquals(new int[] {31, 72, -18}, saved.getIntArray("parentPos").orElseThrow());
     }
 
     @Test public void malformedLegacyCoordinatesDoNotCreateAPartialParentLink() throws Exception {
@@ -68,7 +68,7 @@ public class HydroturbinePersistenceTest {
         turbine.readAdditionalSaveData(source);
         CompoundTag saved = new CompoundTag();
         turbine.addAdditionalSaveData(saved);
-        assertFalse(saved.contains("parentPos", 11));
+        assertFalse((saved.get("parentPos") instanceof net.minecraft.nbt.IntArrayTag));
     }
 
     // Only exercise the custom NBT methods; no world, registry or entity tick is needed.

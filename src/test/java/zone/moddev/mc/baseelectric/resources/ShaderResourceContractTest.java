@@ -1,44 +1,62 @@
 package zone.moddev.mc.baseelectric.resources;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 /** Resource contracts do not prove GPU shader compilation or visual acceptance. */
 public class ShaderResourceContractTest {
-    private static final Path ROOT = Path.of("src/main/resources/assets/baseelectric/shaders/core");
+    private static final Path PIPELINES = Path.of(
+            "src/main/java/zone/moddev/mc/baseelectric/graphics/ElectricRenderTypes.java");
 
     @Test public void nativeShaderRetainsTheEntityVertexLayoutAndVanillaFogFragment() throws Exception {
-        JsonObject json = new JsonParser().parse(Files.readString(ROOT.resolve("unshaded.json"))).getAsJsonObject();
-        assertEquals("baseelectric:unshaded", json.get("vertex").getAsString());
-        assertEquals("minecraft:rendertype_entity_translucent", json.get("fragment").getAsString());
-        assertEquals(Arrays.asList("Position", "Color", "UV0", "UV1", "UV2", "Normal"),
-                java.util.stream.StreamSupport.stream(json.getAsJsonArray("attributes").spliterator(), false)
-                        .map(value -> value.getAsString()).collect(Collectors.toList()));
-        assertNotNull(getClass().getResource("/assets/minecraft/shaders/core/rendertype_entity_translucent.fsh"));
-        var uniformNames = java.util.stream.StreamSupport.stream(json.getAsJsonArray("uniforms").spliterator(), false)
-                .map(value -> value.getAsJsonObject().get("name").getAsString()).collect(Collectors.toSet());
-        assertTrue(uniformNames.contains("FogShape"));
-        assertFalse(uniformNames.contains("IViewRotMat"));
+        String pipeline = Files.readString(PIPELINES);
+        assertTrue(pipeline.contains("RenderPipelines.ENTITY_SNIPPET"));
+        assertTrue(pipeline.contains("withShaderDefine(\"NO_CARDINAL_LIGHTING\")"));
+        assertTrue(pipeline.contains("withSampler(\"Sampler1\")"));
+        assertTrue(pipeline.contains("withCull(false)"));
+        assertTrue(pipeline.contains("BlendFunction.TRANSLUCENT"));
+        assertFalse(pipeline.contains("ShaderInstance"));
+        assertFalse(pipeline.contains("EMISSIVE"));
+        assertNotNull(getClass().getResource("/assets/minecraft/shaders/core/entity.fsh"));
+        String vertex = vanilla("entity.vsh");
+        for (String attribute : Arrays.asList("Position", "Color", "UV0", "UV1", "UV2", "Normal"))
+            assertTrue(attribute, vertex.contains(" " + attribute + ";"));
+        assertTrue(vertex.contains("dynamictransforms.glsl"));
+        assertTrue(vertex.contains("projection.glsl"));
+        assertFalse(vertex.contains("IViewRotMat"));
+        for (String renderer : Arrays.asList("HydroturbineRenderer", "LaserDrillRenderer", "LaserTurretRenderer")) {
+            String source = Files.readString(PIPELINES.resolveSibling(renderer + ".java"));
+            assertFalse("Forge 61 warns about mod-owned class annotations: " + renderer, source.contains("@OnlyIn"));
+        }
+        String registration = Files.readString(PIPELINES.resolveSibling("ClientRegistration.java"));
+        assertTrue(registration.contains("value = Dist.CLIENT"));
     }
 
     @Test public void noDiffuseLightingDoesNotRemoveLightmapOrOverlaySampling() throws Exception {
-        String vertex = Files.readString(ROOT.resolve("unshaded.vsh"));
+        String vertex = vanilla("entity.vsh");
         assertTrue(vertex.contains("vertexColor = Color;"));
         assertTrue(vertex.contains("lightMapColor = texelFetch(Sampler2, UV2 / 16, 0);"));
         assertTrue(vertex.contains("overlayColor = texelFetch(Sampler1, UV1, 0);"));
-        assertFalse(vertex.contains("minecraft_mix_light"));
-        assertTrue(vertex.contains("#moj_import <fog.glsl>"));
-        String fog = "vertexDistance = fog_distance(Position, FogShape);";
-        assertTrue(vertex.contains(fog));
-        try (var vanilla = getClass().getResourceAsStream("/assets/minecraft/shaders/core/rendertype_entity_translucent.vsh")) {
-            assertNotNull(vanilla);
-            assertTrue(new String(vanilla.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).contains(fog));
+        assertTrue(vertex.contains("#elif defined(NO_CARDINAL_LIGHTING)\n    vertexColor = Color;"));
+        assertTrue(vertex.contains("#moj_import <minecraft:fog.glsl>"));
+        assertTrue(vertex.contains("sphericalVertexDistance = fog_spherical_distance(Position);"));
+        assertTrue(vertex.contains("cylindricalVertexDistance = fog_cylindrical_distance(Position);"));
+        String fragment = vanilla("entity.fsh");
+        assertTrue(fragment.contains("color *= lightMapColor;"));
+        assertTrue(fragment.contains("mix(overlayColor.rgb, color.rgb, overlayColor.a)"));
+        assertTrue(fragment.contains("apply_fog(color, sphericalVertexDistance, cylindricalVertexDistance"));
+        String pipeline = Files.readString(PIPELINES);
+        assertTrue(pipeline.contains(".useLightmap().useOverlay()"));
+        assertFalse(pipeline.contains("NO_OVERLAY"));
+    }
+
+    private static String vanilla(String name) throws Exception {
+        try (var source = ShaderResourceContractTest.class.getResourceAsStream("/assets/minecraft/shaders/core/" + name)) {
+            assertNotNull(source);
+            return new String(source.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).replace("\r\n", "\n");
         }
     }
 }

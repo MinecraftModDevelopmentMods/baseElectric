@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.renderer.MultiBufferSource;
 import org.joml.Matrix4f;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import com.mojang.math.Axis;
 import net.minecraft.core.Direction;
 import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
@@ -69,7 +69,7 @@ public class RendererBufferContractTest {
             renderer.render(drill, 0.5F, matrices, buffer, 0, 17);
             assertSame(before, matrices.last());
             assertEquals(matrix, matrices.last().pose());
-            assertTrue(matrices.clear());
+            assertTrue(matrices.isEmpty());
             assertEquals(direction.toString(), 16, buffer.vertices.size());
             assertArrayEquals(new float[] {11.5F, -4.5F, 7.5F},
                     midpoint(buffer.vertices.get(0), buffer.vertices.get(3)), 0.00001F);
@@ -91,7 +91,7 @@ public class RendererBufferContractTest {
         RecordingBuffer buffer = new RecordingBuffer();
         new LaserDrillRenderer(null).render(new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricDrillBlock.class)), 0, matrices, buffer, 0, 0);
         assertSame(before, matrices.last());
-        assertTrue(matrices.clear());
+        assertTrue(matrices.isEmpty());
         assertTrue(buffer.vertices.isEmpty());
     }
 
@@ -112,7 +112,7 @@ public class RendererBufferContractTest {
             assertEquals(beam ? 40 : 24, buffer.vertices.size());
             assertSame(before, matrices.last());
             assertEquals(matrix, before.pose());
-            assertTrue(matrices.clear());
+            assertTrue(matrices.isEmpty());
             assertArrayEquals(new float[] {0.5F, 0.5F}, buffer.vertices.get(0).uv, 0F);
             assertArrayEquals(new float[] {1, 1}, buffer.vertices.get(2).uv, 0F);
             for (int i = 0; i < buffer.vertices.size(); i++) {
@@ -194,9 +194,11 @@ public class RendererBufferContractTest {
             return this;
         }
         @Override public VertexConsumer setColor(int r, int g, int b, int a) { vertex.color = new int[] {r, g, b, a}; return this; }
+        @Override public VertexConsumer setColor(int color) { return setColor(color >> 16 & 255, color >> 8 & 255, color & 255, color >>> 24); }
         @Override public VertexConsumer setUv(float u, float v) { vertex.uv = new float[] {u, v}; return this; }
         @Override public VertexConsumer setUv1(int u, int v) { vertex.overlay = u | v << 16; return this; }
         @Override public VertexConsumer setUv2(int u, int v) { vertex.light = u | v << 16; return this; }
         @Override public VertexConsumer setNormal(float x, float y, float z) { vertex.normal = new float[] {x, y, z}; return this; }
+        @Override public VertexConsumer setLineWidth(float width) { throw new AssertionError("Entity quads must not emit line width"); }
     }
 }

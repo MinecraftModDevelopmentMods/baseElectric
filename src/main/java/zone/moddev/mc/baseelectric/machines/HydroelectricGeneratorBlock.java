@@ -7,7 +7,7 @@ import net.minecraft.world.level.LevelReader;
 public class HydroelectricGeneratorBlock extends ElectricGeneratorBlock {
 
 	public HydroelectricGeneratorBlock(){
-		super();
+		super(machineProperties(0.75F).setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("hydroelectric_generator")));
 	}
 
 	@Override

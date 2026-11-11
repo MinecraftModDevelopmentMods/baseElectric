@@ -1,8 +1,6 @@
 {
   "type": "minecraft:smelting",
-  "ingredient": {
-    "item": "baseelectric:silicon_mix"
-  },
+  "ingredient": "baseelectric:silicon_mix",
   "result": {
     "id": "baseelectric:silicon_ingot"
   },

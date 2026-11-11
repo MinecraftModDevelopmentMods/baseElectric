@@ -7,6 +7,9 @@ import zone.moddev.mc.basepower.init.Fluids;
 import net.minecraft.world.level.Level;
 
 public class ElectricStillBlock extends ElectricMachineBlock{
+    public ElectricStillBlock() {
+        super(machineProperties(0.75F).setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("electric_still")));
+    }
 
 	@Override
 	public ElectricMachineTileEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {

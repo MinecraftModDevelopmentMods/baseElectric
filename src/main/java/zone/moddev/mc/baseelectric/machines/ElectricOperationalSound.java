@@ -15,7 +15,7 @@ final class ElectricOperationalSound {
     private ElectricOperationalSound() {}
 
     static void broadcast(Level level, double x, double y, double z, SoundEvent sound, float volume, float pitch) {
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         final double range = 16;
         AABB bounds = new AABB(x - range, y - range, z - range, x + range, y + range, z + range);
         ClientboundSoundPacket packet = null;

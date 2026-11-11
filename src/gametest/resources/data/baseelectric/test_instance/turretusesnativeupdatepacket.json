@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "function": "baseelectric:turretusesnativeupdatepacket",
+  "environment": "minecraft:default",
+  "structure": "baseelectric:empty",
+  "max_ticks": 100
+}

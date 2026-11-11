@@ -5,6 +5,9 @@ import cyano.poweradvantage.api.ConduitType;
 import cyano.poweradvantage.api.PowerConnectorContext;
 
 public class SteamPoweredElectricGeneratorBlock extends ElectricGeneratorBlock{
+    public SteamPoweredElectricGeneratorBlock() {
+        super(machineProperties(0.75F).setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("steam_powered_generator")));
+    }
 
 	public static final ConduitType STEAM_POWER = new ConduitType("steam");
 

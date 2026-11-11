@@ -21,12 +21,12 @@ import cyano.poweradvantage.api.fluid.FluidTankInfo;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
 public class PlasticRefineryTileEntity extends ElectricMachineTileEntity implements LegacyFluidHandler{
-	private static final TagKey<Item> PLASTICS_TAG = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("forge", "plastics"));
+	private static final TagKey<Item> PLASTICS_TAG = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("forge", "plastics"));
 
 
 	public static final float ENERGY_PER_TICK = 12f;
@@ -114,13 +114,13 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 
 	@Override
 	protected void loadFrom(CompoundTag tagRoot) {
-		if(tagRoot.contains("progress", 99)){
-			this.fabTime = tagRoot.getShort("progress");
+		if((tagRoot.get("progress") instanceof net.minecraft.nbt.NumericTag)){
+			this.fabTime = tagRoot.getShortOr("progress", (short) 0);
 		}
-		if (tagRoot.contains("Tank", 10)) {
-			CompoundTag tankTag = tagRoot.getCompound("Tank");
+		if ((tagRoot.get("Tank") instanceof net.minecraft.nbt.CompoundTag)) {
+			CompoundTag tankTag = tagRoot.getCompoundOrEmpty("Tank");
 			getTank().readFromNBT(tankTag);
-			if(tankTag.contains("Empty", 1)){
+			if((tankTag.get("Empty") instanceof net.minecraft.nbt.ByteTag)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
 				getTank().setFluid(null);
 			}
@@ -158,7 +158,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 
 	private boolean isPlasticFluid(Fluid fluid) {
 		if(fluid == null) return false;
-		ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.FLUIDS.getKey(fluid);
+		Identifier id = net.minecraftforge.registries.ForgeRegistries.FLUIDS.getKey(fluid);
 		return id != null && ElectricAdvantage.INSTANCE.PLASTIC_FLUID_MATERIALS.contains(id.toString());
 	}
 

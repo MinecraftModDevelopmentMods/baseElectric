@@ -20,7 +20,7 @@ public class GrowthChamberControllerBlock extends cyano.poweradvantage.api.simpl
 
 
 	public GrowthChamberControllerBlock() {
-		super(machineProperties(0.75f),
+		super(machineProperties(0.75f).setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("growth_chamber_controller")),
 				Power.GROWTHCHAMBER_POWER, Power.ELECTRIC_POWER, Fluids.fluidConduit_general);
 	}
 

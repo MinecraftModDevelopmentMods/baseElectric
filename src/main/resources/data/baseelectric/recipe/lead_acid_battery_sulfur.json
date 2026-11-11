@@ -6,18 +6,10 @@
     "pZp"
   ],
   "key": {
-    "X": {
-      "tag": "forge:ingots/lead"
-    },
-    "Y": {
-      "tag": "forge:sulfur"
-    },
-    "Z": {
-      "item": "minecraft:water_bucket"
-    },
-    "p": {
-      "tag": "forge:plastic"
-    }
+    "X": "#forge:ingots/lead",
+    "Y": "#forge:sulfur",
+    "Z": "minecraft:water_bucket",
+    "p": "#forge:plastic"
   },
   "result": {
     "id": "baseelectric:lead_acid_battery"

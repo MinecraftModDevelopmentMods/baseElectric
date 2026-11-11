@@ -5,7 +5,7 @@ import net.minecraft.world.level.Level;
 public class ElectricOvenBlock extends ElectricMachineBlock{
 	
 	public ElectricOvenBlock(){
-		super();
+		super(machineProperties(0.75F).setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("electric_oven")));
 	}
 
 	@Override

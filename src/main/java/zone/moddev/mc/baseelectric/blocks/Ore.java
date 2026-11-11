@@ -35,14 +35,16 @@ public class Ore extends Block {
     }
 
     private Ore(Supplier<ItemStack> drop, int pickLevel, int variation) {
-        super(Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
+        super(Properties.of().setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("sulfur_ore"))
+                .mapColor(MapColor.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
                 .strength(1.5F + pickLevel, 5.0F * (1 + pickLevel)));
         this.drop = drop;
         dropRange = variation + 1;
     }
 
     public Ore(int pickLevel) {
-        super(Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
+        super(Properties.of().setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("li_ore"))
+                .mapColor(MapColor.STONE).requiresCorrectToolForDrops().sound(SoundType.STONE)
                 .strength(1.5F + pickLevel, 5.0F * (1 + pickLevel)));
         drop = () -> ItemStack.EMPTY;
         dropRange = 0;

@@ -58,16 +58,16 @@ public class HydroturbineEntity extends net.minecraft.world.entity.Entity{
 	@Override
 	public void tick(){
 		super.tick();
-		FluidState fluidState = this.getCommandSenderWorld().getFluidState(blockPosition());
+		FluidState fluidState = this.level().getFluidState(blockPosition());
 		Vec3 directionVector;
 		if(!fluidState.isEmpty()){
-			directionVector = fluidState.getFlow(getCommandSenderWorld(), blockPosition());
+			directionVector = fluidState.getFlow(level(), blockPosition());
 			isSpinning = !(directionVector.x == 0 && directionVector.z == 0);
 		} else {
 			isSpinning = false;
 			directionVector = new Vec3(0,0,0);
 		}
-		if(this.getCommandSenderWorld().isClientSide){
+		if(this.level().isClientSide()){
 			// client-side only
 			if(isSpinning){
 				rotation += DEGREES_PER_TICK;
@@ -78,8 +78,8 @@ public class HydroturbineEntity extends net.minecraft.world.entity.Entity{
 		} else {
 			// server-side only
 			if((parent == null || parent.isRemoved()) && parentCoord != null){
-				if(!this.getCommandSenderWorld().hasChunkAt(parentCoord)) return;
-				parent = this.getCommandSenderWorld().getBlockEntity(parentCoord);
+				if(!this.level().hasChunkAt(parentCoord)) return;
+				parent = this.level().getBlockEntity(parentCoord);
 			}
 			if(parent == null || parent.isRemoved()){
 				this.discard();
@@ -90,29 +90,45 @@ public class HydroturbineEntity extends net.minecraft.world.entity.Entity{
 				}
 				generator.setActive(isSpinning);
 			}
-			if(isSpinning && getCommandSenderWorld().getGameTime() % 8 == roffset){
+			if(isSpinning && level().getGameTime() % 8 == roffset){
 				// slice-n-dice unfortunate souls caught in the blades
-				List<LivingEntity> victims = getCommandSenderWorld().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox());
+				List<LivingEntity> victims = level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox());
 				for(Entity e : victims){
-					e.hurt(Power.damageSource(getCommandSenderWorld(), Power.PROPELLER_DAMAGE), PROPELLER_DAMAGE);
+					e.hurtServer((net.minecraft.server.level.ServerLevel) level(),
+                            Power.damageSource(level(), Power.PROPELLER_DAMAGE), PROPELLER_DAMAGE);
 				}
 			}
 		}
 	}
 	
 	@Override
+	protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        readAdditionalSaveData(input.read(zone.moddev.mc.baseelectric.util.LegacyNbt.ROOT).orElseGet(CompoundTag::new));
+    }
+
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        CompoundTag root = new CompoundTag();
+        addAdditionalSaveData(root);
+        output.store(zone.moddev.mc.baseelectric.util.LegacyNbt.ROOT, root);
+    }
+
+    @Override
+    public boolean hurtServer(net.minecraft.server.level.ServerLevel level, net.minecraft.world.damagesource.DamageSource source, float amount) {
+        return false;
+    }
+
 	protected void readAdditionalSaveData(CompoundTag root) {
 		parent = null;
 		parentCoord = null;
-		if(root.contains("parentPos", 11)){
-			int[] coords = root.getIntArray("parentPos");
+		if((root.get("parentPos") instanceof net.minecraft.nbt.IntArrayTag)){
+			int[] coords = root.getIntArray("parentPos").orElseGet(() -> new int[0]);
 			if(coords.length >= 3){
 				parentCoord = new BlockPos(coords[0],coords[1],coords[2]);
 			}
 		}
 	}
 
-	@Override
 	protected void addAdditionalSaveData(CompoundTag root) {
 		BlockPos p = parent != null ? parent.getBlockPos() : parentCoord;
 		if(p != null){

@@ -65,16 +65,10 @@ public abstract class ElectricGeneratorBlock extends BlockSimplePowerMachine {
     }
 
     @Override
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (state.getBlock() != newState.getBlock()) {
-            BlockEntity tile = world.getBlockEntity(pos);
-            if (tile instanceof Container) {
-                Containers.dropContents(world, pos, (Container) tile);
-                ((Container) tile).clearContent();
-                world.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, world, pos, newState, isMoving);
+    public void affectNeighborsAfterRemoval(BlockState state, net.minecraft.server.level.ServerLevel world, BlockPos pos, boolean isMoving) {
+        // Native BlockEntity.preRemoveSideEffects owns the inventory drop.
+        world.updateNeighbourForOutputSignal(pos, this);
+        super.affectNeighborsAfterRemoval(state, world, pos, isMoving);
     }
 
     @Override

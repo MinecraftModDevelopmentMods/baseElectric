@@ -1,15 +1,9 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "tag": "forge:dusts/tin"
-    },
-    {
-      "tag": "forge:dusts/tin"
-    },
-    {
-      "tag": "forge:dusts/silver"
-    }
+    "#forge:dusts/tin",
+    "#forge:dusts/tin",
+    "#forge:dusts/silver"
   ],
   "result": {
     "id": "baseelectric:solder_mix",

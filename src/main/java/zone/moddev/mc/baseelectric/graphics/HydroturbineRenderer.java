@@ -4,19 +4,18 @@ import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.entities.HydroturbineEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-@OnlyIn(Dist.CLIENT)
-public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
-	private static final ResourceLocation texture = ResourceLocation.parse(ElectricAdvantage.MODID+":textures/entity/hydroturbine.png");
+public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity, HydroturbineRenderer.State>{
+	private static final Identifier texture = Identifier.parse(ElectricAdvantage.MODID+":textures/entity/hydroturbine.png");
 
 	private static final float DEGREES_TO_RADIANS = (float)(Math.PI / 180);
 
@@ -24,13 +23,35 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 		super(rm);
 	}
 
-	@Override
-	public void render(final HydroturbineEntity entity, final float entityYaw, final float partialTick,
-            final PoseStack matrices, final MultiBufferSource buffers, final int packedLight) {
+    public static final class State extends EntityRenderState {
+        float yaw;
+        float rotation;
+    }
+
+    @Override public State createRenderState() { return new State(); }
+
+    @Override public void extractRenderState(HydroturbineEntity entity, State state, float partialTick) {
+        super.extractRenderState(entity, state, partialTick);
+        state.yaw = entity.getYRot();
+        state.rotation = entity.rotation + (entity.isSpinning ? HydroturbineEntity.DEGREES_PER_TICK * partialTick : 0);
+    }
+
+    @Override public void submit(State state, PoseStack matrices, SubmitNodeCollector collector, CameraRenderState camera) {
+        matrices.pushPose();
+        matrices.translate(0f, 0.5f, 0f);
+        matrices.mulPose(Axis.YP.rotationDegrees(state.yaw));
+        float rotation = state.rotation;
+        int light = state.lightCoords;
+        collector.submitCustomGeometry(matrices, RenderTypes.entitySolid(texture),
+                (pose, vertices) -> draw(rotation, pose, vertices, light));
+        matrices.popPose();
+        super.submit(state, matrices, collector, camera);
+    }
+
+    private static void draw(float rotation, PoseStack.Pose pose,
+            com.mojang.blaze3d.vertex.VertexConsumer vertices, int packedLight) {
 		{
 			final float pixel = 1.0f / 16;
-			HydroturbineEntity e = (HydroturbineEntity)entity;
-			matrices.pushPose();
 			final float topHeight = 0.5f;
 			final float bottomHeight = 0.375f-0.5f;
 			final float radius = pixel;
@@ -39,10 +60,7 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 			final float shaftMaxU = 0.5f+2*pixel;
 			final float shaftMaxV = 1.0f;
 			
-			matrices.translate(0f, 0.5f, 0f);
-			matrices.mulPose(Axis.YP.rotationDegrees(e.getYRot()));
-            final BufferedQuads worldRenderer = new BufferedQuads(matrices,
-                    buffers.getBuffer(RenderType.entitySolid(texture)), packedLight, OverlayTexture.NO_OVERLAY);
+            final BufferedQuads worldRenderer = new BufferedQuads(pose, vertices, packedLight, OverlayTexture.NO_OVERLAY);
 
 			// render shaft
 			worldRenderer.pos(+radius, bottomHeight, -radius).tex(shaftMinU,shaftMinV).endVertex();
@@ -107,15 +125,9 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 			
 			// render spinning (or not) blades
 			float spin1, spin2, spin3;
-			if(e.isSpinning){
-				spin1 = e.rotation + HydroturbineEntity.DEGREES_PER_TICK * partialTick;
-				spin2 = spin1 + 120;
-				spin3 = spin1 - 120;
-			} else {
-				spin1 = e.rotation;
-				spin2 = spin1 + 120;
-				spin3 = spin1 - 120;
-			}
+            spin1 = rotation;
+            spin2 = spin1 + 120;
+            spin3 = spin1 - 120;
 			final float bladeWidth = 3*pixel;
 			final float bladeLength = 6*pixel;
 			final float bladeOffset = 1*pixel;
@@ -173,14 +185,8 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
 			worldRenderer.pos(cos3b*bladeOffset, sin3b*bladeOffset, depthDelta-axelLength).tex(bladeMinU,bladeMinV).endVertex(); // inner, leading
 			
 			
-			matrices.popPose();
-			super.render(e, entityYaw, partialTick, matrices, buffers, packedLight);
 		}
 	}
 
 
-	@Override
-	public ResourceLocation getTextureLocation(final HydroturbineEntity e) {
-		return texture;
-	}
 }
