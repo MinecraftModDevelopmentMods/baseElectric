@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 
 public class BlockLootResourceTest {
     @Test public void everyOrdinaryBlockKeepsItsOwnNativeItemDrop() throws Exception {
-        Path root = Paths.get("src/main/resources/data/baseelectric/loot_tables/blocks");
+        Path root = Paths.get("src/main/resources/data/baseelectric/loot_table/blocks");
         try (Stream<Path> states = Files.list(Paths.get("src/main/resources/assets/baseelectric/blockstates"))) {
             for (Path state : (Iterable<Path>) states.filter(path -> path.toString().endsWith(".json"))::iterator) {
                 String id = state.getFileName().toString().replace(".json", "");
@@ -35,10 +35,10 @@ public class BlockLootResourceTest {
 
     @Test public void resourcePackDeclaresTheNativeOneTwentyOneFormat() throws Exception {
         JsonObject pack = read(Paths.get("src/main/resources/pack.mcmeta")).getAsJsonObject("pack");
-        assertEquals(32, pack.get("pack_format").getAsInt());
+        assertEquals(34, pack.get("pack_format").getAsInt());
         JsonObject formats = pack.getAsJsonObject("supported_formats");
-        assertEquals(32, formats.get("min_inclusive").getAsInt());
-        assertEquals(41, formats.get("max_inclusive").getAsInt());
+        assertEquals(34, formats.get("min_inclusive").getAsInt());
+        assertEquals(48, formats.get("max_inclusive").getAsInt());
         assertFalse(pack.has("forge:server_data_pack_format"));
     }
 

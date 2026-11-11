@@ -13,7 +13,7 @@ import cyano.poweradvantage.api.fluid.FluidStack;
 public class ElectricPumpGUI  extends SimpleMachineGUI{
 
 	public ElectricPumpGUI() {
-		super(new ResourceLocation(ElectricAdvantage.MODID+":textures/gui/container/electric_pump_gui.png"), 
+		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_pump_gui.png"),
 				new Integer2D[0]);
 	}
 	

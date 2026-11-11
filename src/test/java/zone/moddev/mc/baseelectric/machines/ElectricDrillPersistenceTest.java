@@ -1,5 +1,7 @@
 package zone.moddev.mc.baseelectric.machines;
 
+import zone.moddev.mc.baseelectric.verification.NativeMachineFixture;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.core.Direction;
@@ -19,17 +21,19 @@ import org.junit.BeforeClass;
 import static org.junit.Assert.assertEquals;
 
 public class ElectricDrillPersistenceTest {
+    @org.junit.Rule public final NativeMachineFixture machines =
+            new NativeMachineFixture();
     @BeforeClass public static void bootstrapNativeRegistries() { NativeTestBootstrap.initialize(); }
 
     @Test public void retainsLegacyProgressUntilWorldIsAttached() {
-        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.ElectricDrillBlock().defaultBlockState());
+        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricDrillBlock.class));
         drill.loadWithComponents(target(94), NativeTestBootstrap.registries());
         drill.prepareDataFieldsForSync();
         assertEquals(94, drill.getDataFieldArray()[1]);
     }
 
     @Test public void clearsPreviousProgressOnReadingAnUntargetedTile() {
-        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.ElectricDrillBlock().defaultBlockState());
+        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricDrillBlock.class));
         drill.loadWithComponents(target(94), NativeTestBootstrap.registries());
         drill.loadWithComponents(new CompoundTag(), NativeTestBootstrap.registries());
         drill.prepareDataFieldsForSync();
@@ -44,7 +48,7 @@ public class ElectricDrillPersistenceTest {
         for (int i = 0; i < 9; i++) states.add(state.copy());
         source.put("TargetStates", states);
         for (int pass = 0; pass < 3; pass++) {
-            ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.ElectricDrillBlock().defaultBlockState());
+            ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricDrillBlock.class));
             drill.loadFrom(source);
             CompoundTag saved = new CompoundTag();
             drill.saveTo(saved);
@@ -54,7 +58,7 @@ public class ElectricDrillPersistenceTest {
     }
 
     @Test public void targetPlaneRemainsNineUniqueBlocksForEveryDrillDirection() throws Exception {
-        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.ElectricDrillBlock().defaultBlockState());
+        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricDrillBlock.class));
         Field facing = ElectricDrillTileEntity.class.getDeclaredField("facingCache");
         facing.setAccessible(true);
         Method area = ElectricDrillTileEntity.class.getDeclaredMethod("getArea", BlockPos.class);
@@ -76,7 +80,7 @@ public class ElectricDrillPersistenceTest {
     }
 
     @Test public void nativeDataFieldsRetainEnergyAndMiningProgress() {
-        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.ElectricDrillBlock().defaultBlockState());
+        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricDrillBlock.class));
         drill.loadWithComponents(target(94), NativeTestBootstrap.registries());
         drill.setEnergy(416.0F, drill.getEnergyType());
         drill.prepareDataFieldsForSync();

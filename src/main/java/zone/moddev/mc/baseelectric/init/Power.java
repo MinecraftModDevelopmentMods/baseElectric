@@ -32,7 +32,7 @@ public abstract class Power {
 	public static final ResourceKey<DamageType> PROPELLER_DAMAGE = damageType("propeller");
 
 	private static ResourceKey<DamageType> damageType(String id) {
-		return ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(ElectricAdvantage.MODID, id));
+		return ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, id));
 	}
 
 	public static DamageSource damageSource(Level level, ResourceKey<DamageType> type) {

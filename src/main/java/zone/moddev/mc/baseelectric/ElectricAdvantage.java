@@ -25,13 +25,13 @@ import zone.moddev.mc.baseelectric.init.Villages;
 import zone.moddev.mc.baseelectric.recipe.RecipeConditions;
 import zone.moddev.mc.baseelectric.migration.ElectricLegacyMigrations;
 
-/** Forge 1.20.6 entry point for baseElectric. */
+/** Forge 1.21.1 entry point for baseElectric. */
 @Mod(ElectricAdvantage.MODID)
 public final class ElectricAdvantage {
     public static final String MODID = "baseelectric";
     public static final String LEGACY_MODID = "electricadvantage";
     public static final String NAME = "baseElectric";
-    public static final String VERSION = "2.2.14.120061";
+    public static final String VERSION = "2.2.15.121011";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static ElectricAdvantage INSTANCE;
 

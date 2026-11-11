@@ -50,10 +50,10 @@ final class BufferedQuads {
             nz /= length;
         }
         for (float[] vertex : vertices) {
-            buffer.vertex(transform.pose(), vertex[0], vertex[1], vertex[2])
-                    .color(255, 255, 255, 255).uv(vertex[3], vertex[4])
-                    .overlayCoords(overlay).uv2(light)
-                    .normal(transform, nx, ny, nz).endVertex();
+            buffer.addVertex(transform.pose(), vertex[0], vertex[1], vertex[2])
+                    .setColor(255, 255, 255, 255).setUv(vertex[3], vertex[4])
+                    .setOverlay(overlay).setLight(light)
+                    .setNormal(transform, nx, ny, nz);
         }
         count = 0;
     }

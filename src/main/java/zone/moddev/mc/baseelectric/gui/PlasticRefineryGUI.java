@@ -13,7 +13,7 @@ import cyano.poweradvantage.api.fluid.FluidStack;
 public class PlasticRefineryGUI extends SimpleMachineGUI{
 
 	public PlasticRefineryGUI() {
-		super(new ResourceLocation(ElectricAdvantage.MODID+":textures/gui/container/plastic_refinery_gui.png"), 
+		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/plastic_refinery_gui.png"),
 				Integer2D.fromCoordinates(133,67));
 	}
 	

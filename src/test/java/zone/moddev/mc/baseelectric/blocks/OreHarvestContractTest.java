@@ -51,7 +51,7 @@ public class OreHarvestContractTest {
     private static void bindHarvestTags(Block block, String id) throws Exception {
         Set<TagKey<Block>> tags = new HashSet<>();
         for (TagKey<Block> tag : java.util.List.of(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)) {
-            java.nio.file.Path path = java.nio.file.Paths.get("src/main/resources/data/minecraft/tags/blocks",
+            java.nio.file.Path path = java.nio.file.Paths.get("src/main/resources/data/minecraft/tags/block",
                     tag.location().getPath() + ".json");
             var json = com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(path)).getAsJsonObject();
             for (var value : json.getAsJsonArray("values")) {

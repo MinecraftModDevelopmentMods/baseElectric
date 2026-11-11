@@ -110,6 +110,6 @@ public class ElectricOperationalHydroturbineAnchorTest {
         @Override protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {}
         @Override protected void readAdditionalSaveData(CompoundTag tag) {}
         @Override protected void addAdditionalSaveData(CompoundTag tag) {}
-        @Override public Packet<ClientGamePacketListener> getAddEntityPacket() { return null; }
+        @Override public Packet<ClientGamePacketListener> getAddEntityPacket(net.minecraft.server.level.ServerEntity tracker) { return null; }
     }
 }

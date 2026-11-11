@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 public class ArcFurnaceGUI extends SimpleMachineGUI{
 
 	public ArcFurnaceGUI() {
-		super(new ResourceLocation(ElectricAdvantage.MODID+":textures/gui/container/electric_furnace_gui.png"), 
+		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_furnace_gui.png"),
 				Integer2D.fromCoordinates(12,34, 12,55, 12,76, 12,97, 
 						124,45, 145,45, 124,66, 145,66, 124,87, 145,87));
 		for(int i = 4; i < 10; i++)super.specialSlots.put(i, (SlotContext c)->new Slot(c.machineInventory,c.slotIndex,c.screenPositionX,c.screenPositionY){

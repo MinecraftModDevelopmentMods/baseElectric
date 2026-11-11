@@ -19,7 +19,7 @@ import org.junit.Test;
 
 public class RecipeResourceTest {
     @Test public void allRecipesUseTheNativeOneFifteenDataPackLocationAndSerializers() throws IOException {
-        Path recipes = Paths.get("src/main/resources/data/baseelectric/recipes");
+        Path recipes = Paths.get("src/main/resources/data/baseelectric/recipe");
         List<Path> files;
         try (Stream<Path> stream = Files.list(recipes)) {
             files = stream.filter(path -> path.toString().endsWith(".json"))
@@ -31,8 +31,8 @@ public class RecipeResourceTest {
             String text = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
             JsonObject json = new JsonParser().parse(text).getAsJsonObject();
             String type = json.get("type").getAsString();
-            assertTrue(file + " must use the 1.20.6 result stack codec", json.getAsJsonObject("result").has("id"));
-            assertFalse(file + " still has pre-1.20.6 Forge conditions", json.has("conditions"));
+            assertTrue(file + " must use the 1.21.1 result stack codec", json.getAsJsonObject("result").has("id"));
+            assertFalse(file + " still has pre-1.21.1 Forge conditions", json.has("conditions"));
             assertTrue(file + " has unsupported serializer " + type,
                     "minecraft:crafting_shaped".equals(type)
                             || "minecraft:crafting_shapeless".equals(type)

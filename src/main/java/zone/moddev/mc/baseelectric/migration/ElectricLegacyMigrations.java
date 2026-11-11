@@ -93,6 +93,6 @@ public final class ElectricLegacyMigrations {
     }
 
     private static ResourceLocation id(String path) {
-        return new ResourceLocation(ElectricAdvantage.MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, path);
     }
 }

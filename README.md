@@ -4,13 +4,13 @@ baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower. Its equipment appears
 in the shared basePower creative tab.
 
-This version targets Minecraft **1.20.6**, Forge **50.2.0**, official mappings,
-ForgeGradle **7.0.34**, and Java **21**. The version is **2.2.14.120061**.
-Install [basePower 2.4.13.120061](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9545972)
-for Minecraft 1.20.6. CurseForge also installs
-[Base Metals](https://www.curseforge.com/minecraft/mc-mods/base-metals); this
-build was tested with 3.1.2.120061 and OreSpawn 4.1.0.120061.
-See the [1.20.6 notes](docs/NATIVE1206.md) for save compatibility and test coverage.
+This version targets Minecraft **1.21.1**, Forge **52.1.0**, official mappings
+with MCP **20240808.132146**, ForgeGradle **7.0.34**, Gradle **9.6.1**, and Java
+**21**. The version is **2.2.15.121011**. It requires basePower **2.4.14.121011**.
+The coordinated dependencies are Base Metals **3.1.2.121011** and OreSpawn
+**4.1.0.121011**. All three dependency pins use merged source and verified public
+downloads. CurseForge, Maven and GitHub releases use the same checked player jar.
+See the [1.21.1 notes](docs/NATIVE1211.md) for compatibility and verification status.
 
 Back up your world and try the upgrade on a copy. Replace Electric Advantage
 and Power Advantage with baseElectric and basePower; do not install both sets.
@@ -25,23 +25,25 @@ if Gradle cannot discover all three.
 The independent Forge/resource checks do not require sibling jars:
 
 ```text
-./gradlew --offline nativeResourceChecks verifyRecipeTagGuards processResources
+./gradlew --offline nativeResourceChecks compileNativeApiDiagnostics verifyRecipeTagGuards processResources
 node tools/verify-native-port.js
 node tools/generate-recipe-unlocks.js --check
 ```
 
-For the full local build, supply the files matching the pins in `gradle.properties`:
+For a full local build, supply files matching the exact coordinated source
+and jar pins recorded in `gradle.properties`. The current basePower pin is an
+approved local commit, not merged or publicly released:
 
 ```text
--PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.13.120061.jar
--PbaseMetalsRuntimeJar=/path/to/BaseMetals-3.1.2.120061.jar
--PforgeInstallerJar=/path/to/forge-1.20.6-50.2.0-installer.jar
+-PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.14.121011.jar
+-PbaseMetalsRuntimeJar=/path/to/BaseMetals-3.1.2.121011.jar
+-PforgeInstallerJar=/path/to/forge-1.21.1-52.1.0-installer.jar
 ```
 
-Forge 50 uses the ordinary native jar for both play and development. The former
+Forge 52 uses the ordinary native jar for both play and development. The former
 `*DeobfJar` path flags remain aliases for the same bytes. OreSpawn and the
-Mavenizer fixture default to the sibling `MinecraftMineralogy/OS1206/OreSpawn`
-checkout. Use `-PoreSpawnRuntimeJar` and `-Pforge50MavenizerJar` to override paths.
+Mavenizer fixture default to the sibling `MinecraftMineralogy/OS1211/OreSpawn`
+checkout. Use `-PoreSpawnRuntimeJar` and `-Pforge52MavenizerJar` to override paths.
 For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
 
 ```text
@@ -49,8 +51,9 @@ For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
 ```
 
 Use `gradlew.bat` on Windows. Output jars go to `build/libs`. Dependencies
-remain separate mods. The 1.20.6 CI jobs check against the pinned Forge 50
-runtime and public dependencies.
+remain separate mods. The 1.21.1 CI and CodeQL jobs require merged source pins
+and checksum-matching public dependencies before checkout or compilation.
+Local jars do not satisfy that gate.
 
 ## Verification
 

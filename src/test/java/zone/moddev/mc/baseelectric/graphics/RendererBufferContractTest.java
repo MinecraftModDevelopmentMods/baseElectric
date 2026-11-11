@@ -1,5 +1,8 @@
 package zone.moddev.mc.baseelectric.graphics;
 
+import zone.moddev.mc.baseelectric.verification.NativeMachineFixture;
+import zone.moddev.mc.baseelectric.machines.ElectricDrillBlock;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.lang.reflect.Field;
@@ -22,6 +25,8 @@ import cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine;
 import static org.junit.Assert.*;
 
 public class RendererBufferContractTest {
+    @org.junit.Rule public final NativeMachineFixture machines =
+            new NativeMachineFixture();
     private static final int FULL_BRIGHT = 15 << 20 | 15 << 4;
 
     @BeforeClass public static void bootstrapNativeRegistries() {
@@ -51,7 +56,7 @@ public class RendererBufferContractTest {
     }
 
     @Test public void drillRetainsSixDirectionsSixteenVerticesAndLegacyUvs() throws Exception {
-        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.ElectricDrillBlock().defaultBlockState());
+        ElectricDrillTileEntity drill = new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricDrillBlock.class));
         set(ElectricDrillTileEntity.class, drill, "laserLength", 5);
         LaserDrillRenderer renderer = new LaserDrillRenderer(null);
         for (Direction direction : Direction.values()) {
@@ -84,7 +89,7 @@ public class RendererBufferContractTest {
         PoseStack matrices = new PoseStack();
         PoseStack.Pose before = matrices.last();
         RecordingBuffer buffer = new RecordingBuffer();
-        new LaserDrillRenderer(null).render(new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.ElectricDrillBlock().defaultBlockState()), 0, matrices, buffer, 0, 0);
+        new LaserDrillRenderer(null).render(new ElectricDrillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricDrillBlock.class)), 0, matrices, buffer, 0, 0);
         assertSame(before, matrices.last());
         assertTrue(matrices.clear());
         assertTrue(buffer.vertices.isEmpty());
@@ -179,21 +184,19 @@ public class RendererBufferContractTest {
     }
 
     private static final class RecordingBuffer implements VertexConsumer, MultiBufferSource {
-        @Override public void defaultColor(int red, int green, int blue, int alpha) {
-            throw new AssertionError("Renderer must emit explicit per-vertex colors");
-        }
-        @Override public void unsetDefaultColor() {
-            throw new AssertionError("Renderer must not mutate shared default-color state");
-        }
         final List<Vertex> vertices = new ArrayList<>();
         Vertex vertex = new Vertex();
         @Override public VertexConsumer getBuffer(RenderType type) { return this; }
-        @Override public VertexConsumer vertex(double x, double y, double z) { vertex.position = new float[] {(float) x, (float) y, (float) z}; return this; }
-        @Override public VertexConsumer color(int r, int g, int b, int a) { vertex.color = new int[] {r, g, b, a}; return this; }
-        @Override public VertexConsumer uv(float u, float v) { vertex.uv = new float[] {u, v}; return this; }
-        @Override public VertexConsumer overlayCoords(int u, int v) { vertex.overlay = u | v << 16; return this; }
-        @Override public VertexConsumer uv2(int u, int v) { vertex.light = u | v << 16; return this; }
-        @Override public VertexConsumer normal(float x, float y, float z) { vertex.normal = new float[] {x, y, z}; return this; }
-        @Override public void endVertex() { vertices.add(vertex); vertex = new Vertex(); }
+        @Override public VertexConsumer addVertex(float x, float y, float z) {
+            vertex = new Vertex();
+            vertex.position = new float[] {x, y, z};
+            vertices.add(vertex);
+            return this;
+        }
+        @Override public VertexConsumer setColor(int r, int g, int b, int a) { vertex.color = new int[] {r, g, b, a}; return this; }
+        @Override public VertexConsumer setUv(float u, float v) { vertex.uv = new float[] {u, v}; return this; }
+        @Override public VertexConsumer setUv1(int u, int v) { vertex.overlay = u | v << 16; return this; }
+        @Override public VertexConsumer setUv2(int u, int v) { vertex.light = u | v << 16; return this; }
+        @Override public VertexConsumer setNormal(float x, float y, float z) { vertex.normal = new float[] {x, y, z}; return this; }
     }
 }

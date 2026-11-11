@@ -108,7 +108,7 @@ public final class Blocks {
     @SubscribeEvent public static void registerBlocks(RegisterEvent event) {
         event.register(ForgeRegistries.Keys.BLOCKS, registry -> {
             constructBlocks();
-            ALL_BLOCKS.forEach((id, block) -> registry.register(new ResourceLocation(ElectricAdvantage.MODID, id), block));
+            ALL_BLOCKS.forEach((id, block) -> registry.register(ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, id), block));
         });
     }
 
@@ -118,7 +118,7 @@ public final class Blocks {
             if (!"pump_pipe_electric".equals(id) && !"laser_turret_evil".equals(id)) {
                 ItemGroups.show(item);
             }
-            registry.register(new ResourceLocation(ElectricAdvantage.MODID, id), item);
+            registry.register(ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, id), item);
         }));
     }
 }

@@ -23,7 +23,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.resources.ResourceLocation;
 
 public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine implements LegacyFluidHandler{
-	private static final TagKey<Item> DIRT_TAG = TagKey.create(Registries.ITEM, new ResourceLocation("forge", "dirt"));
+	private static final TagKey<Item> DIRT_TAG = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("forge", "dirt"));
 
 
 	static final float ELECTRICITY_PER_UNIT = 8f;

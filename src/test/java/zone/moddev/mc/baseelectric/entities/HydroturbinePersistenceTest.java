@@ -1,5 +1,8 @@
 package zone.moddev.mc.baseelectric.entities;
 
+import zone.moddev.mc.baseelectric.verification.NativeMachineFixture;
+import zone.moddev.mc.baseelectric.machines.HydroelectricGeneratorBlock;
+
 import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import java.lang.reflect.Field;
 import net.minecraft.nbt.CompoundTag;
@@ -10,12 +13,14 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class HydroturbinePersistenceTest {
+    @org.junit.Rule public final NativeMachineFixture machines =
+            new NativeMachineFixture();
     @org.junit.BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
     @Test public void generatorGuiOutputIsNormalizedWithoutChangingGenerationRate() {
-        HydroelectricGeneratorTileEntity active = new HydroelectricGeneratorTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.HydroelectricGeneratorBlock().defaultBlockState()) {
+        HydroelectricGeneratorTileEntity active = new HydroelectricGeneratorTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(HydroelectricGeneratorBlock.class)) {
             @Override public boolean isActive() { return true; }
         };
-        HydroelectricGeneratorTileEntity inactive = new HydroelectricGeneratorTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.HydroelectricGeneratorBlock().defaultBlockState()) {
+        HydroelectricGeneratorTileEntity inactive = new HydroelectricGeneratorTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(HydroelectricGeneratorBlock.class)) {
             @Override public boolean isActive() { return false; }
         };
         assertEquals(1F, active.getPowerOutput(), 0F);
@@ -49,7 +54,7 @@ public class HydroturbinePersistenceTest {
 
     @Test public void savesAttachedGeneratorUsingTheSameLegacyCoordinateKey() throws Exception {
         HydroturbineEntity turbine = withoutWorld();
-        HydroelectricGeneratorTileEntity generator = new HydroelectricGeneratorTileEntity(new BlockPos(31, 72, -18), new zone.moddev.mc.baseelectric.machines.HydroelectricGeneratorBlock().defaultBlockState());
+        HydroelectricGeneratorTileEntity generator = new HydroelectricGeneratorTileEntity(new BlockPos(31, 72, -18), NativeMachineFixture.state(HydroelectricGeneratorBlock.class));
         turbine.parent = generator;
         CompoundTag saved = new CompoundTag();
         turbine.addAdditionalSaveData(saved);

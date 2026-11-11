@@ -1,5 +1,7 @@
 package zone.moddev.mc.baseelectric.machines;
 
+import zone.moddev.mc.baseelectric.verification.NativeMachineFixture;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,11 +24,13 @@ import static org.junit.Assert.*;
 
 /** Real broadcast methods with an explicit player list and forbidden chunk-backed entity queries. */
 public class ElectricOperationalSoundBroadcastTest {
+    @org.junit.Rule public final NativeMachineFixture machines =
+            new NativeMachineFixture();
     @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
 
     @Test public void machineBroadcastUsesOnlyExistingIntersectingConnectedPlayers() throws Exception {
         QueryRejectingWorld world = fixture();
-        ElectricOvenTileEntity machine = new ElectricOvenTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.ElectricOvenBlock().defaultBlockState()) {
+        ElectricOvenTileEntity machine = new ElectricOvenTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricOvenBlock.class)) {
             @Override public Level getLevel() { return world; }
         };
         machine.playSoundEffect(100, 80, -20, SoundEvents.ANVIL_LAND, 0.25f, 0.75f);
@@ -35,7 +39,7 @@ public class ElectricOperationalSoundBroadcastTest {
 
     @Test public void generatorBroadcastUsesOnlyExistingIntersectingConnectedPlayers() throws Exception {
         QueryRejectingWorld world = fixture();
-        PhotovoltaicGeneratorTileEntity generator = new PhotovoltaicGeneratorTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.PhotovoltaicGeneratorBlock().defaultBlockState()) {
+        PhotovoltaicGeneratorTileEntity generator = new PhotovoltaicGeneratorTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(PhotovoltaicGeneratorBlock.class)) {
             @Override public Level getLevel() { return world; }
         };
         generator.playSoundEffect(100, 80, -20, SoundEvents.ANVIL_LAND, 0.25f, 0.75f);
@@ -45,7 +49,7 @@ public class ElectricOperationalSoundBroadcastTest {
     @Test public void emptyPlayerListNeverQueriesChunks() throws Exception {
         QueryRejectingWorld world = withoutConstructor(QueryRejectingWorld.class);
         world.existingPlayers = Collections.emptyList();
-        ElectricOvenTileEntity machine = new ElectricOvenTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.ElectricOvenBlock().defaultBlockState()) {
+        ElectricOvenTileEntity machine = new ElectricOvenTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricOvenBlock.class)) {
             @Override public Level getLevel() { return world; }
         };
         machine.playSoundEffect(50000, 82, 50000, SoundEvents.ANVIL_LAND, 1, 1);

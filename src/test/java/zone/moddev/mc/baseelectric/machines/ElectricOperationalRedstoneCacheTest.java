@@ -1,5 +1,7 @@
 package zone.moddev.mc.baseelectric.machines;
 
+import zone.moddev.mc.baseelectric.verification.NativeMachineFixture;
+
 import cyano.poweradvantage.api.PoweredEntity;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -17,6 +19,8 @@ import static org.junit.Assert.*;
 
 /** Initial interlock sampling must not turn the ordinary cache into per-tick polling. */
 public class ElectricOperationalRedstoneCacheTest {
+    @org.junit.Rule public final NativeMachineFixture machines =
+            new NativeMachineFixture();
     private static final BlockPos EVEN = new BlockPos(8, 80, 8);
     private static final BlockPos ODD = new BlockPos(9, 81, 9);
 
@@ -121,7 +125,7 @@ public class ElectricOperationalRedstoneCacheTest {
     }
 
     private static final class ProbeMachine extends ElectricOvenTileEntity {
-        ProbeMachine(BlockPos pos) { super(pos, new ElectricOvenBlock().defaultBlockState()); }
+        ProbeMachine(BlockPos pos) { super(pos, NativeMachineFixture.state(ElectricOvenBlock.class)); }
         SignalWorld testWorld;
         boolean observed;
         int powerUpdates;
@@ -189,7 +193,7 @@ public class ElectricOperationalRedstoneCacheTest {
     }
 
     private static final class ProbeGenerator extends PhotovoltaicGeneratorTileEntity {
-        ProbeGenerator() { super(EVEN, new PhotovoltaicGeneratorBlock().defaultBlockState()); }
+        ProbeGenerator() { super(EVEN, NativeMachineFixture.state(PhotovoltaicGeneratorBlock.class)); }
         SignalWorld testWorld;
         boolean signal() { return hasRedstoneSignal(); }
         @Override public Level getLevel() { return testWorld; }

@@ -3,9 +3,8 @@ package zone.moddev.mc.baseelectric.machines;
 import zone.moddev.mc.baseelectric.init.Power;
 import cyano.poweradvantage.api.ConduitType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -219,8 +218,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 
 	protected ItemStack getSmeltingResult(ItemStack input) {
 		if (isEmptyStack(input) || getLevel() == null) return ItemStack.EMPTY;
-		SimpleContainer inventory = new SimpleContainer(1);
-		inventory.setItem(0, input);
+		SingleRecipeInput inventory = new SingleRecipeInput(input);
 		return getLevel().getRecipeManager().getRecipeFor(RecipeType.SMELTING, inventory, getLevel())
 				.map(recipe -> recipe.value().assemble(inventory, getLevel().registryAccess())).orElse(ItemStack.EMPTY);
 	}

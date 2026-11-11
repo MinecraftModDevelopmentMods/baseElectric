@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 public class FabricatorGUI extends SimpleMachineGUI{
 
 	public FabricatorGUI() {
-		super(new ResourceLocation(ElectricAdvantage.MODID+":textures/gui/container/electric_fabricator_gui.png"), 
+		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_fabricator_gui.png"),
 				Integer2D.fromCoordinates( 
 						12,34, 33,34, 54,34, 
 						12,55, 33,55, 54,55, 
