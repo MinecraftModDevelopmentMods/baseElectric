@@ -4,12 +4,12 @@ baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower. Its equipment appears
 in the shared basePower creative tab.
 
-This local port targets Minecraft **1.21.1**, Forge **52.1.0**, official mappings
+This version targets Minecraft **1.21.1**, Forge **52.1.0**, official mappings
 with MCP **20240808.132146**, ForgeGradle **7.0.34**, Gradle **9.6.1**, and Java
 **21**. The version is **2.2.15.121011**. It requires basePower **2.4.14.121011**.
 The coordinated dependencies are Base Metals **3.1.2.121011** and OreSpawn
-**4.1.0.121011**. The migration-hook Base Metals jar is approved for local use
-only. This port is not published or ready for release promotion.
+**4.1.0.121011**. All three dependency pins use merged source and verified public
+downloads. CurseForge, Maven and GitHub releases use the same checked player jar.
 See the [1.21.1 notes](docs/NATIVE1211.md) for compatibility and verification status.
 
 Back up your world and try the upgrade on a copy. Replace Electric Advantage
