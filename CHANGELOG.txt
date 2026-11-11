@@ -1,12 +1,11 @@
-baseElectric 2.2.16.121111 (Minecraft 1.21.11 / Forge, local integration)
+baseElectric 2.2.16.121111 (Minecraft 1.21.11 / Forge)
 
 - Port to Forge 61.1.0 with basePower 2.4.15.121111 and Java 21.
 - Preserve machine state, legacy aliases, battery charge and recipe progression.
 - Use native render extraction, item definitions and per-PackType Forge resources.
-- Reconcile with released 1.21.1 source while retaining local-only dependency pins.
+- Keep the released 1.21.1 recipes, progression and world upgrade behavior.
 - Require Base Metals 3.1.2.121111 on both client and server in Forge metadata.
 - Complete the combined machine, upgrade, graphical and two-world endurance checks against the current jars; keep manual acceptance and publication separate.
-- Accepted for the 1.21.11 release. Publication awaits the verified released dependency pins.
 - Run native resource checks without an interactive terminal while retaining strict warning and error checks.
 
 baseElectric 2.2.15.121011 (Minecraft 1.21.1 / Forge)

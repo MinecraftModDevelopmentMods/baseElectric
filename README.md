@@ -4,13 +4,12 @@ baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower. Its equipment appears
 in the shared basePower creative tab.
 
-This local port targets Minecraft **1.21.11**, Forge **61.1.0**, official mappings
-with MCP **20251223.124241**, ForgeGradle **7.0.34**, Gradle **9.6.1**, and Java
-**21**. The version is **2.2.16.121111**. It requires basePower **2.4.15.121111**.
+baseElectric **2.2.16.121111** runs on Minecraft **1.21.11**, Forge **61.1.0**,
+official mappings with MCP **20251223.124241**, ForgeGradle **7.0.34**, Gradle
+**9.6.1**, and Java **21**. It requires basePower **2.4.15.121111**.
 Base Metals **3.1.2.121111** is also **REQUIRED** on both client and server;
 Forge enforces this dependency. The coordinated OreSpawn version is
-**4.1.0.121111**. The migration-hook Base Metals jar is still recorded as a
-local input. This version has been accepted for release but is not yet published.
+**4.1.0.121111**. This version has been accepted for release but is not yet published.
 See the [1.21.11 notes](docs/NATIVE12111.md) for compatibility and verification status.
 
 The current jars pass the combined machine, upgrade, graphical and two-world
@@ -36,10 +35,9 @@ node tools/verify-native-port.js
 node tools/generate-recipe-unlocks.js --check
 ```
 
-For a full local build, supply files matching the exact coordinated source
-and jar pins recorded in `gradle.properties`. The target-native basePower pin
-is a stable local integration input, not a public release. The sibling paths
-are the defaults and these flags are optional path overrides:
+For a full local build, use the exact dependency jars recorded in
+`gradle.properties`. The sibling paths are the defaults and these flags are
+optional path overrides:
 
 ```text
 -PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.15.121111.jar
