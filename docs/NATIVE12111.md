@@ -46,17 +46,19 @@ for compile diagnostics only. All 88 production sources, 36 test sources and
 the GameTest source compile with javac and actual Eclipse ECJ; both fresh unit
 outputs pass all 111 tests without failures, skips or assumptions. The new
 Power integration input is frozen at SHA-256
-71E0E84F217AA33F4F190D26A44D236461C95BE4D5A3832B5DED214B883A3AD6;
+134FF55595E86D450DBFB5531F389BF0BE81FE6347F1EB03765B571A1D488B59;
 the approved local source commit is
-3c94944d300462badfbd88cef9f5f1dd6a51c32a. Base Metals is pinned to local hook
+a1cd197b4b6c3fc9c5d56da254d0f0ae9929fe8c. Base Metals is pinned to local hook
 616d527e50e4bf0137eeb9c44fa586e34a0452a0 at SHA-256
 598D3FB0FF956EBCC67FE477A01CE393C75D0013AF0CE00A79E2072B63E9F2BA.
 These inputs repair the shared migration RETURN hooks to mutate the same NBT
 in place without cancelling the other mod's callback. Earlier 0240/6D24 inputs
 and their receipts are retained, not relabelled as qualification of these bytes.
-The earlier D8BA/598D candidate and its receipts are also preserved. Power B
-adds native vanilla registry/DFU compatibility; Electric production source is
-unchanged and its manifest records this separate local Power source pin.
+The earlier D8BA/598D and 71E0/598D candidates and their receipts are also
+preserved. Power C2 adds native vanilla registry/DFU compatibility, block-item
+description prefixes and partitioned atlases. Electric production source and
+its BLOCKS-only atlas are unchanged; its manifest records this separate local
+Power source pin. Graphical probe receipts remain separate from release gates.
 The default no-override release suite,
 dependency/artifact/checksum audits, Javadoc, generated Eclipse metadata and
 actual ECJ main/test/GameTest/client scopes pass on these inputs. This is a
