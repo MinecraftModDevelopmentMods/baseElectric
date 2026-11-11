@@ -137,7 +137,7 @@ try {
         $expected += [int]$inventory.testsuite.tests
         $report.gradleInventory += Get-Pin $xml.FullName
     }
-    if ($classes.Count -ne 33 -or $expected -ne 112 -or $sources.test.Count -ne 36 -or $sources.main.Count -ne 88) { throw 'Unexpected Electric 1.21.11 source/test inventory' }
+    if ($classes.Count -ne 33 -or $expected -ne 114 -or $sources.test.Count -ne 36 -or $sources.main.Count -ne 88) { throw 'Unexpected Electric 1.21.11 source/test inventory' }
     $main = Invoke-Ecj 'main' $sources.main $mainLibraries
     $test = Invoke-Ecj 'test' $sources.test (@($main) + $testLibraries)
     $gameTests = @(Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'src/gametest/java') -Recurse -File -Filter '*.java' | ForEach-Object { $_.FullName })

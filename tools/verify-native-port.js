@@ -158,7 +158,7 @@ check('All 106 accepted tests and their assertions are retained without skips', 
     assert.equal(methods(added).length, 2);
     assert.doesNotMatch(added.toString(), /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/);
     const pack = read(javaRoot.replace('main', 'test') + 'resources/NativePackRangeContractTest.java');
-    assert.equal(methods(pack).length, 4);
+    assert.equal(methods(pack).length, 6);
     assert.doesNotMatch(pack.toString(), /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/);
     const gameTests = javaRoot.replace('main', 'gametest') + 'gametest/ElectricGameTests.java';
     const names = value => [...value.toString().matchAll(/public static void (\w+)\(GameTestHelper/g)].map(m => m[1]);

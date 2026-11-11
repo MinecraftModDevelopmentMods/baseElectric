@@ -12,6 +12,59 @@ import zone.moddev.mc.baseelectric.verification.NativePackResourceProof;
 import static org.junit.Assert.*;
 
 public class NativePackRangeContractTest {
+    @Test public void pipedDumbTerminalChildUsesOfficialNonInteractiveFlag() throws Exception {
+        Path root = Path.of("build/native-pack-resources").toAbsolutePath();
+        Files.createDirectories(root);
+        Path evidence = Files.createTempDirectory(root, "piped-dumb-");
+        var builder = NativePackResourceProof.childProcess(evidence);
+        assertEquals("dumb", builder.environment().get("TERM"));
+        assertEquals("terminal.jline", net.minecrell.terminalconsole.TerminalConsoleAppender.JLINE_OVERRIDE_PROPERTY);
+        assertEquals(ProcessBuilder.Redirect.PIPE, builder.redirectInput());
+        assertEquals(ProcessBuilder.Redirect.PIPE, builder.redirectOutput());
+        assertTrue(builder.redirectErrorStream());
+        Process child = builder.start();
+        child.getOutputStream().close();
+        var output = java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            try {
+                return new String(child.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            } catch (java.io.IOException failure) {
+                throw new java.io.UncheckedIOException(failure);
+            }
+        });
+        try {
+            assertTrue("Piped native proof timed out", child.waitFor(90, java.util.concurrent.TimeUnit.SECONDS));
+            String log = output.get(10, java.util.concurrent.TimeUnit.SECONDS);
+            Path logPath = evidence.resolve("piped-resources.log");
+            Files.writeString(logPath, log);
+            assertEquals(log, 0, child.exitValue());
+            NativePackResourceProof.requireNoDiagnostics(logPath, log);
+            JsonObject proof = JsonParser.parseString(Files.readString(evidence.resolve("receipt.json"))).getAsJsonObject();
+            var property = proof.get("terminalJline");
+            assertEquals("Native child must disable JLine using the official property", "false",
+                    property.isJsonNull() ? null : property.getAsString());
+            assertFalse(proof.get("terminalPresent").getAsBoolean());
+            assertTrue(proof.get("interactiveTerminalDisabled").getAsBoolean());
+            assertEquals(0, proof.getAsJsonArray("warningsAndErrors").size());
+            assertTrue(proof.getAsJsonObject("CLIENT_RESOURCES").get("resourcesVerified").getAsInt() > 0);
+            assertTrue(proof.getAsJsonObject("SERVER_DATA").get("resourcesVerified").getAsInt() > 0);
+        } finally {
+            if (child.isAlive()) child.destroyForcibly().waitFor();
+        }
+    }
+
+    @Test public void nonInteractiveModeDoesNotWhitelistAnyDiagnostic() {
+        Path log = Path.of("negative-control.log");
+        for (String diagnostic : new String[] {
+                "[main/WARN] real resource warning", "[main/ERROR] real resource error", "[main/FATAL] real fatal",
+                "2026-11-11T00:00:00Z main WARN Advanced terminal features are not available in this environment",
+                "2026-11-11T00:00:00Z main ERROR real bootstrap error", "2026-11-11T00:00:00Z main FATAL fatal bootstrap"
+        }) {
+            assertThrows(diagnostic, AssertionError.class,
+                    () -> NativePackResourceProof.requireNoDiagnostics(log, diagnostic));
+        }
+        NativePackResourceProof.requireNoDiagnostics(log, "[main/INFO] valid resource receipt");
+    }
+
     @Test public void baseMetalsIsRequiredByNativeModInfoWithOptionalNegativeControl() throws Exception {
         var proof = NativePackResourceProof.read();
         assertEquals("net.minecraftforge.fml.loading.moddiscovery.ModInfo", proof.get("modInfoClass").getAsString());

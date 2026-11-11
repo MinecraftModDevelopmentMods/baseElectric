@@ -9,6 +9,19 @@ The port is reconciled with merged 1.21.1 head
 
 ## Compatibility
 
+The current 54662C9A player jar, with Power C98D, Steam F23D, Base Metals 598D
+and OreSpawn DE39, has completed the supported automated family qualification.
+This version is accepted for release but is not yet published. basePower's
+`docs/1.21.11/QUALIFICATION.md` records the complete hashes and scope.
+The current frozen jars pass 132 finite machine jobs, restart and migration
+tests, chunk/network and drill lifecycle tests, recipes, generation, oils and
+graphical checks. Two 30-minute worlds pass cold restart, resumed work and
+independent exact stopped-save replay. All nine family artifacts reproduce
+from independent builds. Electric's current 114 unit tests, 25 native resource
+tests, 114 tests from fresh Eclipse compiler output and four fresh source
+GameTests pass. Live turbine animation, connected-player interaction and the
+other explicit manual requirements are not converted into automated passes.
+
 Base Metals 3.1.2.121111 is REQUIRED on both client and server. Forge metadata
 declares mandatory=true, version range [3.1.2.121111,4.0.0), AFTER ordering and
 BOTH sides. A runtime without Base Metals is not a supported optional profile.
@@ -41,10 +54,11 @@ The independent native resource/API checks do not require sibling mod jars.
 They retain the previous 17 resource checks, add two native fabricator-plan
 tests including root-NBT round-trips, and add three native pack range/path
 checks, plus a native ModInfo dependency regression with an optional-metadata
-negative control. The independent suite expects 23 tests. The static audit retains all
-106 accepted unit tests and four GameTests; the full suite now expects 112
-unit tests without skips. A static inventory check does not establish that
-the full suite compiles or executes.
+negative control. Two further checks cover a real piped TERM=dumb child and
+strict diagnostic rejection. The independent suite expects 25 tests. The
+static audit retains all 106 accepted unit tests and four GameTests; the full
+suite now expects 114 unit tests without skips. A static inventory check does
+not establish that the full suite compiles or executes.
 
 The approved local Power integration source is
 41959572b11dce236df98f23e97c6a3868cdda03, with player/development SHA-256
@@ -73,16 +87,26 @@ checks are separate from the prior D release/GameTest receipts:
 the optional metadata first failed the native mandatory assertion, then the
 correction passed all 23 independent tests without failures or skips and all
 seven static audits. Release-configuration, recipe, layout and hygiene checks
-also pass. On the approved 4195957/C98D input, the default no-path-override
-release suite passes with 46 forced tasks, 112 unit tests in 33 suites and the
-23 independent resource tests, all without failures or skips. Dependency,
+also pass. At that metadata checkpoint, on the approved 4195957/C98D input, the
+default no-path-override release suite passed with 46 forced tasks, 112 unit
+tests in 33 suites and the 23 independent resource tests, all without failures
+or skips. Dependency,
 artifact, checksum, Javadoc and generated production Eclipse audits pass.
 Actual Eclipse ECJ compiles all 88 main, 36 test, one GameTest and three client
-sources; its fresh Java 21 JUnit output passes all 112 tests without failures,
-ignored tests or assumptions. Its restricted-JDK negative control is rejected.
+sources; its current fresh Java 21 JUnit output passes all 114 tests without
+failures, ignored tests or assumptions. Its restricted-JDK negative control
+is rejected.
 Player/source/Javadoc SHA-256 values are generated from actual bytes in
 build/release/SHA256SUMS. OreSpawn, mod versions and publication state are
 unchanged. Family qualification remains separate.
+
+The current test-only terminal correction passes 114 unit tests and all 25
+independent native resource checks. The real piped child uses the official
+terminalconsoleappender 1.2.0 option -Dterminal.jline=false and TERM=dumb;
+its native receipt confirms interactiveTerminalDisabled=true. Strict
+WARN/ERROR/FATAL validation is unchanged, with six rejecting negative controls.
+No logger filtering or warning allowlist is used. The player, sources and
+Javadoc jars remain byte-identical to the qualified metadata candidate.
 
 Native ingredient-codec tests cover item strings, tag strings and alternative
 arrays, including rejection of old item/tag objects. The live recipe GameTest
@@ -98,9 +122,10 @@ network-unpacked shaped recipes cannot encode their original source JSON.
 Both failed observations are retained without patching frozen Forge jars.
 
 Approved source/artifact pins are recorded and cannot be overridden. The
-accepted 1.21.1 jars are not valid substitutes. Full combined packaged clean-log
-and client visual gates remain pending. The development GameTest log retains
-initial-config and upstream Power method-annotation warnings; a successful
+accepted 1.21.1 jars are not valid substitutes. Current supported combined and
+graphical results are summarized above; their narrower receipt scopes remain.
+The development GameTest log retains initial-config and upstream Power
+method-annotation warnings; a successful
 GameTest run is not a clean-log or graphical qualification.
 
 Final qualification must use one stable set of hashes, including actual
@@ -110,3 +135,18 @@ Generated logs and failed receipts remain local under build/port-evidence.
 
 No whole-world upgrade, family gameplay, restart, client visual acceptance,
 publication or release readiness is established by the independent checks.
+
+## Release Preparation
+
+Release acceptance does not change the retained automated/manual evidence
+boundaries above. Released dependency source refs, hashes and public file IDs
+must be verified before replacing the current local Power and Base Metals pins.
+Hosted builds still reject local-only pins, and remote Maven publication remains
+disabled in this checkout. These guards are not bypassed by release acceptance.
+Publication uses the default-branch dispatcher and its sealed CI artifacts,
+not this checkout's disabled remote Maven tasks.
+
+Changing the Power source ref or API pin state changes the player manifest and
+therefore the whole jar hash, even if all production classes and resources stay
+identical. Keep the qualified 54662C9A artifact and receipts unchanged; qualify
+and checksum the newly pinned artifact separately before publication.

@@ -48,30 +48,41 @@ public final class NativePackResourceProof {
         Path evidenceRoot = Path.of("build/native-pack-resources").toAbsolutePath();
         Files.createDirectories(evidenceRoot);
         Path evidence = Files.createTempDirectory(evidenceRoot, "forge61-");
-        String classpath = Arrays.stream(System.getProperty("baseelectric.nativePackClasspath",
-                System.getProperty("java.class.path")).split(java.util.regex.Pattern.quote(java.io.File.pathSeparator)))
-                .map(entry -> new java.io.File(entry).getAbsolutePath())
-                .collect(java.util.stream.Collectors.joining(java.io.File.pathSeparator));
-        Path javaExecutable = Path.of(System.getProperty("java.home"), "bin", "java");
-        if (!Files.isExecutable(javaExecutable)) javaExecutable = javaExecutable.resolveSibling("java.exe");
         Path log = evidence.resolve("forge-resources.log");
-        Process process = new ProcessBuilder(javaExecutable.toString(), "-XX:ActiveProcessorCount=4", "-Xmx512m",
-                "--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED", "-cp", classpath,
-                NativePackResourceProof.class.getName(), Path.of("build/resources/main").toAbsolutePath().toString(),
-                evidence.toString()).directory(evidence.toFile())
-                .redirectErrorStream(true).redirectOutput(log.toFile()).start();
+        Process process = childProcess(evidence).redirectOutput(log.toFile()).start();
         if (!process.waitFor(90, TimeUnit.SECONDS)) {
             process.destroyForcibly().waitFor();
             throw new AssertionError("Native Forge resource proof timed out: " + log);
         }
         String output = Files.readString(log);
         if (process.exitValue() != 0) throw new AssertionError("Native Forge resource proof failed: " + log + "\n" + output);
+        requireNoDiagnostics(log, output);
+        receipt = JsonParser.parseString(Files.readString(evidence.resolve("receipt.json"))).getAsJsonObject();
+        return receipt.deepCopy();
+    }
+
+    public static ProcessBuilder childProcess(Path evidence) {
+        String classpath = Arrays.stream(System.getProperty("baseelectric.nativePackClasspath",
+                System.getProperty("java.class.path")).split(java.util.regex.Pattern.quote(java.io.File.pathSeparator)))
+                .map(entry -> new java.io.File(entry).getAbsolutePath())
+                .collect(java.util.stream.Collectors.joining(java.io.File.pathSeparator));
+        Path javaExecutable = Path.of(System.getProperty("java.home"), "bin", "java");
+        if (!Files.isExecutable(javaExecutable)) javaExecutable = javaExecutable.resolveSibling("java.exe");
+        ProcessBuilder process = new ProcessBuilder(javaExecutable.toString(), "-XX:ActiveProcessorCount=4", "-Xmx512m",
+                "-Dterminal.jline=false",
+                "--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED", "-cp", classpath,
+                NativePackResourceProof.class.getName(), Path.of("build/resources/main").toAbsolutePath().toString(),
+                evidence.toString()).directory(evidence.toFile())
+                .redirectErrorStream(true);
+        process.environment().put("TERM", "dumb");
+        return process;
+    }
+
+    public static void requireNoDiagnostics(Path log, String output) {
         if (java.util.regex.Pattern.compile("(?m)(?:\\[[^\\r\\n]*\\b(?:WARN|ERROR|FATAL)\\b[^\\r\\n]*\\]|\\bmain (?:WARN|ERROR|FATAL)\\b)")
                 .matcher(output).find()) {
             throw new AssertionError("Native Forge resource diagnostic in " + log + "\n" + output);
         }
-        receipt = JsonParser.parseString(Files.readString(evidence.resolve("receipt.json"))).getAsJsonObject();
-        return receipt.deepCopy();
     }
 
     public static void main(String[] args) throws Exception {
@@ -116,6 +127,11 @@ public final class NativePackResourceProof {
         var logger = (org.apache.logging.log4j.core.Logger)LogManager.getRootLogger();
         logger.addAppender(appender);
         JsonObject result = new JsonObject();
+        result.addProperty("terminalJline", System.getProperty(net.minecrell.terminalconsole.TerminalConsoleAppender.JLINE_OVERRIDE_PROPERTY));
+        result.addProperty("terminalPresent", net.minecrell.terminalconsole.TerminalConsoleAppender.getTerminal() != null);
+        result.addProperty("interactiveTerminalDisabled", "false".equals(System.getProperty(
+                net.minecrell.terminalconsole.TerminalConsoleAppender.JLINE_OVERRIDE_PROPERTY))
+                && net.minecrell.terminalconsole.TerminalConsoleAppender.getTerminal() == null);
         result.addProperty("modInfoClass", mod.getModInfos().getFirst().getClass().getName());
         result.add("dependencies", dependencies(mod));
         result.add("optionalBaseMetalsControl", dependencies(optionalMod));

@@ -9,9 +9,14 @@ with MCP **20251223.124241**, ForgeGradle **7.0.34**, Gradle **9.6.1**, and Java
 **21**. The version is **2.2.16.121111**. It requires basePower **2.4.15.121111**.
 Base Metals **3.1.2.121111** is also **REQUIRED** on both client and server;
 Forge enforces this dependency. The coordinated OreSpawn version is
-**4.1.0.121111**. The migration-hook Base Metals jar is approved for local use
-only. This port is not published or ready for release promotion.
+**4.1.0.121111**. The migration-hook Base Metals jar is still recorded as a
+local input. This version has been accepted for release but is not yet published.
 See the [1.21.11 notes](docs/NATIVE12111.md) for compatibility and verification status.
+
+The current jars pass the combined machine, upgrade, graphical and two-world
+30-minute endurance checks. The full record and its manual-test limits are in
+basePower's `docs/1.21.11/QUALIFICATION.md`. Those limits still apply.
+Publication is waiting for the verified released dependency pins.
 
 Back up your world and try the upgrade on a copy. Replace Electric Advantage
 and Power Advantage with baseElectric and basePower; do not install both sets.
@@ -58,6 +63,9 @@ and checksum-matching public dependencies before checkout or compilation.
 Local jars do not satisfy that gate.
 
 ## Verification
+
+The current local checks pass 114 unit tests, 25 native resource tests and
+114 tests from fresh Eclipse compiler output, with no failures or skips.
 
 Run `runGameTestServer` with the same pinned mod inputs, an existing accepted
 EULA passed as `-PelectricGameTestEula=<path>`, and a new directory passed as
