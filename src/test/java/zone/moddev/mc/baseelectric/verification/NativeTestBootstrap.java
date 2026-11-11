@@ -33,8 +33,8 @@ public final class NativeTestBootstrap {
     public static synchronized void initialize() {
         if (ready) return;
         SharedConstants.tryDetectVersion();
-        Bootstrap.bootStrap();
         initializeEmptyModList();
+        Bootstrap.bootStrap();
         // The plain test JVM has no FML registration phase after vanilla bootstrap.
         GameData.unfreezeData();
         ready = true;
@@ -60,7 +60,7 @@ public final class NativeTestBootstrap {
             valid.setAccessible(true);
             valid.setBoolean(ModLoader.get(), true);
         } catch (ReflectiveOperationException failure) {
-            throw new IllegalStateException("Cannot prepare the Forge 50 worldless test context", failure);
+            throw new IllegalStateException("Cannot prepare the Forge 52 worldless test context", failure);
         }
     }
 

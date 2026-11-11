@@ -2,7 +2,7 @@ package zone.moddev.mc.baseelectric.compat;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -33,8 +33,7 @@ public final class BaseMetalsCompat {
     public static ItemStack getCrusherRecipeOutput(Level world, ItemStack input) {
         if (world == null || input == null || input.isEmpty()) return null;
         if (isLoaded()) {
-            SimpleContainer inventory = new SimpleContainer(1);
-            inventory.setItem(0, input.copy());
+            SingleRecipeInput inventory = new SingleRecipeInput(input.copy());
             for (RecipeHolder<?> holder : world.getRecipeManager().getRecipes()) {
                 if (holder.value() instanceof CrushingRecipe candidate && candidate.matches(inventory, world)) {
                     return candidate.getResultItem(world.registryAccess()).copy();
@@ -76,7 +75,7 @@ public final class BaseMetalsCompat {
     }
 
     private static ItemStack stack(String id, int count) {
-        Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(id));
+        Item item = ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(id));
         return item == null ? null : new ItemStack(item, count);
     }
 }

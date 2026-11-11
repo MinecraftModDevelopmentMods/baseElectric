@@ -16,7 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity>{
-	private static final ResourceLocation texture = new ResourceLocation(ElectricAdvantage.MODID+":textures/entity/hydroturbine.png");
+	private static final ResourceLocation texture = ResourceLocation.parse(ElectricAdvantage.MODID+":textures/entity/hydroturbine.png");
 
 	private static final float DEGREES_TO_RADIANS = (float)(Math.PI / 180);
 

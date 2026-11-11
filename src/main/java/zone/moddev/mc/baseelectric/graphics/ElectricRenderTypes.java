@@ -9,8 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 
 /** Scoped render state replaces the old global lighting/blending mutations. */
 final class ElectricRenderTypes extends RenderStateShard {
-    static final ResourceLocation UNSHADED = new ResourceLocation(
-            zone.moddev.mc.baseelectric.ElectricAdvantage.MODID, "unshaded");
+    static final ResourceLocation UNSHADED = ResourceLocation.fromNamespaceAndPath(zone.moddev.mc.baseelectric.ElectricAdvantage.MODID, "unshaded");
     private static ShaderInstance unshadedShader;
     private ElectricRenderTypes() {
         super("baseelectric", () -> {}, () -> {});

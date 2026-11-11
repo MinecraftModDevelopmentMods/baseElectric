@@ -14,7 +14,7 @@ public class BaseMetalsRawRecipeContractTest {
     @Test public void nativeCrushingRecipesKeepRawAndOreOutputsDistinct() throws Exception {
         for (String metal : new String[]{"copper", "iron", "gold"}) {
             for (String input : new String[]{"ore", "raw"}) {
-                String path = "/data/basemetals/recipes/" + metal + "_" + input + "_crushing.json";
+                String path = "/data/basemetals/recipe/" + metal + "_" + input + "_crushing.json";
                 try (InputStream stream = getClass().getResourceAsStream(path)) {
                     assertNotNull(path, stream);
                     JsonObject recipe = new JsonParser().parse(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();

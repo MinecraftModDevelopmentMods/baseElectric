@@ -1,5 +1,7 @@
 package zone.moddev.mc.baseelectric.machines;
 
+import zone.moddev.mc.baseelectric.verification.NativeMachineFixture;
+
 import cyano.poweradvantage.api.fluid.FluidStack;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -22,6 +24,8 @@ import static org.junit.Assert.*;
 
 /** Focused regressions for retained independent native operating failures. */
 public class ElectricOperationalNativeDefectsTest {
+    @org.junit.Rule public final NativeMachineFixture machines =
+            new NativeMachineFixture();
     @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
 
     @Test public void controllerCannotRequestMoreThanItsHundredUnitElectricalBuffer() throws Exception {
@@ -89,7 +93,7 @@ public class ElectricOperationalNativeDefectsTest {
     }
 
     private static GrowthChamberControllerTileEntity controller() throws Exception {
-        GrowthChamberControllerTileEntity controller = new GrowthChamberControllerTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.GrowthChamberControllerBlock().defaultBlockState());
+        GrowthChamberControllerTileEntity controller = new GrowthChamberControllerTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(GrowthChamberControllerBlock.class));
         controller.setSoil(1000);
         controller.getTank().setFluid(new FluidStack(Fluids.WATER, 1800));
         Field redstone = GrowthChamberControllerTileEntity.class.getDeclaredField("redstone");
@@ -140,7 +144,7 @@ public class ElectricOperationalNativeDefectsTest {
     }
 
     private static final class StubTurret extends LaserTurretTileEntity {
-        StubTurret(BlockPos pos) { super(pos, new LaserTurretBlock(false).defaultBlockState()); }
+        StubTurret(BlockPos pos) { super(pos, NativeMachineFixture.state(LaserTurretBlock.class)); }
         Level testWorld;
         @Override public Level getLevel() { return testWorld; }
     }

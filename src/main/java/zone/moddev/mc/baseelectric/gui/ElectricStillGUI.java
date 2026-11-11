@@ -13,7 +13,7 @@ import cyano.poweradvantage.api.fluid.FluidStack;
 public class ElectricStillGUI extends SimpleMachineGUI{
 
 	public ElectricStillGUI() {
-		super(new ResourceLocation(ElectricAdvantage.MODID+":textures/gui/container/electric_still_gui.png"), 
+		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_still_gui.png"),
 				new Integer2D[0]);
 	}
 	

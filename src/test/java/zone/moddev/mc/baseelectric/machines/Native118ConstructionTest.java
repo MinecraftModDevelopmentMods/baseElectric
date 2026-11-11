@@ -1,5 +1,7 @@
 package zone.moddev.mc.baseelectric.machines;
 
+import zone.moddev.mc.baseelectric.verification.NativeMachineFixture;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
@@ -15,16 +17,20 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class Native118ConstructionTest {
+    @org.junit.Rule public final NativeMachineFixture machines =
+            new NativeMachineFixture();
     @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
 
     @Test public void everyFactoryPreservesItsNativePositionAndState() {
         BlockPos pos = new BlockPos(-117, 83, 4917);
+        assertEquals(17, blocks().length);
         for (Block block : blocks()) {
             BlockState state = block.defaultBlockState();
             BlockEntity tile = ((EntityBlock) block).newBlockEntity(pos, state);
             assertNotNull(block.getClass().getName(), tile);
             assertEquals(pos, tile.getBlockPos());
             assertSame(state, tile.getBlockState());
+            assertTrue(tile.getType().isValid(state));
             CompoundTag saved = new CompoundTag();
             saved.putInt("x", 0); saved.putInt("y", 1); saved.putInt("z", 2);
             tile.loadWithComponents(saved, NativeTestBootstrap.registries());
@@ -85,11 +91,6 @@ public class Native118ConstructionTest {
     }
 
     private static Block[] blocks() {
-        return new Block[]{new ElectricFurnaceBlock(), new ElectricCrusherBlock(), new ElectricDrillBlock(),
-                new ElectricFabricatorBlock(), new GrowthChamberBlock(), new GrowthChamberControllerBlock(),
-                new ElectricOvenBlock(), new LaserTurretBlock(false), new LaserTurretBlock(true), new LEDBlock(),
-                new HydroelectricGeneratorBlock(), new PhotovoltaicGeneratorBlock(),
-                new SteamPoweredElectricGeneratorBlock(), new ElectricBatteryArrayBlock(),
-                new ElectricPumpBlock(), new ElectricStillBlock(), new PlasticRefineryBlock()};
+        return NativeMachineFixture.blocks();
     }
 }

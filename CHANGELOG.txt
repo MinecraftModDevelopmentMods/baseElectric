@@ -1,3 +1,9 @@
+baseElectric 2.2.15.121011 (Minecraft 1.21.1 / Forge, local port)
+
+- Bring baseElectric to Minecraft 1.21.1 with basePower 2.4.14.121011.
+- Keep machine settings, saved data, battery charge and legacy world aliases.
+- Use the native recipe, data-pack and rendering APIs without changing recipe IDs.
+
 baseElectric 2.2.14.120061 (Minecraft 1.20.6 / Forge)
 
 - Bring baseElectric to Minecraft 1.20.6 and Java 21 with basePower 2.4.13.120061.

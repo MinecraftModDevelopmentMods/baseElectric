@@ -17,7 +17,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class LaserDrillRenderer implements BlockEntityRenderer<ElectricDrillTileEntity>{
 
 	
-	private final ResourceLocation texture = new ResourceLocation(ElectricAdvantage.MODID+":textures/materials/laser_beam.png");
+	private final ResourceLocation texture = ResourceLocation.parse(ElectricAdvantage.MODID+":textures/materials/laser_beam.png");
 	private final RenderType beamType = ElectricRenderTypes.unshaded(texture, false);
 	
 	

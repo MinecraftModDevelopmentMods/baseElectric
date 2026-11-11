@@ -1,5 +1,7 @@
 package zone.moddev.mc.baseelectric.machines;
 
+import zone.moddev.mc.baseelectric.verification.NativeMachineFixture;
+
 import cyano.poweradvantage.api.fluid.FluidStack;
 import java.lang.reflect.Method;
 import net.minecraft.world.level.material.Fluids;
@@ -13,6 +15,8 @@ import static org.junit.Assert.*;
 
 /** Capacity preflight tests; the shared rig separately tests natural machine ticks. */
 public class ElectricOperationalStillCapacityTest {
+    @org.junit.Rule public final NativeMachineFixture machines =
+            new NativeMachineFixture();
     @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
 
     @Test public void aFullTankCannotConsumeInput() throws Exception {
@@ -52,7 +56,7 @@ public class ElectricOperationalStillCapacityTest {
     }
 
     private static ElectricStillTileEntity fixture(int output) {
-        ElectricStillTileEntity still = new ElectricStillTileEntity(net.minecraft.core.BlockPos.ZERO, new zone.moddev.mc.baseelectric.machines.ElectricStillBlock().defaultBlockState());
+        ElectricStillTileEntity still = new ElectricStillTileEntity(net.minecraft.core.BlockPos.ZERO, NativeMachineFixture.state(ElectricStillBlock.class));
         still.getInputTank().setFluid(new FluidStack(Fluids.WATER, 4));
         if (output > 0) still.getOutputTank().setFluid(new FluidStack(Fluids.LAVA, output));
         return still;

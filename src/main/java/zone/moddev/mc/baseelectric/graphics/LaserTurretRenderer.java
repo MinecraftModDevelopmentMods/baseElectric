@@ -16,7 +16,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class LaserTurretRenderer implements BlockEntityRenderer<LaserTurretTileEntity>{
 
 	
-	private final ResourceLocation texture = new ResourceLocation(ElectricAdvantage.MODID+":textures/entity/laser_turret.png");
+	private final ResourceLocation texture = ResourceLocation.parse(ElectricAdvantage.MODID+":textures/entity/laser_turret.png");
 	private final RenderType renderType = ElectricRenderTypes.unshaded(texture, true);
 	
 	public LaserTurretRenderer(BlockEntityRendererProvider.Context context) {

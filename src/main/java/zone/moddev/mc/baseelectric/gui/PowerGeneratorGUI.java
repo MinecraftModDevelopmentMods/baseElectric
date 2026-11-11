@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public class PowerGeneratorGUI extends SimpleMachineGUI{
 
 	public PowerGeneratorGUI() {
-		super(new ResourceLocation(ElectricAdvantage.MODID+":textures/gui/container/electric_generator_gui.png"), new Integer2D[0]);
+		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_generator_gui.png"), new Integer2D[0]);
 	}
 	
 	/**

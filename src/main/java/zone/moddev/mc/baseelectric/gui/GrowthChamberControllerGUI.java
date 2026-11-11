@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public class GrowthChamberControllerGUI extends SimpleMachineGUI{
 
 	public GrowthChamberControllerGUI() {
-		super(new ResourceLocation(ElectricAdvantage.MODID+":textures/gui/container/growth_chamber_controller_gui.png"), 
+		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/growth_chamber_controller_gui.png"),
 				Integer2D.fromCoordinates(100,74));
 	}
 	

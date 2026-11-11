@@ -14,12 +14,12 @@ import zone.moddev.mc.orespawn.api.WorldgenProvider;
 /** Registers ElectricAdvantage's visible fallback mineral rules with OreSpawn 4. */
 public final class OreSpawnWorldGen {
     public static final ResourceLocation LITHIUM_ORE =
-            new ResourceLocation(ElectricAdvantage.MODID, "ore/lithium");
+            ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, "ore/lithium");
     public static final ResourceLocation SULFUR_ORE =
-            new ResourceLocation(ElectricAdvantage.MODID, "ore/sulfur");
-    private static final ResourceLocation OVERWORLD = new ResourceLocation("minecraft", "overworld");
-    private static final ResourceLocation STONE = new ResourceLocation("minecraft", "stone");
-    private static final ResourceLocation STONE_TAG = new ResourceLocation("forge", "stone");
+            ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, "ore/sulfur");
+    private static final ResourceLocation OVERWORLD = ResourceLocation.fromNamespaceAndPath("minecraft", "overworld");
+    private static final ResourceLocation STONE = ResourceLocation.fromNamespaceAndPath("minecraft", "stone");
+    private static final ResourceLocation STONE_TAG = ResourceLocation.fromNamespaceAndPath("forge", "stone");
 
     private OreSpawnWorldGen() {
     }
@@ -46,7 +46,7 @@ public final class OreSpawnWorldGen {
         boolean electricSulfurEnabled = !mineralogyLoaded && !baseMineralsLoaded;
         boolean electricLithiumEnabled = !baseMineralsLoaded;
         return WorldgenProvider.builder(ElectricAdvantage.MODID, 1)
-                .ore(LITHIUM_ORE, new ResourceLocation(ElectricAdvantage.MODID, "li_ore"), ore -> ore
+                .ore(LITHIUM_ORE, ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, "li_ore"), ore -> ore
                         .enabled(electricLithiumEnabled)
                         .retrogen(false)
                         .dimension(OVERWORLD, dimension -> addHosts(dimension
@@ -55,7 +55,7 @@ public final class OreSpawnWorldGen {
                                 .attempts(0.125D)
                                 .quantityRange(6, 9)
                                 .pattern(OrePattern.DEFAULT))))
-                .ore(SULFUR_ORE, new ResourceLocation(ElectricAdvantage.MODID, "sulfur_ore"), ore -> ore
+                .ore(SULFUR_ORE, ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, "sulfur_ore"), ore -> ore
                         .enabled(electricSulfurEnabled)
                         .retrogen(false)
                         .dimension(OVERWORLD, dimension -> addHosts(dimension

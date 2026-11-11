@@ -84,7 +84,7 @@ public class VirtualCrop {
 	
 	
 	private static Block resolveStemFruit(StemBlock stem, Level world) {
-		// Forge 50 exposes the registered fruit key through the native stem codec.
+		// Forge 52 exposes the registered fruit key through the native stem codec.
 		var ops = world.registryAccess().createSerializationContext(JsonOps.INSTANCE);
 		return StemBlock.CODEC.codec().encodeStart(ops, stem).result()
 				.flatMap(data -> ResourceKey.codec(Registries.BLOCK)

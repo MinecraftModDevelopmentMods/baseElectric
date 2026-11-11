@@ -78,7 +78,7 @@ public final class Entities {
 
     @SubscribeEvent public static void registerEntities(RegisterEvent event) {
         event.register(ForgeRegistries.Keys.ENTITY_TYPES, registry -> {
-            ResourceLocation id = new ResourceLocation(ElectricAdvantage.MODID, "hydroturbine");
+            ResourceLocation id = ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, "hydroturbine");
             HYDROTURBINE = EntityType.Builder.<HydroturbineEntity>of(HydroturbineEntity::new, MobCategory.MISC)
                     .sized(0.9375F, 0.9375F)
                     .setTrackingRange(64).setUpdateInterval(1).setShouldReceiveVelocityUpdates(true)
@@ -91,7 +91,7 @@ public final class Entities {
             RegisterEvent.RegisterHelper<BlockEntityType<?>> event, String id, BlockEntityType.BlockEntitySupplier<T> factory,
             net.minecraft.world.level.block.Block... blocks) {
         BlockEntityType<T> type = BlockEntityType.Builder.<T>of(factory, blocks).build(null);
-        event.register(new ResourceLocation(ElectricAdvantage.MODID, id), type);
+        event.register(ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, id), type);
         return type;
     }
 

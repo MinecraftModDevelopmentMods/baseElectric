@@ -1,5 +1,7 @@
 package zone.moddev.mc.baseelectric.machines;
 
+import zone.moddev.mc.baseelectric.verification.NativeMachineFixture;
+
 import cyano.poweradvantage.api.fluid.FluidStack;
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -36,6 +38,8 @@ import static org.junit.Assert.*;
 
 /** Focused pickup transitions; the independent rig covers natural server ticks. */
 public class ElectricOperationalPumpPickupTest {
+    @org.junit.Rule public final NativeMachineFixture machines =
+            new NativeMachineFixture();
     private static final BlockPos PUMP = new BlockPos(8, 84, 8);
     private static final BlockPos SOURCE = PUMP.below().north();
     private static final float RESERVE = 8000;
@@ -166,7 +170,7 @@ public class ElectricOperationalPumpPickupTest {
     }
 
     private static final class StubPump extends ElectricPumpTileEntity {
-        StubPump() { super(PUMP, new ElectricPumpBlock().defaultBlockState()); }
+        StubPump() { super(PUMP, NativeMachineFixture.state(ElectricPumpBlock.class)); }
         PumpWorld testWorld;
         int sounds;
         @Override public Level getLevel() { return testWorld; }

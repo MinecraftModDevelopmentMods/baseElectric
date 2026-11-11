@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 public class OvenGUI extends SimpleMachineGUI{
 
 	public OvenGUI() {
-		super(new ResourceLocation(ElectricAdvantage.MODID+":textures/gui/container/electric_oven_gui.png"), 
+		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_oven_gui.png"),
 				Integer2D.fromCoordinates(27,67, 133,67));
 		super.specialSlots.put(1, (SlotContext c)->new Slot(c.machineInventory,c.slotIndex,c.screenPositionX,c.screenPositionY){
 			@Override

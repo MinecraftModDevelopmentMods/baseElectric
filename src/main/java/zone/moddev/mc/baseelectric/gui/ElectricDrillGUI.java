@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public class ElectricDrillGUI extends SimpleMachineGUI{
 
 	public ElectricDrillGUI() {
-		super(new ResourceLocation(ElectricAdvantage.MODID+":textures/gui/container/electric_drill_gui.png"), 
+		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_drill_gui.png"),
 				Integer2D.fromCoordinates(
 						124,45, 145,45, 124,66, 145,66, 124,87, 145,87));
 	}

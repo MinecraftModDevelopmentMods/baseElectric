@@ -30,7 +30,7 @@ $target = "$($pins.minecraft_version)-$($pins.forge_version)"
 $forgeDir = "libraries/net/minecraftforge/forge/$target"
 $winArgs = "$forgeDir/win_args.txt"
 $receipt = [ordered]@{
-    status = 'FAIL'; scope = 'Packaged Forge 1.20.6 dedicated server and legacy inventory probe; no client or whole-world upgrade proof'
+    status = 'FAIL'; scope = 'Packaged Forge 1.21.1 dedicated server and legacy inventory probe; no client or whole-world upgrade proof'
     baseMetalsIncluded = !$WithoutBaseMetals
     seed = $seed; java = $javaPath; inputs = @(); checks = [ordered]@{}; exitCode = $null; error = $null
 }
@@ -63,10 +63,10 @@ function Send-Command([string]$Command) {
 }
 
 try {
-    if ($target -cne '1.20.6-50.2.0' -or $pins.mod_version -cne '2.2.14.120061') {
-        throw 'This smoke runner is bound to baseElectric 2.2.14.120061 on Forge 50.2.0.'
+    if ($target -cne '1.21.1-52.1.0' -or $pins.mod_version -cne '2.2.15.121011') {
+        throw 'This smoke runner is bound to baseElectric 2.2.15.121011 on Forge 52.1.0.'
     }
-    if ($pins.poweradvantage_pin_state -ne 'MERGED_SOURCE' -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
+    if ($pins.poweradvantage_pin_state -notin @('LOCAL_SOURCE', 'MERGED_SOURCE') -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
         throw 'Packaged smoke requires the exact source-pinned basePower player JAR.'
     }
     $receipt.powerSourceRef = $pins.poweradvantage_source_ref
@@ -78,7 +78,7 @@ try {
     $receipt.javaSha256 = (Get-FileHash -LiteralPath $javaPath).Hash
     $argsText = Get-Content -LiteralPath (Join-Path $seed $winArgs) -Raw
     $shim = "forge-$target-shim.jar"
-    if (!$argsText.Contains("-jar $shim")) { throw 'Unexpected Forge 50 server argument file.' }
+    if (!$argsText.Contains("-jar $shim")) { throw 'Unexpected Forge 52 server argument file.' }
     $receipt.shimSha256 = (Get-FileHash -LiteralPath (Join-Path $seed $shim)).Hash
     $receipt.seedArgumentsSha256 = (Get-FileHash -LiteralPath (Join-Path $seed $winArgs)).Hash
     $forgeUniversal = Join-Path $seed "$forgeDir/forge-$target-universal.jar"
@@ -112,7 +112,7 @@ try {
     }
     [IO.File]::WriteAllLines((Join-Path $output 'server.properties'), @(
         'server-ip=127.0.0.1', 'server-port=0', 'online-mode=false', 'enable-rcon=false', 'enable-query=false',
-        'level-name=electric-smoke', 'level-seed=120061', 'generate-structures=false',
+        'level-name=electric-smoke', 'level-seed=121011', 'generate-structures=false',
         'view-distance=3', 'simulation-distance=3', 'spawn-protection=0'
     ))
     $start = [Diagnostics.ProcessStartInfo]::new($javaPath)

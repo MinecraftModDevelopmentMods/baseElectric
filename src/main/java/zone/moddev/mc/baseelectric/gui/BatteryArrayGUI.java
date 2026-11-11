@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public class BatteryArrayGUI extends SimpleMachineGUI{
 
 	public BatteryArrayGUI() {
-		super(new ResourceLocation(ElectricAdvantage.MODID+":textures/gui/container/electric_battery_array_gui.png"), 
+		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_battery_array_gui.png"),
 				Integer2D.fromCoordinates(
 						27, 32,
 						27, 53,

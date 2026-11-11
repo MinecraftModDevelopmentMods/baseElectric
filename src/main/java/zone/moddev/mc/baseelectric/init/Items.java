@@ -74,7 +74,7 @@ public final class Items {
         event.register(ForgeRegistries.Keys.ITEMS, registry -> {
             constructItems();
             allItems.forEach((id, item) ->
-                    registry.register(new ResourceLocation(ElectricAdvantage.MODID, id), ItemGroups.show(item)));
+                    registry.register(ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, id), ItemGroups.show(item)));
         });
     }
 

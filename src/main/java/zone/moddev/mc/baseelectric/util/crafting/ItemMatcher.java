@@ -67,7 +67,7 @@ public final class ItemMatcher {
     }
 
     private static ResourceLocation tagId(String name) {
-        if (name.indexOf(':') >= 0) return new ResourceLocation(name);
+        if (name.indexOf(':') >= 0) return ResourceLocation.parse(name);
         String[][] forms = {
                 {"ingot", "ingots"}, {"nugget", "nuggets"}, {"dust", "dusts"},
                 {"ore", "ores"}, {"block", "storage_blocks"}, {"plate", "plates"},
@@ -76,10 +76,10 @@ public final class ItemMatcher {
         for (String[] form : forms) {
             if (name.startsWith(form[0]) && name.length() > form[0].length()) {
                 String material = name.substring(form[0].length()).toLowerCase(java.util.Locale.ROOT);
-                return new ResourceLocation("forge", form[1] + "/" + material);
+                return ResourceLocation.fromNamespaceAndPath("forge", form[1] + "/" + material);
             }
         }
-        return new ResourceLocation("forge", name.toLowerCase(java.util.Locale.ROOT));
+        return ResourceLocation.fromNamespaceAndPath("forge", name.toLowerCase(java.util.Locale.ROOT));
     }
 
     @Override

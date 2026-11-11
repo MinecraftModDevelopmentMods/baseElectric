@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 public class GenericMachineGUI extends SimpleMachineGUI{
 
 	public GenericMachineGUI() {
-		super(new ResourceLocation(ElectricAdvantage.MODID+":textures/gui/container/electric_machine_gui.png"), new Integer2D[0]);
+		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_machine_gui.png"), new Integer2D[0]);
 	}
 	
 	/**
