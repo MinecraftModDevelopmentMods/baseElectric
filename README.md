@@ -7,7 +7,8 @@ in the shared basePower creative tab.
 This local port targets Minecraft **1.21.11**, Forge **61.1.0**, official mappings
 with MCP **20251223.124241**, ForgeGradle **7.0.34**, Gradle **9.6.1**, and Java
 **21**. The version is **2.2.16.121111**. It requires basePower **2.4.15.121111**.
-The coordinated dependencies are Base Metals **3.1.2.121111** and OreSpawn
+Base Metals **3.1.2.121111** is also **REQUIRED** on both client and server;
+Forge enforces this dependency. The coordinated OreSpawn version is
 **4.1.0.121111**. The migration-hook Base Metals jar is approved for local use
 only. This port is not published or ready for release promotion.
 See the [1.21.11 notes](docs/NATIVE12111.md) for compatibility and verification status.

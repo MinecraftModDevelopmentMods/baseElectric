@@ -12,6 +12,24 @@ import zone.moddev.mc.baseelectric.verification.NativePackResourceProof;
 import static org.junit.Assert.*;
 
 public class NativePackRangeContractTest {
+    @Test public void baseMetalsIsRequiredByNativeModInfoWithOptionalNegativeControl() throws Exception {
+        var proof = NativePackResourceProof.read();
+        assertEquals("net.minecraftforge.fml.loading.moddiscovery.ModInfo", proof.get("modInfoClass").getAsString());
+        var dependencies = proof.getAsJsonObject("dependencies");
+        assertEquals(java.util.Set.of("forge", "minecraft", "basepower", "basemetals"), dependencies.keySet());
+        var metals = dependencies.getAsJsonObject("basemetals");
+        assertTrue("Forge must require Base Metals on both sides", metals.get("mandatory").getAsBoolean());
+        assertEquals("[3.1.2.121111,4.0.0)", metals.get("versionRange").getAsString());
+        assertEquals("AFTER", metals.get("ordering").getAsString());
+        assertEquals("BOTH", metals.get("side").getAsString());
+        var control = proof.getAsJsonObject("optionalBaseMetalsControl");
+        assertFalse("Native ModInfo must detect optional metadata", control.getAsJsonObject("basemetals")
+                .get("mandatory").getAsBoolean());
+        var expectedControl = dependencies.deepCopy();
+        expectedControl.getAsJsonObject("basemetals").addProperty("mandatory", false);
+        assertEquals("Only the control dependency requirement may differ", expectedControl, control);
+    }
+
     @Test public void combinedPackRangeAcceptsBothNativePackTypes() throws Exception {
         var proof = NativePackResourceProof.read();
         assertEquals(0, proof.getAsJsonArray("warningsAndErrors").size());

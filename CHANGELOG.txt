@@ -4,6 +4,7 @@ baseElectric 2.2.16.121111 (Minecraft 1.21.11 / Forge, local integration)
 - Preserve machine state, legacy aliases, battery charge and recipe progression.
 - Use native render extraction, item definitions and per-PackType Forge resources.
 - Reconcile with released 1.21.1 source while retaining local-only dependency pins.
+- Require Base Metals 3.1.2.121111 on both client and server in Forge metadata.
 
 baseElectric 2.2.15.121011 (Minecraft 1.21.1 / Forge)
 

@@ -44,9 +44,9 @@ check('Exact Forge 61 and local port identity', () => {
         mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.16.121111',
         poweradvantage_version: '2.4.15.121111', basemetals_version: '3.1.2.121111',
         poweradvantage_pin_state: 'LOCAL_SOURCE',
-        poweradvantage_source_ref: '3eedaeb19039c0bd16437e8a7025cd20c31f2eac',
-        poweradvantage_deobf_sha256: '3EAE894F8F305676AEACF85E96A7497ACD7104CC953DD87AEB951F8567EA25DB',
-        poweradvantage_runtime_sha256: '3EAE894F8F305676AEACF85E96A7497ACD7104CC953DD87AEB951F8567EA25DB',
+        poweradvantage_source_ref: '41959572b11dce236df98f23e97c6a3868cdda03',
+        poweradvantage_deobf_sha256: 'C98D2CF163BE2480D9AFB0023BBD2D92D401AE0D50BEF73191235BF3F83774A7',
+        poweradvantage_runtime_sha256: 'C98D2CF163BE2480D9AFB0023BBD2D92D401AE0D50BEF73191235BF3F83774A7',
         basemetals_source_commit: '616d527e50e4bf0137eeb9c44fa586e34a0452a0',
         basemetals_deobf_sha256: '598D3FB0FF956EBCC67FE477A01CE393C75D0013AF0CE00A79E2072B63E9F2BA',
         basemetals_runtime_sha256: '598D3FB0FF956EBCC67FE477A01CE393C75D0013AF0CE00A79E2072B63E9F2BA',
@@ -60,7 +60,7 @@ check('Exact Forge 61 and local port identity', () => {
     const mods = read('src/main/resources/META-INF/mods.toml').toString();
     assert.match(mods, /^showAsResourcePack=false$/m);
     assert.match(mods, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.15\.121111,3\.0\.0\)"/);
-    assert.match(mods, /modId="basemetals"\s+mandatory=false\s+versionRange="\[3\.1\.2\.121111,4\.0\.0\)"/);
+    assert.match(mods, /modId="basemetals"\s+mandatory=true\s+versionRange="\[3\.1\.2\.121111,4\.0\.0\)"/);
 });
 
 function checkTrackModel(file, model) {
@@ -158,7 +158,7 @@ check('All 106 accepted tests and their assertions are retained without skips', 
     assert.equal(methods(added).length, 2);
     assert.doesNotMatch(added.toString(), /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/);
     const pack = read(javaRoot.replace('main', 'test') + 'resources/NativePackRangeContractTest.java');
-    assert.equal(methods(pack).length, 3);
+    assert.equal(methods(pack).length, 4);
     assert.doesNotMatch(pack.toString(), /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/);
     const gameTests = javaRoot.replace('main', 'gametest') + 'gametest/ElectricGameTests.java';
     const names = value => [...value.toString().matchAll(/public static void (\w+)\(GameTestHelper/g)].map(m => m[1]);

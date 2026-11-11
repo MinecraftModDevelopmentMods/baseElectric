@@ -93,6 +93,17 @@ public final class NativePackResourceProof {
         }
         ModFile mod = new ModFile(SecureJar.from(jar), new ForgeDevLocator(), ModFileParser::modsTomlParser);
         if (mod.getModFileInfo().showAsResourcePack()) throw new AssertionError("Electric must use Forge's hidden client pack");
+        Path optionalJar = evidence.resolve("baseelectric-optional-basemetals-control.jar");
+        String modMetadata = Files.readString(resources.resolve("META-INF/mods.toml"));
+        var dependency = java.util.regex.Pattern.compile("(modId=\"basemetals\"\\s+mandatory=)(true|false)")
+                .matcher(modMetadata);
+        if (!dependency.find()) throw new AssertionError("Missing Base Metals metadata for the negative control");
+        try (JarOutputStream output = new JarOutputStream(Files.newOutputStream(optionalJar), manifest)) {
+            output.putNextEntry(new JarEntry("META-INF/mods.toml"));
+            output.write(dependency.replaceFirst("$1false").getBytes(StandardCharsets.UTF_8));
+            output.closeEntry();
+        }
+        ModFile optionalMod = new ModFile(SecureJar.from(optionalJar), new ForgeDevLocator(), ModFileParser::modsTomlParser);
         ModList.of(List.of(mod), mod.getModInfos().stream().map(ModInfo.class::cast).toList());
         List<String> diagnostics = new ArrayList<>();
         AbstractAppender appender = new AbstractAppender("ElectricPackContract", null,
@@ -105,6 +116,9 @@ public final class NativePackResourceProof {
         var logger = (org.apache.logging.log4j.core.Logger)LogManager.getRootLogger();
         logger.addAppender(appender);
         JsonObject result = new JsonObject();
+        result.addProperty("modInfoClass", mod.getModInfos().getFirst().getClass().getName());
+        result.add("dependencies", dependencies(mod));
+        result.add("optionalBaseMetalsControl", dependencies(optionalMod));
         try {
             for (PackType type : PackType.values()) {
                 PackRepository repository = new PackRepository();
@@ -181,5 +195,21 @@ public final class NativePackResourceProof {
         Files.writeString(evidence.resolve("receipt.json"), result.toString(), StandardCharsets.UTF_8);
         if (!diagnostics.isEmpty()) throw new AssertionError("Native Forge resource diagnostics: " + diagnostics);
         System.out.println("BASEELECTRIC_NATIVE_PACK_RESOURCES_PASS " + result);
+    }
+
+    private static JsonObject dependencies(ModFile mod) {
+        ModInfo info = ModInfo.class.cast(mod.getModInfos().stream()
+                .filter(entry -> entry.getModId().equals("baseelectric")).findFirst().orElseThrow());
+        JsonObject result = new JsonObject();
+        for (var dependency : info.getDependencies()) {
+            JsonObject entry = new JsonObject();
+            entry.addProperty("mandatory", dependency.isMandatory());
+            entry.addProperty("versionRange", dependency.getVersionRange().toString());
+            entry.addProperty("ordering", dependency.getOrdering().name());
+            entry.addProperty("side", dependency.getSide().name());
+            if (result.has(dependency.getModId())) throw new AssertionError("Duplicate native dependency");
+            result.add(dependency.getModId(), entry);
+        }
+        return result;
     }
 }

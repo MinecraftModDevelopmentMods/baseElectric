@@ -89,8 +89,8 @@ tasks.named('test', Test) {
     }
     afterSuite { descriptor, result ->
         if (!descriptor.parent && filter.includePatterns.empty && filter.commandLineIncludePatterns.empty
-                && (result.testCount != 111 || result.skippedTestCount != 0)) {
-            throw new GradleException("Expected 111 tests with no skips, got ${result.testCount} tests and ${result.skippedTestCount} skips")
+                && (result.testCount != 112 || result.skippedTestCount != 0)) {
+            throw new GradleException("Expected 112 tests with no skips, got ${result.testCount} tests and ${result.skippedTestCount} skips")
         }
     }
     doFirst {
@@ -395,8 +395,8 @@ tasks.register('nativeResourceChecks', Test) {
     testClassesDirs = files(nativeResourceCheckClasses)
     classpath = testClassesDirs + nativeResourceCheckClasspath.get() + files(layout.buildDirectory.dir('classes/native-api-diagnostics'))
     afterSuite { descriptor, result ->
-        if (!descriptor.parent && (result.testCount != 22 || result.skippedTestCount != 0)) {
-            throw new GradleException("Expected 22 native resource tests without skips, got ${result.testCount}/${result.skippedTestCount}")
+        if (!descriptor.parent && (result.testCount != 23 || result.skippedTestCount != 0)) {
+            throw new GradleException("Expected 23 native resource tests without skips, got ${result.testCount}/${result.skippedTestCount}")
         }
     }
     doFirst {
@@ -601,8 +601,8 @@ tasks.register('verifyReleaseConfiguration') {
                 throw new GradleException("Source mods.toml is missing ${marker}")
             }
         }
-        if (!metadata.contains('modId="basemetals"\nmandatory=false')) {
-            throw new GradleException('Base Metals must remain Forge-optional; CurseForge installs it for players')
+        if (!metadata.contains('modId="basemetals"\nmandatory=true')) {
+            throw new GradleException('Base Metals must be required by Forge on both client and server')
         }
     }
 }
@@ -794,7 +794,7 @@ tasks.register('verifyReleaseArtifacts') {
                     .getText(StandardCharsets.UTF_8.name())
             if (!metadata.contains('modId="baseelectric"')
                     || !metadata.contains("version=\"${project.mod_version}\"")
-                    || !metadata.contains('modId="basemetals"\nmandatory=false')) {
+                    || !metadata.contains('modId="basemetals"\nmandatory=true')) {
                 throw new GradleException('Packaged mods.toml identity or version is incorrect')
             }
             def manifest = new Manifest(zip.getInputStream(zip.getEntry('META-INF/MANIFEST.MF'))).mainAttributes

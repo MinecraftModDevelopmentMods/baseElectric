@@ -37,7 +37,7 @@ side="BOTH"
 
 [[dependencies.baseelectric]]
 modId="basemetals"
-mandatory=false
+mandatory=true
 versionRange="[3.1.2.121111,4.0.0)"
 ordering="AFTER"
 side="BOTH"
