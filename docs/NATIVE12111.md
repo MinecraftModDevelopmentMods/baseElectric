@@ -46,9 +46,15 @@ for compile diagnostics only. All 88 production sources, 36 test sources and
 the GameTest source compile with javac and actual Eclipse ECJ; both fresh unit
 outputs pass all 111 tests without failures, skips or assumptions. The new
 Power integration input is frozen at SHA-256
-0240E032075AF6B158887FBF98CE038504942329527036B82FD7CF9EEE602503;
+D8BA2501148845FFE1659569D1CB00C242C462123CB5A6B89D68FC346CABA7E9;
 the approved local source commit is
-398439074a60bf9b8f8872f92485cffc4aa96be9. The default no-override release suite,
+1f5085f1cc7adbcb1bd8cd1062601d490e5749f3. Base Metals is pinned to local hook
+616d527e50e4bf0137eeb9c44fa586e34a0452a0 at SHA-256
+598D3FB0FF956EBCC67FE477A01CE393C75D0013AF0CE00A79E2072B63E9F2BA.
+These inputs repair the shared migration RETURN hooks to mutate the same NBT
+in place without cancelling the other mod's callback. Earlier 0240/6D24 inputs
+and their receipts are retained, not relabelled as qualification of these bytes.
+The default no-override release suite,
 dependency/artifact/checksum audits, Javadoc, generated Eclipse metadata and
 actual ECJ main/test/GameTest/client scopes pass on these inputs. This is a
 LOCAL_SOURCE integration pin, not a merged/public 1.21.11 release.
