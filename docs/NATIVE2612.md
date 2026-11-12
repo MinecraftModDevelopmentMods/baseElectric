@@ -11,24 +11,48 @@ They must not be relabeled as candidate02 or full family acceptance.
 
 ## Current Checkpoint
 
-Electric's local candidate05 player jar is
-`1936D3E2272B72CFD387ED59FFC389018D0FC841BFB9F1E0713334501CD2E54A`.
-The ZIP comparison against the previous `1515772F...` jar has 643 entries on
-each side and changes only `META-INF/MANIFEST.MF`, for the repaired Power
-dependency pin. Every class and resource is byte-identical. This comparison
-is not gameplay qualification.
+The frozen candidate06 player jar is
+`DFC63C4E619A74BEE2A22146D9720ADB2B32801865EAE1B716726424015775FA`.
+It uses Power `0ac874de66f792c6efca5bccd0536b1b113fb786`, ordinary jar
+`618C3F96736392CE2853575F5A6A076EAC2A9B9F76F9303D86DEF58E418857D0`,
+and Base Metals `331fa46914f854db71a8c33500cc559a8878b7d3` / `67862388...`.
+Java classes and PNGs remain byte-identical to the previous `1936D3E2...`
+candidate. The intended resource differences are the two atlas definitions and
+removal of the abstract battery's standalone item definition, plus dependency
+provenance in the manifest. This is not final family or manual acceptance.
 
-The forced fresh 51-task suite passes 115 unit and 28 native resource tests,
+Actual native client loading exposed an 8-pixel direct-render laser beam being
+included by Power's global materials directory, and a standalone item definition
+for the unregistered abstract battery parent. Hegel replaced the atlas imports
+with explicit namespace-owned sprites. Electric's common native registry census
+confirms `battery_base` is absent and all four real batteries are registered.
+Only `items/battery_base.json` is removed; its inherited parent model and every
+PNG remain unchanged. A focused resource regression fails before that deletion
+and passes after it, including native atlas codec and required-sprite checks.
+
+The earlier diagnostic asset jar is
+`982D94A4B469216643D1B6609B3C16990447F82DD4A47BD155EE00CA91BE60C4`.
+Against the intermediate jar it changes only the blocks atlas, adds the items
+atlas and removes the abstract item definition. All class and PNG bytes match.
+It uses the sealed `000A...` compile input and is not final qualification.
+Its original receipt is retained. Candidate06 uses the later coherent atlas
+pins and needs its own graphical, migration and endurance receipts.
+
+The current candidate's forced fresh 51-task suite passes 115 unit and 28 native resource tests,
 with zero failures or skips. Fresh ECJ output passes all 115 tests with the
 complete compiled-method inventory and negative controls. All four named
 source GameTests and both new-pin reproduction builds pass. Receipts are
-recorded separately in `build/port-evidence/candidate05-2612-01`.
+recorded separately in `build/port-evidence/candidate06-final-assets-01`.
 This local checkpoint is not final family qualification.
 
-The parent repaired Power's fuel-container remainder handling and handed over
-the exact source and ordinary jar below. The previous `F39FF5EC...` Power and
-`1515772F...` Electric results remain under their original receipts in
-`candidate02-2612-01`; they are not relabeled for this checkpoint.
+The parent repaired the shared migration context after candidate05's actual
+original110 actor run lost four Steam enchantments from cart and dropped-item
+stacks. The raw failure, source lineage and independently assessed dimension
+results remain bound to candidate05. New qualification must use the repaired
+Power and Base Metals inputs below; no old result is relabeled for candidate06.
+The intermediate `fb5fb0e` source-pin jar is retained separately and is not the
+final candidate. The later `540bc666` context jar and `4D2C5563...` child also
+remain historical, not relabeled as the atlas-repaired candidate06.
 
 ## Target
 
@@ -38,8 +62,8 @@ the exact source and ordinary jar below. The previous `F39FF5EC...` Power and
 - OreSpawn 4.1.0.2601021, source `c45ea2a111520ef904e994dd8dcd90babfcef29b`,
   ordinary jar SHA-256 `6D5CE2017C3314968083D140309E2F1A54BC239AC65C48944C995E9ECF937948`.
 
-The local Power checkpoint is `e49a2e947e066a0f0e497982c2d5db596dfe11d9`;
-the Base Metals shared-hook checkpoint is `13d4c4e38bf74d76f2f69f307dc55d13a81e8674`.
+The local Power checkpoint is `0ac874de66f792c6efca5bccd0536b1b113fb786`;
+the Base Metals shared-hook checkpoint is `331fa46914f854db71a8c33500cc559a8878b7d3`.
 Their exact ordinary jar hashes are recorded in `gradle.properties`.
 These are local integration inputs, not public releases or completed family
 qualification. Earlier provisional diagnostics remain under their original
@@ -68,8 +92,8 @@ resources and 50 unlocks are retained. Native pack discovery accepts resource
 84.0 and data 101.1, with zero warning/error diagnostics.
 
 Compilation of all 87 production sources and all 36 test sources
-passes against Power `3D9ACF8B86DD1B443B138C61E5E1C5BAAC3059D83EED83B8E6E927BC501CA446`
-and Base Metals `4911669B93A5C64C0F7AE0AAAEBB50BA90EC82A42436B9E6DEF6C1524B1CFF9C`.
+passes against Power `618C3F96736392CE2853575F5A6A076EAC2A9B9F76F9303D86DEF58E418857D0`
+and Base Metals `6786238835D4D8A653C769F3B0E61D226959146300E17523799CFDF17540FD19`.
 All 115 unit tests pass without skips. Fresh ECJ output also passes 115 tests;
 main, test, GameTest and client-contract scopes compile as Java 25. Both pinned
 unit-support sources are compiled with the tests. The separately rebuilt agent
@@ -91,7 +115,7 @@ actual Forge 64.1.5, followed by normal save and shutdown:
 - `baseelectric:siliconandsolderresolverealmaterialtags`
 - `baseelectric:turretusesnativeupdatepacket`
 
-The XML and runtime receipt are in `candidate05-2612-01/gametest-01`.
+The XML and runtime receipt are in `candidate06-final-assets-01/gametest-01`.
 This is source-output GameTest evidence, not frozen-player-jar proof. The
 first-boot log retains configuration-default corrections and native union-URL
 warnings; its clean-log gate is not green. The runtime receipt records Java
@@ -118,7 +142,7 @@ It is not a restart, whole-world, fuel-container or clean-log qualification.
 GUI/assets/scenes and combined development and packaged classpaths remain
 parent-owned gates. Current logs, including failures, are retained under
 `build/port-evidence/initial-2612-01` for candidate01 and the separate candidate02
-folder and candidate05 folder above; none is a release acceptance claim.
+folder and separate candidate05/candidate06 folders; none is a release acceptance claim.
 
 A candidate01 packaged smoke already in flight at the hold completed 19 narrow
 checks, including drill inventory conversion, battery components, sulfur drops,

@@ -4,3 +4,6 @@
 *.ogg binary
 *.jar binary
 *.zip binary
+# Preserve the exact atlas bytes used by the frozen native client candidate.
+src/main/resources/assets/minecraft/atlases/blocks.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+src/main/resources/assets/minecraft/atlases/items.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

@@ -874,17 +874,42 @@ tasks.register('verifyReleaseDependencies') {
 }
 
 def blocksAtlasPath = 'assets/minecraft/atlases/blocks.json'
-def electricBlocksAtlas = [sources: [[type: 'single', resource: 'baseelectric:entity/laser_turret']]]
+def itemsAtlasPath = 'assets/minecraft/atlases/items.json'
+def validateOwnedAtlas = { Object atlas, String owner, Set<String> sprites, Closure exists, String context ->
+    if (!(atlas instanceof Map) || atlas.keySet() != (['sources'] as Set)
+            || !(atlas.sources instanceof List) || atlas.sources.isEmpty()) {
+        throw new GradleException("${context} must declare nonempty explicit sprite sources")
+    }
+    atlas.sources.each { source ->
+        if (!(source instanceof Map) || source.keySet() != (['type', 'resource'] as Set)
+                || source.type != 'minecraft:single' || !(source.resource instanceof String)
+                || !source.resource.startsWith(owner + ':')) {
+            throw new GradleException("${context} must only register ${owner}'s exact native single sprites")
+        }
+        String sprite = source.resource
+        String path = sprite.substring(sprite.indexOf(':') + 1)
+        if (!(path ==~ '[a-z0-9_./-]+') || path.tokenize('/').any { it == '..' }
+                || !exists("assets/${owner}/textures/${path}.png".toString())) {
+            throw new GradleException("${context} registers a missing or unsafe sprite ${sprite}")
+        }
+        if (!sprites.add(sprite)) throw new GradleException("Duplicate sprite across native atlases: ${sprite}")
+    }
+}
 def verifyPackagedBlocksAtlas = { ZipFile zip ->
     def overrides = zip.entries().findAll {
         !it.isDirectory() && it.name.startsWith('assets/minecraft/')
     }.collect { it.name }
-    if (overrides != [blocksAtlasPath]) {
-        throw new GradleException("Expected only ${blocksAtlasPath} in the Minecraft asset namespace, found ${overrides}")
+    if (overrides.sort() != [blocksAtlasPath, itemsAtlasPath].sort()) {
+        throw new GradleException("Expected exactly the two native atlases in the Minecraft asset namespace, found ${overrides}")
     }
-    zip.getInputStream(zip.getEntry(blocksAtlasPath)).withCloseable { input ->
-        if (new JsonSlurper().parse(input, 'UTF-8') != electricBlocksAtlas) {
-            throw new GradleException('Packaged blocks atlas must add only the turret item sprite')
+    Set<String> sprites = [] as Set<String>
+    [blocksAtlasPath, itemsAtlasPath].each { path ->
+        zip.getInputStream(zip.getEntry(path)).withCloseable { input ->
+            def atlas = new JsonSlurper().parse(input, 'UTF-8')
+            validateOwnedAtlas(atlas, project.mod_id, sprites, { resource -> zip.getEntry(resource) != null }, path)
+            if (atlas != new JsonSlurper().parse(file('src/main/resources/' + path))) {
+                throw new GradleException("Packaged ${path} differs from the validated source atlas")
+            }
         }
     }
 }
@@ -946,6 +971,10 @@ tasks.register('verifyReleaseArtifacts') {
              'data/minecraft/tags/villager_trade/librarian/level_2.json',
              'zone/moddev/mc/baseelectric/recipe/RecipeConditions$ModeCondition.class',
              'assets/baseelectric/lang/en_us.json',
+             'assets/minecraft/atlases/blocks.json', 'assets/minecraft/atlases/items.json',
+             'assets/baseelectric/models/item/battery_base.json',
+             'assets/baseelectric/items/alkaline_battery.json', 'assets/baseelectric/items/lead_acid_battery.json',
+             'assets/baseelectric/items/lithium_battery.json', 'assets/baseelectric/items/nickel_hydride_battery.json',
              'data/baseelectric/loot_table/blocks/electric_drill.json',
              'data/baseelectric/loot_table/blocks/electric_conduit.json',
              'data/baseelectric/damage_type/laser.json',
@@ -958,6 +987,7 @@ tasks.register('verifyReleaseArtifacts') {
                 }
             }
             ['agent-notes/', '.codex/', 'src/test/', 'zone/moddev/mc/baseelectric/gametest/',
+             'assets/baseelectric/items/battery_base.json',
              'zone/moddev/mc/advantageworks/unit/',
              'data/baseelectric/structure/empty.nbt', 'fernflower_abstract_parameter_names.txt',
               'cyano/poweradvantage/',
@@ -1651,6 +1681,7 @@ tasks.register('verifyModelAssets') {
     inputs.dir(assetRoot)
     inputs.dir(new File(resourceRoot, 'data'))
     inputs.files(atlasFile)
+    inputs.file(new File(resourceRoot, 'assets/minecraft/atlases/items.json'))
     inputs.file(powerAdvantageDeobfJar)
 
     doLast {
@@ -1661,24 +1692,48 @@ tasks.register('verifyModelAssets') {
             new JsonSlurper().parse(jsonFile)
         }
 
-        def localAtlas = atlasFile.isFile() ? new JsonSlurper().parse(atlasFile) : [sources: []]
-        // Vanilla's generic directories also cover mod namespaces. Power adds the legacy directories.
-        List atlasSources = [[type: 'directory', source: 'block', prefix: 'block/'],
-                             [type: 'directory', source: 'item', prefix: 'item/']]
+        Set<String> registeredSprites = [] as Set<String>
+        [blocksAtlasPath, itemsAtlasPath].each { path ->
+            validateOwnedAtlas(new JsonSlurper().parse(new File(resourceRoot, path)), project.mod_id,
+                    registeredSprites, { resource -> new File(resourceRoot, resource).isFile() }, path)
+        }
+        if (registeredSprites.contains('baseelectric:materials/laser_beam')
+                || !registeredSprites.contains('baseelectric:entity/laser_turret')
+                || !registeredSprites.contains('baseelectric:materials/machine_case')) {
+            throw new GradleException('Electric atlas is missing a required sprite or includes the direct-render beam')
+        }
         Set<String> powerAdvantageAssets = new ZipFile(powerAdvantageDeobfJar.get()).withCloseable { zip ->
-            def entry = zip.getEntry(blocksAtlasPath)
-            if (entry == null) throw new GradleException('Pinned basePower is missing its blocks atlas')
-            zip.getInputStream(entry).withCloseable { input ->
-                atlasSources.addAll(new JsonSlurper().parse(input, 'UTF-8').sources)
+            [blocksAtlasPath, itemsAtlasPath].each { path ->
+                def entry = zip.getEntry(path)
+                if (entry == null) throw new GradleException("Pinned basePower is missing ${path}")
+                zip.getInputStream(entry).withCloseable { input ->
+                    validateOwnedAtlas(new JsonSlurper().parse(input, 'UTF-8'), 'basepower', registeredSprites,
+                            { resource -> zip.getEntry(resource) != null }, 'Pinned Power ' + path)
+                }
             }
             zip.entries().collect { it.name } as Set<String>
         }
-        atlasSources.addAll(localAtlas.sources)
+        Set<String> vanillaAssets = [] as Set<String>
+        sourceSets.main.compileClasspath.files.findAll { it.isFile() && it.name.endsWith('.jar') }.each { archive ->
+            new ZipFile(archive).withCloseable { zip ->
+                zip.entries().each { entry ->
+                    if (entry.name.startsWith('assets/minecraft/')) vanillaAssets.add(entry.name)
+                }
+            }
+        }
         def verifyReference = { String reference, String assetType, String sourcePath ->
             if (reference.startsWith('#')) return
             int separator = reference.indexOf(':')
             String namespace = separator >= 0 ? reference.substring(0, separator) : 'minecraft'
             String path = separator >= 0 ? reference.substring(separator + 1) : reference
+            if (namespace == 'minecraft') {
+                if (assetType == 'models' && path.startsWith('builtin/')) return
+                String suffix = assetType == 'textures' ? '.png' : '.json'
+                if (!vanillaAssets.contains("assets/minecraft/${assetType}/${path}${suffix}".toString())) {
+                    throw new GradleException("${sourcePath} references missing vanilla ${assetType} asset ${reference}")
+                }
+                return
+            }
             if (namespace != project.mod_id && namespace != 'basepower') return
 
             String suffix = assetType == 'textures' ? '.png' : '.json'
@@ -1690,13 +1745,8 @@ tasks.register('verifyModelAssets') {
                 throw new GradleException(
                         "${sourcePath} references missing ${assetType} asset ${reference}")
             }
-            if (assetType == 'textures' && !atlasSources.any { source ->
-                if (source.type == 'single') return (source.sprite ?: source.resource) == reference
-                if (source.type != 'directory') return false
-                String folder = source.source + '/'
-                path.startsWith(folder) && (source.prefix + path.substring(folder.length())) == path
-            }) {
-                throw new GradleException("${sourcePath} references unstitched blocks-atlas sprite ${reference}")
+            if (assetType == 'textures' && !registeredSprites.contains(reference)) {
+                throw new GradleException("${sourcePath} references an unregistered native sprite ${reference}")
             }
         }
 
@@ -1720,10 +1770,6 @@ tasks.register('verifyModelAssets') {
                 }
             }
         }
-        if (localAtlas != electricBlocksAtlas) {
-            throw new GradleException('Electric blocks atlas must add only the turret item sprite')
-        }
-
         Closure verifyBlockstateModels
         verifyBlockstateModels = { Object node, String sourcePath ->
             if (node instanceof Map) {

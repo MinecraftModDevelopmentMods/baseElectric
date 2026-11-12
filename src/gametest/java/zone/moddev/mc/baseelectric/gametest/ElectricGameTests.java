@@ -126,6 +126,26 @@ public final class ElectricGameTests {
     @GameTest(name = "recipeavailabilitydoesnotremovediscovery", structure = "empty")
     public static void recipeAvailabilityDoesNotRemoveDiscovery(GameTestHelper helper) {
         var server = helper.getLevel().getServer();
+        var itemIds = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKeys().stream()
+                .filter(id -> id.getNamespace().equals(ElectricAdvantage.MODID))
+                .map(Object::toString).sorted().toList();
+        helper.assertTrue(!itemIds.contains("baseelectric:battery_base"), "Abstract battery parent became a registered item");
+        for (String battery : java.util.List.of("alkaline_battery", "lead_acid_battery", "lithium_battery", "nickel_hydride_battery")) {
+            helper.assertTrue(itemIds.contains("baseelectric:" + battery), "Concrete battery is not registered: " + battery);
+        }
+        var census = new com.google.gson.JsonObject();
+        census.addProperty("scope", "ACTUAL_NATIVE_COMMON_ITEM_REGISTRY_SOURCE_GAMETEST_NOT_CLIENT_PIXELS");
+        census.addProperty("abstractBatteryRegistered", false);
+        var registryEntries = new com.google.gson.JsonArray();
+        itemIds.forEach(registryEntries::add);
+        census.add("registeredElectricItems", registryEntries);
+        try {
+            Files.writeString(Path.of(System.getProperty("baseelectric.gameTestRuntimeReceipt"))
+                    .resolveSibling("electric-item-registry-census.json"), census.toString(),
+                    java.nio.file.StandardOpenOption.CREATE_NEW);
+        } catch (java.io.IOException failure) {
+            throw new AssertionError("Cannot retain actual item registry census", failure);
+        }
         var advancement = Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "recipes/alkaline_battery");
         helper.assertTrue(server.getAdvancements().get(advancement) != null,
                 "A material-gated recipe lost its discovery advancement");

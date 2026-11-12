@@ -1,0 +1,72 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/alkaline_battery"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/blank_circuit_board"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/control_circuit"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/integrated_circuit"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/lead_acid_battery"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/li_ingot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/li_nugget"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/li_powder"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/lithium_battery"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/nickel_hydride_battery"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/petrolplastic_ingot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/psu"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/silicon_ingot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/silicon_mix"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/solder"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/solder_mix"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:items/sulfur_powder"
+    }
+  ]
+}

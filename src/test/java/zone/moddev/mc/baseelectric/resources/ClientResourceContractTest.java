@@ -3,6 +3,9 @@ package zone.moddev.mc.baseelectric.resources;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.client.renderer.texture.atlas.SpriteSources;
+import net.minecraft.client.renderer.texture.atlas.sources.SingleFile;
 import org.junit.Test;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
@@ -39,6 +42,35 @@ public class ClientResourceContractTest {
     }
 
     @Test public void parentsAndTexturesExistInActualPacks() throws Exception {
+        SpriteSources.bootstrap();
+        var sprites = new java.util.HashSet<String>();
+        for (String atlas : new String[]{"blocks", "items"}) {
+            var decoded = SpriteSources.FILE_CODEC.parse(JsonOps.INSTANCE,
+                    read(ROOT.resolve("assets/minecraft/atlases/" + atlas + ".json"))).getOrThrow();
+            assertEquals(atlas, "blocks".equals(atlas) ? 49 : 17, decoded.size());
+            for (var source : decoded) {
+                assertTrue("No global directories or order-dependent filters", source instanceof SingleFile);
+                var single = (SingleFile) source;
+                assertEquals("baseelectric", single.resourceId().getNamespace());
+                assertTrue(single.spriteId().isEmpty());
+                assertTrue("Duplicate sprite across native atlases", sprites.add(single.resourceId().toString()));
+            }
+        }
+        assertTrue(sprites.contains("baseelectric:entity/laser_turret"));
+        assertTrue(sprites.contains("baseelectric:materials/machine_case"));
+        assertFalse(sprites.contains("baseelectric:materials/laser_beam"));
+        assertTrue(SpriteSources.FILE_CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(
+                "{\"sources\":[{\"type\":\"minecraft:single\",\"resource\":5}]}" )).error().isPresent());
+        assertFalse("Abstract parent is not a standalone registered item",
+                Files.exists(ASSETS.resolve("items/battery_base.json")));
+        assertTrue(Files.isRegularFile(ASSETS.resolve("models/item/battery_base.json")));
+        for (String battery : new String[]{"alkaline_battery", "lead_acid_battery", "lithium_battery", "nickel_hydride_battery"}) {
+            JsonObject child = read(ASSETS.resolve("models/item/" + battery + ".json"));
+            assertEquals("baseelectric:item/battery_base", child.get("parent").getAsString());
+            assertEquals("baseelectric:items/" + battery, child.getAsJsonObject("textures").get("item_texture").getAsString());
+            assertEquals("baseelectric:item/" + battery, read(ASSETS.resolve("items/" + battery + ".json"))
+                    .getAsJsonObject("model").get("model").getAsString());
+        }
         try (Stream<Path> files = Files.walk(ASSETS.resolve("models"))) {
             for (Path file : (Iterable<Path>) files.filter(p -> p.toString().endsWith(".json"))::iterator) {
                 JsonObject model = read(file);

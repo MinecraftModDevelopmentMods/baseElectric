@@ -100,9 +100,29 @@ check('Track audit rejects the old asset and a geometry mutation', () => {
     assert.throws(() => checkTrackModel(file, mutated), /changed beyond the render layer/);
 });
 
-check('Released 1.21.11 resources retain bytes except native pack metadata', () => {
+check('Released resources retain bytes except exact native metadata and atlas repairs', () => {
     const resources = tracked.filter(file => /^src\/(main|test)\/resources\//.test(file));
-    const exceptions = new Set(['src/main/resources/pack.mcmeta', 'src/main/resources/META-INF/mods.toml']);
+    const removedAbstract = assets + 'items/battery_base.json';
+    const blocksAtlas = 'src/main/resources/assets/minecraft/atlases/blocks.json';
+    const itemsAtlas = 'src/main/resources/assets/minecraft/atlases/items.json';
+    const exceptions = new Set(['src/main/resources/pack.mcmeta', 'src/main/resources/META-INF/mods.toml', blocksAtlas, removedAbstract]);
+    assert(!fs.existsSync(path.join(root, removedAbstract)), 'Abstract battery parent must not be a standalone item definition');
+    const sprites = new Set();
+    for (const [atlas, count] of [[blocksAtlas, 49], [itemsAtlas, 17]]) {
+        const entries = json(atlas).sources;
+        assert.equal(entries.length, count, atlas);
+        for (const source of entries) {
+            assert.equal(source.type, 'minecraft:single', atlas + ' has a non-owned directory or filter');
+            assert.match(source.resource, /^baseelectric:[a-z0-9_./-]+$/);
+            assert(!('sprite' in source), 'Unexpected sprite alias');
+            assert(!sprites.has(source.resource), 'Duplicate block/item atlas sprite: ' + source.resource);
+            sprites.add(source.resource);
+            assert(fs.existsSync(path.join(root, assets + 'textures/' + source.resource.split(':')[1] + '.png')));
+        }
+    }
+    assert(sprites.has('baseelectric:entity/laser_turret'));
+    assert(sprites.has('baseelectric:materials/machine_case'));
+    assert(!sprites.has('baseelectric:materials/laser_beam'), 'Direct-render beam must not enter a mipmapped atlas');
     for (const file of resources.filter(file => !exceptions.has(file))) {
         if (file.startsWith('src/main/resources/data/baseelectric/recipe/')) {
             assert.deepEqual(json(file), nativeIngredients(JSON.parse(old(file))), file);
@@ -115,8 +135,8 @@ check('Released 1.21.11 resources retain bytes except native pack metadata', () 
         .filter(entry => entry.isFile()).map(entry => path.relative(root, path.join(entry.parentPath, entry.name))
             .split(path.sep).join('/')).sort();
     const definitions = tracked.filter(file => file.startsWith(assets + 'models/item/') && file.endsWith('.json'))
-        .map(file => file.replace('/models/item/', '/items/'));
-    assert.equal(definitions.length, 44);
+        .map(file => file.replace('/models/item/', '/items/')).filter(file => file !== removedAbstract);
+    assert.equal(definitions.length, 43);
     for (const file of definitions) {
         const id = path.basename(file, '.json');
         assert.deepEqual(json(file), {model:{type:'minecraft:model', model:'baseelectric:item/' + id}}, file);
@@ -124,7 +144,7 @@ check('Released 1.21.11 resources retain bytes except native pack metadata', () 
     const trades = ['electric_conduit', 'solder', 'integrated_circuit', 'blank_circuit_board', 'petrolplastic_ingot', 'psu']
         .map(id => 'src/main/resources/data/baseelectric/villager_trade/librarian/' + id + '.json');
     const tiers = [1,2].map(level => 'src/main/resources/data/minecraft/tags/villager_trade/librarian/level_' + level + '.json');
-    assert.deepEqual(actual, [...tracked.filter(file => file !== javaRoot + 'init/Villages.java'), ...trades, ...tiers].sort(),
+    assert.deepEqual(actual, [...tracked.filter(file => file !== javaRoot + 'init/Villages.java' && file !== removedAbstract), itemsAtlas, ...trades, ...tiers].sort(),
         'Source and resource inventory');
 });
 

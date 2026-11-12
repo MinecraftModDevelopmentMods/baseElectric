@@ -64,7 +64,7 @@ Local jars do not satisfy that gate.
 
 ## Verification
 
-The current local source passes 115 unit tests, 28 independent native resource
+The current local candidate passes 115 unit tests, 28 independent native resource
 tests and 115 tests from fresh ECJ output, with no failures or skips. The ECJ
 gate compares every compiled test method with the Gradle XML inventory.
 All four named source GameTests also pass on the current Power checkpoint.
@@ -77,6 +77,11 @@ restart, migration and actual client checks remain separate parent-owned gates.
 The Power pin includes the parent's fuel-container repair. Each qualification
 receipt retains its exact input hashes. In particular,
 no old screenshot or earlier version's result qualifies this port.
+
+The atlas and abstract-battery definition repairs have native codec checks and
+a real registered-item census. Their sources and packaged archives reject
+global directories, foreign namespaces, missing sprites and duplicates across
+atlases. The earlier diagnostic asset jar is not a release or final proof.
 
 Run `runGameTestServer` with the same pinned mod inputs, an existing accepted
 EULA passed as `-PelectricGameTestEula=<path>`, and a new directory passed as
