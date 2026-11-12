@@ -1,6 +1,6 @@
 # baseElectric
 
-**Minecraft 26.2 Forge, version 2.2.18.2602001. Combined checks passed; final root build pending.**
+**Minecraft 26.2 Forge, version 2.2.18.2602001. Automated and manual testing complete.**
 
 baseElectric continues DrCyano's Electric Advantage and uses basePower's shared
 API, machines and creative tab. Existing `baseelectric` registry and saved-data
@@ -10,6 +10,11 @@ This port targets Forge **65.1.0**, official Minecraft **26.2** names,
 MCP **20260616.103818**, Java **25.0.3+9**, ForgeGradle **7.0.34** and the
 checksum-pinned Gradle **9.6.1** wrapper. Native pack formats are data
 **107.1** and client **88.0**.
+
+The earlier [26.1.2 release](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9577930)
+remains available on CurseForge, MMD Maven and GitHub Releases. The 26.2
+release is being prepared separately; the version and dependency pins below
+apply to this branch.
 
 ## Build
 
