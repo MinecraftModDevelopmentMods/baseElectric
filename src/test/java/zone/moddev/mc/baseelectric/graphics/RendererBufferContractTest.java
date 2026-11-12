@@ -36,7 +36,7 @@ public class RendererBufferContractTest {
     @Test public void quadNormalsUseWindingAndTheNativeNormalMatrix() {
         PoseStack matrices = new PoseStack();
         matrices.translate(3, 4, 5);
-        matrices.mulPose(Axis.YP.rotationDegrees(90));
+        matrices.rotate(Axis.YP.rotationDegrees(90));
         RecordingBuffer buffer = new RecordingBuffer();
         BufferedQuads quads = new BufferedQuads(matrices, buffer, 0x123456, 0x789abc);
         quad(quads, false);

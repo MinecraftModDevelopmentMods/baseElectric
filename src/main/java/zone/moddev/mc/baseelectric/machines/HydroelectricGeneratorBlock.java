@@ -18,7 +18,10 @@ public class HydroelectricGeneratorBlock extends ElectricGeneratorBlock {
 	@Override
 	public boolean canSurvive(BlockState state, LevelReader worldIn, BlockPos pos)
 	{
-		return super.canSurvive(state, worldIn, pos)
-				&& !worldIn.getBlockState(pos.below()).blocksMotion();
+		if (!super.canSurvive(state, worldIn, pos)) return false;
+		BlockState below = worldIn.getBlockState(pos.below());
+		// Preserve the removed blocksMotion predicate, including its vanilla exceptions.
+		return below.is(net.minecraft.world.level.block.Blocks.COBWEB)
+				|| below.is(net.minecraft.world.level.block.Blocks.BAMBOO_SAPLING) || !below.isSolid();
 	}
 }

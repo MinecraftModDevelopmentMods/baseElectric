@@ -73,8 +73,8 @@ public class LaserTurretRenderer implements BlockEntityRenderer<LaserTurretTileE
     private static void transform(PoseStack matrices, float yaw, float pitch) {
         matrices.pushPose();
         matrices.translate(0.5f, 0.75f, 0.5f);
-        matrices.mulPose(Axis.YP.rotationDegrees(yaw));
-        matrices.mulPose(Axis.XP.rotationDegrees(pitch));
+        matrices.rotate(Axis.YP.rotationDegrees(yaw));
+        matrices.rotate(Axis.XP.rotationDegrees(pitch));
     }
 
     private static void draw(State state, PoseStack.Pose pose,

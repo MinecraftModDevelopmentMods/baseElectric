@@ -15,7 +15,7 @@ import zone.moddev.mc.baseelectric.init.Power;
 public class ElectricScaffoldBlock extends BlockSimplePowerConduit {
     public ElectricScaffoldBlock() {
         super(Properties.of().setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("electric_track"))
-                .mapColor(MapColor.STONE).pushReaction(PushReaction.BLOCK)
+                .mapColor(MapColor.STONE).pushReaction(PushReaction.IMMOVEABLE)
                 .forceSolidOn().strength(0.75F).noOcclusion()
                 .isRedstoneConductor((state, world, pos) -> false),
                 2.0F / 16.0F, Power.ELECTRIC_POWER);

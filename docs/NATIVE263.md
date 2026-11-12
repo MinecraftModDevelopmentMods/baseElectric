@@ -29,17 +29,28 @@ Reference heads observed: BM `8ee91846ed4dd9028e84ff3878c55a700a16d318`,
 OS `c5799770774a7535b5c436966f6f6cf70f649c5d`,
 IAF `8e6de134b075811a7295e15ad32a224cf3c04134`.
 
-## Pending Handoff
+## Local Input Handoffs
 
-Release, full-suite, ECJ, Eclipse, packaged gameplay and reproduction gates
-must fail closed until the parent provides:
+Power's immutable compiler handoff is accepted: source
+`2618d2e723a7742a2ebc6a6058505de3b7d9d6fb`, SHA-256
+`812F648DB32866B2522CA5C7BEE0E6CA4C423B14CDAED5592A2FD90436C86F6F`.
+The exact approved BM/OS compiler snapshots are likewise pinned by source
+and SHA-256. These pins identify local inputs, not gameplay/public acceptance.
+All 87 Electric production sources, dependency audit, GameTest compilation,
+Javadoc and model assets now pass against that stack.
 
-- basePower 2.4.18.2603001 verified source SHA and development/player SHA-256.
-- Base Metals 3.1.2.2603001 migration-hook source and development/player pins.
-- OreSpawn 4.1.1.2603001 retained-settings repair source and jar pins.
+Full-suite, ECJ, complete Eclipse, packaged and reproduction gates remain
+separate. The remaining required handoffs are:
+
 - Exact 26.3 unit bootstrap agent plus registry, loader and entity-tracker source
   pins, including the deterministic rebuilt agent hash.
 - Installed baseline server/shim/universal hashes for packaged verification.
+
+The committed Power helper loader still references removed `createLookup()`;
+its working copy has an uncommitted native API fix. Neither is silently
+relabelled as the other. Full tests/Eclipse remain hash-blocked until those
+helper bytes have explicit immutable provenance. See the external
+`POWER-HANDOFF-01-ACCEPTED.md` receipt for the observed hashes and diff.
 
 Electric requires the unchanged `cyano.poweradvantage.api` surface: typed
 conduits and connection context, powered-machine superclass/ticking and
@@ -75,8 +86,13 @@ Current checkpoint results:
 - Native Eclipse launch-argument check PASS, asset index 34,
   SHA-1 `e99f9973047785b5a9d52eaf72020b97545053c9`. This is not the complete
   Eclipse production-classpath or ECJ gate.
-- Production `compileJava` stops before compilation with the required exact
-  basePower 26.3 pin error. No candidate jar or artifact hash exists yet.
+- Production compile and dependency audit PASS (`attempt13`) after nine native
+  compiler errors were preserved (`attempt12`). The exact old hydro placement
+  predicate retains its cobweb/bamboo-sapling exceptions. Quaternion rotation
+  and piston reactions use their native replacements without geometry changes.
+  GameTest compilation/Javadoc/model assets PASS (`attempt14`).
+- Complete Eclipse task resolution (`attempt15`) stops on unsealed unit helper
+  hashes. No complete unit/ECJ, candidate jar or artifact hash exists yet.
 - Earlier attempts retain the argument, compile and native test failures.
   The first cache started empty, but its command failed before task selection;
   subsequent checks reuse the prepared SDK. No full cold-cache gate is claimed.

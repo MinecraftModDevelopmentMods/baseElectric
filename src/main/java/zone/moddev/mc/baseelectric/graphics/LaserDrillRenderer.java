@@ -97,8 +97,8 @@ public class LaserDrillRenderer implements BlockEntityRenderer<ElectricDrillTile
 			
 			matrices.pushPose();
 			matrices.translate(0.5f, 0.5f, 0.5f);
-			matrices.mulPose(Axis.YP.rotationDegrees(rotY));
-			matrices.mulPose(Axis.XP.rotationDegrees(rotX));
+			matrices.rotate(Axis.YP.rotationDegrees(rotY));
+			matrices.rotate(Axis.XP.rotationDegrees(rotX));
     }
 
     private static void draw(float laserBlastLength, PoseStack.Pose pose,

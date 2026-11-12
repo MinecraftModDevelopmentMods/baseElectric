@@ -16,8 +16,11 @@ checksum-pinned Gradle **9.6.1** wrapper. Native data/client pack formats are
 The coordinated local versions are basePower **2.4.18.2603001**, Base Metals
 **3.1.2.2603001** with the shared migration hook, and OreSpawn
 **4.1.1.2603001** with the retained-settings repair. Exact source and artifact
-pins are pending the parent's verified handoff. Blank pins deliberately stop
-qualification. The older 26.2 jars and public 26.3 BM 3.1.1/OS 4.1.0 jars
+pins are recorded for the parent's immutable local compiler/test handoff.
+Power source is `2618d2e723a7742a2ebc6a6058505de3b7d9d6fb`, player SHA-256
+`812F648DB32866B2522CA5C7BEE0E6CA4C423B14CDAED5592A2FD90436C86F6F`.
+Unit-support pins still await explicit helper provenance; blank pins stop those
+gates. The older 26.2 jars and public 26.3 BM 3.1.1/OS 4.1.0 jars
 are not substitutes. Base Metals remains required on both client and server.
 
 The Forge 66 Mavenizer fixture and its source rules, patch, licence and

@@ -12,7 +12,7 @@ public class ElectricConduitBlock  extends cyano.poweradvantage.api.simple.Block
 
     protected ElectricConduitBlock(String id) {
 		super(Properties.of().setId(zone.moddev.mc.baseelectric.util.RegistryIds.block(id))
-                .mapColor(MapColor.STONE).pushReaction(PushReaction.BLOCK)
+                .mapColor(MapColor.STONE).pushReaction(PushReaction.IMMOVEABLE)
 				.forceSolidOn().strength(0.75f), 2f/16f, Power.ELECTRIC_POWER);
 	}
 }
