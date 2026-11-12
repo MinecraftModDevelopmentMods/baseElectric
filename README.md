@@ -1,6 +1,6 @@
 # baseElectric
 
-**Minecraft 26.3 Forge, version 2.2.19.2603001. Local port in progress.**
+**Minecraft 26.3 Forge, version 2.2.19.2603001. Local build and ECJ checks passed; runtime checks pending.**
 
 baseElectric continues DrCyano's Electric Advantage and uses basePower's shared
 API, machines and creative tab. Existing `baseelectric` registry and saved-data
@@ -17,10 +17,13 @@ The coordinated local versions are basePower **2.4.18.2603001**, Base Metals
 **3.1.2.2603001** with the shared migration hook, and OreSpawn
 **4.1.1.2603001** with the retained-settings repair. Exact source and artifact
 pins are recorded for the parent's immutable local compiler/test handoff.
-Power source is `2618d2e723a7742a2ebc6a6058505de3b7d9d6fb`, player SHA-256
-`812F648DB32866B2522CA5C7BEE0E6CA4C423B14CDAED5592A2FD90436C86F6F`.
-Unit-support pins still await explicit helper provenance; blank pins stop those
-gates. The older 26.2 jars and public 26.3 BM 3.1.1/OS 4.1.0 jars
+Power source is `83a52b5945e7a65f1e90d6058d391938c5289d3a`, player SHA-256
+`D03CB5DB644075CE6C2E0CC663DD62FBB5CCDDCDB0EBC6C0CA09088F1FE616E1`.
+Unit-support sources and agent bytes are sealed to that accepted checkpoint.
+This handoff includes the native unlock and fuel-hook repairs. Completed
+checks remain bound to their exact inputs; cold/reproduction and gameplay
+acceptance are separate gates.
+The older 26.2 jars and public 26.3 BM 3.1.1/OS 4.1.0 jars
 are not substitutes. Base Metals remains required on both client and server.
 
 The Forge 66 Mavenizer fixture and its source rules, patch, licence and
@@ -39,7 +42,7 @@ Use Temurin 25.0.3+9 and clear `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS` and
 node tools/generate-recipe-unlocks.js --check
 ```
 
-After all exact dependency and unit-support pins are handed off:
+With the exact dependency and unit-support pins:
 
 ```text
 ./gradlew clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums --no-build-cache --no-daemon

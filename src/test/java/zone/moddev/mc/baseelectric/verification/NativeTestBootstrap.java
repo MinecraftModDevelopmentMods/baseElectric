@@ -32,6 +32,11 @@ public final class NativeTestBootstrap {
         // The plain test JVM has no FML registration phase after vanilla bootstrap.
         GameData.unfreezeData();
         ready = true;
+        try {
+            registerHolderSetTypes();
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("Could not initialize native Forge holder-set types", failure);
+        }
     }
 
     public static RegistryAccess.Frozen registries() {

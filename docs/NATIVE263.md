@@ -32,8 +32,8 @@ IAF `8e6de134b075811a7295e15ad32a224cf3c04134`.
 ## Local Input Handoffs
 
 Power's immutable compiler handoff is accepted: source
-`2618d2e723a7742a2ebc6a6058505de3b7d9d6fb`, SHA-256
-`812F648DB32866B2522CA5C7BEE0E6CA4C423B14CDAED5592A2FD90436C86F6F`.
+`83a52b5945e7a65f1e90d6058d391938c5289d3a`, SHA-256
+`D03CB5DB644075CE6C2E0CC663DD62FBB5CCDDCDB0EBC6C0CA09088F1FE616E1`.
 The exact approved BM/OS compiler snapshots are likewise pinned by source
 and SHA-256. These pins identify local inputs, not gameplay/public acceptance.
 All 87 Electric production sources, dependency audit, GameTest compilation,
@@ -42,15 +42,12 @@ Javadoc and model assets now pass against that stack.
 Full-suite, ECJ, complete Eclipse, packaged and reproduction gates remain
 separate. The remaining required handoffs are:
 
-- Exact 26.3 unit bootstrap agent plus registry, loader and entity-tracker source
-  pins, including the deterministic rebuilt agent hash.
 - Installed baseline server/shim/universal hashes for packaged verification.
 
-The committed Power helper loader still references removed `createLookup()`;
-its working copy has an uncommitted native API fix. Neither is silently
-relabelled as the other. Full tests/Eclipse remain hash-blocked until those
-helper bytes have explicit immutable provenance. See the external
-`POWER-HANDOFF-01-ACCEPTED.md` receipt for the observed hashes and diff.
+The earlier uncommitted helper mismatch is resolved by the approved test-rig
+checkpoint 26ad8, unchanged in current 83a52b5. Exact source files are frozen
+under the child's `unit-inputs-01`; its native agent rebuild remains sealed.
+Earlier helper-blocked attempts remain in the external receipts, not passes.
 
 Electric requires the unchanged `cyano.poweradvantage.api` surface: typed
 conduits and connection context, powered-machine superclass/ticking and
@@ -63,8 +60,9 @@ pattern and `OreSpawnApi` registration plus the retained-settings behavior.
 No older jars, fake pins or generated stubs may qualify release outputs.
 
 The parent compiler-only handoff for BM/OS is recorded in the external Electric
-status receipt and has been hash-checked. It is not promoted to release pins.
-When a Power compiler jar arrives, `compileNativeProductionDiagnostics` takes
+status receipt and has been hash-checked. These exact local compile/player
+identity pins do not establish runtime or public qualification.
+For provisional troubleshooting, `compileNativeProductionDiagnostics` takes
 all three explicit `powerAdvantage` / `baseMetals` / `oreSpawn` `DiagnosticJar`
 and `DiagnosticSha256` properties. Every input is hashed; the task produces only
 isolated diagnostic classes, never a candidate jar or runtime qualification.
@@ -78,21 +76,25 @@ Only Electric source/build outputs and its evidence are writable in this task.
 
 Current checkpoint results:
 
-- Native API subset compilation and 29 sibling-independent native tests PASS
-  on bare Forge 66.0.0, zero failures/errors/skips (`attempt11`, including chest
-  modifier/weight round-trips and real holder-set registry fixtures). This is not
-  compilation of every production class or execution of the full 118 tests.
+- All 87 production sources, complete 118-unit / 34-suite Gradle inventory,
+  client/GameTest compilation, build/Javadoc, dependency/artifact/checksum
+  audits and complete Eclipse production classpath PASS (`attempt23`, 51 tasks,
+  current Power handoff03).
+- Independent ECJ main/test/helper compilation and the exact 118-test inventory
+  PASS (`attempt24`), zero failures/ignored tests/assumptions, Java 25 bytecode.
+- The separate 29 native resource tests PASS (also `attempt23`), including native
+  recipe-holder criteria, exact variant matching and condition-deletion controls.
 - All 50 recipe unlocks match the generator.
 - Native Eclipse launch-argument check PASS, asset index 34,
-  SHA-1 `e99f9973047785b5a9d52eaf72020b97545053c9`. This is not the complete
-  Eclipse production-classpath or ECJ gate.
+  SHA-1 `e99f9973047785b5a9d52eaf72020b97545053c9`.
 - Production compile and dependency audit PASS (`attempt13`) after nine native
   compiler errors were preserved (`attempt12`). The exact old hydro placement
   predicate retains its cobweb/bamboo-sapling exceptions. Quaternion rotation
   and piston reactions use their native replacements without geometry changes.
   GameTest compilation/Javadoc/model assets PASS (`attempt14`).
-- Complete Eclipse task resolution (`attempt15`) stops on unsealed unit helper
-  hashes. No complete unit/ECJ, candidate jar or artifact hash exists yet.
+- These initial full gates use current Power handoff03. Older attempt20/21
+  results on handoff02 remain preserved, not transferred to this input.
+  Cold-cache/reproduction and gameplay passes are not claimed yet.
 - Earlier attempts retain the argument, compile and native test failures.
   The first cache started empty, but its command failed before task selection;
   subsequent checks reuse the prepared SDK. No full cold-cache gate is claimed.
@@ -103,13 +105,12 @@ Current checkpoint results:
   error. No fake codec or registry is substituted. The test inventory is unchanged.
 - Native chest negative controls reject untyped min/max count objects and
   unknown integer-provider types, without an old NumberProviders fallback.
-- The final static audit has 8 passing checks and fails only the incomplete
-  qualification-pin gate. All resource-content projections, 58 recipes,
-  migration identities, track geometry and retained coverage checks pass.
+- Static comparison retains exact projections for native metadata, loot and
+  advancement schemas; recipe bodies/IDs/rewards and geometry remain protected.
 
-Full unit/ECJ/source-GameTest, complete Eclipse, all-jar reproduction,
-cold-cache explicit input paths with spaces, packaged family and Forge 66.1.5
-compatibility gates remain blocked on exact parent/dependency handoffs.
+Initial unit/ECJ/Eclipse passes do not waive actual source-GameTest startup,
+all-jar reproduction, new cold cache with
+input paths containing spaces, packaged family or Forge 66.1.5 qualification.
 
 The retained 117 unit and 28 native resource tests are unchanged in coverage;
 one new stem-fruit regression raises the strict totals to 118 and 29.
@@ -135,12 +136,18 @@ All 20 block-loot tables use the singular native pool `condition` and predicate
 Trade modifiers likewise use native `type`. The worldless native loot syntax
 proof uses a vanilla item and explicitly detects loss of the old plural field.
 The retained source GameTest now also decodes all 21 exact packaged tables with
-the actual registered Electric items; that server gate still awaits Power.
+the actual registered Electric items; actual server startup remains pending.
 The chest table retains all nine item weights and count ranges (48 item weight,
 144 empty weight). Its native `modifier`/`type`/uniform provider fields are
 round-tripped. The separate legacy `additional-loot-tables` config export in
 `TreasureChests` remains unchanged for Power's shared importer; preserving its
 legacy count-function contract is a parent integration gate.
+
+All 50 recipe unlocks use native `conditions.recipes` registry holders and copy
+their recipe's `forge:condition` exactly. Rewards, recipe IDs and ingredient OR
+groups are unchanged. Real trigger-codec tests cover exact/unrelated/missing
+recipe holders and the rejected old singular key. The retained GameTest ID
+checks all 50 loaded recipe/advancement pairs, including disabled variants.
 
 No 26.2 receipt is 26.3 proof. Combined family, graphical, endurance and manual
 acceptance gates remain separate. No push, PR, tag or publication is authorized.

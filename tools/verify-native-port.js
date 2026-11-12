@@ -51,6 +51,16 @@ function nativeLoot(table) {
     }
     return table;
 }
+function nativeUnlock(unlock, file) {
+    const conditions = unlock.criteria.has_recipe.conditions;
+    assert.equal(typeof conditions.recipe, 'string');
+    conditions.recipes = conditions.recipe;
+    delete conditions.recipe;
+    const recipe = json(file.replace('/advancement/recipes/', '/recipe/'));
+    if (Object.prototype.hasOwnProperty.call(recipe, 'forge:condition'))
+        unlock['forge:condition'] = recipe['forge:condition'];
+    return unlock;
+}
 const track = file => file.startsWith(assets + 'models/block/electric_track_') && file.endsWith('.json');
 const checks = [];
 function check(name, run) {
@@ -151,6 +161,10 @@ check('Released resources retain content through exact native schema and atlas r
         }
         if (file.startsWith('src/main/resources/data/baseelectric/loot_table/')) {
             assert.deepEqual(json(file), nativeLoot(JSON.parse(old(file))), file);
+            continue;
+        }
+        if (file.startsWith('src/main/resources/data/baseelectric/advancement/recipes/')) {
+            assert.deepEqual(json(file), nativeUnlock(JSON.parse(old(file)), file), file);
             continue;
         }
         assert.equal(sha256(read(relocated(file))), sha256(old(file)), file);

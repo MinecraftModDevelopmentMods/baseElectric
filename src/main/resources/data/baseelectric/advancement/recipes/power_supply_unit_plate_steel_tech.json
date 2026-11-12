@@ -34,7 +34,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:power_supply_unit_plate_steel_tech"
+        "recipes": "baseelectric:power_supply_unit_plate_steel_tech"
       }
     }
   },
@@ -49,6 +49,27 @@
   "rewards": {
     "recipes": [
       "baseelectric:power_supply_unit_plate_steel_tech"
+    ]
+  },
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "baseelectric:recipe_mode",
+        "mode": "TECH_PROGRESSION"
+      },
+      {
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:circuit_boards"
+      },
+      {
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:plates/steel"
+      },
+      {
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:wires"
+      }
     ]
   }
 }

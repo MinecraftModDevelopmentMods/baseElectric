@@ -36,7 +36,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:control_circuit"
+        "recipes": "baseelectric:control_circuit"
       }
     }
   },
@@ -51,6 +51,19 @@
   "rewards": {
     "recipes": [
       "baseelectric:control_circuit"
+    ]
+  },
+  "forge:condition": {
+    "type": "forge:and",
+    "values": [
+      {
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:microchips"
+      },
+      {
+        "type": "basepower:tag_not_empty",
+        "tag": "forge:solder"
+      }
     ]
   }
 }

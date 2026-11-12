@@ -146,9 +146,7 @@ public final class ElectricGameTests {
         } catch (java.io.IOException failure) {
             throw new AssertionError("Cannot retain actual item registry census", failure);
         }
-        var advancement = Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "recipes/alkaline_battery");
-        helper.assertTrue(server.getAdvancements().get(advancement) != null,
-                "A material-gated recipe lost its discovery advancement");
+        assertLoadedRecipeUnlockParity(helper);
         int checked = 0;
         var registries = helper.getLevel().registryAccess();
         var entries = new java.util.ArrayList<net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket.Entry>();
@@ -182,6 +180,29 @@ public final class ElectricGameTests {
         assertEveryPackagedRecipeUsesTheNativeCodec(helper);
         assertEveryPackagedLootTableUsesTheNativeCodec(helper);
         helper.succeed();
+    }
+
+    private static void assertLoadedRecipeUnlockParity(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var server = level.getServer();
+        var resources = server.getResourceManager().listResources("advancement/recipes",
+                id -> id.getNamespace().equals(ElectricAdvantage.MODID) && id.getPath().endsWith(".json"));
+        helper.assertTrue(resources.size() == 50, "Expected all 50 raw Electric unlocks");
+        int active = 0;
+        int disabled = 0;
+        for (var entry : resources.entrySet()) {
+            String path = entry.getKey().getPath().substring("advancement/recipes/".length()).replace(".json", "");
+            var id = Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, path);
+            var key = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE, id);
+            boolean recipeLoaded = level.recipeAccess().byKey(key).isPresent();
+            boolean advancementLoaded = server.getAdvancements().get(
+                    Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "recipes/" + path)) != null;
+            helper.assertTrue(recipeLoaded == advancementLoaded,
+                    "Recipe-registry and advancement availability differ for " + id);
+            if (recipeLoaded) active++; else disabled++;
+        }
+        helper.assertTrue(active > 0, "No active Electric recipe unlocks were checked");
+        helper.assertTrue(disabled > 0, "No disabled mode/tag variant exercised the registry-holder gate");
     }
 
     private static void assertEveryPackagedRecipeUsesTheNativeCodec(GameTestHelper helper) {

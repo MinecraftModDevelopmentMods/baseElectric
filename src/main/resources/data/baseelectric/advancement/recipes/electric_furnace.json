@@ -26,7 +26,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:electric_furnace"
+        "recipes": "baseelectric:electric_furnace"
       }
     }
   },
@@ -41,5 +41,9 @@
     "recipes": [
       "baseelectric:electric_furnace"
     ]
+  },
+  "forge:condition": {
+    "type": "basepower:tag_not_empty",
+    "tag": "forge:power_supply_units"
   }
 }

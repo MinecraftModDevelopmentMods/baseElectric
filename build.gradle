@@ -676,6 +676,13 @@ tasks.register('verifyReleaseConfiguration') {
         requireCommittedPins('basemetals_')
         requireCommittedPins('orespawn_')
         requireCommittedPins('forge_')
+        requireCommittedPins('unit_')
+        if (!(project.unit_source_ref ==~ /[a-f0-9]{40}/)
+                || ![project.unit_bootstrap_sha256, project.unit_bootstrap_java_sha256,
+                     project.unit_registries_java_sha256, project.unit_loader_java_sha256,
+                     project.unit_entity_tracker_java_sha256].every { it ==~ /[A-F0-9]{64}/ }) {
+            throw new GradleException('The exact approved native unit-support source and agent pins are required.')
+        }
         def pack = new JsonSlurper().parse(file('src/main/resources/pack.mcmeta')).pack
         if (pack.min_format != [121, 0] || pack.max_format != [121, 0]
                 || pack.containsKey('pack_format') || pack.containsKey('supported_formats')
