@@ -11,6 +11,39 @@ They must not be relabeled as candidate02 or full family acceptance.
 
 ## Current Checkpoint
 
+The candidate08 ordinary jar is
+`E873CE65BA94AF5D37AB4FD059368251427C81DB88F4D5AD2CCADC97ECAA9913`.
+It uses local Power `e565f99284de5e6c7860d378abc43b96d9faa5ee` /
+`CC94656A75B3E6311E5F9F7CB4E4E60014B94A87665743D5A5D3C84CEA849720`.
+Only dependency provenance in the ordinary jar's manifest changes from
+candidate07; all classes and resources are identical. Sources and Javadoc
+jars are also identical. Keeping the old player hash would retain a false
+Power source/hash manifest, so the new ordinary bytes have their own receipt.
+
+The full 51-task suite passes 117 unit and 28 native checks. Fresh ECJ output
+passes all 117 tests with the complete compiled inventory and negative controls.
+Current evidence belongs to `build/port-evidence/candidate08-schema-pin-01`.
+It is not family gameplay, generation, graphics or manual acceptance.
+
+The parent's frozen family08 profile instead contains the previous `F2E71...`
+ordinary Electric jar. Its retained-profile receipts are evidence for those
+exact frozen bytes, not for this repinned `E873...` archive. Original110 passed
+both boots. Released110 and released112 failed first boot on unresolved
+`minecraft:quartz_ore`; their passing restarts do not waive that real failure.
+All other retained output payloads and policy selections were preserved, and
+released110's disabled sulfur produced zero blocks. New family campaigns are
+held for the parent's lifecycle repair. Failed logs and raw verdicts remain
+unchanged.
+
+Candidate07 remains blocked by its actual first OS1 startup failure: seeding
+schema5 typed defaults into a schema4 provider override caused OreSpawn to
+reject `placement_channel`. Power's candidate08 repair upgrades only the owned
+provider schema at that boundary; global8 and world7 markers remain unchanged.
+The successful local07 checks and failed live07 receipts remain historical.
+No old result is relabelled as08 or used to waive the early legacy startup gate.
+
+## Candidate07 History
+
 The candidate07 ordinary jar is
 `F2E71F0693033FB4BBA0DE775A542C185C9163AEFA8BF819D0E8F423121A94BC`.
 It uses local Power `9f6ffb30a14efe4360fee0cbdfa52dc8090a9819` /
@@ -102,7 +135,7 @@ remain historical, not relabeled as the atlas-repaired candidate06.
 - OreSpawn 4.1.0.2601021, source `c45ea2a111520ef904e994dd8dcd90babfcef29b`,
   ordinary jar SHA-256 `6D5CE2017C3314968083D140309E2F1A54BC239AC65C48944C995E9ECF937948`.
 
-The local Power checkpoint is `9f6ffb30a14efe4360fee0cbdfa52dc8090a9819`;
+The local Power checkpoint is `e565f99284de5e6c7860d378abc43b96d9faa5ee`;
 the Base Metals shared-hook checkpoint is `331fa46914f854db71a8c33500cc559a8878b7d3`.
 Their exact ordinary jar hashes are recorded in `gradle.properties`.
 These are local integration inputs, not public releases or completed family
