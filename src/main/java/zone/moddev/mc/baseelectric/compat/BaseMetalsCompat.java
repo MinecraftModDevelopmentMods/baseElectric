@@ -17,7 +17,7 @@ public final class BaseMetalsCompat {
     private BaseMetalsCompat() {}
 
     public static boolean isLoaded() {
-        return ModList.get().isLoaded("basemetals");
+        return ModList.isLoaded("basemetals");
     }
 
     /** 1.13 additions are supplied as JSON crushing recipes and item tags. */
@@ -36,7 +36,7 @@ public final class BaseMetalsCompat {
             SingleRecipeInput inventory = new SingleRecipeInput(input.copy());
             for (RecipeHolder<?> holder : server.recipeAccess().getRecipes()) {
                 if (holder.value() instanceof CrushingRecipe candidate && candidate.matches(inventory, world)) {
-                    return candidate.assemble(inventory, world.registryAccess());
+                    return candidate.assemble(inventory);
                 }
             }
         }

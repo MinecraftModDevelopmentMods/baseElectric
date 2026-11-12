@@ -1,5 +1,200 @@
 {
   "sources": [
-    {"type":"single","resource":"baseelectric:entity/laser_turret"}
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_battery_array"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_conduit"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_crusher_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_crusher_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_crusher_powered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_drill_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_drill_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_fabricator_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_fabricator_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_fabricator_powered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_furnace_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_furnace_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_furnace_powered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_oven_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_oven_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_oven_powered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_pcb_printer_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_pcb_printer_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_pcb_printer_powered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_pump_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_pump_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_still_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_still_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_still_powered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_switch_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/electric_switch_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/growth_chamber_controller"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/growth_chamber_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/growth_chamber_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/growth_chamber_powered"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/hydroelectric_generator_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/hydroelectric_generator_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/laser_drill_optic"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/laser_drill_optic_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/laser_turret_base"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/led_bar_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/led_bar_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/lithium_ore"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/machine_back"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/machine_side"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/machine_top"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/photovoltaic_cell"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/plastic_refinery_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/plastic_refinery_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/steam_powered_generator_off"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/steam_powered_generator_on"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:blocks/sulfur_ore"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:entity/laser_turret"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "baseelectric:materials/machine_case"
+    }
   ]
 }

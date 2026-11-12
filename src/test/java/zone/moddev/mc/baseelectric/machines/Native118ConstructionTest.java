@@ -69,7 +69,7 @@ public class Native118ConstructionTest {
 
     private static final class PacketWorld extends ServerLevel {
         private PacketWorld() {
-            super(null, null, null, null, null, null, false, 0L, java.util.List.of(), false, null);
+            super(null, null, null, null, null, null, false, 0L, java.util.List.of(), false);
         }
 
         @Override public RegistryAccess registryAccess() {

@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -52,14 +53,14 @@ public class Ore extends Block {
 
     @Override
     public List<ItemStack> getDrops(BlockState state, LootParams.Builder context) {
-        ItemStack tool = context.getOptionalParameter(LootContextParams.TOOL);
+        ItemInstance tool = context.getOptionalParameter(LootContextParams.TOOL);
         ItemStack dropItem = drop.get();
         if (dropItem.isEmpty() || (tool != null
                 && EnchantmentHelper.getItemEnchantmentLevel(context.getLevel().registryAccess()
                         .lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.SILK_TOUCH), tool) > 0)) {
             return Collections.singletonList(new ItemStack(this));
         }
-        RandomSource random = context.getLevel().random;
+        RandomSource random = context.getLevel().getRandom();
         ItemStack result = dropItem.copy();
         result.setCount(dropItem.getCount() + (dropRange > 1 ? random.nextInt(dropRange) : 0));
         return Collections.singletonList(result);

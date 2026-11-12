@@ -184,7 +184,7 @@ public class ElectricOperationalPumpPickupTest {
         Map<BlockPos, BlockState> blocks;
         int writes;
         private PumpWorld() {
-            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
+            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
         }
         @Override public boolean hasChunkAt(BlockPos pos) { return true; }
         @Override public BlockState getBlockState(BlockPos pos) {

@@ -3,6 +3,9 @@ package zone.moddev.mc.baseelectric.util.crafting;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -18,9 +21,10 @@ public class RecipeDeconstructorTest {
     @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
 
     @Test public void shapedPlansKeepRepeatedIngredientsAndResultCountWithoutEmptySlots() {
-        var recipe = new ShapedRecipe("native-plan", CraftingBookCategory.MISC,
+        var recipe = new ShapedRecipe(new Recipe.CommonInfo(true),
+                new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.MISC, "native-plan"),
                 ShapedRecipePattern.of(Map.of('A', Ingredient.of(Items.APPLE)), " A ", "AA "),
-                new ItemStack(Items.GOLDEN_APPLE, 3));
+                new ItemStackTemplate(Items.GOLDEN_APPLE, 3));
         var plans = RecipeDeconstructor.describe(recipe, NativeTestBootstrap.registries());
         assertEquals(1, plans.size());
         var plan = plans.getFirst();
@@ -34,8 +38,9 @@ public class RecipeDeconstructorTest {
     }
 
     @Test public void shapelessPlansKeepAlternativesAndDoNotInventFreeIngredients() {
-        var recipe = new ShapelessRecipe("native-plan", CraftingBookCategory.MISC,
-                new ItemStack(Items.BREAD, 2), List.of(Ingredient.of(Items.APPLE, Items.CARROT), Ingredient.of(Items.WHEAT)));
+        var recipe = new ShapelessRecipe(new Recipe.CommonInfo(true),
+                new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.MISC, "native-plan"),
+                new ItemStackTemplate(Items.BREAD, 2), List.of(Ingredient.of(Items.APPLE, Items.CARROT), Ingredient.of(Items.WHEAT)));
         var plan = RecipeDeconstructor.describe(recipe, NativeTestBootstrap.registries()).getFirst();
         assertEquals(2, plan.ingredients().size());
         assertEquals(2, plan.result().getCount());

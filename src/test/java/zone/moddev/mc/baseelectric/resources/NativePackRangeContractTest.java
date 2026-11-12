@@ -18,6 +18,10 @@ public class NativePackRangeContractTest {
         Path evidence = Files.createTempDirectory(root, "piped-dumb-");
         var builder = NativePackResourceProof.childProcess(evidence);
         assertEquals("dumb", builder.environment().get("TERM"));
+        assertTrue(builder.command().contains("-XX:ActiveProcessorCount=4"));
+        for (String name : java.util.List.of("JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS")) {
+            assertFalse(builder.environment().containsKey(name));
+        }
         assertEquals("terminal.jline", net.minecrell.terminalconsole.TerminalConsoleAppender.JLINE_OVERRIDE_PROPERTY);
         assertEquals(ProcessBuilder.Redirect.PIPE, builder.redirectInput());
         assertEquals(ProcessBuilder.Redirect.PIPE, builder.redirectOutput());
@@ -44,6 +48,10 @@ public class NativePackRangeContractTest {
                     property.isJsonNull() ? null : property.getAsString());
             assertFalse(proof.get("terminalPresent").getAsBoolean());
             assertTrue(proof.get("interactiveTerminalDisabled").getAsBoolean());
+            assertTrue(proof.get("environmentJvmOptionsAbsent").getAsBoolean());
+            assertEquals(4, proof.get("availableProcessors").getAsInt());
+            assertTrue(proof.getAsJsonArray("jvmArguments").asList().stream()
+                    .anyMatch(value -> value.getAsString().equals("-XX:ActiveProcessorCount=4")));
             assertEquals(0, proof.getAsJsonArray("warningsAndErrors").size());
             assertTrue(proof.getAsJsonObject("CLIENT_RESOURCES").get("resourcesVerified").getAsInt() > 0);
             assertTrue(proof.getAsJsonObject("SERVER_DATA").get("resourcesVerified").getAsInt() > 0);
@@ -52,7 +60,7 @@ public class NativePackRangeContractTest {
         }
     }
 
-    @Test public void nonInteractiveModeDoesNotWhitelistAnyDiagnostic() {
+    @Test public void nonInteractiveModeDoesNotWhitelistAnyDiagnostic() throws Exception {
         Path log = Path.of("negative-control.log");
         for (String diagnostic : new String[] {
                 "[main/WARN] real resource warning", "[main/ERROR] real resource error", "[main/FATAL] real fatal",
@@ -63,6 +71,24 @@ public class NativePackRangeContractTest {
                     () -> NativePackResourceProof.requireNoDiagnostics(log, diagnostic));
         }
         NativePackResourceProof.requireNoDiagnostics(log, "[main/INFO] valid resource receipt");
+        Path root = Path.of("build/native-pack-resources").toAbsolutePath();
+        Files.createDirectories(root);
+        for (String name : java.util.List.of("JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS")) {
+            Path evidence = Files.createTempDirectory(root, "inherited-options-negative-");
+            Path output = evidence.resolve("rejected.log");
+            var command = NativePackResourceProof.childProcess(evidence);
+            command.environment().put(name, "-XX:ActiveProcessorCount=3");
+            Process child = command.redirectOutput(output.toFile()).start();
+            try {
+                assertTrue(child.waitFor(30, java.util.concurrent.TimeUnit.SECONDS));
+                assertNotEquals(0, child.exitValue());
+                assertTrue(Files.readString(output), Files.readString(output).contains(
+                        "Inherited JVM environment options are forbidden in native proof: " + name));
+                assertFalse("Rejected environment must not emit a success receipt", Files.exists(evidence.resolve("receipt.json")));
+            } finally {
+                if (child.isAlive()) child.destroyForcibly().waitFor();
+            }
+        }
     }
 
     @Test public void baseMetalsIsRequiredByNativeModInfoWithOptionalNegativeControl() throws Exception {
@@ -72,7 +98,7 @@ public class NativePackRangeContractTest {
         assertEquals(java.util.Set.of("forge", "minecraft", "basepower", "basemetals"), dependencies.keySet());
         var metals = dependencies.getAsJsonObject("basemetals");
         assertTrue("Forge must require Base Metals on both sides", metals.get("mandatory").getAsBoolean());
-        assertEquals("[3.1.2.121111,4.0.0)", metals.get("versionRange").getAsString());
+        assertEquals("[3.1.2.2601021,4.0.0)", metals.get("versionRange").getAsString());
         assertEquals("AFTER", metals.get("ordering").getAsString());
         assertEquals("BOTH", metals.get("side").getAsString());
         var control = proof.getAsJsonObject("optionalBaseMetalsControl");
@@ -91,11 +117,11 @@ public class NativePackRangeContractTest {
             JsonObject pack = side.getAsJsonObject("nativeMetadata");
             var range = PackFormat.packCodec(type).codec().parse(JsonOps.INSTANCE, pack).getOrThrow();
             assertEquals(type.toString(), type == PackType.CLIENT_RESOURCES,
-                    range.isValueInRange(PackFormat.of(75, 0)));
+                    range.isValueInRange(PackFormat.of(84, 0)));
             assertEquals(type.toString(), type == PackType.SERVER_DATA,
-                    range.isValueInRange(PackFormat.of(94, 1)));
-            assertFalse(range.isValueInRange(PackFormat.of(74)));
-            assertFalse(range.isValueInRange(PackFormat.of(95)));
+                    range.isValueInRange(PackFormat.of(101, 1)));
+            assertFalse(range.isValueInRange(PackFormat.of(83)));
+            assertFalse(range.isValueInRange(PackFormat.of(102)));
         }
     }
 
@@ -117,11 +143,11 @@ public class NativePackRangeContractTest {
     }
 
     @Test public void dataOnlyRangeDoesNotQualifyClientResources() {
-        JsonObject dataOnly = JsonParser.parseString("{\"min_format\":[94,1],\"max_format\":[94,1]}")
+        JsonObject dataOnly = JsonParser.parseString("{\"min_format\":[101,1],\"max_format\":[101,1]}")
                 .getAsJsonObject();
         var range = PackFormat.packCodec(PackType.CLIENT_RESOURCES).codec()
                 .parse(JsonOps.INSTANCE, dataOnly).getOrThrow();
-        assertFalse(range.isValueInRange(PackFormat.of(75, 0)));
-        assertTrue(range.isValueInRange(PackFormat.of(94, 1)));
+        assertFalse(range.isValueInRange(PackFormat.of(84, 0)));
+        assertTrue(range.isValueInRange(PackFormat.of(101, 1)));
     }
 }

@@ -113,7 +113,7 @@ public class ElectricOperationalNativeDefectsTest {
         BlockPos surface;
         int brightness, skyReads, lightReads;
         private LightWorld() {
-            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
+            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
         }
         @Override public boolean canSeeSky(BlockPos pos) {
             assertEquals("Sky access must be sampled above the solid panel", surface, pos);
@@ -131,7 +131,7 @@ public class ElectricOperationalNativeDefectsTest {
         BlockPos turret;
         int traces;
         private BeamWorld() {
-            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
+            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
         }
         @Override public BlockHitResult clip(ClipContext context) {
             traces++;

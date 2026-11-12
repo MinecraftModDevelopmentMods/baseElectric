@@ -7,15 +7,20 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class BuildWorkflowContractTest {
-    @Test public void hostedBuildsProvisionAllThreePinnedToolchainsBeforeGradle() throws Exception {
+    @Test public void hostedBuildsPinJava25ForEveryRoleBeforeGradle() throws Exception {
         for (String workflow : new String[] {"ci.yml", "codeql-analysis.yml"}) {
             String source = new String(Files.readAllBytes(Paths.get(".github/workflows", workflow)), StandardCharsets.UTF_8);
             int setup = source.indexOf("- name: Set up Gradle");
-            for (String version : new String[] {"25.0.3+9.0.LTS", "8.0.502+7", "21.0.7+6.0.LTS"}) {
+            for (String version : new String[] {"25.0.3+9.0.LTS"}) {
                 int pin = source.indexOf("java-version: '" + version + "'");
                 assertTrue(workflow + " missing pinned JDK " + version, pin >= 0 && pin < setup);
             }
-            assertTrue(source.contains("-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64"));
+            assertTrue(source.contains("-Porg.gradle.java.installations.paths=$JAVA_HOME\n"));
+            assertEquals("One pinned JDK must serve all roles", 1, source.split("java-version:", -1).length - 1);
+            assertFalse(source.contains("JAVA_HOME_8_X64"));
+            assertFalse(source.contains("JAVA_HOME_21_X64"));
+            assertFalse(source.contains("8.0.502+7"));
+            assertFalse(source.contains("21.0.7+6"));
             assertTrue(source.contains("-Porg.gradle.java.installations.auto-detect=false"));
             assertTrue(source.contains("-Porg.gradle.java.installations.auto-download=false"));
             assertFalse(source.contains("-Dorg.gradle.java.installations."));
@@ -42,8 +47,8 @@ public class BuildWorkflowContractTest {
             }
             assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.orespawn_ref }}"));
             assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.power_ref }}"));
-            assertTrue(source.contains("branches: [master-1.21.11"));
-            assertTrue(source.contains("-Pforge61MavenizerJar=$MAVENIZER"));
+            assertTrue(source.contains("branches: [master-26.1.2"));
+            assertTrue(source.contains("-Pforge64MavenizerJar=$MAVENIZER"));
             assertTrue(source.contains("-PpowerAdvantageDeobfJar=$POWER_PLAYER"));
             assertFalse(source.contains("forge47"));
             if (workflow.equals("ci.yml")) {

@@ -208,7 +208,7 @@ public class ElectricOperationalRedstoneCacheTest {
         long time;
         List<Long> queryTimes;
         private SignalWorld() {
-            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
+            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
         }
         @Override public boolean hasNeighborSignal(BlockPos position) {
             assertEquals(this.position, position);

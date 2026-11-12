@@ -1,22 +1,22 @@
 import java.security.MessageDigest
 import org.gradle.jvm.toolchain.JvmVendorSpec
 
-def fixture = file(providers.gradleProperty('forge61MavenizerJar').getOrElse(
-        '../../../../MinecraftMineralogy/OS12111/OreSpawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar'))
-def expected = 'B36CA046DB72E30F27BD38E02B4AE34274ADB51AE1D65BAF9E1D07763755682E'
+def fixture = file(providers.gradleProperty('forge64MavenizerJar').getOrElse(
+        '../../../../MinecraftMineralogy/OS2612/OreSpawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar'))
+def expected = 'BB0DACB3DEB2A711CA67DD402D5FDAB5A9847C37C7B9B596DEC7CF37378FA085'
 if (!fixture.isFile()) {
-    throw new GradleException("Missing Forge 61 Mavenizer fixture: ${fixture}. Set -Pforge61MavenizerJar=<path>.")
+    throw new GradleException("Missing Forge 64 Mavenizer fixture: ${fixture}. Set -Pforge64MavenizerJar=<path>.")
 }
 def actual = MessageDigest.getInstance('SHA-256').digest(fixture.bytes).encodeHex().toString().toUpperCase(Locale.ROOT)
 if (actual != expected) {
-    throw new GradleException("Forge 61 Mavenizer fixture SHA-256 mismatch: expected ${expected}, got ${actual}")
+    throw new GradleException("Forge 64 Mavenizer fixture SHA-256 mismatch: expected ${expected}, got ${actual}")
 }
 
 def rules = new File(fixture.parentFile, 'minecraft-source-compatibility.json')
-def expectedRules = '88F2EE4C6B7C903EB1C7D693C0BEEFC0EFC601C1023FB197F7CBA187B1142DB7'
+def expectedRules = '21D1F5984E735BCEA1B1EFB9F965655796B39538FC91AAED1C3474004710423D'
 if (!rules.isFile() || MessageDigest.getInstance('SHA-256').digest(rules.bytes)
         .encodeHex().toString().toUpperCase(Locale.ROOT) != expectedRules) {
-    throw new GradleException("Missing or mismatched Forge 61 Mavenizer rules: ${rules}")
+    throw new GradleException("Missing or mismatched Forge 64 Mavenizer rules: ${rules}")
 }
 
 fgtools.configure('mavenizer') {

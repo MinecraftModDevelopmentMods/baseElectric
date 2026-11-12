@@ -2,7 +2,7 @@ param(
     [string]$ProjectRoot = (Join-Path $PSScriptRoot '../..'),
     [Parameter(Mandatory = $true)][string]$Evidence,
     [string]$Compiler = 'C:/Users/johnb/.p2/pool/plugins/org.eclipse.jdt.core.compiler.batch_3.46.0.v20260528-0407.jar',
-    [string]$Java21Home = 'C:/Users/johnb/.jdks/temurin-21.0.7+6'
+    [string]$Java25Home = 'C:/Users/johnb/.jdks/jdk-25.0.3+9'
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -13,6 +13,11 @@ if (!$Evidence.StartsWith($ProjectRoot + [IO.Path]::DirectorySeparatorChar, [Str
 }
 if (Test-Path -LiteralPath $Evidence) { throw 'Refusing to overwrite ECJ evidence' }
 $null = New-Item -ItemType Directory -Path $Evidence
+$inheritedJvmOptions = @{}
+foreach ($name in @('JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS')) {
+    $inheritedJvmOptions[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
+    [Environment]::SetEnvironmentVariable($name, $null, 'Process')
+}
 
 function Get-Pin([string]$Path) {
     $file = Get-Item -LiteralPath $Path
@@ -30,7 +35,7 @@ function Test-ClassFiles([string]$Directory) {
         if ($bytes.Length -lt 8 -or $bytes[0] -ne 0xCA -or $bytes[1] -ne 0xFE -or $bytes[2] -ne 0xBA -or $bytes[3] -ne 0xBE) {
             throw "Invalid class file: $($file.FullName)"
         }
-        if (($bytes[6] * 256 + $bytes[7]) -ne 65) { throw "Non-Java-21 ECJ output: $($file.FullName)" }
+        if (($bytes[6] * 256 + $bytes[7]) -ne 69) { throw "Non-Java-25 ECJ output: $($file.FullName)" }
     }
     return $files.Count
 }
@@ -38,17 +43,18 @@ function Invoke-Ecj([string]$Name, [string[]]$Sources, [string[]]$Libraries) {
     $output = Join-Path $Evidence $Name
     $null = New-Item -ItemType Directory -Path $output
     $xmlLog = Join-Path $Evidence "$Name.xml"
-    # Use the real Java 21 module image and keep forbidden/discouraged accesses fatal.
-    $arguments = @('-21', '-proc:none', '-encoding', 'UTF-8', '-err:+forbidden,discouraged', '--system',
-        ('"' + $Java21Home.Replace('\', '/') + '"'), '-classpath',
+    # Use the real Java 25 module image and keep forbidden/discouraged accesses fatal.
+    $arguments = @('-25', '-proc:none', '-encoding', 'UTF-8', '-err:+forbidden,discouraged', '--system',
+        ('"' + $Java25Home.Replace('\', '/') + '"'), '-classpath',
         ('"' + (($Libraries -replace '\\', '/') -join ';') + '"'), '-d',
         ('"' + $output.Replace('\', '/') + '"'), '-log', ('"' + $xmlLog.Replace('\', '/') + '"'))
     $arguments += @($Sources | ForEach-Object { '"' + $_.Replace('\', '/') + '"' })
     $argFile = Join-Path $Evidence "$Name.args"
     [IO.File]::WriteAllLines($argFile, $arguments, [Text.UTF8Encoding]::new($false))
-    & $java21 -Xmx2G -jar $Compiler "@$argFile" *> (Join-Path $Evidence "$Name-compile.log")
+    & $java25 -XX:ActiveProcessorCount=4 -Xmx2G -jar $Compiler "@$argFile" *> (Join-Path $Evidence "$Name-compile.log")
     $exitCode = $LASTEXITCODE
     $entry = [ordered]@{ exitCode = $exitCode; sourceCount = $Sources.Count; output = $output; log = "$Name-compile.log" }
+    $entry.jvmArguments = @('-XX:ActiveProcessorCount=4', '-Xmx2G', '-jar', $Compiler, "@$argFile")
     $report.compilations[$Name] = $entry
     if ($exitCode -ne 0) { throw "$Name ECJ compilation failed; retain its log and XML diagnostics" }
     [xml]$diagnostics = Get-Content -LiteralPath $xmlLog -Raw
@@ -61,16 +67,16 @@ function Invoke-Ecj([string]$Name, [string[]]$Sources, [string[]]$Libraries) {
 }
 
 $report = [ordered]@{ status = 'RUNNING'; project = $ProjectRoot; evidence = $Evidence
-    scope = 'Pinned local baseElectric 1.21.11 candidate; fresh ECJ main/test/helper outputs and worldless Java 21 JUnit; no Gradle or Minecraft launch'
+    scope = 'Pinned local baseElectric 26.1.2 candidate; fresh ECJ main/test/helper outputs and worldless Java 25 JUnit; no Gradle or Minecraft launch'
     compiler = $null; toolchains = $null; libraries = @(); sources = @(); gradleInventory = @()
     compilations = [ordered]@{}; junit = $null; negativeControl = $null; apiPinState = $null }
 try {
     $properties = ConvertFrom-StringData -StringData (Get-Content -LiteralPath (Join-Path $ProjectRoot 'gradle.properties') -Raw)
     $report.apiPinState = $properties.poweradvantage_pin_state
-    if ($properties.mod_id -ne 'baseelectric' -or $properties.mod_version -ne '2.2.16.121111' -or
-        $properties.minecraft_version -ne '1.21.11' -or $properties.forge_version -ne '61.1.0' -or
-        $properties.poweradvantage_version -ne '2.4.15.121111' -or $properties.basemetals_version -ne '3.1.2.121111' -or
-        $properties.orespawn_version -ne '4.1.0.121111' -or
+    if ($properties.mod_id -ne 'baseelectric' -or $properties.mod_version -ne '2.2.17.2601021' -or
+        $properties.minecraft_version -ne '26.1.2' -or $properties.forge_version -ne '64.1.5' -or
+        $properties.poweradvantage_version -ne '2.4.16.2601021' -or $properties.basemetals_version -ne '3.1.2.2601021' -or
+        $properties.orespawn_version -ne '4.1.1.2601021' -or
         $properties.poweradvantage_pin_state -notin @('LOCAL_SOURCE', 'MERGED_SOURCE') -or
         $properties.poweradvantage_source_ref -cnotmatch '^[a-f0-9]{40}$' -or
         $properties.poweradvantage_runtime_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
@@ -78,20 +84,23 @@ try {
         $properties.poweradvantage_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
         $properties.basemetals_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
         $properties.orespawn_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$') {
-        throw 'This verifier requires the source-pinned baseElectric 1.21.11 inputs'
+        throw 'This verifier requires the source-pinned baseElectric 26.1.2 inputs'
     }
     $report.compiler = Get-Pin $Compiler
     if ($report.compiler.sha256 -ne 'D0D43F8E2D7003E5EFED612E2CBB5F01870043397D8F1BBE536FD9128F4FCBF7') { throw 'ECJ compiler pin mismatch' }
-    $java21 = Join-Path $Java21Home 'bin/java.exe'
-    $report.toolchains = [ordered]@{ java = (Get-Pin $java21)
-        java21Release = (Get-Pin (Join-Path $Java21Home 'release'))
-        systemModules = (Get-Pin (Join-Path $Java21Home 'lib/modules')) }
-    if ((Get-Content -LiteralPath (Join-Path $Java21Home 'release') -Raw) -notmatch 'JAVA_VERSION="21\.0\.7"') {
-        throw 'ECJ production system image must be Java 21.0.7'
+    $java25 = Join-Path $Java25Home 'bin/java.exe'
+    $report.toolchains = [ordered]@{ java = (Get-Pin $java25)
+        java25Release = (Get-Pin (Join-Path $Java25Home 'release'))
+        systemModules = (Get-Pin (Join-Path $Java25Home 'lib/modules')) }
+    if ($report.toolchains.java.sha256 -cne 'D5F1B9E03E298EBFB04D2326ECC1E2AF3E6817F9B4D7F9F151FE856D56975650') {
+        throw 'ECJ must use the pinned Temurin 25.0.3+9 executable'
+    }
+    if ((Get-Content -LiteralPath (Join-Path $Java25Home 'release') -Raw) -notmatch 'JAVA_VERSION="25\.0\.3"') {
+        throw 'ECJ production system image must be Java 25.0.3'
     }
     $negativeSource = Join-Path $PSScriptRoot 'negative/RestrictedJdkReference.java'
     $negativeLog = Join-Path $Evidence 'restricted-jdk-negative.log'
-    & $java21 -jar $Compiler -21 -proc:none '-err:+forbidden,discouraged' --system $Java21Home `
+    & $java25 -XX:ActiveProcessorCount=4 -jar $Compiler -25 -proc:none '-err:+forbidden,discouraged' --system $Java25Home `
         -d (Join-Path $Evidence 'negative') $negativeSource *> $negativeLog
     $negativeExit = $LASTEXITCODE
     $report.negativeControl = [ordered]@{ source = (Get-Pin $negativeSource); exitCode = $negativeExit
@@ -129,17 +138,33 @@ try {
         $report.sources += @($sources[$set] | ForEach-Object { Get-Pin $_ })
     }
     $classes = @()
+    $methodInventory = @()
     $expected = 0
     foreach ($xml in @(Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'build/test-results/test') -File -Filter 'TEST-*.xml' | Sort-Object Name)) {
         [xml]$inventory = Get-Content -LiteralPath $xml.FullName -Raw
         if ([int]$inventory.testsuite.failures -or [int]$inventory.testsuite.errors -or [int]$inventory.testsuite.skipped) { throw 'Gradle suite inventory contains failed/skipped tests' }
         $classes += [string]$inventory.testsuite.name
         $expected += [int]$inventory.testsuite.tests
+        foreach ($case in @($inventory.testsuite.testcase)) {
+            if ([string]$case.classname -cne [string]$inventory.testsuite.name) { throw 'Unexpected JUnit testcase owner' }
+            $methodInventory += ([string]$case.classname + '#' + [string]$case.name)
+        }
         $report.gradleInventory += Get-Pin $xml.FullName
     }
-    if ($classes.Count -ne 33 -or $expected -ne 114 -or $sources.test.Count -ne 36 -or $sources.main.Count -ne 88) { throw 'Unexpected Electric 1.21.11 source/test inventory' }
+    if ($classes.Count -ne 33 -or $expected -ne 117 -or $sources.test.Count -ne 36 -or $sources.main.Count -ne 87) { throw 'Unexpected Electric 26.1.2 source/test inventory' }
+    $support = @(Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'build/generated-unit-support') -Recurse -File -Filter '*.java' | Sort-Object Name)
+    if ($support.Count -ne 2) { throw 'Expected exactly the two pinned native unit support sources' }
+    $supportPins = @{ 'ForgeUnitRegistries.java' = $properties.unit_registries_java_sha256; 'Forge64UnitLoader.java' = $properties.unit_loader_java_sha256 }
+    foreach ($source in $support) {
+        $pin = Get-Pin $source.FullName
+        if (!$supportPins.ContainsKey($source.Name) -or $pin.sha256 -cne $supportPins[$source.Name]) { throw 'Pinned unit support source mismatch' }
+        $report.sources += $pin
+    }
+    $bootstrap = Join-Path $ProjectRoot 'build/unit-bootstrap/forge-native-unit-bootstrap.jar'
+    $report.unitBootstrap = Get-Pin $bootstrap
+    if ($report.unitBootstrap.sha256 -cne $properties.unit_bootstrap_sha256) { throw 'Frozen unit bootstrap jar mismatch' }
     $main = Invoke-Ecj 'main' $sources.main $mainLibraries
-    $test = Invoke-Ecj 'test' $sources.test (@($main) + $testLibraries)
+    $test = Invoke-Ecj 'test' (@($sources.test) + @($support.FullName)) (@($main) + $testLibraries)
     $gameTests = @(Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'src/gametest/java') -Recurse -File -Filter '*.java' | ForEach-Object { $_.FullName })
     if ($gameTests.Count -ne 1) { throw 'Unexpected GameTest source inventory' }
     $report.sources += @($gameTests | ForEach-Object { Get-Pin $_ })
@@ -149,21 +174,41 @@ try {
     $null = Invoke-Ecj 'client' $clientTests (@($main, $test) + $testLibraries)
     $helperSource = Join-Path $PSScriptRoot 'AuditedJUnit.java'
     $report.helper = Get-Pin $helperSource
-    $helper = Invoke-Ecj 'helper' @($helperSource) $testLibraries
+    $inventorySource = Join-Path $PSScriptRoot 'EclipseTestInventory.java'
+    $report.inventoryHelper = Get-Pin $inventorySource
+    $helper = Invoke-Ecj 'helper' @($helperSource, $inventorySource) $testLibraries
+    $inventoryPath = Join-Path $Evidence 'gradle-method-inventory.txt'
+    [IO.File]::WriteAllLines($inventoryPath, $methodInventory, [Text.UTF8Encoding]::new($false))
+    $inventoryRuntime = @($helper) + $testLibraries
+    & $java25 -XX:ActiveProcessorCount=4 -cp ($inventoryRuntime -join ';') zone.moddev.mc.baseelectric.verification.EclipseTestInventory $test $inventoryPath $expected *> (Join-Path $Evidence 'inventory.log')
+    if ($LASTEXITCODE -ne 0) { throw 'Fresh compiled JUnit method inventory does not match Gradle XML' }
+    $report.inventory = [ordered]@{ status = 'PASS'; methods = $methodInventory.Count; suites = $classes.Count; negatives = @() }
+    foreach ($prefix in @('zone.moddev.mc.baseelectric.entities.', 'zone.moddev.mc.baseelectric.items.')) {
+        $filtered = @($methodInventory | Where-Object { !$_.StartsWith($prefix, [StringComparison]::Ordinal) })
+        if (!$filtered.Count -or $filtered.Count -eq $methodInventory.Count) { throw 'Inventory negative control excluded no tests' }
+        $negativePath = Join-Path $Evidence ('inventory-exclusion-' + $report.inventory.negatives.Count + '.txt')
+        [IO.File]::WriteAllLines($negativePath, $filtered, [Text.UTF8Encoding]::new($false))
+        $log = $negativePath + '.log'
+        & $java25 -XX:ActiveProcessorCount=4 -cp ($inventoryRuntime -join ';') zone.moddev.mc.baseelectric.verification.EclipseTestInventory $test $negativePath $filtered.Count *> $log
+        if ($LASTEXITCODE -eq 0 -or (Get-Content -LiteralPath $log -Raw) -notmatch 'Incomplete or stale Gradle method inventory') { throw 'JUnit prefix-exclusion negative control was not rejected' }
+        $report.inventory.negatives += [ordered]@{ prefix = $prefix; tests = $filtered.Count; expectedRejection = $true; log = $log }
+    }
     $junitXml = Join-Path $Evidence 'junit.xml'
     $runtime = @($main, $test, $helper, (Join-Path $ProjectRoot 'build/resources/main'), (Join-Path $ProjectRoot 'build/resources/test')) + $testLibraries
     $report.runtime = $runtime
     Push-Location $ProjectRoot
     try {
-        & $java21 -Xmx2G -cp ($runtime -join ';') zone.moddev.mc.baseelectric.verification.AuditedJUnit $junitXml $expected @classes *> (Join-Path $Evidence 'junit.log')
+        & $java25 -XX:ActiveProcessorCount=4 -Xmx2G "-javaagent:$bootstrap" -cp ($runtime -join ';') zone.moddev.mc.baseelectric.verification.AuditedJUnit $junitXml $expected @classes *> (Join-Path $Evidence 'junit.log')
         $junitExit = $LASTEXITCODE
     } finally { Pop-Location }
     $report.junit = [ordered]@{ exitCode = $junitExit; expected = $expected; suites = $classes; log = 'junit.log'; xml = 'junit.xml' }
+    $report.junit.jvmArguments = @('-XX:ActiveProcessorCount=4', '-Xmx2G', "-javaagent:$bootstrap", '-cp', ($runtime -join ';'))
+    $report.junit.inheritedJvmEnvironment = 'CLEARED'
     if ($junitExit -ne 0) { throw 'Fresh ECJ JUnit execution failed' }
     [xml]$junit = Get-Content -LiteralPath $junitXml -Raw
     if ($junit.testsuite.passed -ne 'true' -or [int]$junit.testsuite.tests -ne $expected -or
         [int]$junit.testsuite.failures -or [int]$junit.testsuite.ignored -or [int]$junit.testsuite.assumptions) { throw 'Strict ECJ test counts failed' }
-    foreach ($pin in @($report.sources) + @($report.libraries) + @($report.helper) + @($report.negativeControl.source)) {
+    foreach ($pin in @($report.sources) + @($report.libraries) + @($report.helper, $report.inventoryHelper, $report.unitBootstrap) + @($report.negativeControl.source)) {
         if ((Get-FileHash -LiteralPath $pin.path -Algorithm SHA256).Hash -ne $pin.sha256) { throw "Input changed during ECJ qualification: $($pin.path)" }
     }
     $report.status = 'PASS'
@@ -171,6 +216,11 @@ try {
     $report.status = 'FAIL'
     $report.error = $_.ToString()
     throw
-} finally { Save-Report }
+} finally {
+    Save-Report
+    foreach ($name in $inheritedJvmOptions.Keys) {
+        [Environment]::SetEnvironmentVariable($name, $inheritedJvmOptions[$name], 'Process')
+    }
+}
 Get-Content -LiteralPath (Join-Path $Evidence 'junit.log') -Tail 8
-Write-Output "ECJ PASS: $($sources.main.Count) main, $($sources.test.Count) test sources; $expected tests; Java 21 class files"
+Write-Output "ECJ PASS: $($sources.main.Count) main, $($sources.test.Count) test sources; $expected tests; Java 25 class files"

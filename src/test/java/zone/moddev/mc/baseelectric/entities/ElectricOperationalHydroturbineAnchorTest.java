@@ -103,7 +103,7 @@ public class ElectricOperationalHydroturbineAnchorTest {
         field.setAccessible(true);
         Level world = (Level)allocator.getMethod("allocateInstance", Class.class)
                 .invoke(field.get(null), NoTickWorld.class);
-        Field random = Level.class.getField("random");
+        Field random = Level.class.getDeclaredField("random");
         random.setAccessible(true);
         random.set(world, RandomSource.create(0));
         return world;
@@ -111,7 +111,7 @@ public class ElectricOperationalHydroturbineAnchorTest {
 
     private static final class NoTickWorld extends ServerLevel {
         private NoTickWorld() {
-            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
+            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
         }
     }
 

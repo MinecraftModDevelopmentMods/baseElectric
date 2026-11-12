@@ -1,58 +1,76 @@
 # baseElectric
 
+**Version 2.2.17.2601021 is accepted for release.**
+
 baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower. Its equipment appears
 in the shared basePower creative tab.
 
-baseElectric **2.2.16.121111** runs on Minecraft **1.21.11**, Forge **61.1.0**,
-official mappings with MCP **20251223.124241**, ForgeGradle **7.0.34**, Gradle
-**9.6.1**, and Java **21**. It requires
-[basePower **2.4.15.121111**](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9566998).
-[Base Metals **3.1.2.121111**](https://www.curseforge.com/minecraft/mc-mods/base-metals/files/9566738)
-is also **REQUIRED** on both client and server;
-Forge enforces this dependency. The coordinated OreSpawn version is
-**4.1.0.121111**. This version has been accepted for release but is not yet published.
-See the [1.21.11 notes](docs/NATIVE12111.md) for compatibility and verification status.
+This checkout targets Minecraft **26.1.2** and
+Forge **64.1.5**, using official runtime names, MCP **20260409.101008**,
+ForgeGradle **7.0.34**, Gradle **9.6.1**, and Temurin **25.0.3+9**.
+The frozen profile12 family has completed automated qualification and manual
+testing. See the
+[family qualification record](../../PowerAdvantage/docs/26.1.2/QUALIFICATION.md)
+for the exact tested jars, completed checks and scope limits. Manual acceptance
+is complete. Publication is being prepared; this version is not public yet.
 
-Combined machine, upgrade, graphical and two-world 30-minute endurance checks
-passed before the released dependency retarget. The full record and its manual-test limits are in
-basePower's `docs/1.21.11/QUALIFICATION.md`. Those limits still apply.
-Publication is waiting for the final combined restart/endurance checks and
-baseSteam's public release. The released dependency pins are recorded in
-`gradle.properties`.
+basePower **2.4.16.2601021** and Base Metals **3.1.2.2601021** are required on
+both client and server. Their public source and ordinary-jar checkpoints are
+recorded in `gradle.properties`.
+The build rejects old 1.21.11 inputs. OreSpawn
+**4.1.1.2601021** is pinned to its public release (CurseForge 9572926).
+See the [26.1.2 notes](docs/NATIVE2612.md).
+
+The public pins use Power source `a684e71e` / jar `23ABCC1F` (CurseForge 9576332)
+and Base Metals source `5e708468` / jar `67862388` (9576007). Their public
+downloads match the accepted dependency jars. Power is published first, then
+Steam, then Electric. Electric's promoted jar changes only its manifest to
+record the merged Power source; every other archive entry is byte-identical
+to the accepted candidate. Restart and endurance qualification for those final
+jar bytes is recorded separately from the earlier candidate's results.
+The new clean release suite passes 117 unit tests and 28 native checks, and its
+warm and fresh empty-cache path-with-spaces reproductions match all three
+archives. Fresh ECJ passes all 117 tests with the complete compiled inventory,
+and the standalone source audit passes all nine checks after its exact OreSpawn
+constants were updated. The original stale-pin failures remain preserved.
+
+The completed [1.21.11 release](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9567881)
+and its [qualification notes](docs/NATIVE12111.md) are historical evidence,
+not proof of this port. New gameplay, migration and graphical checks must use
+the actual 26.1.2 jars.
 
 Back up your world and try the upgrade on a copy. Replace Electric Advantage
 and Power Advantage with baseElectric and basePower; do not install both sets.
 
 ## Building locally
 
-Use Temurin 21.0.7+6 for Gradle and Minecraft. The pinned OreSpawn Mavenizer
-fixture uses Java 25, and ForgeGradle's Slime Launcher tooling uses Java 8. Set
-`-Porg.gradle.java.installations.paths=<java21-home>,<java25-home>,<java8-home>`
-if Gradle cannot discover all three.
+Use Temurin 25.0.3+9 for Gradle, Minecraft, compilation, tests, Mavenizer and
+Slime Launcher. No Java 8 helper is required. Set
+`-Porg.gradle.java.installations.paths=<java25-home>` if needed.
+Use the isolated `D:/GradleCaches/baseelectric-2612-port` cache for local work.
 
 The independent Forge/resource checks do not require sibling jars:
 
 ```text
-./gradlew --offline nativeResourceChecks compileNativeApiDiagnostics verifyRecipeTagGuards processResources
+./gradlew nativeResourceChecks compileNativeApiDiagnostics verifyRecipeTagGuards processResources --max-workers=2 --no-daemon
 node tools/verify-native-port.js
 node tools/generate-recipe-unlocks.js --check
 ```
 
-For a full local build, use the exact dependency jars recorded in
-`gradle.properties`. The sibling paths are the defaults and these flags are
-optional path overrides:
+For a full local build, use the exact local dependency pins in
+`gradle.properties`. Path overrides never replace source or hash checks:
 
 ```text
--PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.15.121111.jar
--PbaseMetalsRuntimeJar=/path/to/BaseMetals-3.1.2.121111.jar
--PforgeInstallerJar=/path/to/forge-1.21.11-61.1.0-installer.jar
+-PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.16.2601021.jar
+-PbaseMetalsRuntimeJar=/path/to/BaseMetals-3.1.2.2601021.jar
+-PforgeInstallerJar=/path/to/forge-26.1.2-64.1.5-installer.jar
 ```
 
-Forge 61 uses the ordinary native jar for both play and development. The former
+Forge 64 uses the ordinary native jar for both play and development. The former
 `*DeobfJar` path flags remain aliases for the same bytes. OreSpawn and the
-Mavenizer fixture default to the sibling `MinecraftMineralogy/OS12111/OreSpawn`
-checkout. Use `-PoreSpawnRuntimeJar` and `-Pforge61MavenizerJar` to override paths.
+Mavenizer fixture default to the sibling `MinecraftMineralogy/OS2612/OreSpawn`
+checkout. Use `-PoreSpawnRuntimeJar` and `-Pforge64MavenizerJar` to override paths.
 For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
 
 ```text
@@ -60,14 +78,44 @@ For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
 ```
 
 Use `gradlew.bat` on Windows. Output jars go to `build/libs`. Dependencies
-remain separate mods. The 1.21.11 CI and CodeQL jobs require merged source pins
+remain separate mods. The 26.1.2 CI and CodeQL jobs require merged source pins
 and checksum-matching public dependencies before checkout or compilation.
 Local jars do not satisfy that gate.
 
-## Verification
+## Candidate09 Verification History
 
-The current local checks pass 114 unit tests, 25 native resource tests and
-114 tests from fresh Eclipse compiler output, with no failures or skips.
+The previous candidate09 passed 117 unit tests, 28 independent native resource
+tests and 117 tests from fresh ECJ output, with no failures or skips. The ECJ
+gate compares every compiled test method with the Gradle XML inventory.
+Electric registers its pure JSON migration defaults during construction, after
+the old OS1 importer and before lifecycle setup. Migration refusal or an I/O
+failure stops startup; old provider identities and saved choices are not
+silently replaced by fresh defaults.
+Both independent reproduction builds match all three jars exactly; each passes
+117 unit and 28 native checks. One reuses the previously cold-generated engine
+cache, without claiming a new cold download. All four named source GameTests
+also pass on these pins. Their first-boot warnings remain in the receipts;
+this is not warning-free or manual gameplay proof. The current receipts are in
+`build/port-evidence/candidate09-lifecycle-pin-01`. Candidate06's four
+GameTests, reproductions and narrow packaged smoke remain historical proof,
+not qualification of the new player jar. Combined gameplay, restart, migration
+and actual client checks remain separate parent-owned gates.
+The Power pin includes the parent's retained-profile, provider-schema and
+profile-loading lifecycle repairs, without an OreSpawn patch or log waiver.
+Candidate07's actual OS1 startup failure remains recorded separately, despite
+its passing local build checks. Candidate08 retained-profile runs passed the
+original OS1 route but failed both released-source first boots on the old quartz
+output; passing restarts do not waive those failures. Further family runs are
+held until the current retained-profile gates are resolved. Candidate09's saved
+Forge alias is valid, but the old canonical-ID-only audit still records quartz
+failures; a separate Base Metals duplicate-placement review is also unresolved.
+Each qualification receipt retains its exact input hashes. In particular,
+no old screenshot or earlier version's result qualifies this port.
+
+The atlas and abstract-battery definition repairs have native codec checks and
+a real registered-item census. Their sources and packaged archives reject
+global directories, foreign namespaces, missing sprites and duplicates across
+atlases. The earlier diagnostic asset jar is not a release or final proof.
 
 Run `runGameTestServer` with the same pinned mod inputs, an existing accepted
 EULA passed as `-PelectricGameTestEula=<path>`, and a new directory passed as

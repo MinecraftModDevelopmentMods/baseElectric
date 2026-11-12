@@ -12,13 +12,21 @@ import zone.moddev.mc.baseelectric.verification.NativeTestBootstrap;
 import static org.junit.Assert.*;
 
 public class BatteryComponentTest {
-    @BeforeClass public static void bootstrap() { NativeTestBootstrap.initialize(); }
+    private static BatteryItem testBattery;
+
+    @BeforeClass public static void bootstrap() {
+        NativeTestBootstrap.initialize();
+        var key = zone.moddev.mc.baseelectric.util.RegistryIds.item("lead_acid_battery");
+        testBattery = new BatteryItem(100, new Item.Properties().setId(key));
+        net.minecraftforge.registries.ForgeRegistries.ITEMS.register(key.identifier(), testBattery);
+        NativeTestBootstrap.bindNativeComponents();
+    }
 
     @Test public void vanillaItemUpgradePreservesDepletedChargeAndUnrelatedData() {
         CompoundTag custom = LegacyBatteryDataTest.upgradeBattery()
                 .getCompound("components").orElseThrow().getCompound("minecraft:custom_data").orElseThrow();
 
-        BatteryItem battery = new BatteryItem(100, new Item.Properties().setId(zone.moddev.mc.baseelectric.util.RegistryIds.item("lead_acid_battery")));
+        BatteryItem battery = testBattery;
         ItemStack stack = new ItemStack(battery);
         assertEquals(100, battery.getEnergy(stack), 0);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(custom));
@@ -30,7 +38,7 @@ public class BatteryComponentTest {
     }
 
     @Test public void chargeMutationDoesNotLeakIntoAnItemCopy() {
-        BatteryItem battery = new BatteryItem(100, new Item.Properties().setId(zone.moddev.mc.baseelectric.util.RegistryIds.item("lead_acid_battery")));
+        BatteryItem battery = testBattery;
         ItemStack original = new ItemStack(battery);
         battery.setEnergy(original, 25);
         ItemStack copy = original.copy();

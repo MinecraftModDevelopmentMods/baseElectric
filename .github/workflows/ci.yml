@@ -1,16 +1,16 @@
-name: baseElectric 1.21.11 CI
+name: baseElectric 26.1.2 CI
 
 on:
   push:
-    branches: [master-1.21.11, 'feature/**']
+    branches: [master-26.1.2, 'feature/**']
   pull_request:
-    branches: [master-1.21.11]
+    branches: [master-26.1.2]
 
 permissions:
   contents: read
 
 concurrency:
-  group: baseelectric-1.21.11-${{ github.workflow }}-${{ github.ref }}
+  group: baseelectric-26.1.2-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -40,29 +40,19 @@ jobs:
           repository: MinecraftModDevelopmentMods/basePower
           ref: ${{ steps.public-pins.outputs.power_ref }}
           path: .ci-dependencies/basePower
-      - name: Install Java 25 for Mavenizer
+      - name: Install Java 25 for all build and runtime roles
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
           java-version: '25.0.3+9.0.LTS'
-      - name: Install Java 8 for the launcher helper
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
-        with:
-          distribution: temurin
-          java-version: '8.0.502+7'
-      - name: Install Java 21 for Gradle and production
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
-        with:
-          distribution: temurin
-          java-version: '21.0.7+6.0.LTS'
       - name: Use pinned build toolchains
         run: >-
-          echo "MMD_GRADLE_TOOLCHAINS=-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64
+          echo "MMD_GRADLE_TOOLCHAINS=-Porg.gradle.java.installations.paths=$JAVA_HOME
           -Porg.gradle.java.installations.auto-detect=false
           -Porg.gradle.java.installations.auto-download=false" >> "$GITHUB_ENV"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
-      - name: Verify the Forge 61 build inputs
+      - name: Verify the Forge 64 build inputs
         shell: bash
         env:
           ORESPAWN_REF: ${{ steps.public-pins.outputs.orespawn_ref }}
@@ -74,33 +64,34 @@ jobs:
           test "$(git -C "$orespawn" rev-parse HEAD)" = "$ORESPAWN_REF"
           test "$(git -C "$power" rev-parse HEAD)" = "$POWER_REF"
           mavenizer="$orespawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar"
-          printf '%s  %s\n' 'B36CA046DB72E30F27BD38E02B4AE34274ADB51AE1D65BAF9E1D07763755682E' "$mavenizer" | sha256sum -c -
+          printf '%s  %s\n' 'BB0DACB3DEB2A711CA67DD402D5FDAB5A9847C37C7B9B596DEC7CF37378FA085' "$mavenizer" | sha256sum -c -
           echo "MAVENIZER=$mavenizer" >> "$GITHUB_ENV"
       - name: Build and audit release artifacts
         shell: bash
         run: |
           ./gradlew $MMD_GRADLE_TOOLCHAINS clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts \
             writeReleaseChecksums verifyEclipseProductionClasspath --no-build-cache --no-daemon --stacktrace \
-            "-Pforge61MavenizerJar=$MAVENIZER" "-PpowerAdvantageDeobfJar=$POWER_PLAYER" \
+            "-Pforge64MavenizerJar=$MAVENIZER" "-PpowerAdvantageDeobfJar=$POWER_PLAYER" \
+            "-PpowerUnitSource=$GITHUB_WORKSPACE/.ci-dependencies/basePower" \
             "-PbaseMetalsDeobfJar=$METALS_PLAYER" "-PoreSpawnDeobfJar=$ORESPAWN_PLAYER" \
             "-PforgeInstallerJar=$FORGE_INSTALLER"
       - name: Upload audited release candidate
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: baseElectric-1.21.11-${{ github.sha }}
+          name: baseElectric-26.1.2-${{ github.sha }}
           if-no-files-found: error
           retention-days: 30
           path: |
-            build/libs/baseElectric-2.2.16.121111.jar
-            build/libs/baseElectric-2.2.16.121111-sources.jar
-            build/libs/baseElectric-2.2.16.121111-javadoc.jar
+            build/libs/baseElectric-2.2.17.2601021.jar
+            build/libs/baseElectric-2.2.17.2601021-sources.jar
+            build/libs/baseElectric-2.2.17.2601021-javadoc.jar
             build/release/SHA256SUMS
             CHANGELOG.txt
       - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: baseElectric-1.21.11-diagnostics-${{ github.sha }}
+          name: baseElectric-26.1.2-diagnostics-${{ github.sha }}
           if-no-files-found: ignore
           retention-days: 14
           path: |

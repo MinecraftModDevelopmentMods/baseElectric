@@ -1,11 +1,13 @@
 package zone.moddev.mc.baseelectric.init;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import net.minecraft.resources.Identifier;
 import net.minecraftforge.fml.ModList;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
+import zone.moddev.mc.basepower.migration.OreSpawnProfileMigration;
 import zone.moddev.mc.orespawn.api.GeologyFamily;
 import zone.moddev.mc.orespawn.api.OrePattern;
 import zone.moddev.mc.orespawn.api.OreSpawnApi;
@@ -24,9 +26,14 @@ public final class OreSpawnWorldGen {
     private OreSpawnWorldGen() {
     }
 
+    public static void registerMigrationDefaults(Path configDirectory) throws IOException {
+        OreSpawnProfileMigration.registerProvider(configDirectory,
+                createProvider(ModList.isLoaded("mineralogy"), ModList.isLoaded("baseminerals")).toJson());
+    }
+
     public static void register(Path configDirectory) {
-        boolean mineralogyLoaded = ModList.get().isLoaded("mineralogy");
-        boolean baseMineralsLoaded = ModList.get().isLoaded("baseminerals");
+        boolean mineralogyLoaded = ModList.isLoaded("mineralogy");
+        boolean baseMineralsLoaded = ModList.isLoaded("baseminerals");
         boolean accepted = OreSpawnApi.enqueue(createProvider(mineralogyLoaded, baseMineralsLoaded));
         String sulfurOwner = mineralogyLoaded ? "mineralogy"
                 : baseMineralsLoaded ? "baseminerals" : ElectricAdvantage.MODID;
