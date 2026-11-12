@@ -11,6 +11,46 @@ They must not be relabeled as candidate02 or full family acceptance.
 
 ## Current Checkpoint
 
+The candidate07 ordinary jar is
+`F2E71F0693033FB4BBA0DE775A542C185C9163AEFA8BF819D0E8F423121A94BC`.
+It uses local Power `9f6ffb30a14efe4360fee0cbdfa52dc8090a9819` /
+`05031F1A3DCF25A405D9222E65619F7173C37CCF57B76308B72F741CA0E5198C`.
+The full 51-task suite passes 117 unit and 28 independent native checks;
+fresh ECJ output passes all 117 tests with the full compiled inventory.
+The two added tests check the actual compiled constructor path, fail-closed
+exception handling, single registration and the native JSON defaults.
+
+Only the manifest and the two migration integration classes differ from the
+candidate06 ordinary jar. All resources, PNGs and other classes are exact.
+Both new independent source snapshots pass all 51 tasks, 117 unit tests and
+28 native checks, reproducing all three jars exactly. One uses the earlier
+cold-generated engine cache; no fresh cold-download claim is made. All four
+named source GameTests also pass against these pins, with their first-boot
+warnings retained. Current receipts are kept separately in
+`build/port-evidence/candidate07-retained-profile-01`; old results do not
+qualify this jar. Family migration, generation, graphics and endurance remain
+separate candidate-bound gates, not a release or manual acceptance claim.
+
+An actual frozen06 retained-profile regression started a fresh normal world
+with the approved released110 saved profile, generated 126 sampled chunks,
+then restarted in a second process. Oil/lithium/sulfur counts were positive,
+but both boots correctly failed the profile contract: old output IDs remained
+unresolved and new active defaults were added. The source profile, warnings,
+raw failure and frozen06 inputs are retained, not rewritten as candidate07.
+
+Read-only collision inventory covers all eight supported machine source routes
+and nine actor/dimension source routes. All 22 existing global/world profile
+hashes match their genuine pre-setup seals, with no original-source active
+canonical collisions. Candidate06 destinations did acquire duplicate defaults.
+The released110 machine source has real world overrides: lithium frequency
+0.25 versus global 0.125, and sulfur disabled versus globally enabled.
+The released112 machine and actor fixtures are distinct and keep their own
+profile/import oracles. Unsupported chained113 findings are labelled separately.
+Dormant quartz custom rules are not proof of lost active vanilla generation:
+these profiles keep vanilla management and global ore suppression disabled.
+
+## Candidate06 History
+
 The frozen candidate06 player jar is
 `DFC63C4E619A74BEE2A22146D9720ADB2B32801865EAE1B716726424015775FA`.
 It uses Power `0ac874de66f792c6efca5bccd0536b1b113fb786`, ordinary jar
@@ -38,7 +78,7 @@ It uses the sealed `000A...` compile input and is not final qualification.
 Its original receipt is retained. Candidate06 uses the later coherent atlas
 pins and needs its own graphical, migration and endurance receipts.
 
-The current candidate's forced fresh 51-task suite passes 115 unit and 28 native resource tests,
+Candidate06's forced fresh 51-task suite passes 115 unit and 28 native resource tests,
 with zero failures or skips. Fresh ECJ output passes all 115 tests with the
 complete compiled-method inventory and negative controls. All four named
 source GameTests and both new-pin reproduction builds pass. Receipts are
@@ -62,7 +102,7 @@ remain historical, not relabeled as the atlas-repaired candidate06.
 - OreSpawn 4.1.0.2601021, source `c45ea2a111520ef904e994dd8dcd90babfcef29b`,
   ordinary jar SHA-256 `6D5CE2017C3314968083D140309E2F1A54BC239AC65C48944C995E9ECF937948`.
 
-The local Power checkpoint is `0ac874de66f792c6efca5bccd0536b1b113fb786`;
+The local Power checkpoint is `9f6ffb30a14efe4360fee0cbdfa52dc8090a9819`;
 the Base Metals shared-hook checkpoint is `331fa46914f854db71a8c33500cc559a8878b7d3`.
 Their exact ordinary jar hashes are recorded in `gradle.properties`.
 These are local integration inputs, not public releases or completed family
@@ -85,7 +125,7 @@ Root pack metadata declares data format 101.1. Forge's hidden client pack
 must synthesize native resource format 84.0. Both paths are tested through
 actual Forge discovery, with strict warning and error rejection unchanged.
 
-## Verification Status
+## Candidate06 Verification
 
 The independent native suite passes 28 tests without skips. All 58 recipe
 resources and 50 unlocks are retained. Native pack discovery accepts resource

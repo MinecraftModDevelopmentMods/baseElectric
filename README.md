@@ -64,17 +64,23 @@ Local jars do not satisfy that gate.
 
 ## Verification
 
-The current local candidate passes 115 unit tests, 28 independent native resource
-tests and 115 tests from fresh ECJ output, with no failures or skips. The ECJ
+The current local candidate passes 117 unit tests, 28 independent native resource
+tests and 117 tests from fresh ECJ output, with no failures or skips. The ECJ
 gate compares every compiled test method with the Gradle XML inventory.
-All four named source GameTests also pass on the current Power checkpoint.
-Independent warm-cache and new cold-cache builds in paths containing spaces
-reproduce all three jars byte-for-byte.
-Their first-boot GameTest log contains
-native configuration and union-URL warnings, so it is not a clean-log receipt.
-The packaged server smoke passes its 19 narrow checks; combined gameplay,
-restart, migration and actual client checks remain separate parent-owned gates.
-The Power pin includes the parent's fuel-container repair. Each qualification
+Electric registers its pure JSON migration defaults during construction, after
+the old OS1 importer and before lifecycle setup. Migration refusal or an I/O
+failure stops startup; old provider identities and saved choices are not
+silently replaced by fresh defaults.
+Both independent reproduction builds match all three jars exactly; each passes
+117 unit and 28 native checks. One reuses the previously cold-generated engine
+cache, without claiming a new cold download. All four named source GameTests
+also pass on these pins. Their first-boot warnings remain in the receipts;
+this is not warning-free or manual gameplay proof. The current receipts are in
+`build/port-evidence/candidate07-retained-profile-01`. Candidate06's four
+GameTests, reproductions and narrow packaged smoke remain historical proof,
+not qualification of the new player jar. Combined gameplay, restart, migration
+and actual client checks remain separate parent-owned gates.
+The Power pin includes the parent's retained-profile repair. Each qualification
 receipt retains its exact input hashes. In particular,
 no old screenshot or earlier version's result qualifies this port.
 

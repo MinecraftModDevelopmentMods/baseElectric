@@ -184,7 +184,7 @@ check('All 114 released tests retain their coverage without skips', () => {
         actual += currentMethods.length;
     }
     assert.equal(inherited, 114);
-    assert.equal(actual, 115);
+    assert.equal(actual, 117);
     const gameTests = javaRoot.replace('main', 'gametest') + 'gametest/ElectricGameTests.java';
     const names = value => [...value.toString().matchAll(/public static void (\w+)\(GameTestHelper/g)].map(m => m[1]);
     for (const name of names(old(gameTests))) assert(names(read(gameTests)).includes(name), 'Lost GameTest: ' + name);

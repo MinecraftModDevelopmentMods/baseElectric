@@ -58,12 +58,13 @@ public final class ElectricAdvantage {
         try {
             LegacyOreSpawnConfigBridge.Result result =
                     LegacyOreSpawnConfigBridge.migrate(FMLPaths.CONFIGDIR.get(), MODID, LEGACY_MODID);
+            OreSpawnWorldGen.registerMigrationDefaults(FMLPaths.CONFIGDIR.get());
             if (result.wasMigrated()) {
                 LOGGER.info("Imported {} legacy Electric Advantage OreSpawn rule(s) from '{}' into '{}'",
                         result.getRuleCount(), result.getSource(), result.getTarget());
             }
         } catch (IOException exception) {
-            LOGGER.error("Could not migrate legacy Electric Advantage OreSpawn configuration", exception);
+            throw new IllegalStateException("Could not preserve Electric Advantage OreSpawn configuration", exception);
         }
     }
 

@@ -151,7 +151,7 @@ try {
         }
         $report.gradleInventory += Get-Pin $xml.FullName
     }
-    if ($classes.Count -ne 33 -or $expected -ne 115 -or $sources.test.Count -ne 36 -or $sources.main.Count -ne 87) { throw 'Unexpected Electric 26.1.2 source/test inventory' }
+    if ($classes.Count -ne 33 -or $expected -ne 117 -or $sources.test.Count -ne 36 -or $sources.main.Count -ne 87) { throw 'Unexpected Electric 26.1.2 source/test inventory' }
     $support = @(Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'build/generated-unit-support') -Recurse -File -Filter '*.java' | Sort-Object Name)
     if ($support.Count -ne 2) { throw 'Expected exactly the two pinned native unit support sources' }
     $supportPins = @{ 'ForgeUnitRegistries.java' = $properties.unit_registries_java_sha256; 'Forge64UnitLoader.java' = $properties.unit_loader_java_sha256 }

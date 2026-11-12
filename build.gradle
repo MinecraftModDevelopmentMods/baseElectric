@@ -103,8 +103,8 @@ tasks.named('test', Test) {
     }
     afterSuite { descriptor, result ->
         if (!descriptor.parent && filter.includePatterns.empty && filter.commandLineIncludePatterns.empty
-                && (result.testCount != 115 || result.skippedTestCount != 0)) {
-            throw new GradleException("Expected 115 tests with no skips, got ${result.testCount} tests and ${result.skippedTestCount} skips")
+                && (result.testCount != 117 || result.skippedTestCount != 0)) {
+            throw new GradleException("Expected 117 tests with no skips, got ${result.testCount} tests and ${result.skippedTestCount} skips")
         }
     }
     doFirst {
@@ -492,8 +492,8 @@ tasks.register('nativeUnitDiagnostics', Test) {
     }
     afterSuite { descriptor, result ->
         if (!descriptor.parent && filter.includePatterns.empty && filter.commandLineIncludePatterns.empty
-                && (result.testCount != 115 || result.skippedTestCount != 0)) {
-            throw new GradleException("Expected 115 provisional unit diagnostics without skips, got ${result.testCount}/${result.skippedTestCount}")
+                && (result.testCount != 117 || result.skippedTestCount != 0)) {
+            throw new GradleException("Expected 117 provisional unit diagnostics without skips, got ${result.testCount}/${result.skippedTestCount}")
         }
     }
     doFirst {

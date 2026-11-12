@@ -4,6 +4,7 @@ baseElectric 2.2.17.2601021 (Minecraft 26.1.2 / Forge, unreleased)
 - Keep the same machines, saved data, aliases, material ratios and recipe IDs.
 - Move all six librarian offers to native trade data without changing their ranges or tiers.
 - Fix client texture loading for the laser beam and inherited battery models.
+- Preserve retained OreSpawn profiles before generation and stop on ambiguous migration choices.
 - Keep 1.21.11 release evidence separate from the new port's verification.
 
 baseElectric 2.2.16.121111 (Minecraft 1.21.11 / Forge)
