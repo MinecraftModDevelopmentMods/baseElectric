@@ -1,6 +1,6 @@
 # baseElectric
 
-**Minecraft 26.2 Forge, version 2.2.18.2602001. Local build candidate.**
+**Minecraft 26.2 Forge, version 2.2.18.2602001. Combined checks passed; final root build pending.**
 
 baseElectric continues DrCyano's Electric Advantage and uses basePower's shared
 API, machines and creative tab. Existing `baseelectric` registry and saved-data
@@ -46,9 +46,19 @@ node tools/verify-native-port.js
 node tools/generate-recipe-unlocks.js --check
 ```
 
-See [26.2 port status](docs/NATIVE262.md). The accepted 26.1.2 family
-qualification remains historical proof of those original bytes, not this port.
-There is no 26.2 manual acceptance, hosted qualification or publication yet.
+## Qualification
+
+Combined profile03 passed the machine, migration, actor/dimension, actual
+transformer-order and real-client checks, plus two 30-minute worlds, restart
+and independent 66-checkpoint replay. See [26.2 port status](docs/NATIVE262.md)
+for the counts and exact inputs. The [family qualification record](../../PowerAdvantage/docs/26.2/QUALIFICATION.md)
+is being finalized in the sibling Power checkout.
+
+Ready for manual testing once the final root cold-cache gate is confirmed.
+Overall sign-off and user manual acceptance are not claimed here. Base Metals
+and OreSpawn are unpublished local 26.2 inputs; these changes remain local,
+with no 26.2 push or publication. The accepted 26.1.2 records remain historical
+proof of their original bytes, not qualification of this port.
 
 ## Candidate09 Verification History
 
