@@ -5,7 +5,8 @@ baseElectric 2.2.16.121111 (Minecraft 1.21.11 / Forge)
 - Use native render extraction, item definitions and per-PackType Forge resources.
 - Keep the released 1.21.1 recipes, progression and world upgrade behavior.
 - Require Base Metals 3.1.2.121111 on both client and server in Forge metadata.
-- Complete the combined machine, upgrade, graphical and two-world endurance checks against the current jars; keep manual acceptance and publication separate.
+- Use the verified public basePower and Base Metals releases.
+- Retain the combined machine, upgrade, graphical and two-world endurance results under their original tested jar hashes.
 - Run native resource checks without an interactive terminal while retaining strict warning and error checks.
 
 baseElectric 2.2.15.121011 (Minecraft 1.21.1 / Forge)

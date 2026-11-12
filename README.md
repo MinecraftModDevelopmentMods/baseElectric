@@ -6,16 +6,20 @@ in the shared basePower creative tab.
 
 baseElectric **2.2.16.121111** runs on Minecraft **1.21.11**, Forge **61.1.0**,
 official mappings with MCP **20251223.124241**, ForgeGradle **7.0.34**, Gradle
-**9.6.1**, and Java **21**. It requires basePower **2.4.15.121111**.
-Base Metals **3.1.2.121111** is also **REQUIRED** on both client and server;
+**9.6.1**, and Java **21**. It requires
+[basePower **2.4.15.121111**](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9566998).
+[Base Metals **3.1.2.121111**](https://www.curseforge.com/minecraft/mc-mods/base-metals/files/9566738)
+is also **REQUIRED** on both client and server;
 Forge enforces this dependency. The coordinated OreSpawn version is
 **4.1.0.121111**. This version has been accepted for release but is not yet published.
 See the [1.21.11 notes](docs/NATIVE12111.md) for compatibility and verification status.
 
-The current jars pass the combined machine, upgrade, graphical and two-world
-30-minute endurance checks. The full record and its manual-test limits are in
+Combined machine, upgrade, graphical and two-world 30-minute endurance checks
+passed before the released dependency retarget. The full record and its manual-test limits are in
 basePower's `docs/1.21.11/QUALIFICATION.md`. Those limits still apply.
-Publication is waiting for the verified released dependency pins.
+Publication is waiting for the final combined restart/endurance checks and
+baseSteam's public release. The released dependency pins are recorded in
+`gradle.properties`.
 
 Back up your world and try the upgrade on a copy. Replace Electric Advantage
 and Power Advantage with baseElectric and basePower; do not install both sets.

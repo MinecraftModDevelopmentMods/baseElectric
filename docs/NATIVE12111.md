@@ -9,7 +9,8 @@ The port is reconciled with merged 1.21.1 head
 
 ## Compatibility
 
-The current 54662C9A player jar, with Power C98D, Steam F23D, Base Metals 598D
+Before the released-pin retarget, the frozen 54662C9A player jar, with Power
+C98D, Steam F23D, Base Metals 598D
 and OreSpawn DE39, has completed the supported automated family qualification.
 This version is accepted for release but is not yet published. basePower's
 `docs/1.21.11/QUALIFICATION.md` records the complete hashes and scope.
@@ -60,13 +61,13 @@ static audit retains all 106 accepted unit tests and four GameTests; the full
 suite now expects 114 unit tests without skips. A static inventory check does
 not establish that the full suite compiles or executes.
 
-The approved local Power integration source is
+The qualified local Power integration source was
 41959572b11dce236df98f23e97c6a3868cdda03, with player/development SHA-256
 C98D2CF163BE2480D9AFB0023BBD2D92D401AE0D50BEF73191235BF3F83774A7.
 This includes the required-Base-Metals metadata correction and the native
 registry/DFU, description-prefix, atlas and biome-index repairs. This is a
-LOCAL_SOURCE integration pin, not a merged/public 1.21.11 release.
-Base Metals is pinned to the separately approved local migration hook
+LOCAL_SOURCE integration pin at that checkpoint, not a public release pin.
+Base Metals then used the separately approved local migration hook
 616d527e50e4bf0137eeb9c44fa586e34a0452a0 at SHA-256
 598D3FB0FF956EBCC67FE477A01CE393C75D0013AF0CE00A79E2072B63E9F2BA.
 These inputs repair the shared migration RETURN hooks to mutate the same NBT
@@ -139,8 +140,13 @@ publication or release readiness is established by the independent checks.
 ## Release Preparation
 
 Release acceptance does not change the retained automated/manual evidence
-boundaries above. Released dependency source refs, hashes and public file IDs
-must be verified before replacing the current local Power and Base Metals pins.
+boundaries above. The current MERGED_SOURCE Power pin is the public
+2.4.15.121111 release at 9b0043483d79d3e575895f12aeb0dde7ef6c4890,
+[CurseForge file 9566998](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9566998),
+with the same C98D player/development bytes. Base Metals uses public merge
+6f4c44e4d0a68bca3838fb025c09cddfaaa08fe8,
+[file 9566738](https://www.curseforge.com/minecraft/mc-mods/base-metals/files/9566738),
+with unchanged 598D bytes. Full SHA-256 values are in gradle.properties.
 Hosted builds still reject local-only pins, and remote Maven publication remains
 disabled in this checkout. These guards are not bypassed by release acceptance.
 Publication uses the default-branch dispatcher and its sealed CI artifacts,
@@ -150,3 +156,21 @@ Changing the Power source ref or API pin state changes the player manifest and
 therefore the whole jar hash, even if all production classes and resources stay
 identical. Keep the qualified 54662C9A artifact and receipts unchanged; qualify
 and checksum the newly pinned artifact separately before publication.
+Its exact hash must be handed over for a fresh presealed combined final-hash
+restart/endurance campaign. Live publication requires that parent-owned gate
+and baseSteam's verified public release. The 54662C9A receipts above stay bound
+to their original jar and are not relabelled as new-hash runtime evidence.
+
+The released-pin player jar is
+7128973D7A7529463E8F4328D0949F45641BD1560008A9925B09C74F9BE94F6D.
+All 570 file entries match 54662C9A except META-INF/MANIFEST.MF; its only
+changed attributes are API-Pin-State and basePower-Source-Ref. Sources and
+Javadoc are byte-identical. The new default-path release suite passes all
+46 forced tasks, 114 unit tests and 25 native resource tests. Fresh actual
+Eclipse compiler output passes 114 tests, with no ignored tests or assumptions.
+An independent path-with-spaces build reproduces all three jars using the
+already cold-qualified native engine. A fresh packaged witness passes all
+29 Electric operations, complete JVM restart and independent stopped-save
+audits before and after restart, using Electric 7128973D, Power C98D, Steam
+F23D, Base Metals 598D and OreSpawn DE39. This does not replace the parent's
+separate final-family restart/endurance and replay publication gate.
