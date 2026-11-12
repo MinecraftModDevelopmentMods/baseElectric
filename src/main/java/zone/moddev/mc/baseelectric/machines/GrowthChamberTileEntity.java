@@ -75,9 +75,9 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 											getLevel().addFreshEntity(
 													new ItemEntity(
 															getLevel(),
-															2*(getLevel().random.nextDouble()-0.5),
-															2*(getLevel().random.nextDouble()-0.5),
-															2*(getLevel().random.nextDouble()-0.5),
+															2*(getLevel().getRandom().nextDouble()-0.5),
+															2*(getLevel().getRandom().nextDouble()-0.5),
+															2*(getLevel().getRandom().nextDouble()-0.5),
 															remainder
 													)
 											);

@@ -221,7 +221,7 @@ public abstract class ElectricMachineTileEntity extends cyano.poweradvantage.api
 		SingleRecipeInput inventory = new SingleRecipeInput(input);
 		if (!(getLevel() instanceof net.minecraft.server.level.ServerLevel server)) return ItemStack.EMPTY;
 		return server.recipeAccess().getRecipeFor(RecipeType.SMELTING, inventory, getLevel())
-				.map(recipe -> recipe.value().assemble(inventory, getLevel().registryAccess())).orElse(ItemStack.EMPTY);
+				.map(recipe -> recipe.value().assemble(inventory)).orElse(ItemStack.EMPTY);
 	}
 	
 	@Override

@@ -1,3 +1,10 @@
+baseElectric 2.2.17.2601021 (Minecraft 26.1.2 / Forge, unreleased)
+
+- Port to Forge 64.1.5 and Java 25 for every build and runtime role.
+- Keep the same machines, saved data, aliases, material ratios and recipe IDs.
+- Move all six librarian offers to native trade data without changing their ranges or tiers.
+- Keep 1.21.11 release evidence separate from the new port's verification.
+
 baseElectric 2.2.16.121111 (Minecraft 1.21.11 / Forge)
 
 - Port to Forge 61.1.0 with basePower 2.4.15.121111 and Java 21.

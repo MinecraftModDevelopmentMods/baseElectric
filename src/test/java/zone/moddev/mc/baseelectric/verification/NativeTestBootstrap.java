@@ -28,6 +28,7 @@ public final class NativeTestBootstrap {
         if (ready) return;
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
+        bindNativeComponents();
         // The plain test JVM has no FML registration phase after vanilla bootstrap.
         GameData.unfreezeData();
         ready = true;
@@ -37,16 +38,24 @@ public final class NativeTestBootstrap {
         return RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
     }
 
+    public static void bindNativeComponents() {
+        var lookup = net.minecraft.data.registries.VanillaRegistries.createLookup();
+        BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(lookup).forEach(
+                net.minecraft.core.component.DataComponentInitializers.PendingComponents::apply);
+    }
+
     public static net.minecraft.world.level.storage.ValueInput input(net.minecraft.nbt.CompoundTag data) {
         return net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,
                 registries(), data);
     }
 
     public static synchronized void registerVanillaFluidTypes() throws ReflectiveOperationException {
+        initialize();
         registerNativeForgeRegistry(ForgeRegistries.FLUID_TYPES, "VANILLA_FLUID_TYPES");
     }
 
     public static synchronized void registerVanillaIngredientSerializers() throws ReflectiveOperationException {
+        initialize();
         registerNativeForgeRegistry(ForgeRegistries.INGREDIENT_SERIALIZERS, "INGREDIENT_SERIALIZERS");
     }
 

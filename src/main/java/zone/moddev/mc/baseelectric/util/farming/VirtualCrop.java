@@ -56,7 +56,7 @@ public class VirtualCrop {
 						&& !(b instanceof net.minecraft.world.level.block.CropBlock) && !(b instanceof StemBlock))
 				|| b instanceof net.minecraft.world.level.block.GrassBlock
 				|| b instanceof net.minecraft.world.level.block.VineBlock
-				|| b instanceof net.minecraft.world.level.block.WaterlilyBlock){
+				|| b instanceof net.minecraft.world.level.block.LilyPadBlock){
 			// duplicate
 			ItemStack product = seed.copy();
 			product.setCount(2);
@@ -84,7 +84,7 @@ public class VirtualCrop {
 	
 	
 	private static Block resolveStemFruit(StemBlock stem, Level world) {
-		// Forge 61 exposes the registered fruit key through the native stem codec.
+		// The native stem codec exposes the registered fruit key.
 		var ops = world.registryAccess().createSerializationContext(JsonOps.INSTANCE);
 		return StemBlock.CODEC.codec().encodeStart(ops, stem).result()
 				.flatMap(data -> ResourceKey.codec(Registries.BLOCK)

@@ -30,7 +30,7 @@ $target = "$($pins.minecraft_version)-$($pins.forge_version)"
 $forgeDir = "libraries/net/minecraftforge/forge/$target"
 $winArgs = "$forgeDir/win_args.txt"
 $receipt = [ordered]@{
-    status = 'FAIL'; scope = 'Packaged Forge 1.21.11 dedicated server and legacy inventory probe; no client or whole-world upgrade proof'
+    status = 'FAIL'; scope = 'Packaged Forge 26.1.2 dedicated server and legacy inventory probe; no client or whole-world upgrade proof'
     baseMetalsIncluded = !$WithoutBaseMetals
     seed = $seed; java = $javaPath; inputs = @(); checks = [ordered]@{}; exitCode = $null; error = $null
 }
@@ -63,31 +63,31 @@ function Send-Command([string]$Command) {
 }
 
 try {
-    if ($target -cne '1.21.11-61.1.0' -or $pins.mod_version -cne '2.2.16.121111') {
-        throw 'This smoke runner is bound to baseElectric 2.2.16.121111 on Forge 61.1.0.'
+    if ($target -cne '26.1.2-64.1.5' -or $pins.mod_version -cne '2.2.17.2601021') {
+        throw 'This smoke runner is bound to baseElectric 2.2.17.2601021 on Forge 64.1.5.'
     }
     if ($pins.poweradvantage_pin_state -notin @('LOCAL_SOURCE', 'MERGED_SOURCE') -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
         throw 'Packaged smoke requires the exact source-pinned basePower player JAR.'
     }
     $receipt.powerSourceRef = $pins.poweradvantage_source_ref
     $javaRelease = Join-Path (Split-Path (Split-Path $javaPath)) 'release'
-    if ((Get-Content -LiteralPath $javaRelease -Raw) -notmatch 'JAVA_VERSION="21\.') {
-        throw 'The dedicated-server smoke requires Java 21.'
+    if ((Get-Content -LiteralPath $javaRelease -Raw) -notmatch 'JAVA_VERSION="25\.') {
+        throw 'The dedicated-server smoke requires Java 25.'
     }
     $receipt.javaRelease = (Get-FileHash -LiteralPath $javaRelease).Hash
     $receipt.javaSha256 = (Get-FileHash -LiteralPath $javaPath).Hash
     $argsText = Get-Content -LiteralPath (Join-Path $seed $winArgs) -Raw
     $shim = "forge-$target-shim.jar"
-    if (!$argsText.Contains("-jar $shim")) { throw 'Unexpected Forge 61 server argument file.' }
+    if (!$argsText.Contains("-jar $shim")) { throw 'Unexpected Forge 64 server argument file.' }
     $receipt.shimSha256 = (Get-FileHash -LiteralPath (Join-Path $seed $shim)).Hash
-    if ($receipt.shimSha256 -cne $pins.forge_shim_sha256) { throw 'Forge shim differs from the recorded 61.1.0 runtime pin.' }
+    if ($receipt.shimSha256 -cne $pins.forge_shim_sha256) { throw 'Forge shim differs from the recorded 64.1.5 runtime pin.' }
     $receipt.seedArgumentsSha256 = (Get-FileHash -LiteralPath (Join-Path $seed $winArgs)).Hash
     $forgeUniversal = Join-Path $seed "$forgeDir/forge-$target-universal.jar"
     $receipt.forgeUniversalSha256 = (Get-FileHash -LiteralPath $forgeUniversal).Hash
-    if ($receipt.forgeUniversalSha256 -cne $pins.forge_universal_sha256) { throw 'Forge universal differs from the recorded 61.1.0 runtime pin.' }
+    if ($receipt.forgeUniversalSha256 -cne $pins.forge_universal_sha256) { throw 'Forge universal differs from the recorded 64.1.5 runtime pin.' }
     $forgeServer = Join-Path $seed "$forgeDir/forge-$target-server.jar"
     $receipt.forgeServerSha256 = (Get-FileHash -LiteralPath $forgeServer).Hash
-    if ($receipt.forgeServerSha256 -cne $pins.forge_server_sha256) { throw 'Forge server differs from the recorded 61.1.0 runtime pin.' }
+    if ($receipt.forgeServerSha256 -cne $pins.forge_server_sha256) { throw 'Forge server differs from the recorded 64.1.5 runtime pin.' }
     if ((Get-Content -LiteralPath $EulaFile -Raw) -notmatch '(?m)^eula=true\s*$') {
         throw 'Pass the existing accepted EULA from the local smoke fixture.'
     }
@@ -127,9 +127,12 @@ try {
     $start.RedirectStandardInput = $true
     $start.RedirectStandardOutput = $true
     $start.RedirectStandardError = $true
-    foreach ($arg in @('-Xmx3G', '-Dfml.earlyprogresswindow=false', "@$winArgs", 'nogui')) {
+    foreach ($arg in @('-Xmx3G', '-XX:ActiveProcessorCount=4', '-Dterminal.jline=false', '-Dfml.earlyprogresswindow=false', "@$winArgs", 'nogui')) {
         $start.ArgumentList.Add($arg)
     }
+    foreach ($name in @('JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS')) { $null = $start.Environment.Remove($name) }
+    $receipt.jvmArguments = @($start.ArgumentList)
+    $receipt.environmentJvmOptionsAbsent = @('JAVA_TOOL_OPTIONS', 'JDK_JAVA_OPTIONS', '_JAVA_OPTIONS').Where({ $start.Environment.ContainsKey($_) }).Count -eq 0
     $stdout = [IO.StreamWriter]::new((Join-Path $output 'console.log'))
     $stdout.AutoFlush = $true
     $process = [Diagnostics.Process]::Start($start)

@@ -47,7 +47,7 @@ public final class NativePackResourceProof {
         if (receipt != null) return receipt.deepCopy();
         Path evidenceRoot = Path.of("build/native-pack-resources").toAbsolutePath();
         Files.createDirectories(evidenceRoot);
-        Path evidence = Files.createTempDirectory(evidenceRoot, "forge61-");
+        Path evidence = Files.createTempDirectory(evidenceRoot, "forge64-");
         Path log = evidence.resolve("forge-resources.log");
         Process process = childProcess(evidence).redirectOutput(log.toFile()).start();
         if (!process.waitFor(90, TimeUnit.SECONDS)) {
@@ -75,6 +75,9 @@ public final class NativePackResourceProof {
                 evidence.toString()).directory(evidence.toFile())
                 .redirectErrorStream(true);
         process.environment().put("TERM", "dumb");
+        for (String name : List.of("JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS")) {
+            process.environment().remove(name);
+        }
         return process;
     }
 
@@ -86,6 +89,16 @@ public final class NativePackResourceProof {
     }
 
     public static void main(String[] args) throws Exception {
+        for (String name : List.of("JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS")) {
+            if (System.getenv(name) != null) {
+                throw new IllegalStateException("Inherited JVM environment options are forbidden in native proof: " + name);
+            }
+        }
+        if (Runtime.getRuntime().availableProcessors() != 4
+                || !java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments()
+                        .contains("-XX:ActiveProcessorCount=4")) {
+            throw new IllegalStateException("Native proof requires the explicit four-CPU JVM argument");
+        }
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
         Path resources = Path.of(args[0]);
@@ -115,7 +128,7 @@ public final class NativePackResourceProof {
             output.closeEntry();
         }
         ModFile optionalMod = new ModFile(SecureJar.from(optionalJar), new ForgeDevLocator(), ModFileParser::modsTomlParser);
-        ModList.of(List.of(mod), mod.getModInfos().stream().map(ModInfo.class::cast).toList());
+        initializeNativeModList(mod);
         List<String> diagnostics = new ArrayList<>();
         AbstractAppender appender = new AbstractAppender("ElectricPackContract", null,
                 PatternLayout.createDefaultLayout(), false, Property.EMPTY_ARRAY) {
@@ -127,6 +140,13 @@ public final class NativePackResourceProof {
         var logger = (org.apache.logging.log4j.core.Logger)LogManager.getRootLogger();
         logger.addAppender(appender);
         JsonObject result = new JsonObject();
+        result.addProperty("environmentJvmOptionsAbsent", true);
+        result.addProperty("availableProcessors", Runtime.getRuntime().availableProcessors());
+        result.addProperty("javaRuntimeVersion", System.getProperty("java.runtime.version"));
+        JsonArray arguments = new JsonArray();
+        java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().forEach(arguments::add);
+        result.add("jvmArguments", arguments);
+        result.addProperty("classpath", System.getProperty("java.class.path"));
         result.addProperty("terminalJline", System.getProperty(net.minecrell.terminalconsole.TerminalConsoleAppender.JLINE_OVERRIDE_PROPERTY));
         result.addProperty("terminalPresent", net.minecrell.terminalconsole.TerminalConsoleAppender.getTerminal() != null);
         result.addProperty("interactiveTerminalDisabled", "false".equals(System.getProperty(
@@ -164,8 +184,8 @@ public final class NativePackResourceProof {
                     side.addProperty("resourcesClass", opened.getClass().getName());
                     side.addProperty("acceptsClient", formats.isValueInRange(SharedConstants.getCurrentVersion().packVersion(PackType.CLIENT_RESOURCES)));
                     side.addProperty("acceptsServer", formats.isValueInRange(SharedConstants.getCurrentVersion().packVersion(PackType.SERVER_DATA)));
-                    side.addProperty("accepts74", formats.isValueInRange(net.minecraft.server.packs.metadata.pack.PackFormat.of(74)));
-                    side.addProperty("accepts95", formats.isValueInRange(net.minecraft.server.packs.metadata.pack.PackFormat.of(95)));
+                    side.addProperty("accepts83", formats.isValueInRange(net.minecraft.server.packs.metadata.pack.PackFormat.of(83)));
+                    side.addProperty("accepts102", formats.isValueInRange(net.minecraft.server.packs.metadata.pack.PackFormat.of(102)));
                     side.add("nativeMetadata", encoded);
                     if (type == PackType.CLIENT_RESOURCES) {
                         if (opened.getChildren() == null || opened.getChildren().size() != 1) {
@@ -211,6 +231,19 @@ public final class NativePackResourceProof {
         Files.writeString(evidence.resolve("receipt.json"), result.toString(), StandardCharsets.UTF_8);
         if (!diagnostics.isEmpty()) throw new AssertionError("Native Forge resource diagnostics: " + diagnostics);
         System.out.println("BASEELECTRIC_NATIVE_PACK_RESOURCES_PASS " + result);
+    }
+
+    private static void initializeNativeModList(ModFile mod) throws ReflectiveOperationException {
+        // Forge 64 freezes discovery before ModList's static initialization. No mod code runs in this child.
+        Class<?> stateType = Class.forName("net.minecraftforge.fml.loading.ModSorter$State");
+        var constructor = stateType.getDeclaredConstructor(List.class, List.class);
+        constructor.setAccessible(true);
+        Object state = constructor.newInstance(List.of(mod), mod.getModInfos().stream().map(ModInfo.class::cast).toList());
+        Class<?> loader = Class.forName("net.minecraftforge.fml.loading.LoadingModListImpl");
+        var initialize = loader.getDeclaredMethod("init", stateType, net.minecraftforge.fml.loading.EarlyLoadingException.class);
+        initialize.setAccessible(true);
+        initialize.invoke(null, state, null);
+        ModList.init();
     }
 
     private static JsonObject dependencies(ModFile mod) {

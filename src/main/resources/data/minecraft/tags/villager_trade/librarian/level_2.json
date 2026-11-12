@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "baseelectric:librarian/petrolplastic_ingot",
+    "baseelectric:librarian/psu"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 1
+  },
+  "gives": {
+    "id": "baseelectric:blank_circuit_board"
+  },
+  "max_uses": 7,
+  "xp": 1,
+  "reputation_discount": 0,
+  "given_item_modifiers": [
+    {
+      "function": "minecraft:set_count",
+      "count": {
+        "type": "minecraft:uniform",
+        "min": 3,
+        "max": 6
+      }
+    }
+  ]
+}

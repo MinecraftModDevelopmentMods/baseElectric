@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "baseelectric:librarian/electric_conduit",
+    "baseelectric:librarian/solder",
+    "baseelectric:librarian/integrated_circuit",
+    "baseelectric:librarian/blank_circuit_board"
+  ]
+}

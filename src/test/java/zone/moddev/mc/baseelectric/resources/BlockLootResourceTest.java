@@ -33,10 +33,10 @@ public class BlockLootResourceTest {
         assertFalse(Files.exists(root.resolve("pump_pipe_electric.json")));
     }
 
-    @Test public void resourcePackDeclaresTheNativeOneTwentyOneFormat() throws Exception {
+    @Test public void resourcePackDeclaresTheNativeTwentySixFormat() throws Exception {
         JsonObject pack = read(Paths.get("src/main/resources/pack.mcmeta")).getAsJsonObject("pack");
-        assertEquals(JsonParser.parseString("[94,1]"), pack.get("min_format"));
-        assertEquals(JsonParser.parseString("[94,1]"), pack.get("max_format"));
+        assertEquals(JsonParser.parseString("[101,1]"), pack.get("min_format"));
+        assertEquals(JsonParser.parseString("[101,1]"), pack.get("max_format"));
         assertFalse(pack.has("pack_format"));
         assertFalse(pack.has("supported_formats"));
         assertFalse(pack.has("forge:server_data_pack_format"));
@@ -44,9 +44,9 @@ public class BlockLootResourceTest {
                 .matcher(Files.readString(Path.of("src/main/resources/META-INF/mods.toml"))).find());
         zone.moddev.mc.baseelectric.verification.NativeTestBootstrap.initialize();
         var version = net.minecraft.SharedConstants.getCurrentVersion();
-        assertEquals(new net.minecraft.server.packs.metadata.pack.PackFormat(75, 0),
+        assertEquals(new net.minecraft.server.packs.metadata.pack.PackFormat(84, 0),
                 version.packVersion(net.minecraft.server.packs.PackType.CLIENT_RESOURCES));
-        assertEquals(new net.minecraft.server.packs.metadata.pack.PackFormat(94, 1),
+        assertEquals(new net.minecraft.server.packs.metadata.pack.PackFormat(101, 1),
                 version.packVersion(net.minecraft.server.packs.PackType.SERVER_DATA));
         var proof = zone.moddev.mc.baseelectric.verification.NativePackResourceProof.read();
         assertEquals(0, proof.getAsJsonArray("warningsAndErrors").size());
@@ -58,8 +58,8 @@ public class BlockLootResourceTest {
             assertTrue(type.toString(), range.isValueInRange(version.packVersion(type)));
             assertEquals("COMPATIBLE", side.get("currentCompatibility").getAsString());
             assertTrue(side.get("resourcesVerified").getAsInt() > 0);
-            assertFalse(range.isValueInRange(new net.minecraft.server.packs.metadata.pack.PackFormat(74, 0)));
-            assertFalse(range.isValueInRange(new net.minecraft.server.packs.metadata.pack.PackFormat(95, 0)));
+            assertFalse(range.isValueInRange(new net.minecraft.server.packs.metadata.pack.PackFormat(83, 0)));
+            assertFalse(range.isValueInRange(new net.minecraft.server.packs.metadata.pack.PackFormat(102, 0)));
             var codec = net.minecraft.server.packs.metadata.pack.PackMetadataSection.forPackType(type).codec();
             var decoded = codec.parse(com.mojang.serialization.JsonOps.INSTANCE, metadata).getOrThrow();
             assertEquals(metadata, codec.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, decoded).getOrThrow());
@@ -71,14 +71,17 @@ public class BlockLootResourceTest {
         assertEquals("mod:baseelectric", server.get("id").getAsString());
         assertEquals("net.minecraft.server.packs.PathPackResources", server.get("resourcesClass").getAsString());
         assertEquals("COMPATIBLE", client.get("loaderCompatibility").getAsString());
-        assertEquals("TOO_NEW", server.get("loaderCompatibility").getAsString());
+        assertEquals("COMPATIBLE", server.get("loaderCompatibility").getAsString());
         JsonObject insufficient = pack.deepCopy();
-        insufficient.add("min_format", JsonParser.parseString("[75,0]"));
+        insufficient.add("min_format", JsonParser.parseString("[84,0]"));
         insufficient.remove("pack_format");
         insufficient.remove("supported_formats");
-        assertTrue(net.minecraft.server.packs.metadata.pack.PackFormat.packCodec(
+        var broad = net.minecraft.server.packs.metadata.pack.PackFormat.packCodec(
                 net.minecraft.server.packs.PackType.SERVER_DATA).codec()
-                .parse(com.mojang.serialization.JsonOps.INSTANCE, insufficient).error().isPresent());
+                .parse(com.mojang.serialization.JsonOps.INSTANCE, insufficient).getOrThrow();
+        assertTrue("Native 26 accepts the broad range, so reject it in the exact root contract above",
+                broad.isValueInRange(version.packVersion(net.minecraft.server.packs.PackType.CLIENT_RESOURCES)));
+        assertTrue(broad.isValueInRange(version.packVersion(net.minecraft.server.packs.PackType.SERVER_DATA)));
     }
 
     @Test public void eachTrackStateUsesTheNativeCutoutRenderLayer() throws Exception {

@@ -5,7 +5,7 @@ const { execFileSync } = require('node:child_process');
 const { createHash } = require('node:crypto');
 
 const root = path.resolve(__dirname, '..');
-const baseline = 'b81645579c3330476b84149402c3ce78183df85f';
+const baseline = '951fc3921f27e963e96f29c78a38ee7093a65fde';
 const legacyTrackBaseline = '013737d4cc41947e8b6fa42f4bf926a1fa5ab998';
 const git = (...args) => execFileSync('git', args, { cwd: root });
 const old = file => git('show', baseline + ':' + file);
@@ -35,39 +35,43 @@ function check(name, run) {
     catch (error) { checks.push({name, pass: false, error: error.message}); }
 }
 
-check('Exact Forge 61 and local port identity', () => {
+check('Exact Forge 64 and local port identity', () => {
     const props = Object.fromEntries(read('gradle.properties').toString().split(/\r?\n/)
         .filter(line => /^[a-z][a-z_\d]*=/.test(line)).map(line => line.split(/=(.*)/s).slice(0, 2)));
     for (const [key, value] of Object.entries({
-        minecraft_version: '1.21.11', forge_version: '61.1.0', mapping_channel: 'official',
-        mapping_version: '1.21.11', mcp_version: '20251223.124241', java_version: '21',
-        mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.16.121111',
-        poweradvantage_version: '2.4.15.121111', basemetals_version: '3.1.2.121111',
-        poweradvantage_pin_state: 'MERGED_SOURCE',
-        poweradvantage_source_ref: '9b0043483d79d3e575895f12aeb0dde7ef6c4890',
-        poweradvantage_public_file_id: '9566998',
-        poweradvantage_deobf_sha256: 'C98D2CF163BE2480D9AFB0023BBD2D92D401AE0D50BEF73191235BF3F83774A7',
-        poweradvantage_runtime_sha256: 'C98D2CF163BE2480D9AFB0023BBD2D92D401AE0D50BEF73191235BF3F83774A7',
-        basemetals_source_commit: '6f4c44e4d0a68bca3838fb025c09cddfaaa08fe8',
-        basemetals_public_file_id: '9566738',
-        basemetals_deobf_sha256: '598D3FB0FF956EBCC67FE477A01CE393C75D0013AF0CE00A79E2072B63E9F2BA',
-        basemetals_runtime_sha256: '598D3FB0FF956EBCC67FE477A01CE393C75D0013AF0CE00A79E2072B63E9F2BA',
-        orespawn_source_commit: 'ecad75b24309a344f712d898d717c6a8823fc9f2',
-        orespawn_deobf_sha256: 'DE39929057288CEA110196C9E9D708E129B80BC360A2E53976337FFA6A84A67B',
-        orespawn_version: '4.1.0.121111', curseforge_project_id: '1783006',
+        minecraft_version: '26.1.2', forge_version: '64.1.5', mapping_channel: 'official',
+        mapping_version: '26.1.2', mcp_version: '20260409.101008', java_version: '25',
+        mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.17.2601021',
+        poweradvantage_version: '2.4.16.2601021', basemetals_version: '3.1.2.2601021',
+        orespawn_source_commit: 'c45ea2a111520ef904e994dd8dcd90babfcef29b',
+        orespawn_deobf_sha256: '6D5CE2017C3314968083D140309E2F1A54BC239AC65C48944C995E9ECF937948',
+        orespawn_version: '4.1.0.2601021', curseforge_project_id: '1783006',
         cf_requirements: 'basepower,base-metals'
     })) assert.equal(props[key], value, key);
+    assert.equal(props.reobf, 'false');
     assert.deepEqual(json('src/main/resources/pack.mcmeta').pack,
-        {min_format:[94,1], max_format:[94,1], description:'baseElectric'});
+        {min_format:[101,1], max_format:[101,1], description:'baseElectric'});
     const mods = read('src/main/resources/META-INF/mods.toml').toString();
     assert.match(mods, /^showAsResourcePack=false$/m);
-    assert.match(mods, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.15\.121111,3\.0\.0\)"/);
-    assert.match(mods, /modId="basemetals"\s+mandatory=true\s+versionRange="\[3\.1\.2\.121111,4\.0\.0\)"/);
+    assert.match(mods, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.16\.2601021,3\.0\.0\)"/);
+    assert.match(mods, /modId="basemetals"\s+mandatory=true\s+versionRange="\[3\.1\.2\.2601021,4\.0\.0\)"/);
     const build = read('build.gradle').toString();
     assert.match(build, /inputs\.files\(javadocTool\.map/);
     assert.match(build, /legal\/java\.base/);
     assert.match(build, /filesMatching\('\*\*\/\*\.svg', normalizeArchiveLineEndings\)/);
     assert.match(build, /must contain the selected JDK's full canonical legal text/);
+});
+
+check('Native source and artifact pins are complete before qualification', () => {
+    const props = Object.fromEntries(read('gradle.properties').toString().split(/\r?\n/)
+        .filter(line => /^[a-z][a-z_\d]*=/.test(line)).map(line => line.split(/=(.*)/s).slice(0, 2)));
+    assert(['LOCAL_SOURCE', 'MERGED_SOURCE'].includes(props.poweradvantage_pin_state));
+    for (const prefix of ['poweradvantage', 'basemetals', 'orespawn']) {
+        const source = props[prefix + (prefix === 'poweradvantage' ? '_source_ref' : '_source_commit')];
+        assert.match(source, /^[a-f0-9]{40}$/, prefix + ' source pin is pending');
+        assert.match(props[prefix + '_deobf_sha256'], /^[A-F0-9]{64}$/, prefix + ' artifact pin is pending');
+        assert.equal(props[prefix + '_deobf_sha256'], props[prefix + '_runtime_sha256']);
+    }
 });
 
 function checkTrackModel(file, model) {
@@ -96,7 +100,7 @@ check('Track audit rejects the old asset and a geometry mutation', () => {
     assert.throws(() => checkTrackModel(file, mutated), /changed beyond the render layer/);
 });
 
-check('Accepted 1.21.1 resources retain bytes except native recipe schema and pack metadata', () => {
+check('Released 1.21.11 resources retain bytes except native pack metadata', () => {
     const resources = tracked.filter(file => /^src\/(main|test)\/resources\//.test(file));
     const exceptions = new Set(['src/main/resources/pack.mcmeta', 'src/main/resources/META-INF/mods.toml']);
     for (const file of resources.filter(file => !exceptions.has(file))) {
@@ -117,14 +121,10 @@ check('Accepted 1.21.1 resources retain bytes except native recipe schema and pa
         const id = path.basename(file, '.json');
         assert.deepEqual(json(file), {model:{type:'minecraft:model', model:'baseelectric:item/' + id}}, file);
     }
-    assert.deepEqual(actual, [...tracked.map(relocated), ...definitions,
-        javaRoot + 'util/RegistryIds.java', javaRoot + 'util/LegacyNbt.java',
-        javaRoot.replace('main', 'test') + 'util/crafting/RecipeDeconstructorTest.java',
-        javaRoot.replace('main', 'test') + 'resources/NativePackRangeContractTest.java',
-        javaRoot.replace('main', 'test') + 'verification/NativePackResourceProof.java',
-        ...['drillupgradesandtransferslegacybattery', 'recipeavailabilitydoesnotremovediscovery',
-            'siliconandsolderresolverealmaterialtags', 'turretusesnativeupdatepacket']
-            .map(name => 'src/gametest/resources/data/baseelectric/test_instance/' + name + '.json')].sort(),
+    const trades = ['electric_conduit', 'solder', 'integrated_circuit', 'blank_circuit_board', 'petrolplastic_ingot', 'psu']
+        .map(id => 'src/main/resources/data/baseelectric/villager_trade/librarian/' + id + '.json');
+    const tiers = [1,2].map(level => 'src/main/resources/data/minecraft/tags/villager_trade/librarian/level_' + level + '.json');
+    assert.deepEqual(actual, [...tracked.filter(file => file !== javaRoot + 'init/Villages.java'), ...trades, ...tiers].sort(),
         'Source and resource inventory');
 });
 
@@ -143,35 +143,43 @@ check('Migration and registration code keep their accepted IDs and compatibility
         .replaceAll('ResourceLocation', 'Identifier').replace(/\s/g,''));
 });
 
-check('All 106 accepted tests and their assertions are retained without skips', () => {
+check('All 114 released tests retain their coverage without skips', () => {
     const methods = value => [...value.toString().matchAll(/@Test\s+public void (\w+)\(/g)].map(m => m[1]);
     const files = tracked.filter(file => file.startsWith('src/test/java/') && file.endsWith('.java'));
+    const renamed = {
+        hostedBuildsProvisionAllThreePinnedToolchainsBeforeGradle: 'hostedBuildsPinJava25ForEveryRoleBeforeGradle',
+        resourcePackDeclaresTheNativeOneTwentyOneFormat: 'resourcePackDeclaresTheNativeTwentySixFormat'
+    };
     let inherited = 0;
     let actual = 0;
     for (const file of files) {
         const current = read(file);
         const currentMethods = methods(current);
         const priorMethods = methods(old(file));
-        for (const name of priorMethods) assert(currentMethods.includes(name), file + ' lost ' + name);
+        for (const name of priorMethods) assert(currentMethods.includes(renamed[name] || name), file + ' lost ' + name);
         const assertions = value => [...value.toString().matchAll(/\bassert\w*\s*\(/g)].length;
         assert(assertions(current) >= assertions(old(file)), file + ' lost assertions');
         assert.doesNotMatch(current.toString(), /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/, file);
         inherited += priorMethods.length;
         actual += currentMethods.length;
     }
-    assert.equal(inherited, 106);
-    assert.equal(actual, 106);
-    const added = read(javaRoot.replace('main','test') + 'util/crafting/RecipeDeconstructorTest.java');
-    assert.equal(methods(added).length, 2);
-    assert.doesNotMatch(added.toString(), /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/);
-    const pack = read(javaRoot.replace('main', 'test') + 'resources/NativePackRangeContractTest.java');
-    assert.equal(methods(pack).length, 6);
-    assert.doesNotMatch(pack.toString(), /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/);
+    assert.equal(inherited, 114);
+    assert.equal(actual, 115);
     const gameTests = javaRoot.replace('main', 'gametest') + 'gametest/ElectricGameTests.java';
     const names = value => [...value.toString().matchAll(/public static void (\w+)\(GameTestHelper/g)].map(m => m[1]);
     for (const name of names(old(gameTests))) assert(names(read(gameTests)).includes(name), 'Lost GameTest: ' + name);
 });
 
+
+check('Official-name production code contains no obsolete SRG field or method names', () => {
+    const files = fs.readdirSync(path.join(root, javaRoot), {recursive:true, withFileTypes:true})
+        .filter(entry => entry.isFile() && entry.name.endsWith('.java'));
+    for (const entry of files) {
+        const file = path.join(entry.parentPath, entry.name);
+        assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /\b(?:f_\d+_|m_\d+_|field_\d+_[A-Za-z_]+|func_\d+_[A-Za-z_]+)\b/,
+            path.relative(root, file) + ' still uses obsolete mapped field/method names');
+    }
+});
 
 check('All 58 recipe IDs, results, guards and ingredients are unchanged', () => {
     const files = tracked.filter(file => /\/data\/baseelectric\/recipe\/.*\.json$/.test(file));

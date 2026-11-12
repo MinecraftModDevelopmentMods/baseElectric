@@ -4,55 +4,53 @@ baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower. Its equipment appears
 in the shared basePower creative tab.
 
-baseElectric **2.2.16.121111** runs on Minecraft **1.21.11**, Forge **61.1.0**,
-official mappings with MCP **20251223.124241**, ForgeGradle **7.0.34**, Gradle
-**9.6.1**, and Java **21**. It requires
-[basePower **2.4.15.121111**](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9566998).
-[Base Metals **3.1.2.121111**](https://www.curseforge.com/minecraft/mc-mods/base-metals/files/9566738)
-is also **REQUIRED** on both client and server;
-Forge enforces this dependency. The coordinated OreSpawn version is
-**4.1.0.121111**. This version has been accepted for release but is not yet published.
-See the [1.21.11 notes](docs/NATIVE12111.md) for compatibility and verification status.
+This checkout is the local **2.2.17.2601021** port for Minecraft **26.1.2** and
+Forge **64.1.5**, using official runtime names, MCP **20260409.101008**,
+ForgeGradle **7.0.34**, Gradle **9.6.1**, and Temurin **25.0.3+9**.
+It is not a released or qualified build yet.
 
-Combined machine, upgrade, graphical and two-world 30-minute endurance checks
-passed before the released dependency retarget. The full record and its manual-test limits are in
-basePower's `docs/1.21.11/QUALIFICATION.md`. Those limits still apply.
-Publication is waiting for the final combined restart/endurance checks and
-baseSteam's public release. The released dependency pins are recorded in
-`gradle.properties`.
+basePower **2.4.16.2601021** and Base Metals **3.1.2.2601021** are required on
+both client and server. Their local source and ordinary-jar checkpoints are
+recorded in `gradle.properties`; they are not public releases or a completed
+family qualification. The build rejects old 1.21.11 inputs. OreSpawn
+**4.1.0.2601021** is pinned to its public release. See the [26.1.2 notes](docs/NATIVE2612.md).
+
+The completed [1.21.11 release](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9567881)
+and its [qualification notes](docs/NATIVE12111.md) are historical evidence,
+not proof of this port. New gameplay, migration and graphical checks must use
+the actual 26.1.2 jars.
 
 Back up your world and try the upgrade on a copy. Replace Electric Advantage
 and Power Advantage with baseElectric and basePower; do not install both sets.
 
 ## Building locally
 
-Use Temurin 21.0.7+6 for Gradle and Minecraft. The pinned OreSpawn Mavenizer
-fixture uses Java 25, and ForgeGradle's Slime Launcher tooling uses Java 8. Set
-`-Porg.gradle.java.installations.paths=<java21-home>,<java25-home>,<java8-home>`
-if Gradle cannot discover all three.
+Use Temurin 25.0.3+9 for Gradle, Minecraft, compilation, tests, Mavenizer and
+Slime Launcher. No Java 8 helper is required. Set
+`-Porg.gradle.java.installations.paths=<java25-home>` if needed.
+Use the isolated `D:/GradleCaches/baseelectric-2612-port` cache for local work.
 
 The independent Forge/resource checks do not require sibling jars:
 
 ```text
-./gradlew --offline nativeResourceChecks compileNativeApiDiagnostics verifyRecipeTagGuards processResources
+./gradlew nativeResourceChecks compileNativeApiDiagnostics verifyRecipeTagGuards processResources --max-workers=2 --no-daemon
 node tools/verify-native-port.js
 node tools/generate-recipe-unlocks.js --check
 ```
 
-For a full local build, use the exact dependency jars recorded in
-`gradle.properties`. The sibling paths are the defaults and these flags are
-optional path overrides:
+For a full local build, use the exact local dependency pins in
+`gradle.properties`. Path overrides never replace source or hash checks:
 
 ```text
--PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.15.121111.jar
--PbaseMetalsRuntimeJar=/path/to/BaseMetals-3.1.2.121111.jar
--PforgeInstallerJar=/path/to/forge-1.21.11-61.1.0-installer.jar
+-PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.16.2601021.jar
+-PbaseMetalsRuntimeJar=/path/to/BaseMetals-3.1.2.2601021.jar
+-PforgeInstallerJar=/path/to/forge-26.1.2-64.1.5-installer.jar
 ```
 
-Forge 61 uses the ordinary native jar for both play and development. The former
+Forge 64 uses the ordinary native jar for both play and development. The former
 `*DeobfJar` path flags remain aliases for the same bytes. OreSpawn and the
-Mavenizer fixture default to the sibling `MinecraftMineralogy/OS12111/OreSpawn`
-checkout. Use `-PoreSpawnRuntimeJar` and `-Pforge61MavenizerJar` to override paths.
+Mavenizer fixture default to the sibling `MinecraftMineralogy/OS2612/OreSpawn`
+checkout. Use `-PoreSpawnRuntimeJar` and `-Pforge64MavenizerJar` to override paths.
 For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
 
 ```text
@@ -60,14 +58,25 @@ For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
 ```
 
 Use `gradlew.bat` on Windows. Output jars go to `build/libs`. Dependencies
-remain separate mods. The 1.21.11 CI and CodeQL jobs require merged source pins
+remain separate mods. The 26.1.2 CI and CodeQL jobs require merged source pins
 and checksum-matching public dependencies before checkout or compilation.
 Local jars do not satisfy that gate.
 
 ## Verification
 
-The current local checks pass 114 unit tests, 25 native resource tests and
-114 tests from fresh Eclipse compiler output, with no failures or skips.
+The current local source passes 115 unit tests, 28 independent native resource
+tests and 115 tests from fresh ECJ output, with no failures or skips. The ECJ
+gate compares every compiled test method with the Gradle XML inventory.
+All four named source GameTests also pass on the current Power checkpoint.
+Independent warm-cache and new cold-cache builds in paths containing spaces
+reproduce all three jars byte-for-byte.
+Their first-boot GameTest log contains
+native configuration and union-URL warnings, so it is not a clean-log receipt.
+The packaged server smoke passes its 19 narrow checks; combined gameplay,
+restart, migration and actual client checks remain separate parent-owned gates.
+The Power pin includes the parent's fuel-container repair. Each qualification
+receipt retains its exact input hashes. In particular,
+no old screenshot or earlier version's result qualifies this port.
 
 Run `runGameTestServer` with the same pinned mod inputs, an existing accepted
 EULA passed as `-PelectricGameTestEula=<path>`, and a new directory passed as

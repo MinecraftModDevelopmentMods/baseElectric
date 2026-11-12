@@ -1,6 +1,7 @@
 package zone.moddev.mc.baseelectric.graphics;
 
 import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.rendertype.RenderSetup;
@@ -19,7 +20,7 @@ final class ElectricRenderTypes {
                 .withLocation(Identifier.fromNamespaceAndPath("baseelectric",
                         translucent ? "pipeline/unshaded_translucent" : "pipeline/unshaded"))
                 .withShaderDefine("NO_CARDINAL_LIGHTING").withSampler("Sampler1").withCull(false);
-        if (translucent) builder.withBlend(BlendFunction.TRANSLUCENT);
+        if (translucent) builder.withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT));
         RenderPipeline pipeline = builder.build();
         RenderPipelines.PIPELINES_BY_LOCATION.put(pipeline.getLocation(), pipeline);
         return pipeline;

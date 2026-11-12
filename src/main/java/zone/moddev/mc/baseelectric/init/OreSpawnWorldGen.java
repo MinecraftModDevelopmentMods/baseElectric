@@ -25,8 +25,8 @@ public final class OreSpawnWorldGen {
     }
 
     public static void register(Path configDirectory) {
-        boolean mineralogyLoaded = ModList.get().isLoaded("mineralogy");
-        boolean baseMineralsLoaded = ModList.get().isLoaded("baseminerals");
+        boolean mineralogyLoaded = ModList.isLoaded("mineralogy");
+        boolean baseMineralsLoaded = ModList.isLoaded("baseminerals");
         boolean accepted = OreSpawnApi.enqueue(createProvider(mineralogyLoaded, baseMineralsLoaded));
         String sulfurOwner = mineralogyLoaded ? "mineralogy"
                 : baseMineralsLoaded ? "baseminerals" : ElectricAdvantage.MODID;

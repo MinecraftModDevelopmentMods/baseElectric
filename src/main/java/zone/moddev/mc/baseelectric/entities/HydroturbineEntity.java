@@ -30,7 +30,7 @@ public class HydroturbineEntity extends net.minecraft.world.entity.Entity{
 	public HydroturbineEntity(EntityType<?> type, Level w) {
 		super(type, w);
 		this.blocksBuilding = true;
-		roffset = w.random.nextInt(8);
+		roffset = w.getRandom().nextInt(8);
 	}
 	public HydroturbineEntity(Level w, BlockPos parentTileEntity) {
 		this(w, w.getBlockEntity(parentTileEntity));

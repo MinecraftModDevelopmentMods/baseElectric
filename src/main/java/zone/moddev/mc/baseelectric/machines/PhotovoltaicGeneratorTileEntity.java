@@ -97,7 +97,7 @@ public class PhotovoltaicGeneratorTileEntity extends ElectricGeneratorTileEntity
 		float light;
 		if(w.canSeeSky(lightPos) && w.dimensionType().hasSkyLight()){
 			// outdoor light imposes no penalty
-			light = Mth.sin((float)w.getDayTime() * 2.61799E-4f); // (worldTime * pi / 12000);
+			light = Mth.sin((float)w.getOverworldClockTime() * 2.61799E-4f); // (worldTime * pi / 12000);
 			// handle weather
 			if(w.isThundering()){
 				light *= 0.2f;
