@@ -1,16 +1,16 @@
-name: baseElectric 26.1.2 CI
+name: baseElectric 26.2 CI
 
 on:
   push:
-    branches: [master-26.1.2, 'feature/**']
+    branches: [master-26.2, 'feature/**']
   pull_request:
-    branches: [master-26.1.2]
+    branches: [master-26.2]
 
 permissions:
   contents: read
 
 concurrency:
-  group: baseelectric-26.1.2-${{ github.workflow }}-${{ github.ref }}
+  group: baseelectric-26.2-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -52,7 +52,7 @@ jobs:
           -Porg.gradle.java.installations.auto-download=false" >> "$GITHUB_ENV"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
-      - name: Verify the Forge 64 build inputs
+      - name: Verify the Forge 65 build inputs
         shell: bash
         env:
           ORESPAWN_REF: ${{ steps.public-pins.outputs.orespawn_ref }}
@@ -64,7 +64,7 @@ jobs:
           test "$(git -C "$orespawn" rev-parse HEAD)" = "$ORESPAWN_REF"
           test "$(git -C "$power" rev-parse HEAD)" = "$POWER_REF"
           mavenizer="$orespawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar"
-          printf '%s  %s\n' 'BB0DACB3DEB2A711CA67DD402D5FDAB5A9847C37C7B9B596DEC7CF37378FA085' "$mavenizer" | sha256sum -c -
+          printf '%s  %s\n' '5ABAB52A3F1BE115381C3CE80D5FD38DBE6C9F4C0B9ECF70A957700EC90FB88B' "$mavenizer" | sha256sum -c -
           echo "MAVENIZER=$mavenizer" >> "$GITHUB_ENV"
       - name: Build and audit release artifacts
         shell: bash
@@ -78,20 +78,20 @@ jobs:
       - name: Upload audited release candidate
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: baseElectric-26.1.2-${{ github.sha }}
+          name: baseElectric-26.2-${{ github.sha }}
           if-no-files-found: error
           retention-days: 30
           path: |
-            build/libs/baseElectric-2.2.17.2601021.jar
-            build/libs/baseElectric-2.2.17.2601021-sources.jar
-            build/libs/baseElectric-2.2.17.2601021-javadoc.jar
+            build/libs/baseElectric-2.2.18.2602001.jar
+            build/libs/baseElectric-2.2.18.2602001-sources.jar
+            build/libs/baseElectric-2.2.18.2602001-javadoc.jar
             build/release/SHA256SUMS
             CHANGELOG.txt
       - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: baseElectric-26.1.2-diagnostics-${{ github.sha }}
+          name: baseElectric-26.2-diagnostics-${{ github.sha }}
           if-no-files-found: ignore
           retention-days: 14
           path: |

@@ -1,86 +1,58 @@
 # baseElectric
 
-**Version 2.2.17.2601021 is accepted for release.**
+**Minecraft 26.2 Forge, version 2.2.18.2602001. Local build candidate.**
 
-baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
-generation, storage, automation and defence to basePower. Its equipment appears
-in the shared basePower creative tab.
+baseElectric continues DrCyano's Electric Advantage and uses basePower's shared
+API, machines and creative tab. Existing `baseelectric` registry and saved-data
+identities are retained.
 
-This checkout targets Minecraft **26.1.2** and
-Forge **64.1.5**, using official runtime names, MCP **20260409.101008**,
-ForgeGradle **7.0.34**, Gradle **9.6.1**, and Temurin **25.0.3+9**.
-The frozen profile12 family has completed automated qualification and manual
-testing. See the
-[family qualification record](../../PowerAdvantage/docs/26.1.2/QUALIFICATION.md)
-for the exact tested jars, completed checks and scope limits. Manual acceptance
-is complete. Publication is being prepared; this version is not public yet.
+This port targets Forge **65.1.0**, official Minecraft **26.2** names,
+MCP **20260616.103818**, Java **25.0.3+9**, ForgeGradle **7.0.34** and the
+checksum-pinned Gradle **9.6.1** wrapper. Native pack formats are data
+**107.1** and client **88.0**.
 
-basePower **2.4.16.2601021** and Base Metals **3.1.2.2601021** are required on
-both client and server. Their local source and ordinary-jar checkpoints are
-recorded in `gradle.properties`; they remain local inputs, not public releases.
-The build rejects old 1.21.11 inputs. OreSpawn
-**4.1.1.2601021** is pinned to its public release (CurseForge 9572926).
-See the [26.1.2 notes](docs/NATIVE2612.md).
+## Build
 
-The accepted qualification uses Power source `d0bd0bdb` / jar `23ABCC1F` and the
-exact local Base Metals hook. Verified public dependency pins are still needed
-before release CI and publication. Power is published first, then Steam, then
-Electric. Electric's manifest records its Power source and artifact provenance;
-the public-pin rebuild will have a separate byte comparison and receipt.
-The new clean release suite passes 117 unit tests and 28 native checks, and its
-warm and fresh empty-cache path-with-spaces reproductions match all three
-archives. Fresh ECJ passes all 117 tests with the complete compiled inventory,
-and the standalone source audit passes all nine checks after its exact OreSpawn
-constants were updated. The original stale-pin failures remain preserved.
+The coordinated local dependency versions are basePower **2.4.17.2602001**
+and Base Metals **3.1.2.2602001**. The Base Metals hook source is
+`523335a59ecff399e40a7c66eb121a3aabdc45ba`, player SHA-256
+`15CBD0C8DD95BBA846969929B8767887BA4B8152DFB10C9C58FB314AD39FB9E1`.
+Base Metals is REQUIRED on both client and server, not an optional integration.
+The approved local Power262 handoff is source
+`f84b2362449e39eff5e76696dd64ce4cb144da4f`, player SHA-256
+`7E456DE1A45140E86415A701D186FEDE08C4AB63D53C6B7848935DB70CBC68B1`.
 
-The completed [1.21.11 release](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9567881)
-and its [qualification notes](docs/NATIVE12111.md) are historical evidence,
-not proof of this port. New gameplay, migration and graphical checks must use
-the actual 26.1.2 jars.
+OreSpawn **4.1.1.2602001** is the approved local retained-settings repair,
+source `dcaaa933299dd8b1ebc73e31c9e5acd36dd7957c`, SHA-256
+`BC0658DF2E149CC23E65E5771F3FF62E2BB13FFDA4E316AB632EB92EF7FA5A1F`.
+It is not published; the public file-ID pin is deliberately empty. The older
+4.1.0 public download is not substituted for these bytes.
 
-Back up your world and try the upgrade on a copy. Replace Electric Advantage
-and Power Advantage with baseElectric and basePower; do not install both sets.
+The Mavenizer fixture and its source-rule, patch, licence and provenance files
+are checksum-sealed from the existing OS262 checkout. The established
+`-Pforge64MavenizerJar` property remains a path alias; it selects the Forge65
+fixture here. Dependencies stay separate mods and must match the source and
+artifact pins in `gradle.properties`.
 
-## Building locally
-
-Use Temurin 25.0.3+9 for Gradle, Minecraft, compilation, tests, Mavenizer and
-Slime Launcher. No Java 8 helper is required. Set
-`-Porg.gradle.java.installations.paths=<java25-home>` if needed.
-Use the isolated `D:/GradleCaches/baseelectric-2612-port` cache for local work.
-
-The independent Forge/resource checks do not require sibling jars:
+Use Temurin 25 and clear `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS` and
+`_JAVA_OPTIONS` before qualification. The prepared sibling layout is the
+default; explicit `*DeobfJar` and `*RuntimeJar`/`*PlayerJar` flags change
+paths, not the required bytes. With these exact coordinated inputs:
 
 ```text
-./gradlew nativeResourceChecks compileNativeApiDiagnostics verifyRecipeTagGuards processResources --max-workers=2 --no-daemon
+./gradlew clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums --no-build-cache --no-daemon
+./gradlew verifyEclipseProductionClasspath --no-daemon
 node tools/verify-native-port.js
 node tools/generate-recipe-unlocks.js --check
 ```
 
-For a full local build, use the exact local dependency pins in
-`gradle.properties`. Path overrides never replace source or hash checks:
-
-```text
--PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.16.2601021.jar
--PbaseMetalsRuntimeJar=/path/to/BaseMetals-3.1.2.2601021.jar
--PforgeInstallerJar=/path/to/forge-26.1.2-64.1.5-installer.jar
-```
-
-Forge 64 uses the ordinary native jar for both play and development. The former
-`*DeobfJar` path flags remain aliases for the same bytes. OreSpawn and the
-Mavenizer fixture default to the sibling `MinecraftMineralogy/OS2612/OreSpawn`
-checkout. Use `-PoreSpawnRuntimeJar` and `-Pforge64MavenizerJar` to override paths.
-For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
-
-```text
-./gradlew check build javadoc verifyLocalRuntimeInputs writeReleaseChecksums verifyEclipseProductionClasspath --no-build-cache
-```
-
-Use `gradlew.bat` on Windows. Output jars go to `build/libs`. Dependencies
-remain separate mods. The 26.1.2 CI and CodeQL jobs require merged source pins
-and checksum-matching public dependencies before checkout or compilation.
-Local jars do not satisfy that gate.
+See [26.2 port status](docs/NATIVE262.md). The accepted 26.1.2 family
+qualification remains historical proof of those original bytes, not this port.
+There is no 26.2 manual acceptance, hosted qualification or publication yet.
 
 ## Candidate09 Verification History
+
+This section records the earlier 26.1.2 work, not qualification of this 26.2 candidate.
 
 The previous candidate09 passed 117 unit tests, 28 independent native resource
 tests and 117 tests from fresh ECJ output, with no failures or skips. The ECJ

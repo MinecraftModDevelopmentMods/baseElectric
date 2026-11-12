@@ -35,8 +35,8 @@ public class BlockLootResourceTest {
 
     @Test public void resourcePackDeclaresTheNativeTwentySixFormat() throws Exception {
         JsonObject pack = read(Paths.get("src/main/resources/pack.mcmeta")).getAsJsonObject("pack");
-        assertEquals(JsonParser.parseString("[101,1]"), pack.get("min_format"));
-        assertEquals(JsonParser.parseString("[101,1]"), pack.get("max_format"));
+        assertEquals(JsonParser.parseString("[107,1]"), pack.get("min_format"));
+        assertEquals(JsonParser.parseString("[107,1]"), pack.get("max_format"));
         assertFalse(pack.has("pack_format"));
         assertFalse(pack.has("supported_formats"));
         assertFalse(pack.has("forge:server_data_pack_format"));
@@ -44,9 +44,9 @@ public class BlockLootResourceTest {
                 .matcher(Files.readString(Path.of("src/main/resources/META-INF/mods.toml"))).find());
         zone.moddev.mc.baseelectric.verification.NativeTestBootstrap.initialize();
         var version = net.minecraft.SharedConstants.getCurrentVersion();
-        assertEquals(new net.minecraft.server.packs.metadata.pack.PackFormat(84, 0),
+        assertEquals(new net.minecraft.server.packs.metadata.pack.PackFormat(88, 0),
                 version.packVersion(net.minecraft.server.packs.PackType.CLIENT_RESOURCES));
-        assertEquals(new net.minecraft.server.packs.metadata.pack.PackFormat(101, 1),
+        assertEquals(new net.minecraft.server.packs.metadata.pack.PackFormat(107, 1),
                 version.packVersion(net.minecraft.server.packs.PackType.SERVER_DATA));
         var proof = zone.moddev.mc.baseelectric.verification.NativePackResourceProof.read();
         assertEquals(0, proof.getAsJsonArray("warningsAndErrors").size());
@@ -73,7 +73,7 @@ public class BlockLootResourceTest {
         assertEquals("COMPATIBLE", client.get("loaderCompatibility").getAsString());
         assertEquals("COMPATIBLE", server.get("loaderCompatibility").getAsString());
         JsonObject insufficient = pack.deepCopy();
-        insufficient.add("min_format", JsonParser.parseString("[84,0]"));
+        insufficient.add("min_format", JsonParser.parseString("[88,0]"));
         insufficient.remove("pack_format");
         insufficient.remove("supported_formats");
         var broad = net.minecraft.server.packs.metadata.pack.PackFormat.packCodec(

@@ -1,3 +1,9 @@
+baseElectric 2.2.18.2602001 - local candidate
+
+- Target Minecraft 26.2 and Forge 65 with Java 25.
+- Keep the shared Base Metals migration hook and existing machine, item and saved-data identities.
+- Retain exact dependency, native pack, artifact and classpath guards while the new candidate is qualified.
+
 baseElectric 2.2.17.2601021 (Minecraft 26.1.2 / Forge)
 
 - Bring baseElectric to Minecraft 26.1.2 with Forge 64.1.5 and Java 25.

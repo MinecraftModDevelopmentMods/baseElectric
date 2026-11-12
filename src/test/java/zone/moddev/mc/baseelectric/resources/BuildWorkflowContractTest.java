@@ -47,7 +47,7 @@ public class BuildWorkflowContractTest {
             }
             assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.orespawn_ref }}"));
             assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.power_ref }}"));
-            assertTrue(source.contains("branches: [master-26.1.2"));
+            assertTrue(source.contains("branches: [master-26.2"));
             assertTrue(source.contains("-Pforge64MavenizerJar=$MAVENIZER"));
             assertTrue(source.contains("-PpowerAdvantageDeobfJar=$POWER_PLAYER"));
             assertFalse(source.contains("forge47"));

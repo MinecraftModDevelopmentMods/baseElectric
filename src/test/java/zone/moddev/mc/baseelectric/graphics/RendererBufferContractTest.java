@@ -8,7 +8,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import org.joml.Matrix4f;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import com.mojang.math.Axis;
@@ -82,6 +82,29 @@ public class RendererBufferContractTest {
                 assertArrayEquals(new float[] {0, 1}, vertex.uv, 0F);
             }
             assertNormals(buffer);
+            LaserDrillRenderer.State state = renderer.createRenderState();
+            state.length = drill.getDrillLength();
+            state.facing = drill.getFacing();
+            RecordingBuffer deferred = new RecordingBuffer();
+            renderer.submit(state, matrices, deferred.collector(), null);
+            assertSame(before, matrices.last());
+            assertEquals(matrix, matrices.last().pose());
+            assertTrue(matrices.isEmpty());
+            assertTrue(deferred.vertices.isEmpty());
+            assertEquals(1, deferred.pending.size());
+            state.length = 99;
+            state.facing = direction.getOpposite();
+            deferred.flush();
+            assertEquals(16, deferred.vertices.size());
+            for (int index = 0; index < buffer.vertices.size(); index++) {
+                Vertex expected = buffer.vertices.get(index), actual = deferred.vertices.get(index);
+                assertArrayEquals(expected.position, actual.position, 0.00001F);
+                assertArrayEquals(expected.normal, actual.normal, 0.00001F);
+                assertArrayEquals(expected.uv, actual.uv, 0F);
+                assertArrayEquals(expected.color, actual.color);
+                assertEquals(FULL_BRIGHT, actual.light);
+                assertEquals(net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, actual.overlay);
+            }
         }
     }
 
@@ -183,10 +206,28 @@ public class RendererBufferContractTest {
         int overlay;
     }
 
-    private static final class RecordingBuffer implements VertexConsumer, MultiBufferSource {
+    private static final class RecordingBuffer implements VertexConsumer {
         final List<Vertex> vertices = new ArrayList<>();
+        final List<Runnable> pending = new ArrayList<>();
         Vertex vertex = new Vertex();
-        @Override public VertexConsumer getBuffer(RenderType type) { return this; }
+        SubmitNodeCollector collector() {
+            return (SubmitNodeCollector) java.lang.reflect.Proxy.newProxyInstance(
+                    SubmitNodeCollector.class.getClassLoader(), new Class<?>[] {SubmitNodeCollector.class},
+                    (proxy, method, arguments) -> {
+                        if (!method.getName().equals("submitCustomGeometry")) {
+                            throw new AssertionError("Unexpected native submission: " + method);
+                        }
+                        assertNotNull((RenderType) arguments[1]);
+                        PoseStack.Pose pose = ((PoseStack) arguments[0]).last().copy();
+                        var geometry = (SubmitNodeCollector.CustomGeometryRenderer) arguments[2];
+                        pending.add(() -> geometry.render(pose, this));
+                        return null;
+                    });
+        }
+        void flush() {
+            pending.forEach(Runnable::run);
+            pending.clear();
+        }
         @Override public VertexConsumer addVertex(float x, float y, float z) {
             vertex = new Vertex();
             vertex.position = new float[] {x, y, z};

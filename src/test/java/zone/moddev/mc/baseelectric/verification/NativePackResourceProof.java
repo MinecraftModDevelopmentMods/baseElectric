@@ -234,7 +234,7 @@ public final class NativePackResourceProof {
     }
 
     private static void initializeNativeModList(ModFile mod) throws ReflectiveOperationException {
-        // Forge 64 freezes discovery before ModList's static initialization. No mod code runs in this child.
+        // Forge 65 freezes discovery before ModList's static initialization. No mod code runs in this child.
         Class<?> stateType = Class.forName("net.minecraftforge.fml.loading.ModSorter$State");
         var constructor = stateType.getDeclaredConstructor(List.class, List.class);
         constructor.setAccessible(true);

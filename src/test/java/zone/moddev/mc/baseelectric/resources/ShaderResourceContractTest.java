@@ -15,7 +15,7 @@ public class ShaderResourceContractTest {
         String pipeline = Files.readString(PIPELINES);
         assertTrue(pipeline.contains("RenderPipelines.ENTITY_SNIPPET"));
         assertTrue(pipeline.contains("withShaderDefine(\"NO_CARDINAL_LIGHTING\")"));
-        assertTrue(pipeline.contains("withSampler(\"Sampler1\")"));
+        assertTrue(pipeline.contains("withBindGroupLayout(BindGroupLayouts.SAMPLER1)"));
         assertTrue(pipeline.contains("withCull(false)"));
         assertTrue(pipeline.contains("BlendFunction.TRANSLUCENT"));
         assertFalse(pipeline.contains("ShaderInstance"));
@@ -29,7 +29,7 @@ public class ShaderResourceContractTest {
         assertFalse(vertex.contains("IViewRotMat"));
         for (String renderer : Arrays.asList("HydroturbineRenderer", "LaserDrillRenderer", "LaserTurretRenderer")) {
             String source = Files.readString(PIPELINES.resolveSibling(renderer + ".java"));
-            assertFalse("Forge 64 warns about mod-owned class annotations: " + renderer, source.contains("@OnlyIn"));
+            assertFalse("Forge 65 warns about mod-owned class annotations: " + renderer, source.contains("@OnlyIn"));
         }
         String registration = Files.readString(PIPELINES.resolveSibling("ClientRegistration.java"));
         assertTrue(registration.contains("value = Dist.CLIENT"));
