@@ -165,7 +165,7 @@ The released-pin player jar is
 7128973D7A7529463E8F4328D0949F45641BD1560008A9925B09C74F9BE94F6D.
 All 570 file entries match 54662C9A except META-INF/MANIFEST.MF; its only
 changed attributes are API-Pin-State and basePower-Source-Ref. Sources and
-Javadoc are byte-identical. The new default-path release suite passes all
+Javadoc were byte-identical at the initial retarget. The new default-path release suite passes all
 46 forced tasks, 114 unit tests and 25 native resource tests. Fresh actual
 Eclipse compiler output passes 114 tests, with no ignored tests or assumptions.
 An independent path-with-spaces build reproduces all three jars using the
@@ -174,3 +174,14 @@ already cold-qualified native engine. A fresh packaged witness passes all
 audits before and after restart, using Electric 7128973D, Power C98D, Steam
 F23D, Base Metals 598D and OreSpawn DE39. This does not replace the parent's
 separate final-family restart/endurance and replay publication gate.
+
+The first hosted comparison exposed five JDK-generated Javadoc differences:
+Windows SVG line endings and legal forwarding notices versus Linux's full
+license texts. Javadoc now copies the complete legal texts from the selected
+JDK's java.base module and normalizes those files and the generated SVGs to LF.
+The release audit rejects noncanonical SVGs and incomplete or different legal
+texts. This packaging correction affects only the Javadoc artifact, not the
+player or sources. The earlier local 207BD6FE Javadoc remains preserved under
+its original receipt; it is not relabelled as the cross-platform artifact.
+The corrected Windows Javadoc matches the hosted Linux jar byte-for-byte:
+7633A1BFCC86BE22F2814E5E6387289F722F67C484034CDDF366258A15D70845.

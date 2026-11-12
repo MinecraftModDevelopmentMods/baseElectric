@@ -500,10 +500,33 @@ tasks.named('sourcesJar', Jar) {
     }
 }
 
+def javadocLegalNames = ['LICENSE', 'ADDITIONAL_LICENSE_INFO', 'ASSEMBLY_EXCEPTION']
+tasks.named('javadoc', Javadoc) {
+    inputs.files(javadocTool.map { tool ->
+        javadocLegalNames.collect { tool.metadata.installationPath.file("legal/java.base/${it}").asFile }
+    })
+    doLast {
+        File legalRoot = javadocTool.get().metadata.installationPath.dir('legal/java.base').asFile
+        javadocLegalNames.each { name ->
+            if (!new File(legalRoot, name).isFile()) {
+                throw new GradleException("Selected JDK is missing legal/java.base/${name}")
+            }
+        }
+        // Windows JDK module notices point outside the generated documentation.
+        project.copy {
+            from legalRoot
+            include javadocLegalNames
+            into new File(destinationDir, 'legal')
+            filesMatching(javadocLegalNames, normalizeArchiveLineEndings)
+        }
+    }
+}
+
 tasks.named('javadocJar', Jar) {
     filteringCharset = 'UTF-8'
     archiveClassifier = 'javadoc'
     filesMatching(archiveTextPatterns, normalizeArchiveLineEndings)
+    filesMatching('**/*.svg', normalizeArchiveLineEndings)
     manifest {
         attributes([
                 'Maven-Artifact'        : "${project.group}:${base.archivesName.get()}:${project.version}:javadoc",
@@ -831,6 +854,21 @@ tasks.register('verifyReleaseArtifacts') {
         new ZipFile(new File(libs, expectedReleaseFiles.get()[2])).withCloseable { javadocZip ->
             if (javadocZip.getEntry('index.html') == null) {
                 throw new GradleException('Javadoc jar is missing index.html')
+            }
+            ['copy.svg', 'link.svg'].each { name ->
+                def entry = javadocZip.getEntry(name)
+                if (entry == null || javadocZip.getInputStream(entry).getText('UTF-8').contains('\r')) {
+                    throw new GradleException("Javadoc resource ${name} must use canonical LF line endings")
+                }
+            }
+            File legalRoot = tasks.named('javadoc', Javadoc).get().javadocTool.get()
+                    .metadata.installationPath.dir('legal/java.base').asFile
+            javadocLegalNames.each { name ->
+                def entry = javadocZip.getEntry("legal/${name}")
+                String expectedLegal = new File(legalRoot, name).getText('UTF-8').replace('\r\n', '\n')
+                if (entry == null || javadocZip.getInputStream(entry).getText('UTF-8') != expectedLegal) {
+                    throw new GradleException("Javadoc legal/${name} must contain the selected JDK's full canonical legal text")
+                }
             }
         }
     }

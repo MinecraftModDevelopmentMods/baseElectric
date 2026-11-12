@@ -63,6 +63,11 @@ check('Exact Forge 61 and local port identity', () => {
     assert.match(mods, /^showAsResourcePack=false$/m);
     assert.match(mods, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.15\.121111,3\.0\.0\)"/);
     assert.match(mods, /modId="basemetals"\s+mandatory=true\s+versionRange="\[3\.1\.2\.121111,4\.0\.0\)"/);
+    const build = read('build.gradle').toString();
+    assert.match(build, /inputs\.files\(javadocTool\.map/);
+    assert.match(build, /legal\/java\.base/);
+    assert.match(build, /filesMatching\('\*\*\/\*\.svg', normalizeArchiveLineEndings\)/);
+    assert.match(build, /must contain the selected JDK's full canonical legal text/);
 });
 
 function checkTrackModel(file, model) {
