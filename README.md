@@ -1,19 +1,37 @@
 # baseElectric
 
+**Version 2.2.17.2601021 is accepted for release.**
+
 baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower. Its equipment appears
 in the shared basePower creative tab.
 
-This checkout is the local **2.2.17.2601021** port for Minecraft **26.1.2** and
+This checkout targets Minecraft **26.1.2** and
 Forge **64.1.5**, using official runtime names, MCP **20260409.101008**,
 ForgeGradle **7.0.34**, Gradle **9.6.1**, and Temurin **25.0.3+9**.
-It is not a released or qualified build yet.
+The frozen profile12 family has completed automated qualification and manual
+testing. See the
+[family qualification record](../../PowerAdvantage/docs/26.1.2/QUALIFICATION.md)
+for the exact tested jars, completed checks and scope limits. Manual acceptance
+is complete. Publication is being prepared; this version is not public yet.
 
 basePower **2.4.16.2601021** and Base Metals **3.1.2.2601021** are required on
 both client and server. Their local source and ordinary-jar checkpoints are
-recorded in `gradle.properties`; they are not public releases or a completed
-family qualification. The build rejects old 1.21.11 inputs. OreSpawn
-**4.1.0.2601021** is pinned to its public release. See the [26.1.2 notes](docs/NATIVE2612.md).
+recorded in `gradle.properties`; they remain local inputs, not public releases.
+The build rejects old 1.21.11 inputs. OreSpawn
+**4.1.1.2601021** is pinned to its public release (CurseForge 9572926).
+See the [26.1.2 notes](docs/NATIVE2612.md).
+
+The accepted qualification uses Power source `d0bd0bdb` / jar `23ABCC1F` and the
+exact local Base Metals hook. Verified public dependency pins are still needed
+before release CI and publication. Power is published first, then Steam, then
+Electric. Electric's manifest records its Power source and artifact provenance;
+the public-pin rebuild will have a separate byte comparison and receipt.
+The new clean release suite passes 117 unit tests and 28 native checks, and its
+warm and fresh empty-cache path-with-spaces reproductions match all three
+archives. Fresh ECJ passes all 117 tests with the complete compiled inventory,
+and the standalone source audit passes all nine checks after its exact OreSpawn
+constants were updated. The original stale-pin failures remain preserved.
 
 The completed [1.21.11 release](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9567881)
 and its [qualification notes](docs/NATIVE12111.md) are historical evidence,
@@ -62,9 +80,9 @@ remain separate mods. The 26.1.2 CI and CodeQL jobs require merged source pins
 and checksum-matching public dependencies before checkout or compilation.
 Local jars do not satisfy that gate.
 
-## Verification
+## Candidate09 Verification History
 
-The current local candidate passes 117 unit tests, 28 independent native resource
+The previous candidate09 passed 117 unit tests, 28 independent native resource
 tests and 117 tests from fresh ECJ output, with no failures or skips. The ECJ
 gate compares every compiled test method with the Gradle XML inventory.
 Electric registers its pure JSON migration defaults during construction, after

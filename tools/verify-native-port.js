@@ -43,9 +43,9 @@ check('Exact Forge 64 and local port identity', () => {
         mapping_version: '26.1.2', mcp_version: '20260409.101008', java_version: '25',
         mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.17.2601021',
         poweradvantage_version: '2.4.16.2601021', basemetals_version: '3.1.2.2601021',
-        orespawn_source_commit: 'c45ea2a111520ef904e994dd8dcd90babfcef29b',
-        orespawn_deobf_sha256: '6D5CE2017C3314968083D140309E2F1A54BC239AC65C48944C995E9ECF937948',
-        orespawn_version: '4.1.0.2601021', curseforge_project_id: '1783006',
+        orespawn_source_commit: '101fd12b598934c353e417c57edc5c2bbefd5f53',
+        orespawn_deobf_sha256: '810284ECB32D5249381F246498CEFA57E70FFF7CCC40110F799FC276CBC42BF7',
+        orespawn_version: '4.1.1.2601021', curseforge_project_id: '1783006',
         cf_requirements: 'basepower,base-metals'
     })) assert.equal(props[key], value, key);
     assert.equal(props.reobf, 'false');

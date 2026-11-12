@@ -1,11 +1,12 @@
-baseElectric 2.2.17.2601021 (Minecraft 26.1.2 / Forge, unreleased)
+baseElectric 2.2.17.2601021 (Minecraft 26.1.2 / Forge)
 
-- Port to Forge 64.1.5 and Java 25 for every build and runtime role.
-- Keep the same machines, saved data, aliases, material ratios and recipe IDs.
-- Move all six librarian offers to native trade data without changing their ranges or tiers.
-- Fix client texture loading for the laser beam and inherited battery models.
-- Preserve retained OreSpawn profiles before generation and stop on ambiguous migration choices.
-- Keep 1.21.11 release evidence separate from the new port's verification.
+- Bring baseElectric to Minecraft 26.1.2 with Forge 64.1.5 and Java 25.
+- Preserve machine state, battery charge, old-world aliases, material ratios and recipe progression.
+- Keep all six librarian offers and their original ranges and tiers in native trade data.
+- Fix laser-beam texture loading and inherited battery models.
+- Preserve saved OreSpawn choices before generation and stop on ambiguous migrations.
+- Use OreSpawn 4.1.1.2601021 with the coordinated basePower and Base Metals builds.
+- Complete the local machine, upgrade, graphical, endurance and manual-acceptance checks.
 
 baseElectric 2.2.16.121111 (Minecraft 1.21.11 / Forge)
 

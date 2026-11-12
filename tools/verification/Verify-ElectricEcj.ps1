@@ -76,7 +76,7 @@ try {
     if ($properties.mod_id -ne 'baseelectric' -or $properties.mod_version -ne '2.2.17.2601021' -or
         $properties.minecraft_version -ne '26.1.2' -or $properties.forge_version -ne '64.1.5' -or
         $properties.poweradvantage_version -ne '2.4.16.2601021' -or $properties.basemetals_version -ne '3.1.2.2601021' -or
-        $properties.orespawn_version -ne '4.1.0.2601021' -or
+        $properties.orespawn_version -ne '4.1.1.2601021' -or
         $properties.poweradvantage_pin_state -notin @('LOCAL_SOURCE', 'MERGED_SOURCE') -or
         $properties.poweradvantage_source_ref -cnotmatch '^[a-f0-9]{40}$' -or
         $properties.poweradvantage_runtime_sha256 -cnotmatch '^[A-F0-9]{64}$' -or

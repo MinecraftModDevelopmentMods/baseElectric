@@ -1,5 +1,21 @@
 # Minecraft 26.1.2
 
+Version 2.2.17.2601021 is accepted for release after automated qualification and
+manual testing. See the
+[family qualification record](../../../PowerAdvantage/docs/26.1.2/QUALIFICATION.md)
+for the exact tested jars, completed checks and scope limits. The usual fork,
+MMD merge and CurseForge/GitHub/MMD Maven release workflow is authorized.
+Publication has not happened. Source pushes, merges, tags and publisher runs
+remain held until the verified public Power and Base Metals dependency handoff.
+Power is released first, then Steam, then Electric.
+
+The existing source branch remains feature/baseelectric-26.1.2-port. Public file
+IDs and merged-source pins are not filled from local candidates. Electric's
+manifest records Power provenance, so the public-pin rebuild needs its own hash
+and entry comparison. Earlier checkpoint notes, old holds and qualification
+receipts below remain historical and bound to their original inputs, not proof
+of a later public-pin jar.
+
 This is a local port, not a release. The starting source is the released
 1.21.11 merge `951fc3921f27e963e96f29c78a38ee7093a65fde`.
 
@@ -9,7 +25,58 @@ Historical candidate01 results remain bound to their original inputs, including 
 `D836D4AC22D1C46BFCD98B77A10A9475429D95141192B9C632F59DC87C273D73`.
 They must not be relabeled as candidate02 or full family acceptance.
 
-## Current Checkpoint
+## OreSpawn 4.1.1 Resume
+
+The resumed local qualification pins published OreSpawn 4.1.1.2601021, source
+`101fd12b598934c353e417c57edc5c2bbefd5f53`, CurseForge file `9572926`.
+Player and development SHA-256 are both
+`810284ECB32D5249381F246498CEFA57E70FFF7CCC40110F799FC276CBC42BF7`.
+The supplied public jar and the parent's frozen copy match that hash and retain
+the actual `26.1.2-64.0.9` / Java 25 manifest. Provenance checks stay strict.
+
+The exact parent Power handoff is source
+`d0bd0bdbde6c499e800e5a5b4ecc7f9ac63d2055`, player/development SHA-256
+`23ABCC1FEFDAA6988BF709437EB165C8948C757E773ADAB738092EB93CA8D2B0`.
+The jar and all four unit-helper inputs were verified and frozen locally.
+The clean full Gradle suite executes 52 tasks, with 117 unit tests and 28
+independent native resource checks passing without failures, errors or skips.
+Javadoc, dependency, exact archive, checksum and Eclipse audits pass.
+The independent warm-cache source export in a path with spaces passes the same
+suite and reproduces all three release archives exactly. A genuinely empty-cache
+export also passes all 52 tasks in 6m55s and reproduces all three archives.
+The Gradle download and regenerated native Forge SDK use a new unseeded cache;
+both the source and cache paths contain spaces and stay in this checkout.
+The regenerated Forge binary and source jars also match the primary SDK exactly.
+
+The four old exact OreSpawn constants in the standalone audit and ECJ guard
+were updated with user approval. The standalone source audit now passes all
+nine checks. Fresh ECJ compiles 87 main and 36 test sources, the GameTest and
+client-contract scopes, and passes all 117 tests with no ignored tests or
+assumptions. The complete compiled inventory and strict negative controls remain
+enabled. The original stale-pin failures remain separately preserved; the new
+receipts are static-contracts-green-02.log and ecj-02/ecj-results.json under the
+new Electric evidence directory. No assertion was relaxed or skipped.
+
+Final player SHA-256 is
+`E2929ED56B4CEE1AD50B6B0D2BF1AF000AA15F2C9D66E5DFB3679B53FBDED9FC`.
+Only the manifest differs from candidate09; all 576 other entries match.
+No new gameplay or combined-family result is claimed here. The parent owns all
+harnesses, scripts and combined profiles. Assigned actor/order evidence is
+separate: all nine routes and both actual-order campaigns completed against
+profile12. The three actor routes pass strictly; six dimension routes retain
+PASS_WITH_NATIVE_DIFFERENCE for the independently controlled native wolf health
+and max-health scaling. Original strict differences are preserved. Both actual
+orders, six strict profile-boot audits, source/input custody and all 39 game
+process closures pass. Instrumented order qualificationAllowed remains false.
+The assigned handoff is actors-orders/final-owned-handoff-01.json under the
+resume directory, SHA-256
+53E74959A4B3DF78F92652FB4C79C77BC185E326F23F525CB12E1CDBB2B48020.
+This is not human gameplay acceptance or a global family verdict. New child evidence is
+kept under
+`D:/PowerAdvantage/_verification/base-2612-port-20261112/resume-orespawn411-20261112/electric`.
+All historical results below retain their original candidate bindings.
+
+## Previous Candidate09 Checkpoint
 
 The candidate09 ordinary jar is
 `0911C5D68C81E3B0E4EE3A596F20E25E59A4EDE1BFDC96A36398A3799E754FC1`.
@@ -161,10 +228,10 @@ remain historical, not relabeled as the atlas-repaired candidate06.
 - Minecraft 26.1.2, Forge 64.1.5, MCP 20260409.101008, official runtime names.
 - Temurin 25.0.3+9 for all roles, ForgeGradle 7.0.34, Gradle 9.6.1, `reobf=false`.
 - baseElectric 2.2.17.2601021; basePower 2.4.16.2601021 and Base Metals 3.1.2.2601021 required.
-- OreSpawn 4.1.0.2601021, source `c45ea2a111520ef904e994dd8dcd90babfcef29b`,
-  ordinary jar SHA-256 `6D5CE2017C3314968083D140309E2F1A54BC239AC65C48944C995E9ECF937948`.
+- OreSpawn 4.1.1.2601021, source `101fd12b598934c353e417c57edc5c2bbefd5f53`,
+  ordinary jar SHA-256 `810284ECB32D5249381F246498CEFA57E70FFF7CCC40110F799FC276CBC42BF7`.
 
-The local Power checkpoint is `b947b4b81f3508fa220a212b41157ed2f801909f`;
+The local Power checkpoint is `d0bd0bdbde6c499e800e5a5b4ecc7f9ac63d2055`;
 the Base Metals shared-hook checkpoint is `331fa46914f854db71a8c33500cc559a8878b7d3`.
 Their exact ordinary jar hashes are recorded in `gradle.properties`.
 These are local integration inputs, not public releases or completed family
