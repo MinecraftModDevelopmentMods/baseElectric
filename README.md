@@ -16,17 +16,19 @@ for the exact tested jars, completed checks and scope limits. Manual acceptance
 is complete. Publication is being prepared; this version is not public yet.
 
 basePower **2.4.16.2601021** and Base Metals **3.1.2.2601021** are required on
-both client and server. Their local source and ordinary-jar checkpoints are
-recorded in `gradle.properties`; they remain local inputs, not public releases.
+both client and server. Their public source and ordinary-jar checkpoints are
+recorded in `gradle.properties`.
 The build rejects old 1.21.11 inputs. OreSpawn
 **4.1.1.2601021** is pinned to its public release (CurseForge 9572926).
 See the [26.1.2 notes](docs/NATIVE2612.md).
 
-The accepted qualification uses Power source `d0bd0bdb` / jar `23ABCC1F` and the
-exact local Base Metals hook. Verified public dependency pins are still needed
-before release CI and publication. Power is published first, then Steam, then
-Electric. Electric's manifest records its Power source and artifact provenance;
-the public-pin rebuild will have a separate byte comparison and receipt.
+The public pins use Power source `a684e71e` / jar `23ABCC1F` (CurseForge 9576332)
+and Base Metals source `5e708468` / jar `67862388` (9576007). Their public
+downloads match the accepted dependency jars. Power is published first, then
+Steam, then Electric. Electric's promoted jar changes only its manifest to
+record the merged Power source; every other archive entry is byte-identical
+to the accepted candidate. Restart and endurance qualification for those final
+jar bytes is recorded separately from the earlier candidate's results.
 The new clean release suite passes 117 unit tests and 28 native checks, and its
 warm and fresh empty-cache path-with-spaces reproductions match all three
 archives. Fresh ECJ passes all 117 tests with the complete compiled inventory,
