@@ -10,6 +10,7 @@ baseElectric 2.2.19.2603001 - local port in progress
 - Use native recipe-holder unlock criteria with exact recipe condition parity; preserve rewards and ingredient OR groups.
 - Keep exact dependency, tool, artifact, test and Eclipse classpath guards.
 - Pin the coordinated local Power 2.4.18, Base Metals 3.1.2 and OreSpawn 4.1.1 inputs for 26.3.
+- Select Power handoff04's pending-item-tag phase repair; retain earlier passing build and failed startup receipts without carrying qualification forward.
 - Earlier 26.2 checks are historical, not qualification of this port. No publication.
 
 baseElectric 2.2.18.2602001 - local candidate

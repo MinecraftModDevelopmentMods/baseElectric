@@ -32,12 +32,13 @@ IAF `8e6de134b075811a7295e15ad32a224cf3c04134`.
 ## Local Input Handoffs
 
 Power's immutable compiler handoff is accepted: source
-`83a52b5945e7a65f1e90d6058d391938c5289d3a`, SHA-256
-`D03CB5DB644075CE6C2E0CC663DD62FBB5CCDDCDB0EBC6C0CA09088F1FE616E1`.
+`1edd86f376e63753eaeaa0358e9d48459e3649ce`, SHA-256
+`5241EA6024AAB3D898ADEA164527CA10EF6BDE2DE155F89B1F7DFD18363676AB`.
 The exact approved BM/OS compiler snapshots are likewise pinned by source
 and SHA-256. These pins identify local inputs, not gameplay/public acceptance.
-All 87 Electric production sources, dependency audit, GameTest compilation,
-Javadoc and model assets now pass against that stack.
+Handoff04 repairs the actual pending-item-tag phase with a required scoped
+Power mixin. Earlier D03 results remain historical. Rebuild and actual startup
+must use the changed exact input; no prior pass is transferred to handoff04.
 
 Full-suite, ECJ, complete Eclipse, packaged and reproduction gates remain
 separate. The remaining required handoffs are:
@@ -45,7 +46,7 @@ separate. The remaining required handoffs are:
 - Installed baseline server/shim/universal hashes for packaged verification.
 
 The earlier uncommitted helper mismatch is resolved by the approved test-rig
-checkpoint 26ad8, unchanged in current 83a52b5. Exact source files are frozen
+checkpoint 26ad8, unchanged in current 1edd86f. Exact source files are frozen
 under the child's `unit-inputs-01`; its native agent rebuild remains sealed.
 Earlier helper-blocked attempts remain in the external receipts, not passes.
 
@@ -74,12 +75,12 @@ Current run receipts and failed attempts live at
 The isolated Gradle home is `D:/GradleCaches/baseelectric-263-port`.
 Only Electric source/build outputs and its evidence are writable in this task.
 
-Current checkpoint results:
+Historical D03 checkpoint results (not handoff04 qualification):
 
 - All 87 production sources, complete 118-unit / 34-suite Gradle inventory,
   client/GameTest compilation, build/Javadoc, dependency/artifact/checksum
   audits and complete Eclipse production classpath PASS (`attempt23`, 51 tasks,
-  current Power handoff03).
+  Power handoff03).
 - Independent ECJ main/test/helper compilation and the exact 118-test inventory
   PASS (`attempt24`), zero failures/ignored tests/assumptions, Java 25 bytecode.
 - The separate 29 native resource tests PASS (also `attempt23`), including native
@@ -92,12 +93,18 @@ Current checkpoint results:
   predicate retains its cobweb/bamboo-sapling exceptions. Quaternion rotation
   and piston reactions use their native replacements without geometry changes.
   GameTest compilation/Javadoc/model assets PASS (`attempt14`).
-- These initial full gates use current Power handoff03. Older attempt20/21
+- These initial full gates use Power handoff03. Older attempt20/21
   results on handoff02 remain preserved, not transferred to this input.
-  Cold-cache/reproduction and gameplay passes are not claimed yet.
+  Actual startup failed in attempt25 on unbound item tags in Power's material
+  condition. The full failed run is preserved without skipping native data or
+  Forge conditions; handoff04 is the parent's scoped repair for this failure.
+- Attempt26 passed all 52 cold/spaced-path tasks on D03 with a new empty Gradle
+  home and project cache. All three jars match immutable Electric handoff01.
+  This result remains D03-only; changed-input cold/reproduction gates remain.
 - Earlier attempts retain the argument, compile and native test failures.
   The first cache started empty, but its command failed before task selection;
-  subsequent checks reuse the prepared SDK. No full cold-cache gate is claimed.
+  subsequent initial checks reused the prepared SDK. Attempt26 is the later
+  genuine cold-cache pass, not a relabelled retry of that first failure.
 - Holder-set regression is red-to-green: attempt10 fails on uninitialized
   native `HOLDER_SET_TYPES`; attempt11 registers Forge's stock types through
   actual `NewRegistryEvent` / `RegisterEvent` dispatch, then decodes a native

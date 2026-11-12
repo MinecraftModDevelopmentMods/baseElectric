@@ -1,6 +1,6 @@
 # baseElectric
 
-**Minecraft 26.3 Forge, version 2.2.19.2603001. Local build and ECJ checks passed; runtime checks pending.**
+**Minecraft 26.3 Forge, version 2.2.19.2603001. Local port; exact-input qualification remains separate.**
 
 baseElectric continues DrCyano's Electric Advantage and uses basePower's shared
 API, machines and creative tab. Existing `baseelectric` registry and saved-data
@@ -17,10 +17,12 @@ The coordinated local versions are basePower **2.4.18.2603001**, Base Metals
 **3.1.2.2603001** with the shared migration hook, and OreSpawn
 **4.1.1.2603001** with the retained-settings repair. Exact source and artifact
 pins are recorded for the parent's immutable local compiler/test handoff.
-Power source is `83a52b5945e7a65f1e90d6058d391938c5289d3a`, player SHA-256
-`D03CB5DB644075CE6C2E0CC663DD62FBB5CCDDCDB0EBC6C0CA09088F1FE616E1`.
+Power source is `1edd86f376e63753eaeaa0358e9d48459e3649ce`, player SHA-256
+`5241EA6024AAB3D898ADEA164527CA10EF6BDE2DE155F89B1F7DFD18363676AB`.
 Unit-support sources and agent bytes are sealed to that accepted checkpoint.
-This handoff includes the native unlock and fuel-hook repairs. Completed
+This handoff includes the native unlock, fuel-hook and scoped pending-item-tag
+phase repairs. D03's passing build/ECJ/cold results and failed startup are
+historical; they do not qualify this changed input. Completed
 checks remain bound to their exact inputs; cold/reproduction and gameplay
 acceptance are separate gates.
 The older 26.2 jars and public 26.3 BM 3.1.1/OS 4.1.0 jars
