@@ -1,6 +1,6 @@
 # baseElectric
 
-**Version 2.2.17.2601021 is accepted for release.**
+**Minecraft 26.1.2 (Forge), version 2.2.17.2601021.**
 
 baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
 generation, storage, automation and defence to basePower. Its equipment appears
@@ -13,7 +13,9 @@ The frozen profile12 family has completed automated qualification and manual
 testing. See the
 [family qualification record](../../PowerAdvantage/docs/26.1.2/QUALIFICATION.md)
 for the exact tested jars, completed checks and scope limits. Manual acceptance
-is complete. Publication is being prepared; this version is not public yet.
+is complete. [This release is available on CurseForge](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9577930),
+MMD Maven and GitHub Releases. All three player-jar downloads match the final
+restart and endurance-tested checksum.
 
 basePower **2.4.16.2601021** and Base Metals **3.1.2.2601021** are required on
 both client and server. Their public source and ordinary-jar checkpoints are
