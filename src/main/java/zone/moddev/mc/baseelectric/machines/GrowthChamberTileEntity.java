@@ -176,10 +176,10 @@ public class GrowthChamberTileEntity extends ElectricMachineTileEntity {
 		Arrays.fill(progression, 0);
 		Arrays.fill(progressionMax, 0);
 		oldInventory = null;
-		pendingGrowth = tagRoot.contains("growth", 7)
-				? Arrays.copyOf(tagRoot.getByteArray("growth"), GROWTH_AREA) : null;
-		if(tagRoot.contains("prog", 11)){
-			int[] saved = tagRoot.getIntArray("prog");
+		pendingGrowth = (tagRoot.get("growth") instanceof net.minecraft.nbt.ByteArrayTag)
+				? Arrays.copyOf(tagRoot.getByteArray("growth").orElseGet(() -> new byte[0]), GROWTH_AREA) : null;
+		if((tagRoot.get("prog") instanceof net.minecraft.nbt.IntArrayTag)){
+			int[] saved = tagRoot.getIntArray("prog").orElseGet(() -> new int[0]);
 			System.arraycopy(saved, 0, progression, 0, Math.min(saved.length, progression.length));
 		}
 	}

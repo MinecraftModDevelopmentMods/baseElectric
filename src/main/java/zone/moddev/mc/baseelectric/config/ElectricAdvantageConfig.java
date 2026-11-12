@@ -32,6 +32,14 @@ public final class ElectricAdvantageConfig {
     private ElectricAdvantageConfig() {}
 
     public static void onConfigLoading(ModConfigEvent.Loading event) {
+        update(event);
+    }
+
+    public static void onConfigReloading(ModConfigEvent.Reloading event) {
+        update(event);
+    }
+
+    private static void update(ModConfigEvent event) {
         if (event.getConfig().getSpec() != SPEC) return;
         loaded = true;
         apply();

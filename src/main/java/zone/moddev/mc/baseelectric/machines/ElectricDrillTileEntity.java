@@ -21,8 +21,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -153,7 +151,9 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 		w.setBlock(nextPos, w.getBlockState(getBlockPos()), 2);
 		ElectricDrillTileEntity te = (ElectricDrillTileEntity)w.getBlockEntity(nextPos);
 		CompoundTag dataTransfer = saveWithoutMetadata(w.registryAccess());
-		te.loadWithComponents(dataTransfer, w.registryAccess());
+        try (var problems = new net.minecraft.util.ProblemReporter.ScopedCollector(org.slf4j.LoggerFactory.getLogger("baseelectric"))) {
+            te.loadWithComponents(net.minecraft.world.level.storage.TagValueInput.create(problems, w.registryAccess(), dataTransfer));
+        }
 		te.clearRemoved();
 		te.subtractEnergy(ENERGY_COST_MOVE, getEnergyType());
 		te.setChanged();
@@ -290,7 +290,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 			List<LivingEntity> victims = getLevel().getEntitiesOfClass(LivingEntity.class, beamArea);
 			for(Entity e : victims){
 				e.igniteForSeconds(3);
-			e.hurt(Power.damageSource(getLevel(), Power.LASER_DAMAGE), 2f);
+			e.hurtServer((net.minecraft.server.level.ServerLevel) getLevel(), Power.damageSource(getLevel(), Power.LASER_DAMAGE), 2f);
 			}
 		}
 	}
@@ -337,7 +337,7 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 				return;
 			}
 			for(int i = 0; i < targets.length; i++){
-				if(!savedTargetStates.getCompound(i).equals(NbtUtils.writeBlockState(getLevel().getBlockState(targets[i])))){
+				if(!savedTargetStates.getCompoundOrEmpty(i).equals(NbtUtils.writeBlockState(getLevel().getBlockState(targets[i])))){
 					untargetBlock();
 					return;
 				}
@@ -499,14 +499,14 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 	@Override
 	protected void loadFrom(CompoundTag tagRoot) {
 		untargetBlock();
-		if(tagRoot.contains("progress", 99)){
-			progress = tagRoot.getShort("progress");
+		if((tagRoot.get("progress") instanceof net.minecraft.nbt.NumericTag)){
+			progress = tagRoot.getShortOr("progress", (short) 0);
 		}
-		if(tagRoot.contains("targetX", 99) && tagRoot.contains("targetY", 99) && tagRoot.contains("targetZ", 99)){
-			int x = tagRoot.getInt("targetX");
-			int y = tagRoot.getInt("targetY");
-			int z = tagRoot.getInt("targetZ");
-			savedTargetStates = tagRoot.contains("TargetStates", 9) ? tagRoot.getList("TargetStates", 10).copy() : null;
+		if((tagRoot.get("targetX") instanceof net.minecraft.nbt.NumericTag) && (tagRoot.get("targetY") instanceof net.minecraft.nbt.NumericTag) && (tagRoot.get("targetZ") instanceof net.minecraft.nbt.NumericTag)){
+			int x = tagRoot.getIntOr("targetX", 0);
+			int y = tagRoot.getIntOr("targetY", 0);
+			int z = tagRoot.getIntOr("targetZ", 0);
+			savedTargetStates = (tagRoot.get("TargetStates") instanceof net.minecraft.nbt.ListTag) ? tagRoot.getList("TargetStates").filter(list -> list.stream().allMatch(entry -> entry.getId() == 10)).orElseGet(net.minecraft.nbt.ListTag::new).copy() : null;
 			// Note: world object for tile entities is set AFTER loading them from NBT
 			if(getLevel() == null){
 				this.deferredTargetBlock(new BlockPos(x,y,z));
@@ -543,7 +543,6 @@ public class ElectricDrillTileEntity extends ElectricMachineTileEntity{
 
 	// Helps with laser rendering
 	final private int renderRange = MAX_RANGE * 2;
-	@OnlyIn(Dist.CLIENT)
 	public AABB getRenderBoundingBox()
 	{
 		return new AABB(getBlockPos()).inflate(renderRange);

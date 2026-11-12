@@ -4,12 +4,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cyano.poweradvantage.api.GUIBlock;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
@@ -92,7 +92,11 @@ public final class Blocks {
         growth_chamber = (GUIBlock) add(new GrowthChamberBlock(), "growth_chamber");
         growth_chamber_controller = (GUIBlock) add(new GrowthChamberControllerBlock(), "growth_chamber_controller");
         oven = (GUIBlock) add(new ElectricOvenBlock(), "electric_oven");
-        electric_switch = add(new BlockPowerSwitch(Power.ELECTRIC_POWER), "electric_switch");
+        electric_switch = add(new BlockPowerSwitch(Power.ELECTRIC_POWER,
+                Block.Properties.of().setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("electric_switch"))
+                        .mapColor(net.minecraft.world.level.material.MapColor.STONE)
+                        .pushReaction(net.minecraft.world.level.material.PushReaction.BLOCK)
+                        .forceSolidOn().strength(0.75F)), "electric_switch");
         electric_pump = (GUIBlock) add(new ElectricPumpBlock(), "electric_pump");
         electric_still = (GUIBlock) add(new ElectricStillBlock(), "electric_still");
         plastic_refinery = (GUIBlock) add(new PlasticRefineryBlock(), "plastic_refinery");
@@ -108,17 +112,18 @@ public final class Blocks {
     @SubscribeEvent public static void registerBlocks(RegisterEvent event) {
         event.register(ForgeRegistries.Keys.BLOCKS, registry -> {
             constructBlocks();
-            ALL_BLOCKS.forEach((id, block) -> registry.register(ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, id), block));
+            ALL_BLOCKS.forEach((id, block) -> registry.register(Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, id), block));
         });
     }
 
     @SubscribeEvent public static void registerBlockItems(RegisterEvent event) {
         event.register(ForgeRegistries.Keys.ITEMS, registry -> ALL_BLOCKS.forEach((id, block) -> {
-            BlockItem item = new BlockItem(block, new Item.Properties());
+            BlockItem item = new BlockItem(block, new Item.Properties()
+                    .setId(zone.moddev.mc.baseelectric.util.RegistryIds.item(id)).useBlockDescriptionPrefix());
             if (!"pump_pipe_electric".equals(id) && !"laser_turret_evil".equals(id)) {
                 ItemGroups.show(item);
             }
-            registry.register(ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, id), item);
+            registry.register(Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, id), item);
         }));
     }
 }

@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.gametest.framework.GameTest;
+import net.minecraftforge.gametest.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -13,12 +13,12 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.gametest.GameTestDontPrefix;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.GameTestNamespace;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.init.Blocks;
 import zone.moddev.mc.baseelectric.init.Items;
@@ -27,10 +27,26 @@ import zone.moddev.mc.baseelectric.items.BatteryItem;
 import zone.moddev.mc.baseelectric.machines.ElectricDrillTileEntity;
 import zone.moddev.mc.baseelectric.machines.LaserTurretTileEntity;
 
-@GameTestHolder(value = ElectricAdvantage.MODID, namespace = ElectricAdvantage.MODID)
+@GameTestNamespace(ElectricAdvantage.MODID)
 @GameTestDontPrefix
+@net.minecraftforge.fml.common.Mod.EventBusSubscriber(modid = ElectricAdvantage.MODID,
+        bus = net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus.MOD)
 public final class ElectricGameTests {
     private ElectricGameTests() {}
+
+    @net.minecraftforge.eventbus.api.listener.SubscribeEvent
+    public static void registerFunctions(net.minecraftforge.registries.RegisterEvent event) {
+        event.register(net.minecraft.core.registries.Registries.TEST_FUNCTION, registry -> {
+            registry.register(Identifier.parse("baseelectric:drillupgradesandtransferslegacybattery"),
+                    ElectricGameTests::drillUpgradesAndTransfersLegacyBattery);
+            registry.register(Identifier.parse("baseelectric:recipeavailabilitydoesnotremovediscovery"),
+                    ElectricGameTests::recipeAvailabilityDoesNotRemoveDiscovery);
+            registry.register(Identifier.parse("baseelectric:siliconandsolderresolverealmaterialtags"),
+                    ElectricGameTests::siliconAndSolderResolveRealMaterialTags);
+            registry.register(Identifier.parse("baseelectric:turretusesnativeupdatepacket"),
+                    ElectricGameTests::turretUsesNativeUpdatePacket);
+        });
+    }
 
     public static void main(String[] args) throws Exception {
         Path output = Path.of(args[1]);
@@ -38,14 +54,14 @@ public final class ElectricGameTests {
         NbtIo.writeCompressed(NbtUtils.snbtToStructure(Files.readString(Path.of(args[0]))), output);
     }
 
-    @GameTest(batch = ElectricAdvantage.MODID, template = "empty")
+    @GameTest(name = "drillupgradesandtransferslegacybattery", structure = "empty")
     public static void drillUpgradesAndTransfersLegacyBattery(GameTestHelper helper) {
         BlockPos source = new BlockPos(1, 1, 1);
         BlockPos destination = source.east();
         helper.setBlock(source, Blocks.laser_drill);
         helper.setBlock(destination, Blocks.laser_drill);
-        var drill = (ElectricDrillTileEntity) helper.getBlockEntity(source);
-        var relocated = (ElectricDrillTileEntity) helper.getBlockEntity(destination);
+        var drill = helper.getBlockEntity(source, ElectricDrillTileEntity.class);
+        var relocated = helper.getBlockEntity(destination, ElectricDrillTileEntity.class);
         var registries = helper.getLevel().registryAccess();
         CompoundTag batteryData = new CompoundTag();
         batteryData.putFloat("energy", 0.0F);
@@ -59,51 +75,85 @@ public final class ElectricGameTests {
         slots.add(oldStack);
         CompoundTag oldInventory = new CompoundTag();
         oldInventory.put("Items", slots);
-        drill.loadWithComponents(oldInventory, registries);
+        load(drill, oldInventory, registries);
         ItemStack stack = drill.getOutputSlot(0);
         var battery = (BatteryItem) Items.lead_acid_battery;
         helper.assertTrue(stack != null && stack.is(battery), "The legacy slot did not load as a battery");
         helper.assertTrue(battery.getEnergy(stack) == 0.0F, "The depleted battery became charged");
         helper.assertTrue(battery.addEnergy(stack, 25.0F, Power.ELECTRIC_POWER) == 25.0F,
                 "The loaded battery cannot receive charge");
-        relocated.loadWithComponents(drill.saveWithoutMetadata(registries), registries);
+        load(relocated, drill.saveWithoutMetadata(registries), registries);
         ItemStack moved = relocated.getOutputSlot(0);
         helper.assertTrue(moved != null && ItemStack.matches(stack, moved),
                 "Drill transfer did not preserve the battery components");
-        helper.assertTrue("old-drill-slot".equals(moved.get(DataComponents.CUSTOM_DATA).copyTag().getString("marker")),
+        helper.assertTrue("old-drill-slot".equals(moved.get(DataComponents.CUSTOM_DATA).copyTag().getString("marker").orElseThrow()),
                 "Charging the battery erased unrelated data");
         helper.assertTrue(relocated.getBlockPos().equals(helper.absolutePos(destination)),
                 "Drill transfer changed the destination position");
         helper.succeed();
     }
 
-    @GameTest(batch = ElectricAdvantage.MODID, template = "empty")
+    @GameTest(name = "recipeavailabilitydoesnotremovediscovery", structure = "empty")
     public static void recipeAvailabilityDoesNotRemoveDiscovery(GameTestHelper helper) {
         var server = helper.getLevel().getServer();
-        var advancement = ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, "recipes/alkaline_battery");
+        var advancement = Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "recipes/alkaline_battery");
         helper.assertTrue(server.getAdvancements().get(advancement) != null,
                 "A material-gated recipe lost its discovery advancement");
         int checked = 0;
         var registries = helper.getLevel().registryAccess();
+        var entries = new java.util.ArrayList<net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket.Entry>();
         for (var holder : server.getRecipeManager().getRecipes()) {
-            if (!holder.id().getNamespace().equals(ElectricAdvantage.MODID)) continue;
-            RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
-            try {
-                Recipe.STREAM_CODEC.encode(buffer, holder.value());
-                var decoded = Recipe.STREAM_CODEC.decode(buffer);
-                helper.assertTrue(decoded.getSerializer() == holder.value().getSerializer()
-                        && ItemStack.matches(decoded.getResultItem(registries), holder.value().getResultItem(registries)),
-                        "Electric recipe changed over the native network codec: " + holder.id());
-            } finally {
-                buffer.release();
-            }
+            if (!holder.id().identifier().getNamespace().equals(ElectricAdvantage.MODID)) continue;
+            int before = entries.size();
+            server.getRecipeManager().listDisplaysForRecipe(holder.id(), display -> entries.add(
+                    new net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket.Entry(
+                            display, holder.value().showNotification(), true)));
+            helper.assertTrue(entries.size() - before == holder.value().display().size(),
+                    "Electric recipe lost its native client displays: " + holder.id());
             checked++;
         }
         helper.assertTrue(checked > 0, "No Electric recipes were present for the network check");
+        helper.assertTrue(!entries.isEmpty(), "No Electric recipe-book entries were present");
+        var packet = new net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket(entries, true);
+        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
+        RegistryFriendlyByteBuf roundTrip = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
+        try {
+            net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket.STREAM_CODEC.encode(buffer, packet);
+            byte[] originalBytes = io.netty.buffer.ByteBufUtil.getBytes(buffer);
+            var decoded = net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket.STREAM_CODEC.decode(buffer);
+            net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket.STREAM_CODEC.encode(roundTrip, decoded);
+            helper.assertTrue(decoded.replace() && decoded.entries().size() == entries.size()
+                            && java.util.Arrays.equals(originalBytes, io.netty.buffer.ByteBufUtil.getBytes(roundTrip)),
+                    "Electric recipe displays changed over the actual native recipe-book packet");
+        } finally {
+            buffer.release();
+            roundTrip.release();
+        }
+        assertEveryPackagedRecipeUsesTheNativeCodec(helper);
         helper.succeed();
     }
 
-    @GameTest(batch = ElectricAdvantage.MODID, template = "empty")
+    private static void assertEveryPackagedRecipeUsesTheNativeCodec(GameTestHelper helper) {
+        var resources = helper.getLevel().getServer().getResourceManager().listResources("recipe",
+                id -> id.getNamespace().equals(ElectricAdvantage.MODID) && id.getPath().endsWith(".json"));
+        helper.assertTrue(resources.size() == 58, "Expected all 58 packaged Electric recipes, found " + resources.size());
+        var ops = helper.getLevel().registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE);
+        for (var entry : resources.entrySet()) {
+            try (var reader = entry.getValue().openAsReader()) {
+                var json = com.google.gson.JsonParser.parseReader(reader);
+                var decoded = Recipe.CODEC.parse(ops, json).getOrThrow();
+                var encoded = Recipe.CODEC.encodeStart(ops, decoded).getOrThrow();
+                var again = Recipe.CODEC.parse(ops, encoded).getOrThrow();
+                helper.assertTrue(decoded.getSerializer() == again.getSerializer()
+                                && encoded.equals(Recipe.CODEC.encodeStart(ops, again).getOrThrow()),
+                        "Packaged recipe changed over its native codec: " + entry.getKey());
+            } catch (Exception failure) {
+                throw new AssertionError("Native recipe codec rejected " + entry.getKey(), failure);
+            }
+        }
+    }
+
+    @GameTest(name = "siliconandsolderresolverealmaterialtags", structure = "empty")
     public static void siliconAndSolderResolveRealMaterialTags(GameTestHelper helper) {
         assertLoadedRecipe(helper, "silicon_blend", Items.silicon_blend, 1);
         assertLoadedRecipe(helper, "silicon_ingot_from_blend", Items.silicon_ingot, 1);
@@ -114,22 +164,27 @@ public final class ElectricGameTests {
     }
 
     private static void assertLoadedRecipe(GameTestHelper helper, String path, Item item, int count) {
-        var id = ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, path);
+        var id = Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, path);
         var level = helper.getLevel();
-        var holder = level.getRecipeManager().byKey(id);
+        var holder = level.recipeAccess().byKey(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE, id));
         helper.assertTrue(holder.isPresent(), "Recipe was gated despite valid materials: " + id);
         var recipe = holder.orElseThrow().value();
-        helper.assertTrue(recipe.getIngredients().stream().allMatch(ingredient -> ingredient.getItems().length > 0),
+        helper.assertTrue(!recipe.placementInfo().ingredients().isEmpty()
+                        && recipe.placementInfo().ingredients().stream().allMatch(ingredient -> !ingredient.isEmpty()),
                 "Recipe loaded with an empty ingredient: " + id);
-        helper.assertTrue(ItemStack.matches(new ItemStack(item, count), recipe.getResultItem(level.registryAccess())),
+        var encoded = Recipe.CODEC.encodeStart(level.registryAccess().createSerializationContext(
+                com.mojang.serialization.JsonOps.INSTANCE), recipe).getOrThrow().getAsJsonObject();
+        var result = ItemStack.CODEC.parse(level.registryAccess().createSerializationContext(
+                com.mojang.serialization.JsonOps.INSTANCE), encoded.get("result")).getOrThrow();
+        helper.assertTrue(ItemStack.matches(new ItemStack(item, count), result),
                 "Unexpected output for " + id);
     }
 
-    @GameTest(batch = ElectricAdvantage.MODID, template = "empty")
+    @GameTest(name = "turretusesnativeupdatepacket", structure = "empty")
     public static void turretUsesNativeUpdatePacket(GameTestHelper helper) {
         BlockPos relative = new BlockPos(1, 1, 1);
         helper.setBlock(relative, Blocks.laser_turret);
-        var turret = (LaserTurretTileEntity) helper.getBlockEntity(relative);
+        var turret = helper.getBlockEntity(relative, LaserTurretTileEntity.class);
         var packet = turret.getUpdatePacket();
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), helper.getLevel().registryAccess());
         try {
@@ -143,5 +198,12 @@ public final class ElectricGameTests {
             buffer.release();
         }
         helper.succeed();
+    }
+
+    private static void load(net.minecraft.world.level.block.entity.BlockEntity tile, CompoundTag data,
+            net.minecraft.core.HolderLookup.Provider registries) {
+        try (var problems = new net.minecraft.util.ProblemReporter.ScopedCollector(org.slf4j.LoggerFactory.getLogger("baseelectric-gametest"))) {
+            tile.loadWithComponents(net.minecraft.world.level.storage.TagValueInput.create(problems, registries, data));
+        }
     }
 }

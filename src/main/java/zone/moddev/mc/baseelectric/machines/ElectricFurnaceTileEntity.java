@@ -106,9 +106,9 @@ public class ElectricFurnaceTileEntity extends ElectricMachineTileEntity{
 
 	@Override
 	protected void loadFrom(CompoundTag tagRoot) {
-		ListTag burnTimes = tagRoot.getList("cookTime", 2);
+		ListTag burnTimes = tagRoot.getList("cookTime").filter(list -> list.stream().allMatch(entry -> entry.getId() == 2)).orElseGet(net.minecraft.nbt.ListTag::new);
 		for(int i = 0; i < numberOfInputSlots() && i < burnTimes.size(); i++){
-			burnTime[i] = ((ShortTag)burnTimes.get(i)).getAsShort();
+			burnTime[i] = ((ShortTag)burnTimes.get(i)).shortValue();
 		}
 	}
 

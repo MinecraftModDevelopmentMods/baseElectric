@@ -20,7 +20,7 @@ public class LEDBlock extends ElectricConduitBlock implements EntityBlock {
     public static final BooleanProperty LIT = BooleanProperty.create("lit");
 
     public LEDBlock() {
-        super();
+        super("led_bar");
         registerDefaultState(getStateDefinition().any()
                 .setValue(WEST, false).setValue(DOWN, false).setValue(SOUTH, false)
                 .setValue(EAST, false).setValue(UP, false).setValue(NORTH, false)

@@ -64,7 +64,7 @@ public final class NativeMachineFixture implements TestRule {
             Block... validBlocks) throws ReflectiveOperationException {
         Field field = Entities.class.getField(name);
         previous.put(field, field.get(null));
-        field.set(null, BlockEntityType.Builder.of(factory, validBlocks).build(null));
+        field.set(null, new BlockEntityType<>(factory, java.util.Set.of(validBlocks)));
         for (Block block : validBlocks) blocks.putIfAbsent(block.getClass(), block);
         allBlocks.addAll(List.of(validBlocks));
     }

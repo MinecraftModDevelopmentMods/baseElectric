@@ -5,18 +5,10 @@
     "pmp"
   ],
   "key": {
-    "X": {
-      "item": "minecraft:chest"
-    },
-    "u": {
-      "tag": "forge:power_supply_units"
-    },
-    "p": {
-      "tag": "forge:plates/steel"
-    },
-    "m": {
-      "tag": "forge:frames/steel"
-    }
+    "X": "minecraft:chest",
+    "u": "#forge:power_supply_units",
+    "p": "#forge:plates/steel",
+    "m": "#forge:frames/steel"
   },
   "result": {
     "id": "baseelectric:electric_battery_array"

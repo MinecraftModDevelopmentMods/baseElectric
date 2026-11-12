@@ -16,7 +16,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.scores.Team;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
@@ -29,8 +29,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
@@ -89,7 +87,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	public LaserTurretTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state){
 		super(zone.moddev.mc.baseelectric.init.Entities.LASER_TURRET, pos, state, "tile.baseelectric.laser_turret.name",MAX_BUFFER,0,0,0);
 		SoundEvent soundEvent = ElectricAdvantage.INSTANCE == null ? SoundEvents.NOTE_BLOCK_BASS.value()
-				: ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(ElectricAdvantage.INSTANCE.LASER_SOUND));
+				: ForgeRegistries.SOUND_EVENTS.getValue(Identifier.parse(ElectricAdvantage.INSTANCE.LASER_SOUND));
 		if(soundEvent == null){
 			LASER_SOUND = SoundEvents.ENDERMAN_TELEPORT;
 		} else {
@@ -109,7 +107,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 			laserAttack--;
 		}
 		boolean isActive = isActive();
-		if(w.isClientSide){
+		if(w.isClientSide()){
 			// client-side only
 			if(isActive){
 				if(targetLocked == false){
@@ -276,7 +274,8 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	private void hurtVictim(Entity e){
 		e.igniteForSeconds(BURN_TIME);
 		if(e instanceof LivingEntity){
-			((LivingEntity)e).hurt(Power.damageSource(getLevel(), Power.LASER_DAMAGE), ATTACK_DAMAGE);
+			((LivingEntity)e).hurtServer((net.minecraft.server.level.ServerLevel) getLevel(),
+                    Power.damageSource(getLevel(), Power.LASER_DAMAGE), ATTACK_DAMAGE);
 			BlockPos bp = e.blockPosition();
 			if(getLevel().isEmptyBlock(bp) && !getLevel().isEmptyBlock(bp.below())){
 				getLevel().setBlockAndUpdate(bp, Blocks.FIRE.defaultBlockState());
@@ -366,7 +365,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	private void drawLaserLine() {
 		// client-side only
 		Level w = getLevel();
-		if(w.isClientSide){
+		if(w.isClientSide()){
 			this.laserBlastLength = getOpticPosition().distanceTo(calculateLaserTerminus());
 		}
 	}
@@ -514,9 +513,9 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	}
 
 	@Override
-	public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
+	public void handleUpdateTag(net.minecraft.world.level.storage.ValueInput tag, HolderLookup.Provider registries) {
 		super.handleUpdateTag(tag, registries);
-		readRenderSync(tag);
+		readRenderSync(tag.read(zone.moddev.mc.baseelectric.util.LegacyNbt.ROOT).orElseGet(CompoundTag::new));
 	}
 
 	private void writeRenderSync(CompoundTag nbtTag) {
@@ -540,28 +539,33 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	 * Receives the network packet made by <code>getDescriptionPacket()</code>
 	 */
 	@Override
+	public void onDataPacket(Connection net, net.minecraft.world.level.storage.ValueInput data, HolderLookup.Provider registries) {
+        readRenderSync(data.read(zone.moddev.mc.baseelectric.util.LegacyNbt.ROOT).orElseGet(CompoundTag::new));
+    }
+
+    @Override
 	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
 		readRenderSync(packet.getTag());
 	}
 
 	private void readRenderSync(CompoundTag tag) {
-		if(tag.contains("lock", 1)){
-			this.targetLocked = tag.getBoolean("lock");
-			if(tag.contains("target", 10)){
-				CompoundTag target = tag.getCompound("target");
-				this.targetID = target.getInt("id");
+		if((tag.get("lock") instanceof net.minecraft.nbt.ByteTag)){
+			this.targetLocked = tag.getBooleanOr("lock", false);
+			if((tag.get("target") instanceof net.minecraft.nbt.CompoundTag)){
+				CompoundTag target = tag.getCompoundOrEmpty("target");
+				this.targetID = target.getIntOr("id", 0);
 				Entity e = getLevel().getEntity(targetID);
 				if(e != null){
 					this.lookAt(e);
 				} else {
-					this.rotTargetYaw = target.getFloat("yaw");
-					this.rotTargetPitch = target.getFloat("pitch");
+					this.rotTargetYaw = target.getFloatOr("yaw", 0F);
+					this.rotTargetPitch = target.getFloatOr("pitch", 0F);
 				}
-				this.laserAttack = target.getByte("attack");
+				this.laserAttack = target.getByteOr("attack", (byte) 0);
 			}
 		}
-		if(tag.contains("energy", 99)){
-			this.setEnergy(tag.getFloat("energy"),getEnergyType());
+		if((tag.get("energy") instanceof net.minecraft.nbt.NumericTag)){
+			this.setEnergy(tag.getFloatOr("energy", 0F),getEnergyType());
 		}
 	}
 
@@ -590,21 +594,21 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 
 	@Override
 	protected void loadFrom(CompoundTag root) {
-		if(root.contains("pitch", 99)){
-			this.rotPitch = root.getFloat("pitch");
+		if((root.get("pitch") instanceof net.minecraft.nbt.NumericTag)){
+			this.rotPitch = root.getFloatOr("pitch", 0F);
 			this.rotOldPitch = rotPitch;
 			this.rotTargetPitch = rotPitch;
 		}
-		if(root.contains("yaw", 99)){
-			this.rotYaw = root.getFloat("yaw");
+		if((root.get("yaw") instanceof net.minecraft.nbt.NumericTag)){
+			this.rotYaw = root.getFloatOr("yaw", 0F);
 			this.rotOldYaw = rotYaw;
 			this.rotTargetYaw = rotYaw;
 		}
-		if(root.contains("lock", 1)){
-			targetLocked = root.getBoolean("lock");
+		if((root.get("lock") instanceof net.minecraft.nbt.ByteTag)){
+			targetLocked = root.getBooleanOr("lock", false);
 		}
-		if(root.contains("team", 8)){
-			String teamName = root.getString("team");
+		if((root.get("team") instanceof net.minecraft.nbt.StringTag)){
+			String teamName = root.getStringOr("team", "");
 			if(teamName.isEmpty()){
 				this.teamIdentity = null;
 			}else{
@@ -612,8 +616,8 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 			}
 		}
 
-		if(root.contains("player", 8)){
-			playerOwner = root.getString("player");
+		if((root.get("player") instanceof net.minecraft.nbt.StringTag)){
+			playerOwner = root.getStringOr("player", "");
 		}
 	}
 
@@ -654,7 +658,6 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	
 	// Helps with laser rendering
 	final private int renderRange = ATTACK_RANGE * 2;
-	@OnlyIn(Dist.CLIENT)
 	public AABB getRenderBoundingBox()
 	{
 		return new AABB(getBlockPos()).inflate(renderRange);

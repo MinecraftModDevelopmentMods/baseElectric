@@ -5,12 +5,8 @@
     "ccc"
   ],
   "key": {
-    "s": {
-      "tag": "forge:ingots/silicon"
-    },
-    "c": {
-      "tag": "forge:nuggets/tin"
-    }
+    "s": "#forge:ingots/silicon",
+    "c": "#forge:nuggets/tin"
   },
   "result": {
     "id": "baseelectric:integrated_circuit",

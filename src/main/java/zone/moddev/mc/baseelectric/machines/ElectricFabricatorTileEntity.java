@@ -167,11 +167,11 @@ public class ElectricFabricatorTileEntity extends ElectricMachineTileEntity {
 
 	@Override
 	protected void loadFrom(CompoundTag tagRoot) {
-		if(tagRoot.contains("progress", 99)){
-			this.progress = tagRoot.getShort("progress");
+		if((tagRoot.get("progress") instanceof net.minecraft.nbt.NumericTag)){
+			this.progress = tagRoot.getShortOr("progress", (short) 0);
 		}
-		if(tagRoot.contains("FSM", 99)){
-			this.state = FSM.values()[tagRoot.getByte("FSM")];
+		if((tagRoot.get("FSM") instanceof net.minecraft.nbt.NumericTag)){
+			this.state = FSM.values()[tagRoot.getByteOr("FSM", (byte) 0)];
 		}
 	}
 

@@ -1,12 +1,12 @@
 package zone.moddev.mc.baseelectric.init;
 
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
@@ -78,11 +78,11 @@ public final class Entities {
 
     @SubscribeEvent public static void registerEntities(RegisterEvent event) {
         event.register(ForgeRegistries.Keys.ENTITY_TYPES, registry -> {
-            ResourceLocation id = ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, "hydroturbine");
+            Identifier id = Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "hydroturbine");
             HYDROTURBINE = EntityType.Builder.<HydroturbineEntity>of(HydroturbineEntity::new, MobCategory.MISC)
                     .sized(0.9375F, 0.9375F)
                     .setTrackingRange(64).setUpdateInterval(1).setShouldReceiveVelocityUpdates(true)
-                    .build(id.toString());
+                    .build(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE, id));
             registry.register(id, HYDROTURBINE);
         });
     }
@@ -90,8 +90,8 @@ public final class Entities {
     private static <T extends BlockEntity> BlockEntityType<T> tile(
             RegisterEvent.RegisterHelper<BlockEntityType<?>> event, String id, BlockEntityType.BlockEntitySupplier<T> factory,
             net.minecraft.world.level.block.Block... blocks) {
-        BlockEntityType<T> type = BlockEntityType.Builder.<T>of(factory, blocks).build(null);
-        event.register(ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, id), type);
+        BlockEntityType<T> type = new BlockEntityType<>(factory, java.util.Set.of(blocks));
+        event.register(Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, id), type);
         return type;
     }
 

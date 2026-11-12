@@ -15,25 +15,26 @@ import net.minecraft.world.level.Level;
 public class PumpPipeBlock extends Block {
     private static final VoxelShape SHAPE = Shapes.box(0.25D, 0.0D, 0.25D, 0.75D, 1.0D, 0.75D);
     public PumpPipeBlock() {
-        super(Properties.of().mapColor(MapColor.METAL).forceSolidOn().strength(5.0F, 10.0F)
+        super(Properties.of().setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("pump_pipe_electric"))
+                .mapColor(MapColor.METAL).forceSolidOn().strength(5.0F, 10.0F)
                 .dynamicShape().noOcclusion().isRedstoneConductor((state, world, pos) -> false).noLootTable());
     }
     @Override public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) { return SHAPE; }
     @Override public VoxelShape getCollisionShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) { return SHAPE; }
 
     @Override
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean moving) {
-        if (state.getBlock() != newState.getBlock()) destroyBelow(world, pos);
-        super.onRemove(state, world, pos, newState, moving);
+    public void affectNeighborsAfterRemoval(BlockState state, net.minecraft.server.level.ServerLevel world, BlockPos pos, boolean moving) {
+        destroyBelow(world, pos);
+        super.affectNeighborsAfterRemoval(state, world, pos, moving);
     }
 
-    @Override public void wasExploded(Level world, BlockPos pos, Explosion explosion) {
+    @Override public void wasExploded(net.minecraft.server.level.ServerLevel world, BlockPos pos, Explosion explosion) {
         destroyBelow(world, pos);
         super.wasExploded(world, pos, explosion);
     }
 
     private void destroyBelow(Level world, BlockPos pos) {
-        if (world.isClientSide) return;
+        if (world.isClientSide()) return;
         BlockPos cursor = pos.below();
         while (cursor.getY() > 0 && world.getBlockState(cursor).getBlock() == this) {
             world.setBlock(cursor, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);

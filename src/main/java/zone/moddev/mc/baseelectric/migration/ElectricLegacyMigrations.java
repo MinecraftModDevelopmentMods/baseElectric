@@ -4,7 +4,7 @@ import cyano.poweradvantage.api.migration.LegacyMigrationApi;
 import cyano.poweradvantage.api.simple.BlockSimplePowerMachine;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.Direction;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.machines.ElectricDrillBlock;
@@ -92,7 +92,7 @@ public final class ElectricLegacyMigrations {
         return (metadata & 0x8) != 0;
     }
 
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, path);
+    private static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, path);
     }
 }

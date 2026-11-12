@@ -1,12 +1,10 @@
 package zone.moddev.mc.baseelectric.gui;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import cyano.poweradvantage.api.simple.SimpleMachineGUI.GUIContainer;
 
 import zone.moddev.mc.basepower.gui.FluidTankGUI;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import cyano.poweradvantage.api.fluid.FluidStack;
 
 import java.util.HashMap;
@@ -25,16 +23,14 @@ public class GUIHelper {
 	private static final int LED_BAR_W8 = 4;
 	
 
-	private static final Map<ResourceLocation,ResourceLocation> realTextureLocationCache = new HashMap<>();
+	private static final Map<Identifier,Identifier> realTextureLocationCache = new HashMap<>();
 	
-	@OnlyIn(Dist.CLIENT)
 	public static void drawIndicatorLight(boolean on,GUIContainer gc, int xOffset, int yOffset){
 		if(on){
 			gc.blit(8+xOffset, 8+yOffset, INDICATOR_LED_X, INDICATOR_LED_Y, INDICATOR_LED_W, INDICATOR_LED_H);
 		}
 	}
 	
-	@OnlyIn(Dist.CLIENT)
 	public static void drawProgressBar(int x, int y, float progress, GUIContainer gc){
 		int w = progressBarWidth(progress);
 		if(w == 0) return;
@@ -48,10 +44,9 @@ public class GUIHelper {
 	}
 	
 
-	@OnlyIn(Dist.CLIENT)
 	public static void drawFluidBar(FluidStack fs, float barHeight, int xPos, int yPos, 
 			GUIContainer guiContainer, int x, int y, float z,
-			ResourceLocation displayImage){
+			Identifier displayImage){
 
 		barHeight = Float.isFinite(barHeight) ? Math.max(0F, Math.min(1F, barHeight)) : 0F;
 		final int w = 16;

@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "baseelectric:item/nickel_hydride_battery"
+  }
+}

@@ -1,8 +1,6 @@
 {
   "type": "minecraft:smelting",
-  "ingredient": {
-    "item": "baseelectric:li_ore"
-  },
+  "ingredient": "baseelectric:li_ore",
   "result": {
     "id": "baseelectric:li_ingot"
   },

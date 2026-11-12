@@ -1,13 +1,12 @@
 package zone.moddev.mc.baseelectric.init;
 
 import java.util.List;
-import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerTrades;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.ItemCost;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 
 /** Adds the historical librarian offers through the native profession trade event. */
@@ -18,7 +17,7 @@ public final class Villages {
 
     public static synchronized void init() {
         if (initialized) return;
-        MinecraftForge.EVENT_BUS.addListener(Villages::addTrades);
+        VillagerTradesEvent.BUS.addListener(Villages::addTrades);
         initialized = true;
     }
 
@@ -35,7 +34,7 @@ public final class Villages {
     }
 
     static VillagerTrades.ItemListing sell(Item item, int minimumPrice, int maximumPrice) {
-        return (villager, random) -> {
+        return (level, villager, random) -> {
             int price = minimumPrice + random.nextInt(maximumPrice - minimumPrice + 1);
             int emeralds = price < 0 ? 1 : price;
             int count = price < 0 ? -price : 1;

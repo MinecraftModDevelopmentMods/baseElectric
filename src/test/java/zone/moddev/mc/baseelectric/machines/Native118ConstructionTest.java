@@ -33,7 +33,7 @@ public class Native118ConstructionTest {
             assertTrue(tile.getType().isValid(state));
             CompoundTag saved = new CompoundTag();
             saved.putInt("x", 0); saved.putInt("y", 1); saved.putInt("z", 2);
-            tile.loadWithComponents(saved, NativeTestBootstrap.registries());
+            tile.loadWithComponents(NativeTestBootstrap.input(saved));
             assertEquals("NBT coordinates cannot move a native block entity", pos, tile.getBlockPos());
             assertSame(state, tile.getBlockState());
         }
@@ -42,7 +42,7 @@ public class Native118ConstructionTest {
     @Test public void turretPacketUsesConstructorCoordinatesBeforeWorldAttachment() throws Exception {
         BlockPos pos = new BlockPos(1531, 91, -475);
         LaserTurretBlock block = new LaserTurretBlock(false);
-        BlockEntityType<LaserTurretTileEntity> type = BlockEntityType.Builder.of(LaserTurretTileEntity::new, block).build(null);
+        BlockEntityType<LaserTurretTileEntity> type = new BlockEntityType<>(LaserTurretTileEntity::new, java.util.Set.of(block));
         BlockEntityType<LaserTurretTileEntity> previous = zone.moddev.mc.baseelectric.init.Entities.LASER_TURRET;
         try {
             zone.moddev.mc.baseelectric.init.Entities.LASER_TURRET = type;
@@ -61,7 +61,7 @@ public class Native118ConstructionTest {
             var packet = turret.getUpdatePacket();
             assertEquals(pos, packet.getPos());
             assertSame(type, packet.getType());
-            assertEquals(java.util.Set.of("energy", "lock"), packet.getTag().getAllKeys());
+            assertEquals(java.util.Set.of("energy", "lock"), packet.getTag().keySet());
         } finally {
             zone.moddev.mc.baseelectric.init.Entities.LASER_TURRET = previous;
         }
@@ -69,7 +69,7 @@ public class Native118ConstructionTest {
 
     private static final class PacketWorld extends ServerLevel {
         private PacketWorld() {
-            super(null, null, null, null, null, null, null, false, 0L, java.util.List.of(), false, null);
+            super(null, null, null, null, null, null, false, 0L, java.util.List.of(), false, null);
         }
 
         @Override public RegistryAccess registryAccess() {
@@ -79,7 +79,7 @@ public class Native118ConstructionTest {
 
     @Test public void ledOnlyOffersItsOwnNativeTicker() {
         LEDBlock block = new LEDBlock();
-        BlockEntityType<LEDTileEntity> type = BlockEntityType.Builder.of(LEDTileEntity::new, block).build(null);
+        BlockEntityType<LEDTileEntity> type = new BlockEntityType<>(LEDTileEntity::new, java.util.Set.of(block));
         BlockEntityType<LEDTileEntity> previous = zone.moddev.mc.baseelectric.init.Entities.LED;
         try {
             zone.moddev.mc.baseelectric.init.Entities.LED = type;

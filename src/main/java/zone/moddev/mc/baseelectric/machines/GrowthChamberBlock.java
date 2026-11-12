@@ -6,7 +6,7 @@ import net.minecraft.world.level.Level;
 public class GrowthChamberBlock extends ElectricMachineBlock{
 
 	public GrowthChamberBlock(){
-		super(machineProperties(0.75f), Power.GROWTHCHAMBER_POWER);
+		super(machineProperties(0.75f).setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("growth_chamber")), Power.GROWTHCHAMBER_POWER);
 	}
 
 	@Override

@@ -14,7 +14,8 @@ import zone.moddev.mc.baseelectric.init.Power;
 /** Full-block electric track/scaffold with conduit behavior. */
 public class ElectricScaffoldBlock extends BlockSimplePowerConduit {
     public ElectricScaffoldBlock() {
-        super(Properties.of().mapColor(MapColor.STONE).pushReaction(PushReaction.BLOCK)
+        super(Properties.of().setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("electric_track"))
+                .mapColor(MapColor.STONE).pushReaction(PushReaction.BLOCK)
                 .forceSolidOn().strength(0.75F).noOcclusion()
                 .isRedstoneConductor((state, world, pos) -> false),
                 2.0F / 16.0F, Power.ELECTRIC_POWER);

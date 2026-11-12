@@ -2,9 +2,9 @@ name: CodeQL
 
 on:
   push:
-    branches: [master-1.21.1, 'feature/**']
+    branches: [master-1.21.11, 'feature/**']
   pull_request:
-    branches: [master-1.21.1]
+    branches: [master-1.21.11]
 
 permissions:
   contents: read
@@ -12,7 +12,7 @@ permissions:
   security-events: write
 
 concurrency:
-  group: baseelectric-1.21.1-${{ github.workflow }}-${{ github.ref }}
+  group: baseelectric-1.21.11-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -64,7 +64,7 @@ jobs:
           -Porg.gradle.java.installations.auto-download=false" >> "$GITHUB_ENV"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
-      - name: Verify the Forge 52 build inputs
+      - name: Verify the Forge 61 build inputs
         shell: bash
         env:
           ORESPAWN_REF: ${{ steps.public-pins.outputs.orespawn_ref }}
@@ -76,7 +76,7 @@ jobs:
           test "$(git -C "$orespawn" rev-parse HEAD)" = "$ORESPAWN_REF"
           test "$(git -C "$power" rev-parse HEAD)" = "$POWER_REF"
           mavenizer="$orespawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar"
-          printf '%s  %s\n' '019032A4A26ECB473D403EF017054D5892CE59A9904E8831B452287CD756397E' "$mavenizer" | sha256sum -c -
+          printf '%s  %s\n' 'B36CA046DB72E30F27BD38E02B4AE34274ADB51AE1D65BAF9E1D07763755682E' "$mavenizer" | sha256sum -c -
           echo "MAVENIZER=$mavenizer" >> "$GITHUB_ENV"
       - name: Initialize CodeQL
         uses: github/codeql-action/init@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4
@@ -87,7 +87,7 @@ jobs:
         shell: bash
         run: |
           ./gradlew $MMD_GRADLE_TOOLCHAINS classes verifyReleaseDependencies --rerun-tasks --no-build-cache --no-daemon --stacktrace \
-            "-Pforge52MavenizerJar=$MAVENIZER" "-PpowerAdvantageDeobfJar=$POWER_PLAYER" \
+            "-Pforge61MavenizerJar=$MAVENIZER" "-PpowerAdvantageDeobfJar=$POWER_PLAYER" \
             "-PbaseMetalsDeobfJar=$METALS_PLAYER" "-PoreSpawnDeobfJar=$ORESPAWN_PLAYER"
       - name: Analyze
         uses: github/codeql-action/analyze@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4

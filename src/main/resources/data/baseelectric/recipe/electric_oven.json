@@ -5,21 +5,11 @@
     "pmp"
   ],
   "key": {
-    "X": {
-      "tag": "forge:glass_panes"
-    },
-    "Y": {
-      "tag": "forge:power_supply_units"
-    },
-    "u": {
-      "tag": "forge:power_supply_units"
-    },
-    "p": {
-      "tag": "forge:plates/steel"
-    },
-    "m": {
-      "tag": "forge:frames/steel"
-    }
+    "X": "#forge:glass_panes",
+    "Y": "#forge:power_supply_units",
+    "u": "#forge:power_supply_units",
+    "p": "#forge:plates/steel",
+    "m": "#forge:frames/steel"
   },
   "result": {
     "id": "baseelectric:electric_oven"

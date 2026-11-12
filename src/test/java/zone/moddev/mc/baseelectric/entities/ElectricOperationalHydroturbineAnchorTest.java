@@ -27,9 +27,9 @@ public class ElectricOperationalHydroturbineAnchorTest {
 
     @Test public void nativeEntityLoadStillClampsOverspeedMotionAndPreservesItsBoundary() throws Exception {
         ControlEntity control = new ControlEntity(controlType(), world());
-        CompoundTag tag = control.saveWithoutId(new CompoundTag());
+        CompoundTag tag = save(control);
         tag.put("Motion", motion(16.226, -10.001, 10));
-        control.load(tag);
+        control.load(NativeTestBootstrap.input(tag));
         assertEquals(new Vec3(0, 0, 10), control.getDeltaMovement());
         assertTrue(control.isPushedByFluid());
     }
@@ -43,9 +43,9 @@ public class ElectricOperationalHydroturbineAnchorTest {
 
     @Test public void legacyMotionInsideTheNativeLimitIsNotArbitrarilyCleared() throws Exception {
         HydroturbineEntity turbine = new HydroturbineEntity(turbineType(), world());
-        CompoundTag saved = turbine.saveWithoutId(new CompoundTag());
+        CompoundTag saved = save(turbine);
         saved.put("Motion", motion(5.5, -2, 0));
-        turbine.load(saved);
+        turbine.load(NativeTestBootstrap.input(saved));
         assertEquals(new Vec3(5.5, -2, 0), turbine.getDeltaMovement());
         assertFalse(turbine.isPushedByFluid());
     }
@@ -55,20 +55,28 @@ public class ElectricOperationalHydroturbineAnchorTest {
         Level world = world();
         HydroturbineEntity original = new HydroturbineEntity(type, world);
         original.setPos(56856.5, 81, 50008.5);
-        CompoundTag saved = original.saveWithoutId(new CompoundTag());
+        CompoundTag saved = save(original);
         int[] parent = {56856, 82, 50008};
         saved.putIntArray("parentPos", parent);
         for (int pass = 0; pass < 3; pass++) {
             HydroturbineEntity loaded = new HydroturbineEntity(type, world);
-            loaded.load(saved);
-            CompoundTag next = loaded.saveWithoutId(new CompoundTag());
-            assertEquals(saved.getUUID("UUID"), next.getUUID("UUID"));
-            assertEquals(saved.getList("Pos", 6), next.getList("Pos", 6));
-            assertEquals(motion(0, 0, 0), next.getList("Motion", 6));
-            assertArrayEquals(parent, next.getIntArray("parentPos"));
+            loaded.load(NativeTestBootstrap.input(saved));
+            CompoundTag next = save(loaded);
+            assertEquals(saved.read("UUID", net.minecraft.core.UUIDUtil.CODEC).orElseThrow(),
+                    next.read("UUID", net.minecraft.core.UUIDUtil.CODEC).orElseThrow());
+            assertEquals(saved.getList("Pos").filter(list -> list.stream().allMatch(entry -> entry.getId() == 6)).orElseGet(net.minecraft.nbt.ListTag::new), next.getList("Pos").filter(list -> list.stream().allMatch(entry -> entry.getId() == 6)).orElseGet(net.minecraft.nbt.ListTag::new));
+            assertEquals(motion(0, 0, 0), next.getList("Motion").filter(list -> list.stream().allMatch(entry -> entry.getId() == 6)).orElseGet(net.minecraft.nbt.ListTag::new));
+            assertArrayEquals(parent, next.getIntArray("parentPos").orElseThrow());
             assertFalse(loaded.isPushedByFluid());
             saved = next;
         }
+    }
+
+    private static CompoundTag save(Entity entity) {
+        var output = net.minecraft.world.level.storage.TagValueOutput.createWithContext(
+                net.minecraft.util.ProblemReporter.DISCARDING, NativeTestBootstrap.registries());
+        entity.saveWithoutId(output);
+        return output.buildResult();
     }
 
     private static ListTag motion(double x, double y, double z) {
@@ -79,12 +87,14 @@ public class ElectricOperationalHydroturbineAnchorTest {
 
     private static EntityType<HydroturbineEntity> turbineType() {
         return EntityType.Builder.<HydroturbineEntity>of(HydroturbineEntity::new, MobCategory.MISC)
-                .sized(1, 1).build("baseelectric:test_anchored_turbine");
+                .sized(1, 1).build(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,
+                        net.minecraft.resources.Identifier.parse("baseelectric:test_anchored_turbine")));
     }
 
     private static EntityType<ControlEntity> controlType() {
         return EntityType.Builder.<ControlEntity>of(ControlEntity::new, MobCategory.MISC)
-                .sized(1, 1).build("baseelectric:test_native_motion_control");
+                .sized(1, 1).build(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE,
+                        net.minecraft.resources.Identifier.parse("baseelectric:test_native_motion_control")));
     }
 
     private static Level world() throws Exception {
@@ -101,15 +111,16 @@ public class ElectricOperationalHydroturbineAnchorTest {
 
     private static final class NoTickWorld extends ServerLevel {
         private NoTickWorld() {
-            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
+            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
         }
     }
 
     private static final class ControlEntity extends Entity {
         ControlEntity(EntityType<?> type, Level world) { super(type, world); }
         @Override protected void defineSynchedData(net.minecraft.network.syncher.SynchedEntityData.Builder builder) {}
-        @Override protected void readAdditionalSaveData(CompoundTag tag) {}
-        @Override protected void addAdditionalSaveData(CompoundTag tag) {}
+        @Override protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput tag) {}
+        @Override protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput tag) {}
+        @Override public boolean hurtServer(ServerLevel level, net.minecraft.world.damagesource.DamageSource source, float amount) { return false; }
         @Override public Packet<ClientGamePacketListener> getAddEntityPacket(net.minecraft.server.level.ServerEntity tracker) { return null; }
     }
 }

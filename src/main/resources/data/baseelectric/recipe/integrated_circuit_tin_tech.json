@@ -6,18 +6,10 @@
     "ccc"
   ],
   "key": {
-    "p": {
-      "tag": "forge:plastic"
-    },
-    "s": {
-      "tag": "forge:ingots/silicon"
-    },
-    "r": {
-      "tag": "forge:dusts/redstone"
-    },
-    "c": {
-      "tag": "forge:nuggets/tin"
-    }
+    "p": "#forge:plastic",
+    "s": "#forge:ingots/silicon",
+    "r": "#forge:dusts/redstone",
+    "c": "#forge:nuggets/tin"
   },
   "result": {
     "id": "baseelectric:integrated_circuit",

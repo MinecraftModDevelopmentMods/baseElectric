@@ -61,16 +61,16 @@ function Invoke-Ecj([string]$Name, [string[]]$Sources, [string[]]$Libraries) {
 }
 
 $report = [ordered]@{ status = 'RUNNING'; project = $ProjectRoot; evidence = $Evidence
-    scope = 'Pinned local baseElectric 1.21.1 candidate; fresh ECJ main/test/helper outputs and worldless Java 21 JUnit; no Gradle or Minecraft launch'
+    scope = 'Pinned local baseElectric 1.21.11 candidate; fresh ECJ main/test/helper outputs and worldless Java 21 JUnit; no Gradle or Minecraft launch'
     compiler = $null; toolchains = $null; libraries = @(); sources = @(); gradleInventory = @()
     compilations = [ordered]@{}; junit = $null; negativeControl = $null; apiPinState = $null }
 try {
     $properties = ConvertFrom-StringData -StringData (Get-Content -LiteralPath (Join-Path $ProjectRoot 'gradle.properties') -Raw)
     $report.apiPinState = $properties.poweradvantage_pin_state
-    if ($properties.mod_id -ne 'baseelectric' -or $properties.mod_version -ne '2.2.15.121011' -or
-        $properties.minecraft_version -ne '1.21.1' -or $properties.forge_version -ne '52.1.0' -or
-        $properties.poweradvantage_version -ne '2.4.14.121011' -or $properties.basemetals_version -ne '3.1.2.121011' -or
-        $properties.orespawn_version -ne '4.1.0.121011' -or
+    if ($properties.mod_id -ne 'baseelectric' -or $properties.mod_version -ne '2.2.16.121111' -or
+        $properties.minecraft_version -ne '1.21.11' -or $properties.forge_version -ne '61.1.0' -or
+        $properties.poweradvantage_version -ne '2.4.15.121111' -or $properties.basemetals_version -ne '3.1.2.121111' -or
+        $properties.orespawn_version -ne '4.1.0.121111' -or
         $properties.poweradvantage_pin_state -notin @('LOCAL_SOURCE', 'MERGED_SOURCE') -or
         $properties.poweradvantage_source_ref -cnotmatch '^[a-f0-9]{40}$' -or
         $properties.poweradvantage_runtime_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
@@ -78,7 +78,7 @@ try {
         $properties.poweradvantage_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
         $properties.basemetals_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$' -or
         $properties.orespawn_deobf_sha256 -cnotmatch '^[A-F0-9]{64}$') {
-        throw 'This verifier requires the source-pinned baseElectric 1.21.1 inputs'
+        throw 'This verifier requires the source-pinned baseElectric 1.21.11 inputs'
     }
     $report.compiler = Get-Pin $Compiler
     if ($report.compiler.sha256 -ne 'D0D43F8E2D7003E5EFED612E2CBB5F01870043397D8F1BBE536FD9128F4FCBF7') { throw 'ECJ compiler pin mismatch' }
@@ -137,7 +137,7 @@ try {
         $expected += [int]$inventory.testsuite.tests
         $report.gradleInventory += Get-Pin $xml.FullName
     }
-    if ($classes.Count -ne 31 -or $expected -ne 106 -or $sources.test.Count -ne 33 -or $sources.main.Count -ne 86) { throw 'Unexpected Electric 1.21.1 source/test inventory' }
+    if ($classes.Count -ne 33 -or $expected -ne 114 -or $sources.test.Count -ne 36 -or $sources.main.Count -ne 88) { throw 'Unexpected Electric 1.21.11 source/test inventory' }
     $main = Invoke-Ecj 'main' $sources.main $mainLibraries
     $test = Invoke-Ecj 'test' $sources.test (@($main) + $testLibraries)
     $gameTests = @(Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'src/gametest/java') -Recurse -File -Filter '*.java' | ForEach-Object { $_.FullName })

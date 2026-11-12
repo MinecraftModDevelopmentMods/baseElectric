@@ -33,9 +33,8 @@ public class BatteryItem extends net.minecraft.world.item.Item implements IRecha
 		if (!(stack.getItem() instanceof BatteryItem battery)) return 0;
 		// Vanilla moves unknown 1.20.1 item tags to CUSTOM_DATA on world upgrade.
 		CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-		if (!data.contains("energy")) return battery.capacity;
 		CompoundTag tag = data.copyTag();
-		return tag.contains("energy", Tag.TAG_ANY_NUMERIC) ? tag.getFloat("energy") : battery.capacity;
+		return (tag.get("energy") instanceof net.minecraft.nbt.NumericTag) ? tag.getFloatOr("energy", 0F) : battery.capacity;
 	}
 	@Override
 	public void setEnergy(ItemStack stack, float energy){
@@ -74,15 +73,20 @@ public class BatteryItem extends net.minecraft.world.item.Item implements IRecha
 	}
 
 	@Override
-	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag){
-		super.appendHoverText(stack, context, list, flag);
+	public void appendHoverText(ItemStack stack, TooltipContext context,
+            net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> list, TooltipFlag flag){
+		super.appendHoverText(stack, context, display, list, flag);
 		float max = getMaxEnergy(stack);
 		if(max <= 0) return; // not a battery!
 		float e = getEnergy(stack);
-		list.add(Component.literal(nf.format(100 * e / max) + "% ")
+		list.accept(Component.literal(nf.format(100 * e / max) + "% ")
 				.append(Component.translatable("tooltip.battery.charge")));
-		list.add(Component.literal("(" + nf.format(max) + "kJ ")
+		list.accept(Component.literal("(" + nf.format(max) + "kJ ")
 				.append(Component.translatable("tooltip.battery.capacity"))
 				.append(")"));
 	}
+
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+        appendHoverText(stack, context, net.minecraft.world.item.component.TooltipDisplay.DEFAULT, list::add, flag);
+    }
 }

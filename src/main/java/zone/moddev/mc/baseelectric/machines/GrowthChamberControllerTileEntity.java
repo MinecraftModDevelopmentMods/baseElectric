@@ -20,10 +20,10 @@ import cyano.poweradvantage.api.fluid.FluidTankInfo;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.simple.TileEntitySimplePowerMachine implements LegacyFluidHandler{
-	private static final TagKey<Item> DIRT_TAG = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("forge", "dirt"));
+	private static final TagKey<Item> DIRT_TAG = TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("forge", "dirt"));
 
 
 	static final float ELECTRICITY_PER_UNIT = 8f;
@@ -191,33 +191,36 @@ public class GrowthChamberControllerTileEntity extends cyano.poweradvantage.api.
 
 	/**
 	 * Handles data saving and loading
-	 * @param tagRoot An NBT tag
+	 * @param output Native machine data output
 	 */
 	@Override
-	protected void saveAdditional(final CompoundTag tagRoot, HolderLookup.Provider registries) {
-		super.saveAdditional(tagRoot, registries);
+	protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput output) {
+		super.saveAdditional(output);
+        CompoundTag tagRoot = new CompoundTag();
 		CompoundTag tankTag = new CompoundTag();
 		this.getTank().writeToNBT(tankTag);
 		tagRoot.put("Tank", tankTag);
 		tagRoot.putFloat("soil", soil);
+        output.store(zone.moddev.mc.baseelectric.util.LegacyNbt.ROOT, tagRoot);
 	}
 	/**
 	 * Handles data saving and loading
-	 * @param tagRoot An NBT tag
+	 * @param input Native machine data input
 	 */
 	@Override
-	protected void loadAdditional(final CompoundTag tagRoot, HolderLookup.Provider registries) {
-		super.loadAdditional(tagRoot, registries);
-		if (tagRoot.contains("Tank", 10)) {
-			CompoundTag tankTag = tagRoot.getCompound("Tank");
+	protected void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
+		super.loadAdditional(input);
+        CompoundTag tagRoot = input.read(zone.moddev.mc.baseelectric.util.LegacyNbt.ROOT).orElseGet(CompoundTag::new);
+		if ((tagRoot.get("Tank") instanceof net.minecraft.nbt.CompoundTag)) {
+			CompoundTag tankTag = tagRoot.getCompoundOrEmpty("Tank");
 			getTank().readFromNBT(tankTag);
-			if(tankTag.contains("Empty", 1)){
+			if((tankTag.get("Empty") instanceof net.minecraft.nbt.ByteTag)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
 				getTank().setFluid(null);
 			}
 		}
-		if(tagRoot.contains("soil", 99)){
-			this.soil = tagRoot.getFloat("soil");
+		if((tagRoot.get("soil") instanceof net.minecraft.nbt.NumericTag)){
+			this.soil = tagRoot.getFloatOr("soil", 0F);
 		}
 	}
 

@@ -16,21 +16,21 @@ public class BatteryComponentTest {
 
     @Test public void vanillaItemUpgradePreservesDepletedChargeAndUnrelatedData() {
         CompoundTag custom = LegacyBatteryDataTest.upgradeBattery()
-                .getCompound("components").getCompound("minecraft:custom_data");
+                .getCompound("components").orElseThrow().getCompound("minecraft:custom_data").orElseThrow();
 
-        BatteryItem battery = new BatteryItem(100, new Item.Properties());
+        BatteryItem battery = new BatteryItem(100, new Item.Properties().setId(zone.moddev.mc.baseelectric.util.RegistryIds.item("lead_acid_battery")));
         ItemStack stack = new ItemStack(battery);
         assertEquals(100, battery.getEnergy(stack), 0);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(custom));
         assertEquals(0, battery.getEnergy(stack), 0);
         assertEquals(100, battery.addEnergy(stack, 125, Power.ELECTRIC_POWER), 0);
-        assertEquals("preserved", stack.get(DataComponents.CUSTOM_DATA).copyTag().getString("probe"));
+        assertEquals("preserved", stack.get(DataComponents.CUSTOM_DATA).copyTag().getString("probe").orElseThrow());
         assertEquals(-100, battery.addEnergy(stack, -125, Power.ELECTRIC_POWER), 0);
         assertEquals(0, battery.getEnergy(stack.copy()), 0);
     }
 
     @Test public void chargeMutationDoesNotLeakIntoAnItemCopy() {
-        BatteryItem battery = new BatteryItem(100, new Item.Properties());
+        BatteryItem battery = new BatteryItem(100, new Item.Properties().setId(zone.moddev.mc.baseelectric.util.RegistryIds.item("lead_acid_battery")));
         ItemStack original = new ItemStack(battery);
         battery.setEnergy(original, 25);
         ItemStack copy = original.copy();

@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.world.item.Items;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -164,7 +164,12 @@ public class RecipeUnlockContractTest {
 
     private static void collect(JsonElement element, List<JsonObject> result) {
         if (element.isJsonArray()) for (JsonElement child : element.getAsJsonArray()) collect(child, result);
-        else result.add(element.getAsJsonObject());
+        else if (element.isJsonPrimitive()) {
+            String id = element.getAsString();
+            JsonObject choice = new JsonObject();
+            choice.addProperty(id.startsWith("#") ? "tag" : "item", id.startsWith("#") ? id.substring(1) : id);
+            result.add(choice);
+        } else result.add(element.getAsJsonObject());
     }
 
     private static JsonObject read(Path file) throws IOException {

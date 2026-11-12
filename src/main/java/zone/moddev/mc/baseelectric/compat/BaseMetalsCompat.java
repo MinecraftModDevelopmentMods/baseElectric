@@ -6,7 +6,7 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -32,11 +32,11 @@ public final class BaseMetalsCompat {
 
     public static ItemStack getCrusherRecipeOutput(Level world, ItemStack input) {
         if (world == null || input == null || input.isEmpty()) return null;
-        if (isLoaded()) {
+        if (isLoaded() && world instanceof net.minecraft.server.level.ServerLevel server) {
             SingleRecipeInput inventory = new SingleRecipeInput(input.copy());
-            for (RecipeHolder<?> holder : world.getRecipeManager().getRecipes()) {
+            for (RecipeHolder<?> holder : server.recipeAccess().getRecipes()) {
                 if (holder.value() instanceof CrushingRecipe candidate && candidate.matches(inventory, world)) {
-                    return candidate.getResultItem(world.registryAccess()).copy();
+                    return candidate.assemble(inventory, world.registryAccess());
                 }
             }
         }
@@ -75,7 +75,7 @@ public final class BaseMetalsCompat {
     }
 
     private static ItemStack stack(String id, int count) {
-        Item item = ForgeRegistries.ITEMS.getValue(ResourceLocation.parse(id));
+        Item item = ForgeRegistries.ITEMS.getValue(Identifier.parse(id));
         return item == null ? null : new ItemStack(item, count);
     }
 }

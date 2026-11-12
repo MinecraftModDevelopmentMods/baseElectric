@@ -1,8 +1,6 @@
 {
   "type": "basemetals:crushing",
-  "ingredient": {
-    "item": "baseelectric:steam_powered_generator"
-  },
+  "ingredient": "baseelectric:steam_powered_generator",
   "result": {
     "id": "baseelectric:psu",
     "count": 1

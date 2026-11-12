@@ -5,21 +5,11 @@
     "pmp"
   ],
   "key": {
-    "X": {
-      "tag": "forge:gems/diamond"
-    },
-    "Y": {
-      "tag": "forge:gems/emerald"
-    },
-    "u": {
-      "tag": "forge:power_supply_units"
-    },
-    "p": {
-      "tag": "forge:plates/steel"
-    },
-    "m": {
-      "tag": "forge:frames/steel"
-    }
+    "X": "#forge:gems/diamond",
+    "Y": "#forge:gems/emerald",
+    "u": "#forge:power_supply_units",
+    "p": "#forge:plates/steel",
+    "m": "#forge:frames/steel"
   },
   "result": {
     "id": "baseelectric:laser_turret"

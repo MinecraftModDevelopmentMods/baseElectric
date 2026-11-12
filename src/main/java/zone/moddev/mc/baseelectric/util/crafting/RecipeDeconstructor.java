@@ -1,17 +1,22 @@
 package zone.moddev.mc.baseelectric.util.crafting;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.context.ContextMap;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.minecraft.world.level.Level;
 
 /** Recursive crafting solver used by the Electric Fabricator. */
@@ -19,8 +24,8 @@ public final class RecipeDeconstructor {
     private static final RecipeDeconstructor INSTANCE = new RecipeDeconstructor();
     public static int RECURSION_LIMIT = 5;
 
-    private final Map<ItemRecord, List<Recipe<?>>> recipeCache = new HashMap<>();
-    private int cachedRecipeCount = -1;
+    private final Map<ItemRecord, List<RecipePlan>> recipeCache = new HashMap<>();
+    private Collection<RecipeHolder<?>> cachedRecipes;
 
     private RecipeDeconstructor() {}
 
@@ -30,24 +35,56 @@ public final class RecipeDeconstructor {
 
     public void invalidateRecipeCache() {
         recipeCache.clear();
-        cachedRecipeCount = -1;
+        cachedRecipes = null;
     }
 
     private void initializeRecipeCache(Level world) {
-        Collection<RecipeHolder<?>> recipes = world.getRecipeManager().getRecipes();
-        if (cachedRecipeCount == recipes.size() && !recipeCache.isEmpty()) return;
+        if (!(world instanceof ServerLevel server)) return;
+        Collection<RecipeHolder<?>> recipes = server.recipeAccess().getRecipes();
+        if (cachedRecipes == recipes) return;
         recipeCache.clear();
         for (RecipeHolder<?> holder : recipes) {
             Recipe<?> recipe = holder.value();
-            ItemStack output = recipe.getResultItem(world.registryAccess());
-            if (output == null || output.isEmpty()) continue;
-            recipeCache.computeIfAbsent(new ItemRecord(output), ignored -> new ArrayList<>()).add(recipe);
+            for (RecipePlan plan : describe(recipe, world.registryAccess())) {
+                recipeCache.computeIfAbsent(new ItemRecord(plan.result()), ignored -> new ArrayList<>()).add(plan);
+            }
         }
-        cachedRecipeCount = recipes.size();
+        cachedRecipes = recipes;
+    }
+
+    record RecipePlan(ItemStack result, List<Ingredient> ingredients) {}
+
+    static List<RecipePlan> describe(Recipe<?> recipe, HolderLookup.Provider registries) {
+        List<Ingredient> ingredients = new ArrayList<>(recipe.placementInfo().ingredients());
+        ContextMap context = new ContextMap.Builder().withParameter(SlotDisplayContext.REGISTRIES, registries)
+                .create(SlotDisplayContext.CONTEXT);
+        List<ItemStack> displayedResults = recipe.display().stream()
+                .flatMap(display -> display.result().resolveForStacks(context).stream())
+                .filter(result -> !result.isEmpty()).toList();
+        if (!ingredients.isEmpty() && !displayedResults.isEmpty()) {
+            return displayedResults.stream().map(result -> new RecipePlan(result.copy(), List.copyOf(ingredients))).toList();
+        }
+        var ops = registries.createSerializationContext(JsonOps.INSTANCE);
+        var encoded = Recipe.CODEC.encodeStart(ops, recipe).getOrThrow().getAsJsonObject();
+        // Special processing recipes, including Base Metals crushing, are not recipe-book placeable.
+        if (ingredients.isEmpty() && encoded.has("ingredient")) {
+            ingredients.add(Ingredient.CODEC.parse(ops, encoded.get("ingredient")).getOrThrow());
+        } else if (ingredients.isEmpty() && encoded.has("ingredients")) {
+            for (JsonElement input : encoded.getAsJsonArray("ingredients")) {
+                ingredients.add(Ingredient.CODEC.parse(ops, input).getOrThrow());
+            }
+        }
+        if (ingredients.isEmpty()) return List.of();
+        if (encoded.has("result")) {
+            ItemStack result = ItemStack.CODEC.parse(ops, encoded.get("result")).getOrThrow();
+            return result.isEmpty() ? List.of() : List.of(new RecipePlan(result, List.copyOf(ingredients)));
+        }
+        return displayedResults.stream().map(result -> new RecipePlan(result.copy(), List.copyOf(ingredients))).toList();
     }
 
     public SerializedInventory attemptToCraft(Level world, ItemStack target,
             SerializedInventory inventory, AtomicReference<ItemStack> output) {
+        if (!(world instanceof ServerLevel)) return null;
         initializeRecipeCache(world);
         return attemptToCraft(world, target, inventory, output, 0);
     }
@@ -55,20 +92,19 @@ public final class RecipeDeconstructor {
     private SerializedInventory attemptToCraft(Level world, ItemStack target,
             SerializedInventory inventory, AtomicReference<ItemStack> output, int depth) {
         if (depth > RECURSION_LIMIT || target == null || target.isEmpty()) return null;
-        List<Recipe<?>> recipes = recipeCache.get(new ItemRecord(target));
+        List<RecipePlan> recipes = recipeCache.get(new ItemRecord(target));
         if (recipes == null || recipes.isEmpty()) return null;
 
-        for (Recipe<?> recipe : recipes) {
+        for (RecipePlan recipe : recipes) {
             SerializedInventory candidate = inventory.copy();
             boolean failed = false;
-            for (Ingredient ingredient : recipe.getIngredients()) {
-                if (ingredient == null || ingredient == Ingredient.EMPTY) continue;
-                ItemStack[] matching = ingredient.getItems();
-                if (matching == null || matching.length == 0) {
+            for (Ingredient ingredient : recipe.ingredients()) {
+                List<ItemStack> matching = ingredient.items().map(holder -> new ItemStack(holder.value())).toList();
+                if (matching.isEmpty()) {
                     failed = true;
                     break;
                 }
-                ItemMatcher matcher = new ItemMatcher(Arrays.asList(matching));
+                ItemMatcher matcher = new ItemMatcher(matching);
                 if (candidate.decrement(matcher)) continue;
 
                 boolean craftedIngredient = false;
@@ -94,7 +130,7 @@ public final class RecipeDeconstructor {
                 }
             }
             if (!failed) {
-                output.set(recipe.getResultItem(world.registryAccess()).copy());
+                output.set(recipe.result().copy());
                 return candidate;
             }
         }

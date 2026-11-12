@@ -177,7 +177,7 @@ public boolean isPowerSink(ConduitType pt){
 
 	@Override
 	protected void loadFrom(CompoundTag tagRoot) {
-		steam = tagRoot.getFloat("steam");
+		steam = tagRoot.getFloatOr("steam", 0F);
 	}
 	
 }

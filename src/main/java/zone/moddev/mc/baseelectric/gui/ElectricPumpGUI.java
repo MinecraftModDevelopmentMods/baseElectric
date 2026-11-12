@@ -1,19 +1,17 @@
 package zone.moddev.mc.baseelectric.gui;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.machines.ElectricPumpTileEntity;
 import cyano.poweradvantage.api.simple.SimpleMachineGUI;
 import zone.moddev.mc.basepower.math.Integer2D;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import cyano.poweradvantage.api.fluid.FluidStack;
 
 public class ElectricPumpGUI  extends SimpleMachineGUI{
 
 	public ElectricPumpGUI() {
-		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_pump_gui.png"),
+		super(Identifier.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_pump_gui.png"),
 				new Integer2D[0]);
 	}
 	
@@ -37,7 +35,6 @@ guiContainer.blit(x+79, y+35, 0, 0, arrowLength, 17); // x, y, textureOffsetX, t
 	 * @param z This is the z coordinate (no units) into the depth of the screen
 	 */
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void drawGUIDecorations(Object srcEntity, GUIContainer guiContainer, int x, int y, float  z){
 		if(srcEntity instanceof ElectricPumpTileEntity){
 			ElectricPumpTileEntity te = (ElectricPumpTileEntity)srcEntity;

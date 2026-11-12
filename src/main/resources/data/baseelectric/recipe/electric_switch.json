@@ -5,15 +5,9 @@
     "pfp"
   ],
   "key": {
-    "L": {
-      "item": "minecraft:lever"
-    },
-    "p": {
-      "tag": "forge:wires"
-    },
-    "f": {
-      "tag": "forge:frames/steel"
-    }
+    "L": "minecraft:lever",
+    "p": "#forge:wires",
+    "f": "#forge:frames/steel"
   },
   "result": {
     "id": "baseelectric:electric_switch"

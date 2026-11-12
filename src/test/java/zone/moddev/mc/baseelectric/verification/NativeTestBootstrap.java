@@ -4,8 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
-import cpw.mods.modlauncher.api.IModuleLayerManager;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -13,10 +11,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.Bootstrap;
 import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.fml.loading.FMLLoader;
-import net.minecraftforge.fml.loading.LoadingModList;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistry;
@@ -33,44 +27,34 @@ public final class NativeTestBootstrap {
     public static synchronized void initialize() {
         if (ready) return;
         SharedConstants.tryDetectVersion();
-        initializeEmptyModList();
         Bootstrap.bootStrap();
         // The plain test JVM has no FML registration phase after vanilla bootstrap.
         GameData.unfreezeData();
         ready = true;
     }
 
-    private static void initializeEmptyModList() {
-        if (FMLLoader.getLoadingModList() != null) return;
-        try {
-            // Item components post native FML events even in a worldless JVM.
-            Field discovered = FMLLoader.class.getDeclaredField("loadingModList");
-            discovered.setAccessible(true);
-            LoadingModList loading = LoadingModList.of(List.of(), List.of(), null);
-            loading.setBrokenFiles(List.of());
-            discovered.set(null, loading);
-            Field layers = FMLLoader.class.getDeclaredField("moduleLayerManager");
-            layers.setAccessible(true);
-            layers.set(null, (IModuleLayerManager) ignored -> Optional.of(ModuleLayer.boot()));
-            ModList mods = ModList.of(List.of(), List.of());
-            Method load = ModList.class.getDeclaredMethod("setLoadedMods", List.class);
-            load.setAccessible(true);
-            load.invoke(mods, List.of());
-            Field valid = ModLoader.class.getDeclaredField("loadingStateValid");
-            valid.setAccessible(true);
-            valid.setBoolean(ModLoader.get(), true);
-        } catch (ReflectiveOperationException failure) {
-            throw new IllegalStateException("Cannot prepare the Forge 52 worldless test context", failure);
-        }
-    }
-
     public static RegistryAccess.Frozen registries() {
         return RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
     }
 
+    public static net.minecraft.world.level.storage.ValueInput input(net.minecraft.nbt.CompoundTag data) {
+        return net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,
+                registries(), data);
+    }
+
     public static synchronized void registerVanillaFluidTypes() throws ReflectiveOperationException {
+        registerNativeForgeRegistry(ForgeRegistries.FLUID_TYPES, "VANILLA_FLUID_TYPES");
+    }
+
+    public static synchronized void registerVanillaIngredientSerializers() throws ReflectiveOperationException {
+        registerNativeForgeRegistry(ForgeRegistries.INGREDIENT_SERIALIZERS, "INGREDIENT_SERIALIZERS");
+    }
+
+    private static void registerNativeForgeRegistry(DeferredRegister.RegistryHolder<?> registry, String contentsField)
+            throws ReflectiveOperationException {
         initialize();
-        if (ForgeRegistries.FLUID_TYPES.get() != null) return;
+        if (registry.get() != null) return;
+        ResourceKey<?> key = registry.getKey();
 
         // Run the same narrow Forge registry phases as Power's worldless entity fixtures.
         NewRegistryEvent event = new NewRegistryEvent();
@@ -78,7 +62,7 @@ public final class NativeTestBootstrap {
         registries.setAccessible(true);
         var deferred = ((List<?>) registries.get(null)).stream()
                 .map(candidate -> (DeferredRegister<?>) candidate)
-                .filter(candidate -> candidate.getRegistryKey().equals(ForgeRegistries.Keys.FLUID_TYPES))
+                .filter(candidate -> candidate.getRegistryKey().equals(key))
                 .findFirst().orElseThrow();
         // Dispatch the two native events directly; plain JUnit has no EventBus bytecode transform.
         Class<?> dispatcher = Class.forName(DeferredRegister.class.getName() + "$EventDispatcher");
@@ -94,11 +78,11 @@ public final class NativeTestBootstrap {
         Constructor<RegisterEvent> registerEvent = RegisterEvent.class.getDeclaredConstructor(
                 ResourceKey.class, ForgeRegistry.class, Registry.class);
         registerEvent.setAccessible(true);
-        Field vanilla = ForgeMod.class.getDeclaredField("VANILLA_FLUID_TYPES");
+        Field vanilla = ForgeMod.class.getDeclaredField(contentsField);
         vanilla.setAccessible(true);
         Method handle = dispatcher.getDeclaredMethod("handleEvent", RegisterEvent.class);
         handle.setAccessible(true);
         handle.invoke(listener.newInstance(vanilla.get(null)), registerEvent.newInstance(
-                ForgeRegistries.Keys.FLUID_TYPES, ForgeRegistries.FLUID_TYPES.get(), null));
+                key, registry.get(), null));
     }
 }

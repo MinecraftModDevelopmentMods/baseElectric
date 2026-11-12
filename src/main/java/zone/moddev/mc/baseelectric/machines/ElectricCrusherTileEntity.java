@@ -110,9 +110,9 @@ public class ElectricCrusherTileEntity extends ElectricMachineTileEntity{
 
 	@Override
 	protected void loadFrom(CompoundTag tagRoot) {
-		ListTag times = tagRoot.getList("smashTime", 2);
+		ListTag times = tagRoot.getList("smashTime").filter(list -> list.stream().allMatch(entry -> entry.getId() == 2)).orElseGet(net.minecraft.nbt.ListTag::new);
 		for(int i = 0; i < numberOfInputSlots() && i < times.size(); i++){
-			smashTime[i] = ((ShortTag)times.get(i)).getAsShort();
+			smashTime[i] = ((ShortTag)times.get(i)).shortValue();
 		}
 	}
 

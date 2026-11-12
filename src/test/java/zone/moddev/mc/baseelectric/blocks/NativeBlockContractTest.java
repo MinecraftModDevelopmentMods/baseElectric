@@ -39,7 +39,7 @@ public class NativeBlockContractTest {
         assertFalse(state.isRedstoneConductor(net.minecraft.world.level.EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
         assertEquals(Shapes.block().bounds(),
                 block.getCollisionShape(state, null, BlockPos.ZERO, CollisionContext.empty()).bounds());
-        assertFalse(state.isSolidRender(net.minecraft.world.level.EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
+        assertFalse(state.isSolidRender());
         assertTrue(state.isCollisionShapeFullBlock(net.minecraft.world.level.EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
         assertEquals(6, state.getProperties().size());
         assertSame(BlockSimplePowerConduit.NORTH, ElectricScaffoldBlock.NORTH);
@@ -57,16 +57,20 @@ public class NativeBlockContractTest {
         assertSame(BlockSimplePowerConduit.class,
                 scaffold.getMethod("getStateForPlacement", BlockPlaceContext.class).getDeclaringClass());
         assertSame(BlockSimplePowerConduit.class,
-                scaffold.getMethod("updateShape", BlockState.class, Direction.class, BlockState.class,
-                        LevelAccessor.class, BlockPos.class, BlockPos.class).getDeclaringClass());
+                scaffold.getMethod("updateShape", BlockState.class, net.minecraft.world.level.LevelReader.class,
+                        net.minecraft.world.level.ScheduledTickAccess.class, BlockPos.class, Direction.class,
+                        BlockPos.class, BlockState.class, net.minecraft.util.RandomSource.class).getDeclaringClass());
         assertSame(BlockSimplePowerConduit.class,
                 scaffold.getMethod("canAcceptConnection", PowerConnectorContext.class).getDeclaringClass());
         assertSame(ConduitBlock.class,
                 scaffold.getMethod("onPlace", BlockState.class, Level.class, BlockPos.class,
                         BlockState.class, boolean.class).getDeclaringClass());
         assertSame(ConduitBlock.class,
-                scaffold.getMethod("onRemove", BlockState.class, Level.class, BlockPos.class,
-                        BlockState.class, boolean.class).getDeclaringClass());
+                inheritedMethod(scaffold, "affectNeighborsAfterRemoval", BlockState.class,
+                        net.minecraft.server.level.ServerLevel.class, BlockPos.class, boolean.class).getDeclaringClass());
+        assertSame(ConduitBlock.class,
+                scaffold.getMethod("wasExploded", net.minecraft.server.level.ServerLevel.class,
+                        BlockPos.class, Explosion.class).getDeclaringClass());
         assertSame(ConduitBlock.class,
                 scaffold.getMethod("wasExploded", Level.class, BlockPos.class, Explosion.class).getDeclaringClass());
         ElectricScaffoldBlock block = new ElectricScaffoldBlock();
@@ -74,6 +78,15 @@ public class NativeBlockContractTest {
         assertSame(Power.ELECTRIC_POWER, block.getTypes()[0]);
         assertFalse(block.isPowerSink(Power.ELECTRIC_POWER));
         assertFalse(block.isPowerSource(Power.ELECTRIC_POWER));
+    }
+
+    private static java.lang.reflect.Method inheritedMethod(Class<?> type, String name, Class<?>... parameters)
+            throws NoSuchMethodException {
+        for (Class<?> current = type; current != null; current = current.getSuperclass()) {
+            try { return current.getDeclaredMethod(name, parameters); }
+            catch (NoSuchMethodException absent) { /* Continue through protected native callbacks. */ }
+        }
+        throw new NoSuchMethodException(type.getName() + "." + name);
     }
 
     @Test public void customMachinePropertiesKeepDrillAndBothTurretsNonSolid() {
@@ -111,6 +124,6 @@ public class NativeBlockContractTest {
 
     @Test public void hiddenPumpPipeUsesNativeNoLootTable() {
         BlockState state = new PumpPipeBlock().defaultBlockState();
-        assertTrue(state.getDrops(new LootParams.Builder(null)).isEmpty());
+        assertTrue(state.getDrops(new LootParams.Builder((net.minecraft.server.level.ServerLevel) null)).isEmpty());
     }
 }

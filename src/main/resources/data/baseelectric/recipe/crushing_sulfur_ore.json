@@ -1,8 +1,6 @@
 {
   "type": "basemetals:crushing",
-  "ingredient": {
-    "tag": "forge:ores/sulfur"
-  },
+  "ingredient": "#forge:ores/sulfur",
   "result": {
     "id": "baseelectric:sulfur_powder",
     "count": 4

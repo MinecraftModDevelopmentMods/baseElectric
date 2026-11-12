@@ -6,9 +6,7 @@
     "xxx"
   ],
   "key": {
-    "x": {
-      "tag": "forge:nuggets/lithium"
-    }
+    "x": "#forge:nuggets/lithium"
   },
   "result": {
     "id": "baseelectric:li_ingot"

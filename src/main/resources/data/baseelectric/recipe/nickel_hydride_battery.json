@@ -6,18 +6,10 @@
     "pZp"
   ],
   "key": {
-    "X": {
-      "tag": "forge:ingots/nickel"
-    },
-    "Y": {
-      "tag": "forge:dusts/redstone"
-    },
-    "Z": {
-      "item": "minecraft:water_bucket"
-    },
-    "p": {
-      "tag": "forge:plastic"
-    }
+    "X": "#forge:ingots/nickel",
+    "Y": "#forge:dusts/redstone",
+    "Z": "minecraft:water_bucket",
+    "p": "#forge:plastic"
   },
   "result": {
     "id": "baseelectric:nickel_hydride_battery"

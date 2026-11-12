@@ -12,6 +12,9 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 
 public class ElectricPumpBlock extends ElectricMachineBlock{
+    public ElectricPumpBlock() {
+        super(machineProperties(0.75F).setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("electric_pump")));
+    }
 
 	@Override
 	public ElectricMachineTileEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {
@@ -24,9 +27,9 @@ public class ElectricPumpBlock extends ElectricMachineBlock{
 	 * This method is called whenever the block is placed into the world
 	 */
 	@Override
-	public void onRemove(BlockState state, Level w, BlockPos coord, BlockState newState, boolean isMoving) {
-		if (state.getBlock() != newState.getBlock()) destroyPipe(w, coord);
-		super.onRemove(state, w, coord, newState, isMoving);
+	public void affectNeighborsAfterRemoval(BlockState state, net.minecraft.server.level.ServerLevel w, BlockPos coord, boolean isMoving) {
+		destroyPipe(w, coord);
+		super.affectNeighborsAfterRemoval(state, w, coord, isMoving);
 	}
 	/**
 	 * This method is called when the block is destroyed by an explosion.
@@ -39,7 +42,7 @@ public class ElectricPumpBlock extends ElectricMachineBlock{
 	
 	
 	private void destroyPipe(Level w, BlockPos coord) {
-		if(w.isClientSide) return;
+		if(w.isClientSide()) return;
 		// destroy connected drill bits
 		BlockPos c = coord.below();
 		while(c.getY() > 0 && w.getBlockState(c).getBlock() == Blocks.pump_pipe_electric){

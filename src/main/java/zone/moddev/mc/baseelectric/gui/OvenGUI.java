@@ -1,7 +1,5 @@
 package zone.moddev.mc.baseelectric.gui;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.machines.ElectricMachineTileEntity;
@@ -10,18 +8,18 @@ import zone.moddev.mc.basepower.math.Integer2D;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class OvenGUI extends SimpleMachineGUI{
 
 	public OvenGUI() {
-		super(ResourceLocation.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_oven_gui.png"),
+		super(Identifier.parse(ElectricAdvantage.MODID+":textures/gui/container/electric_oven_gui.png"),
 				Integer2D.fromCoordinates(27,67, 133,67));
 		super.specialSlots.put(1, (SlotContext c)->new Slot(c.machineInventory,c.slotIndex,c.screenPositionX,c.screenPositionY){
 			@Override
 			public void onTake(Player player, ItemStack stack)
 			{
-				stack.onCraftedBy(player.getCommandSenderWorld(), player, stack.getCount());
+				stack.onCraftedBy(player, stack.getCount());
 				super.onTake(player, stack);
 			}
 			@Override
@@ -49,7 +47,6 @@ guiContainer.blit(x+79, y+35, 0, 0, arrowLength, 17); // x, y, textureOffsetX, t
 	 * @param z This is the z coordinate (no units) into the depth of the screen
 	 */
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void drawGUIDecorations(Object srcEntity, GUIContainer guiContainer, int x, int y, float  z){
 		if(srcEntity instanceof ElectricMachineTileEntity){
 			ElectricMachineTileEntity te = (ElectricMachineTileEntity)srcEntity;

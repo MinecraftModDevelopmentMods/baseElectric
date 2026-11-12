@@ -6,6 +6,9 @@ import cyano.poweradvantage.api.PowerConnectorContext;
 import zone.moddev.mc.basepower.init.Fluids;
 
 public class PlasticRefineryBlock extends ElectricMachineBlock{
+    public PlasticRefineryBlock() {
+        super(machineProperties(0.75F).setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("plastic_refinery")));
+    }
 
 	@Override
 	public ElectricMachineTileEntity newBlockEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state) {

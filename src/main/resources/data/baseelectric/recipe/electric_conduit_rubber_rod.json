@@ -5,12 +5,8 @@
     "cc"
   ],
   "key": {
-    "x": {
-      "tag": "forge:rubber"
-    },
-    "c": {
-      "tag": "forge:rods/copper"
-    }
+    "x": "#forge:rubber",
+    "c": "#forge:rods/copper"
   },
   "result": {
     "id": "baseelectric:electric_conduit"

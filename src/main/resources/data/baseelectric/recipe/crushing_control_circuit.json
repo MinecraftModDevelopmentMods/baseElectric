@@ -1,8 +1,6 @@
 {
   "type": "basemetals:crushing",
-  "ingredient": {
-    "item": "baseelectric:control_circuit"
-  },
+  "ingredient": "baseelectric:control_circuit",
   "result": {
     "id": "baseelectric:integrated_circuit",
     "count": 1

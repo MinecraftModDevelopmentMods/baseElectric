@@ -13,7 +13,11 @@ final class BufferedQuads {
     private int count;
 
     BufferedQuads(PoseStack matrices, VertexConsumer buffer, int light, int overlay) {
-        this.transform = matrices.last();
+        this(matrices.last(), buffer, light, overlay);
+    }
+
+    BufferedQuads(PoseStack.Pose transform, VertexConsumer buffer, int light, int overlay) {
+        this.transform = transform;
         this.buffer = buffer;
         this.light = light;
         this.overlay = overlay;

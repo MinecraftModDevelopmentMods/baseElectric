@@ -266,17 +266,17 @@ public class ElectricPumpTileEntity extends ElectricMachineTileEntity implements
 	 */
 	@Override
 	public void loadFrom(final CompoundTag tagRoot) {
-		if (tagRoot.contains("Tank", 10)) {
-			CompoundTag tankTag = tagRoot.getCompound("Tank");
+		if ((tagRoot.get("Tank") instanceof net.minecraft.nbt.CompoundTag)) {
+			CompoundTag tankTag = tagRoot.getCompoundOrEmpty("Tank");
 			getTank().readFromNBT(tankTag);
-			if(tankTag.contains("Empty", 1)){
+			if((tankTag.get("Empty") instanceof net.minecraft.nbt.ByteTag)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
 				getTank().setFluid(null);
 			}
 		}
 
-		if (tagRoot.contains("NextPump", 99)) {
-			this.timeUntilNextPump = tagRoot.getByte("NextPump");
+		if ((tagRoot.get("NextPump") instanceof net.minecraft.nbt.NumericTag)) {
+			this.timeUntilNextPump = tagRoot.getByteOr("NextPump", (byte) 0);
 		}
 	}
 

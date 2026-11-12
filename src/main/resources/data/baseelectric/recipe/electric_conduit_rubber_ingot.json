@@ -6,12 +6,8 @@
     "xxx"
   ],
   "key": {
-    "x": {
-      "tag": "forge:rubber"
-    },
-    "c": {
-      "tag": "forge:ingots/copper"
-    }
+    "x": "#forge:rubber",
+    "c": "#forge:ingots/copper"
   },
   "result": {
     "id": "baseelectric:electric_conduit",

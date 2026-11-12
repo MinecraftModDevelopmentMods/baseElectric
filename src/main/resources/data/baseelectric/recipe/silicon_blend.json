@@ -1,12 +1,8 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    {
-      "tag": "forge:sand"
-    },
-    {
-      "tag": "forge:dusts/carbon"
-    }
+    "#forge:sand",
+    "#forge:dusts/carbon"
   ],
   "result": {
     "id": "baseelectric:silicon_mix"

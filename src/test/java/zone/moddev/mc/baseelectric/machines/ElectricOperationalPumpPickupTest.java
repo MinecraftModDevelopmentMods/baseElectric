@@ -184,7 +184,7 @@ public class ElectricOperationalPumpPickupTest {
         Map<BlockPos, BlockState> blocks;
         int writes;
         private PumpWorld() {
-            super(null, null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
+            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false, null);
         }
         @Override public boolean hasChunkAt(BlockPos pos) { return true; }
         @Override public BlockState getBlockState(BlockPos pos) {
@@ -203,12 +203,12 @@ public class ElectricOperationalPumpPickupTest {
         final boolean returnNull;
         int calls;
         RefusingSource(boolean returnNull) {
-            super(Block.Properties.of().mapColor(MapColor.STONE));
+            super(Block.Properties.of().setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("test_refusing_source")).mapColor(MapColor.STONE));
             this.returnNull = returnNull;
             defaultBlockState().initCache();
         }
         @Override public FluidState getFluidState(BlockState state) { return Fluids.WATER.getSource(false); }
-        @Override public net.minecraft.world.item.ItemStack pickupBlock(net.minecraft.world.entity.player.Player player, LevelAccessor world, BlockPos pos, BlockState state) {
+        @Override public net.minecraft.world.item.ItemStack pickupBlock(net.minecraft.world.entity.LivingEntity player, LevelAccessor world, BlockPos pos, BlockState state) {
             calls++;
             return returnNull ? null : net.minecraft.world.item.ItemStack.EMPTY;
         }

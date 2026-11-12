@@ -198,19 +198,19 @@ public class ElectricStillTileEntity extends ElectricMachineTileEntity implement
 	 */
 	@Override
 	public void loadFrom(final CompoundTag tagRoot) {
-		if (tagRoot.contains("TankOut", 10)) {
-			CompoundTag tankTag = tagRoot.getCompound("TankOut");
+		if ((tagRoot.get("TankOut") instanceof net.minecraft.nbt.CompoundTag)) {
+			CompoundTag tankTag = tagRoot.getCompoundOrEmpty("TankOut");
 			getOutputTank().readFromNBT(tankTag);
-			if(tankTag.contains("Empty", 1)){
+			if((tankTag.get("Empty") instanceof net.minecraft.nbt.ByteTag)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
 				getOutputTank().setFluid(null);
 			}
 		}
 
-		if (tagRoot.contains("TankIn", 10)) {
-			CompoundTag tankTag = tagRoot.getCompound("TankIn");
+		if ((tagRoot.get("TankIn") instanceof net.minecraft.nbt.CompoundTag)) {
+			CompoundTag tankTag = tagRoot.getCompoundOrEmpty("TankIn");
 			getInputTank().readFromNBT(tankTag);
-			if(tankTag.contains("Empty", 1)){
+			if((tankTag.get("Empty") instanceof net.minecraft.nbt.ByteTag)){
 				// empty the tank if NBT says its empty (not default behavior of Tank.readFromNBT(...) )
 				getInputTank().setFluid(null);
 			}

@@ -6,15 +6,9 @@
     "ccc"
   ],
   "key": {
-    "g": {
-      "tag": "forge:glass_panes"
-    },
-    "x": {
-      "tag": "forge:microchips"
-    },
-    "c": {
-      "tag": "forge:wires"
-    }
+    "g": "#forge:glass_panes",
+    "x": "#forge:microchips",
+    "c": "#forge:wires"
   },
   "result": {
     "id": "baseelectric:led_bar",

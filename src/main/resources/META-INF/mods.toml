@@ -2,6 +2,7 @@ modLoader="javafml"
 loaderVersion="${loader_version_range}"
 issueTrackerURL="https://github.com/MinecraftModDevelopmentMods/baseElectric/issues"
 license="GPL-3.0-only"
+showAsResourcePack=false
 
 [[mods]]
 modId="baseelectric"
@@ -30,13 +31,13 @@ side="BOTH"
 [[dependencies.baseelectric]]
 modId="basepower"
 mandatory=true
-versionRange="[2.4.14.121011,3.0.0)"
+versionRange="[2.4.15.121111,3.0.0)"
 ordering="AFTER"
 side="BOTH"
 
 [[dependencies.baseelectric]]
 modId="basemetals"
-mandatory=false
-versionRange="[3.1.2.121011,4.0.0)"
+mandatory=true
+versionRange="[3.1.2.121111,4.0.0)"
 ordering="AFTER"
 side="BOTH"
