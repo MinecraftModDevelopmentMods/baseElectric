@@ -103,8 +103,8 @@ tasks.named('test', Test) {
     }
     afterSuite { descriptor, result ->
         if (!descriptor.parent && filter.includePatterns.empty && filter.commandLineIncludePatterns.empty
-                && (result.testCount != 117 || result.skippedTestCount != 0)) {
-            throw new GradleException("Expected 117 tests with no skips, got ${result.testCount} tests and ${result.skippedTestCount} skips")
+                && (result.testCount != 118 || result.skippedTestCount != 0)) {
+            throw new GradleException("Expected 118 tests with no skips, got ${result.testCount} tests and ${result.skippedTestCount} skips")
         }
     }
     doFirst {
@@ -203,7 +203,7 @@ sourceSets.main.resources {
 def forgeRunModClassesDirectory = layout.buildDirectory.dir('forge-run-mod-classes/main')
 def prepareForgeRunModClasses = tasks.register('prepareForgeRunModClasses', Sync) {
     group = 'ide'
-    description = 'Merges classes and processed resources for Forge 26.2 launches.'
+    description = 'Merges classes and processed resources for Forge 26.3 launches.'
     dependsOn tasks.named('classes')
     from sourceSets.main.output
     into forgeRunModClassesDirectory
@@ -321,12 +321,12 @@ def requirePowerPin = {
             || !(project.poweradvantage_source_ref ==~ /[a-f0-9]{40}/)
             || ![project.poweradvantage_deobf_sha256, project.poweradvantage_runtime_sha256]
                     .every { it ==~ /[A-F0-9]{64}/ }) {
-        throw new GradleException('The owner-approved basePower 26.2 source and artifact pins are required.')
+        throw new GradleException('The owner-approved basePower 26.3 source and artifact pins are required.')
     }
 }
 // Resolve and check only the dependencies required by the selected tasks.
 def powerDefaultJar = "../../PowerAdvantage/build/libs/basePower-${project.poweradvantage_version}.jar"
-def metalsDefaultJar = "../../../../BaseMetals/BaseMetals 262/BaseMetals/build/libs/BaseMetals-${project.basemetals_version}.jar"
+def metalsDefaultJar = "../../../../BaseMetals/BaseMetals 263/BaseMetals/build/libs/BaseMetals-${project.basemetals_version}.jar"
 def powerAdvantageDeobfJar = providers.provider {
     requirePowerPin()
     pinnedFile('powerAdvantageDeobfJar', project.poweradvantage_deobf_sha256,
@@ -337,7 +337,7 @@ def baseMetalsDeobfJar = providers.provider {
     pinnedFile('baseMetalsDeobfJar', project.basemetals_deobf_sha256,
             providers.gradleProperty('baseMetalsRuntimeJar').getOrElse(metalsDefaultJar))
 }
-def oreSpawnProject = '../../../../MinecraftMineralogy/OS262/OreSpawn'
+def oreSpawnProject = '../../../../MinecraftMineralogy/OS263/OreSpawn'
 def oreSpawnDeobfJar = providers.provider {
     requireCommittedPins('orespawn_')
     pinnedFile('oreSpawnDeobfJar', project.orespawn_deobf_sha256,
@@ -456,7 +456,7 @@ def compileNativeResourceChecks = tasks.register('compileNativeResourceChecks', 
                 '**/RecipeRegistrationThreadTest.java', '**/NativeTestBootstrap.java', '**/LegacyBatteryDataTest.java',
                 '**/NativePackRangeContractTest.java', '**/NativePackResourceProof.java',
                 '**/BuildWorkflowContractTest.java', '**/ShaderResourceContractTest.java', '**/DatapackLayoutTest.java',
-                '**/RecipeDeconstructorTest.java', '**/VillagesTest.java'
+                '**/RecipeDeconstructorTest.java', '**/VillagesTest.java', '**/VirtualCropNativeTest.java'
     }
     classpath = nativeResourceCheckClasspath.get() + files(layout.buildDirectory.dir('classes/native-api-diagnostics'))
     destinationDirectory = nativeResourceCheckClasses
@@ -467,10 +467,10 @@ tasks.register('compileNativeProductionDiagnostics', JavaCompile) {
     description = 'Compiles all production sources against explicitly hashed provisional native inputs; never produces a release jar.'
     source sourceSets.main.java
     classpath = nativeResourceCheckClasspath.get() + files(providers.provider {
-        ['powerAdvantage', 'baseMetals'].collect { name ->
+        ['powerAdvantage', 'baseMetals', 'oreSpawn'].collect { name ->
             pinnedFile("${name}DiagnosticJar", providers.gradleProperty("${name}DiagnosticSha256").getOrElse(''))
         }
-    }, oreSpawnDeobfJar)
+    })
     destinationDirectory = layout.buildDirectory.dir('classes/native-production-diagnostics')
 }
 
@@ -498,8 +498,8 @@ tasks.register('nativeUnitDiagnostics', Test) {
     }
     afterSuite { descriptor, result ->
         if (!descriptor.parent && filter.includePatterns.empty && filter.commandLineIncludePatterns.empty
-                && (result.testCount != 117 || result.skippedTestCount != 0)) {
-            throw new GradleException("Expected 117 provisional unit diagnostics without skips, got ${result.testCount}/${result.skippedTestCount}")
+                && (result.testCount != 118 || result.skippedTestCount != 0)) {
+            throw new GradleException("Expected 118 provisional unit diagnostics without skips, got ${result.testCount}/${result.skippedTestCount}")
         }
     }
     doFirst {
@@ -509,14 +509,14 @@ tasks.register('nativeUnitDiagnostics', Test) {
 }
 tasks.register('nativeResourceChecks', Test) {
     group = 'verification'
-    description = 'Checks Electric resources against native Forge 65 without sibling mod jars.'
+    description = 'Checks Electric resources against native Forge 66 without sibling mod jars.'
     dependsOn compileNativeResourceChecks, tasks.named('processResources')
     useJUnit()
     testClassesDirs = files(nativeResourceCheckClasses)
     classpath = testClassesDirs + nativeResourceCheckClasspath.get() + files(layout.buildDirectory.dir('classes/native-api-diagnostics'))
     afterSuite { descriptor, result ->
-        if (!descriptor.parent && (result.testCount != 28 || result.skippedTestCount != 0)) {
-            throw new GradleException("Expected 28 native resource tests without skips, got ${result.testCount}/${result.skippedTestCount}")
+        if (!descriptor.parent && (result.testCount != 29 || result.skippedTestCount != 0)) {
+            throw new GradleException("Expected 29 native resource tests without skips, got ${result.testCount}/${result.skippedTestCount}")
         }
     }
     doFirst {
@@ -596,13 +596,13 @@ def releaseJar = tasks.named('jar', Jar)
 
 tasks.register('releaseJar') {
     group = 'build'
-    description = 'Builds the native Forge 65 player jar.'
+    description = 'Builds the native Forge 66 player jar.'
     dependsOn releaseJar
 }
 
 tasks.register('deobfJar') {
     group = 'build'
-    description = 'Builds the same native Forge 65 jar used for development and play.'
+    description = 'Builds the same native Forge 66 jar used for development and play.'
     dependsOn tasks.named('jar')
 }
 
@@ -677,22 +677,22 @@ tasks.register('verifyReleaseConfiguration') {
         requireCommittedPins('orespawn_')
         requireCommittedPins('forge_')
         def pack = new JsonSlurper().parse(file('src/main/resources/pack.mcmeta')).pack
-        if (pack.min_format != [107, 1] || pack.max_format != [107, 1]
+        if (pack.min_format != [121, 0] || pack.max_format != [121, 0]
                 || pack.containsKey('pack_format') || pack.containsKey('supported_formats')
                 || !(file('src/main/resources/META-INF/mods.toml').text =~ /(?m)^showAsResourcePack=false$/)) {
-            throw new GradleException('Root metadata must declare data 107.1 with the native hidden Forge client pack')
+            throw new GradleException('Root metadata must declare data 121.0 with the native hidden Forge client pack')
         }
-        if (project.mod_version != '2.2.18.2602001') {
+        if (project.mod_version != '2.2.19.2603001') {
             throw new GradleException("Unexpected baseElectric release version: ${project.mod_version}")
         }
-        if (project.minecraft_version != '26.2'
-                || project.minecraft_version_range != '[26.2]'
-                || project.forge_version != '65.1.0'
-                || project.forge_version_range != '[65.1.0,66)'
-                || project.loader_version_range != '[65,66)'
+        if (project.minecraft_version != '26.3'
+                || project.minecraft_version_range != '[26.3]'
+                || project.forge_version != '66.0.0'
+                || project.forge_version_range != '[66.0.0,67)'
+                || project.loader_version_range != '[66,67)'
                 || project.mapping_channel != 'official'
-                || project.mapping_version != '26.2'
-                || project.mcp_version != '20260616.103818') {
+                || project.mapping_version != '26.3'
+                || project.mcp_version != '20260918.230105') {
             throw new GradleException('Unexpected Minecraft, Forge, or mappings target')
         }
         if (project.loader_name != 'forge' || project.loader_code != '1'
@@ -712,17 +712,17 @@ tasks.register('verifyReleaseConfiguration') {
         }
         if (project.cf_requirements != 'basepower,base-metals'
                 || project.cf_optionals != ''
-                || project.cf_versions != '26.2') {
+                || project.cf_versions != '26.3') {
             throw new GradleException('Unexpected CurseForge dependency or game-version metadata')
         }
-        if (project.poweradvantage_version != '2.4.17.2602001'
+        if (project.poweradvantage_version != '2.4.18.2603001'
                 || project.poweradvantage_source_repository != 'MinecraftModDevelopmentMods/basePower') {
             throw new GradleException('Unexpected basePower compile dependency identity')
         }
-        if (!(project.basemetals_version ==~ /3\.\d+\.\d+\.2602001/)
-                || project.orespawn_version != '4.1.1.2602001'
-                || project.basemetals_built_on != '26.2-65.1.0'
-                || project.orespawn_built_on != '26.2-65.1.0'
+        if (!(project.basemetals_version ==~ /3\.\d+\.\d+\.2603001/)
+                || project.orespawn_version != '4.1.1.2603001'
+                || project.basemetals_built_on != '26.3-66.0.0'
+                || project.orespawn_built_on != '26.3-66.0.0'
                 || !(project.basemetals_source_commit ==~ /[a-f0-9]{40}/)
                 || !(project.basemetals_deobf_sha256 ==~ /[A-F0-9]{64}/)
                 || !(project.basemetals_runtime_sha256 ==~ /[A-F0-9]{64}/)
@@ -730,18 +730,18 @@ tasks.register('verifyReleaseConfiguration') {
                 || project.orespawn_deobf_sha256 != project.orespawn_runtime_sha256
                 || project.basemetals_deobf_sha256 != project.basemetals_runtime_sha256
                 || project.poweradvantage_deobf_sha256 != project.poweradvantage_runtime_sha256
-                || project.forge_installer_sha256 != '813FBBFECC3086A492783B9F5023AE15007737B42E17AAB75F48BA77403314DF') {
+                || project.forge_installer_sha256 != 'C6173EEA56AED0B947722F314542196E28A35285844961D517C7FB571492BBE3') {
             throw new GradleException('Unexpected native dependency pins')
         }
         String mainSource = file(
                 'src/main/java/zone/moddev/mc/baseelectric/ElectricAdvantage.java').getText('UTF-8')
         if (!mainSource.contains('MODID = "baseelectric"')
-                || !mainSource.contains('VERSION = "2.2.18.2602001"')) {
+                || !mainSource.contains('VERSION = "2.2.19.2603001"')) {
             throw new GradleException('baseElectric source identity changed')
         }
         String metadata = file('src/main/resources/META-INF/mods.toml').getText('UTF-8').replace('\r\n', '\n')
         ['modId="baseelectric"', 'displayName="baseElectric"', 'modId="basepower"', 'modId="basemetals"',
-         'versionRange="[2.4.17.2602001,3.0.0)"', 'versionRange="[3.1.2.2602001,4.0.0)"'].each { marker ->
+         'versionRange="[2.4.18.2603001,3.0.0)"', 'versionRange="[3.1.2.2603001,4.0.0)"'].each { marker ->
             if (!metadata.contains(marker)) {
                 throw new GradleException("Source mods.toml is missing ${marker}")
             }
@@ -787,7 +787,7 @@ def verifyOreSpawnNativeInputs = tasks.register('verifyOreSpawnNativeInputs') {
 
 tasks.register('verifyLocalNativeInputs') {
     group = 'verification'
-    description = 'Verifies explicit Base Metals and OreSpawn 26.2 development and player JARs.'
+    description = 'Verifies explicit Base Metals and OreSpawn 26.3 development and player JARs.'
     dependsOn tasks.named('verifyReleaseConfiguration')
     dependsOn verifyOreSpawnNativeInputs
     doLast {
@@ -864,7 +864,7 @@ tasks.register('verifyReleaseDependencies') {
             ['fields.csv', 'methods.csv'].each { name ->
                 String csv = zip.getInputStream(zip.getEntry(name)).getText('UTF-8').replace('\r\n', '\n')
                 if (csv != 'searge,name,side,desc') {
-                    throw new GradleException('Forge 65 official runtime mappings must be empty header-only CSVs')
+                    throw new GradleException('Forge 66 official runtime mappings must be empty header-only CSVs')
                 }
             }
         }
@@ -1187,7 +1187,7 @@ tasks.register('validateMavenReleaseCredentials') {
     group = 'publishing'
     description = 'Rejects remote publication from this local port.'
     doLast {
-        throw new GradleException('Remote Maven publication is disabled on the local 26.2 port.')
+        throw new GradleException('Remote Maven publication is disabled on the local 26.3 port.')
     }
 }
 
@@ -1263,7 +1263,7 @@ tasks.register('configureEclipseBuildship') {
 
 def quoteEclipseLaunchPaths = { String name, String arguments ->
     if (arguments.contains('--to-srg') || arguments.contains('--to-obf')) {
-        throw new GradleException("${name} must not remap the official Forge 65 runtime")
+        throw new GradleException("${name} must not remap the official Forge 66 runtime")
     }
     // ForgeGradle flattens path arguments without quoting them for Eclipse.
     Map<String, String> nextOptions = [
@@ -1659,7 +1659,7 @@ tasks.register('verifyEclipseProductionClasspath') {
                     || !programArguments.startsWith('--main net.minecraftforge.bootstrap.ForgeBootstrap ')
                     || !(programArguments =~ /(?:^|\s)--launchTarget\s+${target}(?:\s|$)/).find()
                     || !vmArguments.contains('--add-opens java.base/java.lang.invoke=ALL-UNNAMED')) {
-                throw new GradleException("${name} does not define the Forge 65 bootstrap and native launch target")
+                throw new GradleException("${name} does not define the Forge 66 bootstrap and native launch target")
             }
             ['--cache', '--metadata'].each { option ->
                 def argument = programArguments =~ /(?:^|\s)${option}\s+(?:"([^"]+)"|([^"\s]+))(?=\s+--|$)/

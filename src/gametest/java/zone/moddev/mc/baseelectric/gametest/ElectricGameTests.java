@@ -180,6 +180,7 @@ public final class ElectricGameTests {
             roundTrip.release();
         }
         assertEveryPackagedRecipeUsesTheNativeCodec(helper);
+        assertEveryPackagedLootTableUsesTheNativeCodec(helper);
         helper.succeed();
     }
 
@@ -191,14 +192,50 @@ public final class ElectricGameTests {
         for (var entry : resources.entrySet()) {
             try (var reader = entry.getValue().openAsReader()) {
                 var json = com.google.gson.JsonParser.parseReader(reader);
-                var decoded = Recipe.CODEC.parse(ops, json).getOrThrow();
-                var encoded = Recipe.CODEC.encodeStart(ops, decoded).getOrThrow();
-                var again = Recipe.CODEC.parse(ops, encoded).getOrThrow();
+                var decoded = Recipe.DIRECT_CODEC.parse(ops, json).getOrThrow();
+                var encoded = Recipe.DIRECT_CODEC.encodeStart(ops, decoded).getOrThrow();
+                var again = Recipe.DIRECT_CODEC.parse(ops, encoded).getOrThrow();
                 helper.assertTrue(decoded.getSerializer() == again.getSerializer()
-                                && encoded.equals(Recipe.CODEC.encodeStart(ops, again).getOrThrow()),
+                                && encoded.equals(Recipe.DIRECT_CODEC.encodeStart(ops, again).getOrThrow()),
                         "Packaged recipe changed over its native codec: " + entry.getKey());
             } catch (Exception failure) {
                 throw new AssertionError("Native recipe codec rejected " + entry.getKey(), failure);
+            }
+        }
+    }
+
+    private static void assertEveryPackagedLootTableUsesTheNativeCodec(GameTestHelper helper) {
+        var resources = helper.getLevel().getServer().getResourceManager().listResources("loot_table",
+                id -> id.getNamespace().equals(ElectricAdvantage.MODID) && id.getPath().endsWith(".json"));
+        helper.assertTrue(resources.size() == 21, "Expected all 21 packaged Electric loot tables, found " + resources.size());
+        var ops = helper.getLevel().registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE);
+        var codec = net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC;
+        for (var entry : resources.entrySet()) {
+            try (var reader = entry.getValue().openAsReader()) {
+                var json = com.google.gson.JsonParser.parseReader(reader).getAsJsonObject();
+                var decoded = codec.parse(ops, json).getOrThrow();
+                var encoded = codec.encodeStart(ops, decoded).getOrThrow().getAsJsonObject();
+                var condition = json.getAsJsonArray("pools").get(0).getAsJsonObject().get("condition");
+                if (json.has("type") && json.get("type").getAsString().equals("minecraft:block")) {
+                    helper.assertTrue(condition != null && condition.equals(
+                            encoded.getAsJsonArray("pools").get(0).getAsJsonObject().get("condition")),
+                            "Packaged explosion condition was lost: " + entry.getKey());
+                } else {
+                    var before = json.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries");
+                    var after = encoded.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries");
+                    helper.assertTrue(before.size() == 10 && after.size() == 10, "Chest entry inventory changed");
+                    for (int i = 1; i < before.size(); i++) {
+                        helper.assertTrue(before.get(i).getAsJsonObject().get("modifier").equals(
+                                after.get(i).getAsJsonObject().get("modifier")), "Packaged chest count was lost: " + i);
+                        var wire = after.get(i).getAsJsonObject();
+                        int weight = wire.has("weight") ? wire.get("weight").getAsInt()
+                                : net.minecraft.world.level.storage.loot.entries.UniformContainerBase.DEFAULT_WEIGHT;
+                        helper.assertTrue(before.get(i).getAsJsonObject().get("weight").getAsInt() == weight,
+                                "Packaged chest weight changed: " + i);
+                    }
+                }
+            } catch (Exception failure) {
+                throw new AssertionError("Native loot codec rejected registered Electric drops: " + entry.getKey(), failure);
             }
         }
     }
@@ -222,7 +259,7 @@ public final class ElectricGameTests {
         helper.assertTrue(!recipe.placementInfo().ingredients().isEmpty()
                         && recipe.placementInfo().ingredients().stream().allMatch(ingredient -> !ingredient.isEmpty()),
                 "Recipe loaded with an empty ingredient: " + id);
-        var encoded = Recipe.CODEC.encodeStart(level.registryAccess().createSerializationContext(
+        var encoded = Recipe.DIRECT_CODEC.encodeStart(level.registryAccess().createSerializationContext(
                 com.mojang.serialization.JsonOps.INSTANCE), recipe).getOrThrow().getAsJsonObject();
         var result = ItemStack.CODEC.parse(level.registryAccess().createSerializationContext(
                 com.mojang.serialization.JsonOps.INSTANCE), encoded.get("result")).getOrThrow();

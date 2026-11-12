@@ -2,9 +2,9 @@ name: CodeQL
 
 on:
   push:
-    branches: [master-26.2, 'feature/**']
+    branches: [master-26.3, 'feature/**']
   pull_request:
-    branches: [master-26.2]
+    branches: [master-26.3]
 
 permissions:
   contents: read
@@ -12,7 +12,7 @@ permissions:
   security-events: write
 
 concurrency:
-  group: baseelectric-26.2-${{ github.workflow }}-${{ github.ref }}
+  group: baseelectric-26.3-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -54,7 +54,7 @@ jobs:
           -Porg.gradle.java.installations.auto-download=false" >> "$GITHUB_ENV"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
-      - name: Verify the Forge 65 build inputs
+      - name: Verify the Forge 66 build inputs
         shell: bash
         env:
           ORESPAWN_REF: ${{ steps.public-pins.outputs.orespawn_ref }}
@@ -66,7 +66,7 @@ jobs:
           test "$(git -C "$orespawn" rev-parse HEAD)" = "$ORESPAWN_REF"
           test "$(git -C "$power" rev-parse HEAD)" = "$POWER_REF"
           mavenizer="$orespawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar"
-          printf '%s  %s\n' '5ABAB52A3F1BE115381C3CE80D5FD38DBE6C9F4C0B9ECF70A957700EC90FB88B' "$mavenizer" | sha256sum -c -
+          printf '%s  %s\n' '4150926F33A696B2088AB2675C1C3B45745CE4F9F2DEB31CCD88C9ADC834062F' "$mavenizer" | sha256sum -c -
           echo "MAVENIZER=$mavenizer" >> "$GITHUB_ENV"
       - name: Initialize CodeQL
         uses: github/codeql-action/init@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28 # v4

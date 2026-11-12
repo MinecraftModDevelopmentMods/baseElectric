@@ -169,7 +169,7 @@ public final class NativePackResourceProof {
                 JsonObject side = new JsonObject();
                 side.addProperty("id", id);
                 side.addProperty("loaderCompatibility", pack.getCompatibility().name());
-                try (var opened = pack.open()) {
+                try (var opened = pack.openMetadata()) {
                     PackMetadataSection metadata = opened.getMetadataSection(PackMetadataSection.forPackType(type));
                     if (metadata == null) throw new AssertionError("Missing native " + type + " metadata");
                     var formats = metadata.supportedFormats();
@@ -188,7 +188,8 @@ public final class NativePackResourceProof {
                     side.addProperty("accepts102", formats.isValueInRange(net.minecraft.server.packs.metadata.pack.PackFormat.of(102)));
                     side.add("nativeMetadata", encoded);
                     if (type == PackType.CLIENT_RESOURCES) {
-                        if (opened.getChildren() == null || opened.getChildren().size() != 1) {
+                        if (!(opened instanceof net.minecraftforge.resource.DelegatingPackResources delegate)
+                                || delegate.getChildren() == null || delegate.getChildren().size() != 1) {
                             throw new AssertionError("Expected the actual Forge client delegate");
                         }
                         side.addProperty("currentCompatibility", pack.getCompatibility().name());
@@ -198,6 +199,18 @@ public final class NativePackResourceProof {
                                 SharedConstants.getCurrentVersion().packVersion(type), type);
                         if (current == null) throw new AssertionError("Native current-version server metadata was rejected");
                         side.addProperty("currentCompatibility", current.compatibility().name());
+                    }
+                }
+                try (var stream = pack.open()) {
+                    var children = stream.toList();
+                    try {
+                        if (children.size() != 1 || !(children.getFirst() instanceof PathPackResources)) {
+                            throw new AssertionError("Expected one native flattened resource path: " + children);
+                        }
+                        side.addProperty("streamResourceCount", children.size());
+                        side.addProperty("streamResourceClass", children.getFirst().getClass().getName());
+                    } finally {
+                        children.forEach(net.minecraft.server.packs.PackResources::close);
                     }
                 }
                 repository.setSelected(List.of(id));
@@ -234,7 +247,7 @@ public final class NativePackResourceProof {
     }
 
     private static void initializeNativeModList(ModFile mod) throws ReflectiveOperationException {
-        // Forge 65 freezes discovery before ModList's static initialization. No mod code runs in this child.
+        // Forge 66 freezes discovery before ModList's static initialization. No mod code runs in this child.
         Class<?> stateType = Class.forName("net.minecraftforge.fml.loading.ModSorter$State");
         var constructor = stateType.getDeclaredConstructor(List.class, List.class);
         constructor.setAccessible(true);

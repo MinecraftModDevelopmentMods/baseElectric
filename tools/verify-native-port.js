@@ -15,6 +15,7 @@ const sha256 = data => createHash('sha256').update(data).digest('hex');
 const tracked = git('ls-tree', '-r', '--name-only', baseline, 'src').toString().trim().split('\n');
 const javaRoot = 'src/main/java/zone/moddev/mc/baseelectric/';
 const assets = 'src/main/resources/assets/baseelectric/';
+const addedNativeTests = ['src/test/java/zone/moddev/mc/baseelectric/util/farming/VirtualCropNativeTest.java'];
 const relocated = file => file.replace(/(data\/[^/]+\/)recipes\//, '$1recipe/')
     .replace(/(data\/[^/]+\/)advancements\//, '$1advancement/')
     .replace(/(data\/[^/]+\/)loot_tables\//, '$1loot_table/')
@@ -28,6 +29,28 @@ function nativeIngredients(recipe) {
     if (recipe.ingredients) recipe.ingredients = ingredient(recipe.ingredients);
     return recipe;
 }
+function nativeLoot(table) {
+    for (const pool of table.pools) {
+        if (pool.conditions) {
+            assert.equal(pool.conditions.length, 1);
+            const {condition, ...parameters} = pool.conditions[0];
+            delete pool.conditions;
+            pool.condition = {type: condition, ...parameters};
+        }
+        for (const entry of pool.entries) {
+            if (!entry.functions) continue;
+            assert.equal(entry.functions.length, 1);
+            entry.modifier = entry.functions.map(value => {
+                const {function: type, ...parameters} = value;
+                if (parameters.count && typeof parameters.count === 'object' && !parameters.count.type)
+                    parameters.count = {type:'minecraft:uniform', ...parameters.count};
+                return {type:type.includes(':') ? type : 'minecraft:' + type, ...parameters};
+            })[0];
+            delete entry.functions;
+        }
+    }
+    return table;
+}
 const track = file => file.startsWith(assets + 'models/block/electric_track_') && file.endsWith('.json');
 const checks = [];
 function check(name, run) {
@@ -35,26 +58,24 @@ function check(name, run) {
     catch (error) { checks.push({name, pass: false, error: error.message}); }
 }
 
-check('Exact Forge 65 and local port identity', () => {
+check('Exact Forge 66 and local port identity', () => {
     const props = Object.fromEntries(read('gradle.properties').toString().split(/\r?\n/)
         .filter(line => /^[a-z][a-z_\d]*=/.test(line)).map(line => line.split(/=(.*)/s).slice(0, 2)));
     for (const [key, value] of Object.entries({
-        minecraft_version: '26.2', forge_version: '65.1.0', mapping_channel: 'official',
-        mapping_version: '26.2', mcp_version: '20260616.103818', java_version: '25',
-        mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.18.2602001',
-        poweradvantage_version: '2.4.17.2602001', basemetals_version: '3.1.2.2602001',
-        orespawn_source_commit: 'dcaaa933299dd8b1ebc73e31c9e5acd36dd7957c',
-        orespawn_deobf_sha256: 'BC0658DF2E149CC23E65E5771F3FF62E2BB13FFDA4E316AB632EB92EF7FA5A1F',
-        orespawn_version: '4.1.1.2602001', curseforge_project_id: '1783006',
+        minecraft_version: '26.3', forge_version: '66.0.0', mapping_channel: 'official',
+        mapping_version: '26.3', mcp_version: '20260918.230105', java_version: '25',
+        mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.19.2603001',
+        poweradvantage_version: '2.4.18.2603001', basemetals_version: '3.1.2.2603001',
+        orespawn_version: '4.1.1.2603001', curseforge_project_id: '1783006',
         cf_requirements: 'basepower,base-metals'
     })) assert.equal(props[key], value, key);
     assert.equal(props.reobf, 'false');
     assert.deepEqual(json('src/main/resources/pack.mcmeta').pack,
-        {min_format:[107,1], max_format:[107,1], description:'baseElectric'});
+        {min_format:[121,0], max_format:[121,0], description:'baseElectric'});
     const mods = read('src/main/resources/META-INF/mods.toml').toString();
     assert.match(mods, /^showAsResourcePack=false$/m);
-    assert.match(mods, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.17\.2602001,3\.0\.0\)"/);
-    assert.match(mods, /modId="basemetals"\s+mandatory=true\s+versionRange="\[3\.1\.2\.2602001,4\.0\.0\)"/);
+    assert.match(mods, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.18\.2603001,3\.0\.0\)"/);
+    assert.match(mods, /modId="basemetals"\s+mandatory=true\s+versionRange="\[3\.1\.2\.2603001,4\.0\.0\)"/);
     const build = read('build.gradle').toString();
     assert.match(build, /inputs\.files\(javadocTool\.map/);
     assert.match(build, /legal\/java\.base/);
@@ -100,7 +121,7 @@ check('Track audit rejects the old asset and a geometry mutation', () => {
     assert.throws(() => checkTrackModel(file, mutated), /changed beyond the render layer/);
 });
 
-check('Released resources retain bytes except exact native metadata and atlas repairs', () => {
+check('Released resources retain content through exact native schema and atlas repairs', () => {
     const resources = tracked.filter(file => /^src\/(main|test)\/resources\//.test(file));
     const removedAbstract = assets + 'items/battery_base.json';
     const blocksAtlas = 'src/main/resources/assets/minecraft/atlases/blocks.json';
@@ -128,6 +149,10 @@ check('Released resources retain bytes except exact native metadata and atlas re
             assert.deepEqual(json(file), nativeIngredients(JSON.parse(old(file))), file);
             continue;
         }
+        if (file.startsWith('src/main/resources/data/baseelectric/loot_table/')) {
+            assert.deepEqual(json(file), nativeLoot(JSON.parse(old(file))), file);
+            continue;
+        }
         assert.equal(sha256(read(relocated(file))), sha256(old(file)), file);
         if (relocated(file) !== file) assert(!fs.existsSync(path.join(root, file)), 'Obsolete registry path: ' + file);
     }
@@ -144,7 +169,7 @@ check('Released resources retain bytes except exact native metadata and atlas re
     const trades = ['electric_conduit', 'solder', 'integrated_circuit', 'blank_circuit_board', 'petrolplastic_ingot', 'psu']
         .map(id => 'src/main/resources/data/baseelectric/villager_trade/librarian/' + id + '.json');
     const tiers = [1,2].map(level => 'src/main/resources/data/minecraft/tags/villager_trade/librarian/level_' + level + '.json');
-    assert.deepEqual(actual, [...tracked.filter(file => file !== javaRoot + 'init/Villages.java' && file !== removedAbstract), itemsAtlas, ...trades, ...tiers].sort(),
+    assert.deepEqual(actual, [...tracked.filter(file => file !== javaRoot + 'init/Villages.java' && file !== removedAbstract), itemsAtlas, ...trades, ...tiers, ...addedNativeTests].sort(),
         'Source and resource inventory');
 });
 
@@ -185,6 +210,14 @@ check('All 114 released tests retain their coverage without skips', () => {
     }
     assert.equal(inherited, 114);
     assert.equal(actual, 117);
+    let added = 0;
+    for (const file of addedNativeTests) {
+        const source = read(file).toString();
+        assert.doesNotMatch(source, /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/, file);
+        added += methods(source).length;
+    }
+    assert.equal(added, 1);
+    assert.equal(actual + added, 118);
     const gameTests = javaRoot.replace('main', 'gametest') + 'gametest/ElectricGameTests.java';
     const names = value => [...value.toString().matchAll(/public static void (\w+)\(GameTestHelper/g)].map(m => m[1]);
     for (const name of names(old(gameTests))) assert(names(read(gameTests)).includes(name), 'Lost GameTest: ' + name);

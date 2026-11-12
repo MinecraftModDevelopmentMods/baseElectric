@@ -1,6 +1,5 @@
 package zone.moddev.mc.baseelectric.util.farming;
 
-import com.mojang.serialization.JsonOps;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import zone.moddev.mc.baseelectric.util.crafting.ItemRecord;
@@ -84,14 +83,25 @@ public class VirtualCrop {
 	
 	
 	private static Block resolveStemFruit(StemBlock stem, Level world) {
-		// The native stem codec exposes the registered fruit key.
-		var ops = world.registryAccess().createSerializationContext(JsonOps.INSTANCE);
-		return StemBlock.CODEC.codec().encodeStart(ops, stem).result()
-				.flatMap(data -> ResourceKey.codec(Registries.BLOCK)
-						.parse(ops, data.getAsJsonObject().get("fruit")).result())
-				.map(key -> world.registryAccess().lookupOrThrow(Registries.BLOCK).getValueOrThrow(key))
-				.orElse(null);
+		return world.registryAccess().lookupOrThrow(Registries.BLOCK).getValueOrThrow(stemFruitKey(stem));
 	}
+
+    static ResourceKey<Block> stemFruitKey(StemBlock stem) {
+        // 26.3 removed the stem codec and exposes no fruit accessor. Keep modded keys too.
+        try {
+            Field fruit = StemBlock.class.getDeclaredField("fruit");
+            if (fruit.getType() != ResourceKey.class || !fruit.trySetAccessible()) {
+                throw new IllegalStateException("Native stem fruit key is not accessible");
+            }
+            if (fruit.get(stem) instanceof ResourceKey<?> key) {
+                return key.cast(Registries.BLOCK).orElseThrow(
+                        () -> new IllegalStateException("Native stem fruit is not a block key"));
+            }
+            throw new IllegalStateException("Native stem fruit key is absent");
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("Could not preserve the native stem fruit key", failure);
+        }
+    }
 
 	public VirtualCrop copy(){
 		return new VirtualCrop(this.prematureHarvest,this.numberOfStages, this.harvest);

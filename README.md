@@ -1,68 +1,67 @@
 # baseElectric
 
-**Minecraft 26.2 Forge, version 2.2.18.2602001. Combined checks passed; final root build pending.**
+**Minecraft 26.3 Forge, version 2.2.19.2603001. Local port in progress.**
 
 baseElectric continues DrCyano's Electric Advantage and uses basePower's shared
 API, machines and creative tab. Existing `baseelectric` registry and saved-data
-identities are retained.
+identities, recipes, balance and public contracts are retained.
 
-This port targets Forge **65.1.0**, official Minecraft **26.2** names,
-MCP **20260616.103818**, Java **25.0.3+9**, ForgeGradle **7.0.34** and the
-checksum-pinned Gradle **9.6.1** wrapper. Native pack formats are data
-**107.1** and client **88.0**.
+This port targets Forge **66.0.0**, official Minecraft **26.3** names,
+MCP **20260918.230105**, Java **25.0.3+9**, ForgeGradle **7.0.34** and the
+checksum-pinned Gradle **9.6.1** wrapper. Native data/client pack formats are
+**121.0/97.1**. Forge **66.1.5** compatibility is a later, separate check.
 
-## Build
+## Dependencies
 
-The coordinated local dependency versions are basePower **2.4.17.2602001**
-and Base Metals **3.1.2.2602001**. The Base Metals hook source is
-`523335a59ecff399e40a7c66eb121a3aabdc45ba`, player SHA-256
-`15CBD0C8DD95BBA846969929B8767887BA4B8152DFB10C9C58FB314AD39FB9E1`.
-Base Metals is REQUIRED on both client and server, not an optional integration.
-The approved local Power262 handoff is source
-`f84b2362449e39eff5e76696dd64ce4cb144da4f`, player SHA-256
-`7E456DE1A45140E86415A701D186FEDE08C4AB63D53C6B7848935DB70CBC68B1`.
+The coordinated local versions are basePower **2.4.18.2603001**, Base Metals
+**3.1.2.2603001** with the shared migration hook, and OreSpawn
+**4.1.1.2603001** with the retained-settings repair. Exact source and artifact
+pins are pending the parent's verified handoff. Blank pins deliberately stop
+qualification. The older 26.2 jars and public 26.3 BM 3.1.1/OS 4.1.0 jars
+are not substitutes. Base Metals remains required on both client and server.
 
-OreSpawn **4.1.1.2602001** is the approved local retained-settings repair,
-source `dcaaa933299dd8b1ebc73e31c9e5acd36dd7957c`, SHA-256
-`BC0658DF2E149CC23E65E5771F3FF62E2BB13FFDA4E316AB632EB92EF7FA5A1F`.
-It is not published; the public file-ID pin is deliberately empty. The older
-4.1.0 public download is not substituted for these bytes.
+The Forge 66 Mavenizer fixture and its source rules, patch, licence and
+provenance are checksum-sealed from the read-only OS263 reference checkout.
+The established `-Pforge64MavenizerJar` property is retained as a path alias.
+Dependencies stay separate mods, with byte checks on explicit input paths.
 
-The Mavenizer fixture and its source-rule, patch, licence and provenance files
-are checksum-sealed from the existing OS262 checkout. The established
-`-Pforge64MavenizerJar` property remains a path alias; it selects the Forge65
-fixture here. Dependencies stay separate mods and must match the source and
-artifact pins in `gradle.properties`.
+## Local Checks
 
-Use Temurin 25 and clear `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS` and
-`_JAVA_OPTIONS` before qualification. The prepared sibling layout is the
-default; explicit `*DeobfJar` and `*RuntimeJar`/`*PlayerJar` flags change
-paths, not the required bytes. With these exact coordinated inputs:
+Use Temurin 25.0.3+9 and clear `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS` and
+`_JAVA_OPTIONS`. This checkout uses its own Gradle home at
+`D:/GradleCaches/baseelectric-263-port`. Sibling-independent checks:
+
+```text
+./gradlew nativeResourceChecks --no-build-cache --no-daemon
+node tools/generate-recipe-unlocks.js --check
+```
+
+After all exact dependency and unit-support pins are handed off:
 
 ```text
 ./gradlew clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums --no-build-cache --no-daemon
 ./gradlew verifyEclipseProductionClasspath --no-daemon
 node tools/verify-native-port.js
-node tools/generate-recipe-unlocks.js --check
 ```
 
-## Qualification
+The normal Power path remains `../../PowerAdvantage`. Explicit
+`*DeobfJar` and `*RuntimeJar` flags select paths, never different bytes.
+Full unit, ECJ, GameTest, independent reproducibility, fresh cold-cache and
+paths-with-spaces gates remain required. See [26.3 status](docs/NATIVE263.md)
+for the current scope, blocked contracts and retained attempts.
 
-Combined profile03 passed the machine, migration, actor/dimension, actual
-transformer-order and real-client checks, plus two 30-minute worlds, restart
-and independent 66-checkpoint replay. See [26.2 port status](docs/NATIVE262.md)
-for the counts and exact inputs. The [family qualification record](../../PowerAdvantage/docs/26.2/QUALIFICATION.md)
-is being finalized in the sibling Power checkout.
+## Qualification Boundary
 
-Ready for manual testing once the final root cold-cache gate is confirmed.
-Overall sign-off and user manual acceptance are not claimed here. Base Metals
-and OreSpawn are unpublished local 26.2 inputs; these changes remain local,
-with no 26.2 push or publication. The accepted 26.1.2 records remain historical
-proof of their original bytes, not qualification of this port.
+No 26.3 combined gameplay, graphical, endurance, restart, migration, manual
+acceptance or publication is claimed. The 26.2 results in
+[the historical status](docs/NATIVE262.md) and the older records below
+qualify only their original inputs. This branch is local-only: no push, PR,
+tag or publication is authorized. Hosted builds retain the merged/public
+dependency gates and remote Maven publication stays disabled.
 
 ## Candidate09 Verification History
 
-This section records the earlier 26.1.2 work, not qualification of this 26.2 candidate.
+This section records the earlier 26.1.2 work, not qualification of this 26.3 candidate.
 
 The previous candidate09 passed 117 unit tests, 28 independent native resource
 tests and 117 tests from fresh ECJ output, with no failures or skips. The ECJ

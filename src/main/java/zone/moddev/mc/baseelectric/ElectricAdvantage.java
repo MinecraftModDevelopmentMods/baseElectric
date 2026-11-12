@@ -24,13 +24,13 @@ import zone.moddev.mc.baseelectric.init.TreasureChests;
 import zone.moddev.mc.baseelectric.recipe.RecipeConditions;
 import zone.moddev.mc.baseelectric.migration.ElectricLegacyMigrations;
 
-/** Forge 26.2 entry point for baseElectric. */
+/** Forge 26.3 entry point for baseElectric. */
 @Mod(ElectricAdvantage.MODID)
 public final class ElectricAdvantage {
     public static final String MODID = "baseelectric";
     public static final String LEGACY_MODID = "electricadvantage";
     public static final String NAME = "baseElectric";
-    public static final String VERSION = "2.2.18.2602001";
+    public static final String VERSION = "2.2.19.2603001";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static ElectricAdvantage INSTANCE;
 

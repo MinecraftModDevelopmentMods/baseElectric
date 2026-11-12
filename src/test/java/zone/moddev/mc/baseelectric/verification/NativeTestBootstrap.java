@@ -39,7 +39,7 @@ public final class NativeTestBootstrap {
     }
 
     public static void bindNativeComponents() {
-        var lookup = net.minecraft.data.registries.VanillaRegistries.createLookup();
+        var lookup = net.minecraft.data.registries.VanillaRegistries.createWorldLookup();
         BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(lookup).forEach(
                 net.minecraft.core.component.DataComponentInitializers.PendingComponents::apply);
     }
