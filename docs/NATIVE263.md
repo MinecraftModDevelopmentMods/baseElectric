@@ -68,8 +68,8 @@ Only Electric source/build outputs and its evidence are writable in this task.
 Current checkpoint results:
 
 - Native API subset compilation and 29 sibling-independent native tests PASS
-  on bare Forge 66.0.0, zero failures/errors/skips (`attempt09`, including chest
-  modifier/weight round-trips). This is not
+  on bare Forge 66.0.0, zero failures/errors/skips (`attempt11`, including chest
+  modifier/weight round-trips and real holder-set registry fixtures). This is not
   compilation of every production class or execution of the full 118 tests.
 - All 50 recipe unlocks match the generator.
 - Native Eclipse launch-argument check PASS, asset index 34,
@@ -80,6 +80,13 @@ Current checkpoint results:
 - Earlier attempts retain the argument, compile and native test failures.
   The first cache started empty, but its command failed before task selection;
   subsequent checks reuse the prepared SDK. No full cold-cache gate is claimed.
+- Holder-set regression is red-to-green: attempt10 fails on uninitialized
+  native `HOLDER_SET_TYPES`; attempt11 registers Forge's stock types through
+  actual `NewRegistryEvent` / `RegisterEvent` dispatch, then decodes a native
+  `forge:and` intersection and rejects an unknown holder-set type as a codec
+  error. No fake codec or registry is substituted. The test inventory is unchanged.
+- Native chest negative controls reject untyped min/max count objects and
+  unknown integer-provider types, without an old NumberProviders fallback.
 - The final static audit has 8 passing checks and fails only the incomplete
   qualification-pin gate. All resource-content projections, 58 recipes,
   migration identities, track geometry and retained coverage checks pass.

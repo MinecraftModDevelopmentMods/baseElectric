@@ -156,6 +156,16 @@ public class BlockLootResourceTest {
         var codec = net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC;
         var ops = com.mojang.serialization.JsonOps.INSTANCE;
         var decoded = codec.parse(ops, syntax).getOrThrow();
+        var obsoleteCount = syntax.deepCopy();
+        var count = obsoleteCount.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries")
+                .get(1).getAsJsonObject().getAsJsonObject("modifier").getAsJsonObject("count");
+        count.remove("type");
+        assertTrue("Native integer providers must reject the old untyped min/max object",
+                codec.parse(ops, obsoleteCount).error().isPresent());
+        count.addProperty("type", "baseelectric:missing_count_provider");
+        var unknownCount = codec.parse(ops, obsoleteCount);
+        assertTrue("Unknown native integer provider types must not use a legacy fallback", unknownCount.error().isPresent());
+        assertTrue(unknownCount.error().orElseThrow().message().contains("baseelectric:missing_count_provider"));
         var encoded = codec.encodeStart(ops, decoded).getOrThrow().getAsJsonObject()
                 .getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries");
         for (int i = 1; i < entries.size(); i++) {

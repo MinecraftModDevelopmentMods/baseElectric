@@ -56,7 +56,13 @@ public final class NativeTestBootstrap {
 
     public static synchronized void registerVanillaIngredientSerializers() throws ReflectiveOperationException {
         initialize();
+        registerHolderSetTypes();
         registerNativeForgeRegistry(ForgeRegistries.INGREDIENT_SERIALIZERS, "INGREDIENT_SERIALIZERS");
+    }
+
+    public static synchronized void registerHolderSetTypes() throws ReflectiveOperationException {
+        initialize();
+        registerNativeForgeRegistry(ForgeRegistries.HOLDER_SET_TYPES, "HOLDER_SET_TYPES");
     }
 
     private static void registerNativeForgeRegistry(DeferredRegister.RegistryHolder<?> registry, String contentsField)

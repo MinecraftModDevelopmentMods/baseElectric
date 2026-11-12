@@ -82,6 +82,17 @@ public class RecipeResourceTest {
                         java.util.List.<net.minecraft.core.Holder<net.minecraft.world.item.Item>>of(apple, carrot)))).apply();
         var ops = net.minecraft.core.HolderLookup.Provider.create(Stream.of(registry))
                 .createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE);
+        var holderSets = net.minecraft.core.registries.codec.RegistryCodecs.holderSet(
+                net.minecraft.core.registries.Registries.ITEM);
+        var intersection = holderSets.parse(ops, JsonParser.parseString(
+                "{\"type\":\"forge:and\",\"values\":[\"#baseelectric:codec_test_choices\",[\"minecraft:apple\"]]}"))
+                .getOrThrow();
+        assertEquals(List.of(net.minecraft.world.item.Items.APPLE),
+                intersection.stream().map(net.minecraft.core.Holder::value).toList());
+        var unknown = holderSets.parse(ops, JsonParser.parseString(
+                "{\"type\":\"baseelectric:missing_holder_set\"}"));
+        assertTrue("Unknown native holder-set codecs must fail as DataResult errors", unknown.error().isPresent());
+        assertTrue(unknown.error().orElseThrow().message().contains("baseelectric:missing_holder_set"));
         for (String encoded : List.of("\"minecraft:apple\"",
                 "[\"minecraft:apple\",\"minecraft:carrot\"]", "\"#baseelectric:codec_test_choices\"")) {
             var ingredient = net.minecraft.world.item.crafting.Ingredient.CODEC.parse(ops,
