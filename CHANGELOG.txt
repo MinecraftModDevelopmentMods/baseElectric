@@ -11,7 +11,7 @@ baseElectric 2.2.17.2601021 (Minecraft 26.1.2 / Forge)
 - Keep all six librarian offers and their original ranges and tiers in native trade data.
 - Fix laser-beam texture loading and inherited battery models.
 - Preserve saved OreSpawn choices before generation and stop on ambiguous migrations.
-- Use OreSpawn 4.1.1.2601021 with the coordinated basePower and Base Metals builds.
+- Pin released basePower 2.4.16.2601021, Base Metals 3.1.2.2601021 and OreSpawn 4.1.1.2601021.
 - Complete the local machine, upgrade, graphical, endurance and manual-acceptance checks.
 
 baseElectric 2.2.16.121111 (Minecraft 1.21.11 / Forge)
