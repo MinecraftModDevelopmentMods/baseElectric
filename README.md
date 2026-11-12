@@ -76,17 +76,20 @@ Both independent reproduction builds match all three jars exactly; each passes
 cache, without claiming a new cold download. All four named source GameTests
 also pass on these pins. Their first-boot warnings remain in the receipts;
 this is not warning-free or manual gameplay proof. The current receipts are in
-`build/port-evidence/candidate08-schema-pin-01`. Candidate06's four
+`build/port-evidence/candidate09-lifecycle-pin-01`. Candidate06's four
 GameTests, reproductions and narrow packaged smoke remain historical proof,
 not qualification of the new player jar. Combined gameplay, restart, migration
 and actual client checks remain separate parent-owned gates.
-The Power pin includes the parent's retained-profile and provider-schema repairs.
+The Power pin includes the parent's retained-profile, provider-schema and
+profile-loading lifecycle repairs, without an OreSpawn patch or log waiver.
 Candidate07's actual OS1 startup failure remains recorded separately, despite
 its passing local build checks. Candidate08 retained-profile runs passed the
 original OS1 route but failed both released-source first boots on the old quartz
 output; passing restarts do not waive those failures. Further family runs are
-held for the parent's lifecycle repair. Each qualification receipt retains its
-exact input hashes. In particular,
+held until the current retained-profile gates are resolved. Candidate09's saved
+Forge alias is valid, but the old canonical-ID-only audit still records quartz
+failures; a separate Base Metals duplicate-placement review is also unresolved.
+Each qualification receipt retains its exact input hashes. In particular,
 no old screenshot or earlier version's result qualifies this port.
 
 The atlas and abstract-battery definition repairs have native codec checks and

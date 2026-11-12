@@ -11,6 +11,35 @@ They must not be relabeled as candidate02 or full family acceptance.
 
 ## Current Checkpoint
 
+The candidate09 ordinary jar is
+`0911C5D68C81E3B0E4EE3A596F20E25E59A4EDE1BFDC96A36398A3799E754FC1`.
+It uses local Power `b947b4b81f3508fa220a212b41157ed2f801909f` /
+`5309E7C433933F1426543310611292BF80388A476836139F0117E6A7E5C9AFC1`.
+The full 51-task suite passes 117 unit and 28 native checks. Fresh ECJ passes
+all 117 tests with the complete compiled inventory and negative controls.
+Evidence is in `build/port-evidence/candidate09-lifecycle-pin-01`.
+
+Only the three Power provenance attributes in the ordinary manifest change
+from the previous `E873...` and frozen `F2E71...` archives. Every class and
+resource is identical; sources and Javadoc jars are also identical. The new
+Power hash must not be recorded against either old Electric player hash.
+
+Power adds a canonical quartz lookup alias and a load-complete profile migration
+and cache refresh. This is not an OreSpawn patch or a log waiver. Actual first
+boot, restart and new-chunk checks must use a newly sealed candidate09 family.
+The candidate08 failures below remain unchanged and do not qualify this pin.
+
+The sealed family09 profile retains the old `F2E71...` Electric archive, not the
+repinned `0911...` jar above. Its raw retained-profile checks pass original110
+but record first-boot quartz failures for released110 and released112. The
+stopped Forge registry actually contains the valid old-to-canonical quartz
+alias, which the old canonical-ID-only check does not read; there are no ignored
+quartz warnings. Raw failures remain unchanged while that oracle boundary is
+reviewed. A separate Base Metals legacy/default duplicate-placement review is
+also unresolved. Neither issue is waived by these passing child build checks.
+
+## Candidate08 History
+
 The candidate08 ordinary jar is
 `E873CE65BA94AF5D37AB4FD059368251427C81DB88F4D5AD2CCADC97ECAA9913`.
 It uses local Power `e565f99284de5e6c7860d378abc43b96d9faa5ee` /
@@ -135,7 +164,7 @@ remain historical, not relabeled as the atlas-repaired candidate06.
 - OreSpawn 4.1.0.2601021, source `c45ea2a111520ef904e994dd8dcd90babfcef29b`,
   ordinary jar SHA-256 `6D5CE2017C3314968083D140309E2F1A54BC239AC65C48944C995E9ECF937948`.
 
-The local Power checkpoint is `e565f99284de5e6c7860d378abc43b96d9faa5ee`;
+The local Power checkpoint is `b947b4b81f3508fa220a212b41157ed2f801909f`;
 the Base Metals shared-hook checkpoint is `331fa46914f854db71a8c33500cc559a8878b7d3`.
 Their exact ordinary jar hashes are recorded in `gradle.properties`.
 These are local integration inputs, not public releases or completed family
