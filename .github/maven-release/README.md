@@ -14,13 +14,23 @@ Start a new run with the recorded CurseForge file ID so it verifies that upload
 without submitting the jar again. The release workflow sets Java 8 through
 Minecraft 1.16.5, Java 16 for Minecraft 1.17.1, and Java 17 for Minecraft 1.18.2
 through 1.20.1, Java 21 for Minecraft 1.20.6, 1.21.1 and 1.21.11, and Java 25
-for Minecraft 26.1.2 and 26.2. The pure target helper in verify.py uses an
-explicit whitelist; unqualified targets, including 26.3, are rejected.
+for Minecraft 26.1.2, 26.2 and 26.3. The pure target helper in verify.py uses
+an explicit whitelist; unqualified targets, including 26.4, are rejected.
 
 The dispatcher runs its offline tests before staging an artifact. Release
 records still require the actual merged source, successful version-branch CI
 run, artifact ID and checksums. A prepared route is not an approved release
 record and does not publish anything.
+
+For 26.3, wait for Power and then Steam to be verified public before Electric
+goes live. Keep the unit-support source pin separate from the published Power
+player source. If the released dependency pins change Electric's player hash,
+record the exact jar payload delta and wait for the parent's explicit approval
+of the new combined family, including two 30-minute worlds. Only then record
+the actual merged source, successful CI artifact and checksums. Build, wrapper,
+CodeQL and any required security checks must pass without a bypass. Do not add
+a placeholder 26.3 release record or reuse the old candidate's qualification
+for different bytes. Run check-only before any live dispatch.
 
 The GitHub release targets the exact version-branch source recorded in
 releases.json, not the publication workflow's default branch.
