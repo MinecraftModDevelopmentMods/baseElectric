@@ -149,7 +149,8 @@
       "runId": 43416800767,
       "artifactId": 14032407100,
       "archiveSha256": "e93e773a3580f1a4c6f5bd9e1a0fffbdac6cd6c6399dccdf823b00e392672f0f",
-      "mainSha256": "7dd8dd0d2348360c41c64bde9adc88e95284842de1fcea73cebc9a4938ad7819"
+      "mainSha256": "7dd8dd0d2348360c41c64bde9adc88e95284842de1fcea73cebc9a4938ad7819",
+      "curseFileId": 9590229
     }
   }
 }
