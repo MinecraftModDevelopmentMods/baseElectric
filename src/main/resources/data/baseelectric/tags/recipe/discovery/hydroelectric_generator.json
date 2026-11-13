@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:hydroelectric_generator",
+      "required": false
+    }
+  ]
+}

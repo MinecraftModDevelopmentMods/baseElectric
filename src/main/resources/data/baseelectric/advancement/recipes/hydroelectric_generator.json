@@ -44,7 +44,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:hydroelectric_generator"
+        "recipes": "#baseelectric:discovery/hydroelectric_generator"
       }
     }
   },

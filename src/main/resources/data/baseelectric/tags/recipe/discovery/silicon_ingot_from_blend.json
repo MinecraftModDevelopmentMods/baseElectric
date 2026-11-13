@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:silicon_ingot_from_blend",
+      "required": false
+    }
+  ]
+}

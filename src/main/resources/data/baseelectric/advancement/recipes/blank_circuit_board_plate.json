@@ -24,7 +24,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:blank_circuit_board_plate"
+        "recipes": "#baseelectric:discovery/blank_circuit_board_plate"
       }
     }
   },

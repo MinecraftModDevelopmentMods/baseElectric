@@ -34,7 +34,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:power_supply_unit_plate_steel_apocalyptic"
+        "recipes": "#baseelectric:discovery/power_supply_unit_plate_steel_apocalyptic"
       }
     }
   },

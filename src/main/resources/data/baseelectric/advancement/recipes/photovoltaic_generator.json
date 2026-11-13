@@ -44,7 +44,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:photovoltaic_generator"
+        "recipes": "#baseelectric:discovery/photovoltaic_generator"
       }
     }
   },

@@ -46,7 +46,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:nickel_hydride_battery"
+        "recipes": "#baseelectric:discovery/nickel_hydride_battery"
       }
     }
   },

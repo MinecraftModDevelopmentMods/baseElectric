@@ -39,6 +39,9 @@ public class RecipeUnlockContractTest {
                 .map(file -> file.getFileName().toString()).collect(Collectors.toSet());
         assertFalse("No crafting recipes found", expected.isEmpty());
         assertEquals("Missing or orphaned recipe unlocks", expected, actual);
+        Set<String> tags = files(DATA.resolve("tags/recipe/discovery")).stream()
+                .map(file -> file.getFileName().toString()).collect(Collectors.toSet());
+        assertEquals("Every discovery must have exactly one optional recipe tag", expected, tags);
     }
 
     @Test public void discoveriesAreSingleIngredientAlternativesNotAnEntireCraftingGrid() throws IOException {
@@ -104,6 +107,9 @@ public class RecipeUnlockContractTest {
     }
 
     @Test public void rewardAndRecipeCommandCriterionReferToTheExactVariant() throws IOException {
+        NativeTestBootstrap.initialize();
+        var loaded = nativeRecipeRegistry(true);
+        var inactive = nativeRecipeRegistry(false);
         for (Path file : files(DATA.resolve("advancement/recipes"))) {
             String id = MOD + ":" + file.getFileName().toString().replace(".json", "");
             JsonObject unlock = read(file);
@@ -112,12 +118,172 @@ public class RecipeUnlockContractTest {
             assertEquals(id, recipes.get(0).getAsString());
             JsonObject criterion = unlock.getAsJsonObject("criteria").getAsJsonObject("has_recipe");
             assertEquals("minecraft:recipe_unlocked", criterion.get("trigger").getAsString());
-            assertEquals(id, criterion.getAsJsonObject("conditions").get("recipe").getAsString());
-            assertFalse("Recipe availability must not remove the unlock: " + id, unlock.has("forge:condition"));
+            assertEquals(id, recipeCriterionId(criterion.getAsJsonObject("conditions")));
+            assertNativeRecipeCriterion(criterion.getAsJsonObject("conditions"), id, loaded, true);
+            assertNativeRecipeCriterion(criterion.getAsJsonObject("conditions"), id, inactive, false);
+            JsonObject recipe = read(DATA.resolve("recipe").resolve(file.getFileName()));
+            assertConditionParity(recipe, unlock);
+            JsonObject tag = read(DATA.resolve("tags/recipe/discovery").resolve(file.getFileName()));
+            assertOptionalDiscoveryTag(tag, id);
+            for (String mutation : new String[] {"required", "missing_required", "identity"}) {
+                var changed = tag.deepCopy();
+                var value = changed.getAsJsonArray("values").get(0).getAsJsonObject();
+                if (mutation.equals("required")) value.addProperty("required", true);
+                else if (mutation.equals("missing_required")) value.remove("required");
+                else value.addProperty("id", MOD + ":unrelated_codec_recipe");
+                assertThrows("Optional tag identity/required guard must reject " + mutation,
+                        AssertionError.class, () -> assertOptionalDiscoveryTag(changed, id));
+            }
+            if (recipe.has("forge:condition")) {
+                JsonObject conditional = unlock.deepCopy();
+                conditional.add("forge:condition", recipe.get("forge:condition"));
+                assertThrows("Mode changes must not remove future discovery advancements", AssertionError.class,
+                        () -> assertConditionParity(recipe, conditional));
+            }
+            var ops = net.minecraft.core.HolderLookup.Provider.create(Stream.of(inactive)).createSerializationContext(JsonOps.INSTANCE);
+            var rewards = net.minecraft.advancements.AdvancementRewards.CODEC.parse(ops, unlock.get("rewards")).getOrThrow();
+            assertEquals("Native reward keys need not name a currently loaded recipe", id,
+                    rewards.recipes().get(0).identifier().toString());
+            assertEquals(unlock.get("rewards"), net.minecraft.advancements.AdvancementRewards.CODEC.encodeStart(ops, rewards).getOrThrow());
             assertFalse(unlock.has("conditions"));
         }
         assertTrue("The material-gated control must remain conditional",
                 read(DATA.resolve("recipe/alkaline_battery.json")).has("forge:condition"));
+        for (String malformed : new String[] {"{\"recipe\":\"baseelectric:alkaline_battery\"}",
+                "{\"recipes\":[]}", "{\"recipes\":[\"baseelectric:alkaline_battery\",\"baseelectric:unrelated_codec_recipe\"]}",
+                "{\"recipes\":\"baseelectric:alkaline_battery\"}",
+                "{\"recipes\":\"#other:discovery/alkaline_battery\"}",
+                "{\"recipes\":\"#baseelectric:discovery/alkaline_battery\",\"recipe\":\"baseelectric:unrelated_codec_recipe\"}"}) {
+            var conditions = JsonParser.parseString(malformed).getAsJsonObject();
+            assertThrows(malformed, AssertionError.class, () -> recipeCriterionId(conditions));
+        }
+    }
+
+    private static String recipeCriterionId(JsonObject conditions) {
+        assertEquals("A recipe criterion must constrain exactly its own discovery tag", 1, conditions.size());
+        assertFalse(conditions.has("recipe"));
+        assertTrue(conditions.has("recipes") && conditions.get("recipes").isJsonPrimitive()
+                && conditions.getAsJsonPrimitive("recipes").isString());
+        String id = conditions.get("recipes").getAsString();
+        String prefix = "#" + MOD + ":discovery/";
+        assertTrue("Discovery criteria must use the owned optional recipe tag", id.startsWith(prefix));
+        String stem = id.substring(prefix.length());
+        assertTrue(stem.matches("[a-z0-9_./-]+"));
+        return MOD + ":" + stem;
+    }
+
+    private static void assertConditionParity(JsonObject recipe, JsonObject unlock) {
+        assertFalse("Discovery must survive recipe mode/material availability changes", unlock.has("forge:condition"));
+        assertNotNull("Recipe input must remain untouched", recipe.get("type"));
+    }
+
+    private static void assertOptionalDiscoveryTag(JsonObject tag, String id) {
+        assertEquals(1, tag.size());
+        assertTrue(tag.has("values") && tag.get("values").isJsonArray());
+        assertEquals(1, tag.getAsJsonArray("values").size());
+        var entry = tag.getAsJsonArray("values").get(0).getAsJsonObject();
+        assertEquals(2, entry.size());
+        assertEquals(id, entry.get("id").getAsString());
+        assertTrue("Missing required defaults to true in the native codec", entry.has("required"));
+        assertTrue(entry.get("required").isJsonPrimitive() && entry.getAsJsonPrimitive("required").isBoolean());
+        assertFalse(entry.get("required").getAsBoolean());
+        var decoded = net.minecraft.tags.TagFile.CODEC.parse(JsonOps.INSTANCE, tag).getOrThrow();
+        assertEquals(tag, net.minecraft.tags.TagFile.CODEC.encodeStart(JsonOps.INSTANCE, decoded).getOrThrow());
+    }
+
+    private static net.minecraft.core.Registry<net.minecraft.world.item.crafting.Recipe<?>> nativeRecipeRegistry(boolean available) throws IOException {
+        var registry = new net.minecraft.core.MappedRegistry<net.minecraft.world.item.crafting.Recipe<?>>(
+                net.minecraft.core.registries.Registries.RECIPE, com.mojang.serialization.Lifecycle.stable());
+        var ids = new ArrayList<String>();
+        if (available) for (Path file : files(DATA.resolve("advancement/recipes")))
+            ids.add(MOD + ":" + file.getFileName().toString().replace(".json", ""));
+        ids.add(MOD + ":unrelated_codec_recipe");
+        for (String id : ids) {
+            var recipe = new net.minecraft.world.item.crafting.ShapelessRecipe(
+                    new net.minecraft.world.item.crafting.Recipe.CommonInfo(true),
+                    new net.minecraft.world.item.crafting.CraftingRecipe.CraftingBookInfo(
+                            net.minecraft.world.item.crafting.CraftingBookCategory.MISC, "unlock-codec"),
+                    new net.minecraft.world.item.ItemStackTemplate(Items.BREAD, 1),
+                    List.of(net.minecraft.world.item.crafting.Ingredient.of(Items.APPLE)));
+            net.minecraft.core.Registry.registerForHolder(registry, net.minecraft.resources.Identifier.parse(id), recipe);
+        }
+        registry.freeze();
+        var tags = new java.util.HashMap<net.minecraft.tags.TagKey<net.minecraft.world.item.crafting.Recipe<?>>,
+                List<net.minecraft.core.Holder<net.minecraft.world.item.crafting.Recipe<?>>>>();
+        for (Path file : files(DATA.resolve("advancement/recipes"))) {
+            String stem = file.getFileName().toString().replace(".json", "");
+            String id = MOD + ":" + stem;
+            var raw = read(DATA.resolve("tags/recipe/discovery").resolve(file.getFileName()));
+            assertOptionalDiscoveryTag(raw, id);
+            var parsed = net.minecraft.tags.TagFile.CODEC.parse(JsonOps.INSTANCE, raw).getOrThrow();
+            var members = new ArrayList<net.minecraft.core.Holder<net.minecraft.world.item.crafting.Recipe<?>>>();
+            var lookup = new net.minecraft.tags.TagEntry.Lookup<net.minecraft.core.Holder<net.minecraft.world.item.crafting.Recipe<?>>>() {
+                            @Override public net.minecraft.core.Holder<net.minecraft.world.item.crafting.Recipe<?>> element(
+                                    net.minecraft.resources.Identifier key, boolean required) {
+                                return registry.get(key).orElse(null);
+                            }
+                            @Override public java.util.Collection<net.minecraft.core.Holder<net.minecraft.world.item.crafting.Recipe<?>>> tag(
+                                    net.minecraft.resources.Identifier key) { return null; }
+                        };
+            for (var entry : parsed.entries()) assertTrue("An absent optional recipe must not fail native tag loading",
+                    entry.build(lookup, members::add));
+            if (!available) assertFalse("Native required=true must reject an absent recipe",
+                    net.minecraft.tags.TagEntry.element(net.minecraft.resources.Identifier.parse(id)).build(lookup, members::add));
+            assertEquals(available ? 1 : 0, members.size());
+            tags.put(discoveryTag(stem), members);
+        }
+        var unrelated = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE,
+                net.minecraft.resources.Identifier.parse(MOD + ":unrelated_codec_recipe"));
+        tags.put(discoveryTag("unrelated_codec_recipe"), List.of(registry.get(unrelated).orElseThrow()));
+        registry.prepareTagReload(new net.minecraft.tags.TagLoader.LoadResult<>(
+                net.minecraft.core.registries.Registries.RECIPE, tags)).apply();
+        return registry;
+    }
+
+    private static net.minecraft.tags.TagKey<net.minecraft.world.item.crafting.Recipe<?>> discoveryTag(String stem) {
+        return net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.RECIPE,
+                net.minecraft.resources.Identifier.parse(MOD + ":discovery/" + stem));
+    }
+
+    private static void assertNativeRecipeCriterion(JsonObject conditions, String id,
+            net.minecraft.core.Registry<net.minecraft.world.item.crafting.Recipe<?>> registry,
+            boolean available) {
+        var ops = net.minecraft.core.HolderLookup.Provider.create(Stream.of(registry)).createSerializationContext(JsonOps.INSTANCE);
+        var codec = net.minecraft.advancements.triggers.RecipeUnlockedTrigger.TriggerInstance.CODEC;
+        var decoded = codec.parse(ops, conditions).getOrThrow();
+        var key = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE,
+                net.minecraft.resources.Identifier.parse(id));
+        var unrelatedKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE,
+                net.minecraft.resources.Identifier.parse(MOD + ":unrelated_codec_recipe"));
+        var unrelated = new net.minecraft.world.item.crafting.RecipeHolder<>(unrelatedKey, registry.getValueOrThrow(unrelatedKey));
+        var matching = new net.minecraft.world.item.crafting.RecipeHolder<>(key,
+                available ? registry.getValueOrThrow(key) : unrelated.value());
+        assertEquals(available ? 1 : 0, decoded.recipes().size());
+        assertEquals(discoveryTag(id.substring((MOD + ":").length())), decoded.recipes().unwrapKey().orElseThrow());
+        assertEquals("Only an available exact recipe variant may match", available, decoded.matches(matching));
+        assertFalse("Unrelated recipe must not unlock this variant", decoded.matches(unrelated));
+        var wire = codec.encodeStart(ops, decoded).getOrThrow();
+        assertEquals(conditions, wire);
+        var again = codec.parse(ops, wire).getOrThrow();
+        assertEquals(available, again.matches(matching));
+        assertFalse(again.matches(unrelated));
+        var wrongTag = new JsonObject();
+        wrongTag.addProperty("recipes", "#" + MOD + ":discovery/unrelated_codec_recipe");
+        var wrong = codec.parse(ops, wrongTag).getOrThrow();
+        assertFalse("An unrelated discovery tag cannot match this variant", wrong.matches(matching));
+        assertTrue("The unrelated-tag control must itself be populated", wrong.matches(unrelated));
+        var old = new JsonObject();
+        old.addProperty("recipe", id);
+        var obsolete = codec.parse(ops, old);
+        assertTrue("Native 26.3 must reject the old singular recipe key", obsolete.error().isPresent());
+        assertTrue(obsolete.error().orElseThrow().message().contains("recipes"));
+        var missing = new JsonObject();
+        missing.addProperty("recipes", MOD + ":missing_codec_recipe");
+        assertTrue("Unavailable recipe holders cannot qualify an unconditional unlock",
+                codec.parse(ops, missing).error().isPresent());
+        missing.addProperty("recipes", "#" + MOD + ":discovery/missing_codec_tag");
+        assertTrue("Undefined tags cannot substitute for defined-empty discovery tags",
+                codec.parse(ops, missing).error().isPresent());
     }
 
     @Test public void recipeBookGroupsIdentifyTheOutputNotABroadMachineCategory() throws IOException {

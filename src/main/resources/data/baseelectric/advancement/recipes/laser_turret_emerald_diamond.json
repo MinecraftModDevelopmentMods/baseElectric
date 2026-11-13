@@ -54,7 +54,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:laser_turret_emerald_diamond"
+        "recipes": "#baseelectric:discovery/laser_turret_emerald_diamond"
       }
     }
   },

@@ -48,12 +48,13 @@ public class BuildWorkflowContractTest {
             assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.orespawn_ref }}"));
             assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.unit_support_ref }}"));
             assertFalse(source.contains("ref: ${{ steps.public-pins.outputs.power_ref }}"));
-            assertTrue(source.contains("branches: [master-26.2"));
+            assertTrue(source.contains("branches: [master-26.3"));
             assertTrue(source.contains("-Pforge64MavenizerJar=$MAVENIZER"));
             assertTrue(source.contains("-PpowerAdvantageDeobfJar=$POWER_PLAYER"));
             assertFalse(source.contains("forge47"));
             if (workflow.equals("ci.yml")) {
                 assertTrue(source.contains("-PforgeInstallerJar=$FORGE_INSTALLER"));
+                assertTrue(source.contains("clean check nativeResourceChecks build javadoc"));
             }
         }
         String script = Files.readString(Paths.get(".github/verify-published-pins.sh"));
@@ -62,14 +63,17 @@ public class BuildWorkflowContractTest {
             assertTrue(script.contains("$(value " + dependency + "_public_file_id)"));
         }
         assertTrue(script.contains("sha256sum -c -"));
-        assertTrue(script.contains("unit_support_ref=\"$(value unit_support_source_ref)\""));
+        assertTrue(script.contains("unit_support_ref=\"$(value unit_source_ref)\""));
         assertTrue(script.contains("require_merged basePower \"$unit_support_ref\""));
         String properties = Files.readString(Paths.get("gradle.properties"));
-        assertTrue(properties.contains("unit_support_source_ref=f84b2362449e39eff5e76696dd64ce4cb144da4f"));
-        assertTrue(properties.contains("unit_entity_tracker_java_sha256=EB2A83A35F617BC52D322332C824BE83A3BFE4C83CEB0418F77687EA93978E6D"));
+        assertTrue(properties.contains("unit_source_ref=c0eb83f7ba91cf8c83caea75e63057407a345949"));
+        assertTrue(properties.contains("unit_entity_tracker_java_sha256=CEB0DFC585351DAC03FA2BDD0ED119152CCA00F341FBC7AE3FD0B1C6C2C40C06"));
         assertTrue(script.contains("$(value poweradvantage_pin_state)"));
-        assertTrue(script.contains("!= 'MERGED_SOURCE'"));
-        assertTrue(script.indexOf("!= 'MERGED_SOURCE'") < script.indexOf("require_merged()"));
+        assertTrue(script.contains("!= 'PUBLISHED'"));
+        assertTrue(script.indexOf("!= 'PUBLISHED'") < script.indexOf("require_merged()"));
+        assertTrue(properties.contains("forge_shim_sha256=5D4687093B4E34ABF1254034B0DA3BCA48F225569343809F906C586B0685BAB1"));
+        assertTrue(properties.contains("forge_server_sha256=0448282A6F32A30F8D44A6B9BB44E86566EBCADE2DCC246425FE0AB7A46F03EA"));
+        assertTrue(properties.contains("forge_universal_sha256=1C7C07642817940423B44608FF1CEF610B82D184070800F18DD2D241CD4196A7"));
         assertTrue(script.contains("_public_file_id\")\""));
     }
 }

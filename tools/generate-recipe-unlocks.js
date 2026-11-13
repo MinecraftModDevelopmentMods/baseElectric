@@ -8,6 +8,7 @@ const mod = /^mod_id=(.+)$/m.exec(properties)[1].trim();
 const data = path.join(root, 'src/main/resources/data', mod);
 const recipes = path.join(data, 'recipe');
 const output = path.join(data, 'advancement/recipes');
+const tagOutput = path.join(data, 'tags/recipe/discovery');
 const check = process.argv.includes('--check');
 const ignored = new Set(['item:minecraft:stick', 'item:minecraft:string',
   'item:minecraft:feather', 'tag:forge:rods/wooden']);
@@ -35,25 +36,29 @@ for (const file of fs.readdirSync(recipes).filter(name => name.endsWith('.json')
       conditions: {items: [{items: ingredient.item ? [ingredient.item] : '#' + ingredient.tag}]}
     };
   });
-  criteria.has_recipe = {trigger: 'minecraft:recipe_unlocked', conditions: {recipe: id}};
+  criteria.has_recipe = {trigger: 'minecraft:recipe_unlocked', conditions: {recipes: `#${mod}:discovery/${file.slice(0, -5)}`}};
   const advancement = {
     parent: 'minecraft:recipes/root', criteria,
     requirements: [Object.keys(criteria)], rewards: {recipes: [id]}
   };
-  // Discovery survives recipe-mode and optional-provider changes.
-  const text = JSON.stringify(advancement, null, 2) + '\n';
-  const target = path.join(output, file);
   expected.add(file);
-  if (check) {
-    if (!fs.existsSync(target) || fs.readFileSync(target, 'utf8').replace(/\r\n/g, '\n') !== text) {
-      throw new Error('Missing/stale recipe unlock: ' + target);
+  const tag = {values: [{id, required: false}]};
+  for (const [directory, value] of [[output, advancement], [tagOutput, tag]]) {
+    const text = JSON.stringify(value, null, 2) + '\n';
+    const target = path.join(directory, file);
+    if (check) {
+      if (!fs.existsSync(target) || fs.readFileSync(target, 'utf8').replace(/\r\n/g, '\n') !== text) {
+        throw new Error('Missing/stale recipe discovery: ' + target);
+      }
+    } else {
+      fs.mkdirSync(directory, {recursive: true});
+      fs.writeFileSync(target, text);
     }
-  } else {
-    fs.mkdirSync(output, {recursive: true});
-    fs.writeFileSync(target, text);
   }
 }
-for (const file of fs.existsSync(output) ? fs.readdirSync(output) : []) {
-  if (file.endsWith('.json') && !expected.has(file)) throw new Error('Unexpected recipe unlock: ' + file);
+for (const directory of [output, tagOutput]) {
+  for (const file of fs.existsSync(directory) ? fs.readdirSync(directory) : []) {
+    if (file.endsWith('.json') && !expected.has(file)) throw new Error('Unexpected recipe discovery: ' + path.join(directory, file));
+  }
 }
-console.log(`${mod}: ${expected.size} recipe unlocks ${check ? 'verified' : 'generated'}`);
+console.log(`${mod}: ${expected.size} unconditional unlocks and optional recipe tags ${check ? 'verified' : 'generated'}`);

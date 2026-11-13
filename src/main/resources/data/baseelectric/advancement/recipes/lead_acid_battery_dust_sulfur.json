@@ -46,7 +46,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:lead_acid_battery_dust_sulfur"
+        "recipes": "#baseelectric:discovery/lead_acid_battery_dust_sulfur"
       }
     }
   },

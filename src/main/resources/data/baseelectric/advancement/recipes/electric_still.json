@@ -46,7 +46,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:electric_still"
+        "recipes": "#baseelectric:discovery/electric_still"
       }
     }
   },

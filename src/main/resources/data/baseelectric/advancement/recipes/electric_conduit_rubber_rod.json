@@ -24,7 +24,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:electric_conduit_rubber_rod"
+        "recipes": "#baseelectric:discovery/electric_conduit_rubber_rod"
       }
     }
   },

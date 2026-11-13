@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:lead_acid_battery_sulfur",
+      "required": false
+    }
+  ]
+}

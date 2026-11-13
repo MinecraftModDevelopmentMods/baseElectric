@@ -82,6 +82,8 @@ public class VillagesTest {
 
     private static void assertOffer(String id, boolean upper, int emeralds, int goods) throws Exception {
         var json = JsonParser.parseString(Files.readString(TRADES.resolve(id + ".json")));
+        assertFalse("Obsolete plural modifier is silently ignored by 26.3", json.getAsJsonObject().has("given_item_modifiers"));
+        if (!id.equals("psu")) assertTrue(json.getAsJsonObject().has("given_item_modifier"));
         var ops = registries.createSerializationContext(JsonOps.INSTANCE);
         VillagerTrade trade = VillagerTrade.CODEC.parse(ops, json).getOrThrow();
         var roundTrip = VillagerTrade.CODEC.parse(ops, VillagerTrade.CODEC.encodeStart(ops, trade).getOrThrow()).getOrThrow();
@@ -91,7 +93,7 @@ public class VillagesTest {
         // Constant/uniform providers need no world; use the native context constructor directly.
         var constructor = LootContext.class.getDeclaredConstructor(LootParams.class, RandomSource.class, HolderGetter.Provider.class);
         constructor.setAccessible(true);
-        LootContext context = constructor.newInstance(new LootParams(null, new ContextMap.Builder().create(), Map.of(), 0),
+        LootContext context = constructor.newInstance(new LootParams(null, ContextMap.builder().build(), Map.of(), 0),
                 random, registries);
         for (VillagerTrade definition : List.of(trade, roundTrip)) {
             MerchantOffer offer = definition.getOffer(context);

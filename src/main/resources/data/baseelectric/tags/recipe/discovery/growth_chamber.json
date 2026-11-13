@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:growth_chamber",
+      "required": false
+    }
+  ]
+}

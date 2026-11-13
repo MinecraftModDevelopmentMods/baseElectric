@@ -26,7 +26,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:electric_furnace"
+        "recipes": "#baseelectric:discovery/electric_furnace"
       }
     }
   },

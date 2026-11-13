@@ -24,7 +24,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:integrated_circuit_gold_normal"
+        "recipes": "#baseelectric:discovery/integrated_circuit_gold_normal"
       }
     }
   },

@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:solder_from_blend",
+      "required": false
+    }
+  ]
+}

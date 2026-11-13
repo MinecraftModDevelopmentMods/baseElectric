@@ -36,7 +36,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:control_circuit"
+        "recipes": "#baseelectric:discovery/control_circuit"
       }
     }
   },

@@ -36,7 +36,7 @@ public class RendererBufferContractTest {
     @Test public void quadNormalsUseWindingAndTheNativeNormalMatrix() {
         PoseStack matrices = new PoseStack();
         matrices.translate(3, 4, 5);
-        matrices.mulPose(Axis.YP.rotationDegrees(90));
+        matrices.rotate(Axis.YP.rotationDegrees(90));
         RecordingBuffer buffer = new RecordingBuffer();
         BufferedQuads quads = new BufferedQuads(matrices, buffer, 0x123456, 0x789abc);
         quad(quads, false);
@@ -239,6 +239,7 @@ public class RendererBufferContractTest {
         @Override public VertexConsumer setUv(float u, float v) { vertex.uv = new float[] {u, v}; return this; }
         @Override public VertexConsumer setUv1(int u, int v) { vertex.overlay = u | v << 16; return this; }
         @Override public VertexConsumer setUv2(int u, int v) { vertex.light = u | v << 16; return this; }
+        @Override public VertexConsumer setUv3(float u, float v) { throw new AssertionError("Entity quads must not emit UV3"); }
         @Override public VertexConsumer setNormal(float x, float y, float z) { vertex.normal = new float[] {x, y, z}; return this; }
         @Override public VertexConsumer setLineWidth(float width) { throw new AssertionError("Entity quads must not emit line width"); }
     }

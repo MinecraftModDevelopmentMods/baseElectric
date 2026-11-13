@@ -46,7 +46,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:electric_battery_array"
+        "recipes": "#baseelectric:discovery/electric_battery_array"
       }
     }
   },

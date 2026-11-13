@@ -54,7 +54,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:steam_powered_generator"
+        "recipes": "#baseelectric:discovery/steam_powered_generator"
       }
     }
   },

@@ -95,7 +95,7 @@ public final class Blocks {
         electric_switch = add(new BlockPowerSwitch(Power.ELECTRIC_POWER,
                 Block.Properties.of().setId(zone.moddev.mc.baseelectric.util.RegistryIds.block("electric_switch"))
                         .mapColor(net.minecraft.world.level.material.MapColor.STONE)
-                        .pushReaction(net.minecraft.world.level.material.PushReaction.BLOCK)
+                        .pushReaction(net.minecraft.world.level.material.PushReaction.IMMOVEABLE)
                         .forceSolidOn().strength(0.75F)), "electric_switch");
         electric_pump = (GUIBlock) add(new ElectricPumpBlock(), "electric_pump");
         electric_still = (GUIBlock) add(new ElectricStillBlock(), "electric_still");

@@ -99,12 +99,12 @@ public class NativeBlockContractTest {
         BlockState pipe = new PumpPipeBlock().defaultBlockState();
         pipe.initCache();
         assertFalse(pipe.canOcclude());
-        assertTrue("The metal pipe was solid independently of its occlusion shape", pipe.blocksMotion());
-        assertSame(PushReaction.NORMAL, pipe.getPistonPushReaction());
+        assertTrue("The metal pipe was solid independently of its occlusion shape", pipe.isSolid());
+        assertSame(PushReaction.PUSH_PULL, pipe.getPistonPushReaction());
         PhotovoltaicGeneratorBlock panel = new PhotovoltaicGeneratorBlock();
         panel.defaultBlockState().initCache();
         assertTrue("The 1.14 photovoltaic block explicitly overrides isSolid to true", panel.defaultBlockState().canOcclude());
-        assertTrue(panel.defaultBlockState().blocksMotion());
+        assertTrue(panel.defaultBlockState().isSolid());
         assertTrue(panel.defaultBlockState().isRedstoneConductor(net.minecraft.world.level.EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
     }
 
@@ -116,8 +116,8 @@ public class NativeBlockContractTest {
             // Forge fills this cache for registered blocks after the registry events.
             state.initCache();
             String name = block.getClass().getSimpleName();
-            assertSame(name, PushReaction.BLOCK, state.getPistonPushReaction());
-            assertTrue(name, state.blocksMotion());
+            assertSame(name, PushReaction.IMMOVEABLE, state.getPistonPushReaction());
+            assertTrue(name, state.isSolid());
             assertSame(name, MapColor.STONE, state.getMapColor(EmptyBlockGetter.INSTANCE, BlockPos.ZERO));
         }
     }

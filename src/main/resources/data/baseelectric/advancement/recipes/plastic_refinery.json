@@ -56,7 +56,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:plastic_refinery"
+        "recipes": "#baseelectric:discovery/plastic_refinery"
       }
     }
   },

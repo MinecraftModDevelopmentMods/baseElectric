@@ -44,7 +44,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:electric_oven"
+        "recipes": "#baseelectric:discovery/electric_oven"
       }
     }
   },

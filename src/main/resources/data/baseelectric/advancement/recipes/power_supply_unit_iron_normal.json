@@ -34,7 +34,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:power_supply_unit_iron_normal"
+        "recipes": "#baseelectric:discovery/power_supply_unit_iron_normal"
       }
     }
   },

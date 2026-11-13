@@ -34,7 +34,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:led_bar"
+        "recipes": "#baseelectric:discovery/led_bar"
       }
     }
   },

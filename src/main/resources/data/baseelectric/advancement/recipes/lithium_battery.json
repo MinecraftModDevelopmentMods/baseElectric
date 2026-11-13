@@ -44,7 +44,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:lithium_battery"
+        "recipes": "#baseelectric:discovery/lithium_battery"
       }
     }
   },

@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:electric_battery_array",
+      "required": false
+    }
+  ]
+}

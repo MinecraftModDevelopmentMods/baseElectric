@@ -56,7 +56,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:growth_chamber_controller"
+        "recipes": "#baseelectric:discovery/growth_chamber_controller"
       }
     }
   },

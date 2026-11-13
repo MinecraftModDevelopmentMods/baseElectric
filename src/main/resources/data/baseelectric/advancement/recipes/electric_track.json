@@ -28,7 +28,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:electric_track"
+        "recipes": "#baseelectric:discovery/electric_track"
       }
     }
   },

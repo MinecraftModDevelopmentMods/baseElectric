@@ -46,7 +46,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:alkaline_battery"
+        "recipes": "#baseelectric:discovery/alkaline_battery"
       }
     }
   },

@@ -38,7 +38,7 @@ public class HydroturbineRenderer extends EntityRenderer<HydroturbineEntity, Hyd
     @Override public void submit(State state, PoseStack matrices, SubmitNodeCollector collector, CameraRenderState camera) {
         matrices.pushPose();
         matrices.translate(0f, 0.5f, 0f);
-        matrices.mulPose(Axis.YP.rotationDegrees(state.yaw));
+        matrices.rotate(Axis.YP.rotationDegrees(state.yaw));
         float rotation = state.rotation;
         int light = state.lightCoords;
         collector.submitCustomGeometry(matrices, RenderTypes.entitySolid(texture),

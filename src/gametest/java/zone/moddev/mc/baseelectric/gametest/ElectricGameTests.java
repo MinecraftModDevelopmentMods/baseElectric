@@ -126,6 +126,9 @@ public final class ElectricGameTests {
     @GameTest(name = "recipeavailabilitydoesnotremovediscovery", structure = "empty")
     public static void recipeAvailabilityDoesNotRemoveDiscovery(GameTestHelper helper) {
         var server = helper.getLevel().getServer();
+        helper.assertTrue(server.getAdvancements().get(Identifier.fromNamespaceAndPath(
+                        ElectricAdvantage.MODID, "recipes/alkaline_battery")) != null,
+                "A material-gated recipe lost its discovery advancement");
         var itemIds = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKeys().stream()
                 .filter(id -> id.getNamespace().equals(ElectricAdvantage.MODID))
                 .map(Object::toString).sorted().toList();
@@ -146,9 +149,7 @@ public final class ElectricGameTests {
         } catch (java.io.IOException failure) {
             throw new AssertionError("Cannot retain actual item registry census", failure);
         }
-        var advancement = Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "recipes/alkaline_battery");
-        helper.assertTrue(server.getAdvancements().get(advancement) != null,
-                "A material-gated recipe lost its discovery advancement");
+        assertLoadedRecipeUnlockParity(helper);
         int checked = 0;
         var registries = helper.getLevel().registryAccess();
         var entries = new java.util.ArrayList<net.minecraft.network.protocol.game.ClientboundRecipeBookAddPacket.Entry>();
@@ -180,7 +181,42 @@ public final class ElectricGameTests {
             roundTrip.release();
         }
         assertEveryPackagedRecipeUsesTheNativeCodec(helper);
+        assertEveryPackagedLootTableUsesTheNativeCodec(helper);
         helper.succeed();
+    }
+
+    private static void assertLoadedRecipeUnlockParity(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var server = level.getServer();
+        var resources = server.getResourceManager().listResources("advancement/recipes",
+                id -> id.getNamespace().equals(ElectricAdvantage.MODID) && id.getPath().endsWith(".json"));
+        helper.assertTrue(resources.size() == 50, "Expected all 50 raw Electric unlocks");
+        int active = 0;
+        int disabled = 0;
+        for (var entry : resources.entrySet()) {
+            String path = entry.getKey().getPath().substring("advancement/recipes/".length()).replace(".json", "");
+            var id = Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, path);
+            var key = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE, id);
+            boolean recipeLoaded = level.recipeAccess().byKey(key).isPresent();
+            var advancement = server.getAdvancements().get(
+                    Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "recipes/" + path));
+            helper.assertTrue(advancement != null, "Inactive recipe lost future discovery advancement: " + id);
+            var tag = net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.RECIPE,
+                    Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "discovery/" + path));
+            var members = server.reloadableRegistries().lookup().lookupOrThrow(net.minecraft.core.registries.Registries.RECIPE)
+                    .get(tag).orElseThrow(() -> new AssertionError("Missing defined recipe-discovery tag: " + tag));
+            helper.assertTrue(members.size() == (recipeLoaded ? 1 : 0), "Wrong active/empty discovery membership: " + id);
+            helper.assertTrue(members.stream().allMatch(holder -> holder.is(key)), "Discovery tag names an unrelated recipe: " + id);
+            var trigger = advancement.value().criteria().get("has_recipe").triggerInstance();
+            helper.assertTrue(trigger instanceof net.minecraft.advancements.triggers.RecipeUnlockedTrigger.TriggerInstance,
+                    "Loaded discovery criterion changed trigger: " + id);
+            var criterion = (net.minecraft.advancements.triggers.RecipeUnlockedTrigger.TriggerInstance) trigger;
+            helper.assertTrue(criterion.recipes().unwrapKey().orElseThrow().equals(tag), "Loaded criterion lost its exact tag: " + id);
+            helper.assertTrue(criterion.recipes().size() == members.size(), "Loaded criterion has stale mode membership: " + id);
+            if (recipeLoaded) active++; else disabled++;
+        }
+        helper.assertTrue(active > 0, "No active Electric recipe unlocks were checked");
+        helper.assertTrue(disabled > 0, "No disabled mode/tag variant exercised defined-empty future discovery");
     }
 
     private static void assertEveryPackagedRecipeUsesTheNativeCodec(GameTestHelper helper) {
@@ -191,14 +227,81 @@ public final class ElectricGameTests {
         for (var entry : resources.entrySet()) {
             try (var reader = entry.getValue().openAsReader()) {
                 var json = com.google.gson.JsonParser.parseReader(reader);
-                var decoded = Recipe.CODEC.parse(ops, json).getOrThrow();
-                var encoded = Recipe.CODEC.encodeStart(ops, decoded).getOrThrow();
-                var again = Recipe.CODEC.parse(ops, encoded).getOrThrow();
+                var decoded = Recipe.DIRECT_CODEC.parse(ops, json).getOrThrow();
+                var encoded = Recipe.DIRECT_CODEC.encodeStart(ops, decoded).getOrThrow();
+                var again = Recipe.DIRECT_CODEC.parse(ops, encoded).getOrThrow();
                 helper.assertTrue(decoded.getSerializer() == again.getSerializer()
-                                && encoded.equals(Recipe.CODEC.encodeStart(ops, again).getOrThrow()),
+                                && encoded.equals(Recipe.DIRECT_CODEC.encodeStart(ops, again).getOrThrow()),
                         "Packaged recipe changed over its native codec: " + entry.getKey());
             } catch (Exception failure) {
                 throw new AssertionError("Native recipe codec rejected " + entry.getKey(), failure);
+            }
+        }
+    }
+
+    private static void assertEveryPackagedLootTableUsesTheNativeCodec(GameTestHelper helper) {
+        var resources = helper.getLevel().getServer().getResourceManager().listResources("loot_table",
+                id -> id.getNamespace().equals(ElectricAdvantage.MODID) && id.getPath().endsWith(".json"));
+        helper.assertTrue(resources.size() == 21, "Expected all 21 packaged Electric loot tables, found " + resources.size());
+        var ops = helper.getLevel().registryAccess().createSerializationContext(com.mojang.serialization.JsonOps.INSTANCE);
+        var codec = net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC;
+        for (var entry : resources.entrySet()) {
+            try (var reader = entry.getValue().openAsReader()) {
+                var json = com.google.gson.JsonParser.parseReader(reader).getAsJsonObject();
+                var decoded = codec.parse(ops, json).getOrThrow();
+                var encoded = codec.encodeStart(ops, decoded).getOrThrow().getAsJsonObject();
+                assertLootFieldsPreserved(helper, json, encoded, ops, entry.getKey().toString());
+                var condition = json.getAsJsonArray("pools").get(0).getAsJsonObject().get("condition");
+                if (json.has("type") && json.get("type").getAsString().equals("minecraft:block")) {
+                    helper.assertTrue(condition != null && condition.equals(
+                            encoded.getAsJsonArray("pools").get(0).getAsJsonObject().get("condition")),
+                            "Packaged explosion condition was lost: " + entry.getKey());
+                } else {
+                    var before = json.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries");
+                    var after = encoded.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries");
+                    helper.assertTrue(before.size() == 10 && after.size() == 10, "Chest entry inventory changed");
+                    for (int i = 1; i < before.size(); i++) {
+                        helper.assertTrue(before.get(i).getAsJsonObject().get("modifier").equals(
+                                after.get(i).getAsJsonObject().get("modifier")), "Packaged chest count was lost: " + i);
+                        var wire = after.get(i).getAsJsonObject();
+                        int weight = wire.has("weight") ? wire.get("weight").getAsInt()
+                                : net.minecraft.world.level.storage.loot.entries.UniformContainerBase.DEFAULT_WEIGHT;
+                        helper.assertTrue(before.get(i).getAsJsonObject().get("weight").getAsInt() == weight,
+                                "Packaged chest weight changed: " + i);
+                    }
+                }
+            } catch (Exception failure) {
+                throw new AssertionError("Native loot codec rejected registered Electric drops: " + entry.getKey(), failure);
+            }
+        }
+    }
+
+    private static void assertLootFieldsPreserved(GameTestHelper helper, com.google.gson.JsonObject before,
+            com.google.gson.JsonObject after,
+            com.mojang.serialization.DynamicOps<com.google.gson.JsonElement> ops, String path) {
+        helper.assertTrue(!before.has("functions") && !before.has("conditions"), "Obsolete loot fields at " + path);
+        for (String field : new String[] {"modifier", "condition"}) {
+            if (!before.has(field)) continue;
+            helper.assertTrue(after.has(field), "Whole-table codec lost " + path + "." + field);
+            com.google.gson.JsonElement canonical;
+            if (field.equals("modifier")) {
+                var codec = net.minecraft.world.level.storage.loot.functions.LootItemFunctions.CODEC;
+                canonical = codec.encodeStart(ops, codec.parse(ops, before.get(field)).getOrThrow()).getOrThrow();
+            } else {
+                var codec = net.minecraft.world.level.storage.loot.predicates.LootItemCondition.CODEC;
+                canonical = codec.encodeStart(ops, codec.parse(ops, before.get(field)).getOrThrow()).getOrThrow();
+            }
+            helper.assertTrue(canonical.equals(after.get(field)), "Whole-table codec changed " + path + "." + field);
+        }
+        for (String list : new String[] {"pools", "entries", "children"}) {
+            if (!before.has(list)) continue;
+            helper.assertTrue(after.has(list), "Whole-table codec lost " + path + "." + list);
+            var expected = before.getAsJsonArray(list);
+            var actual = after.getAsJsonArray(list);
+            helper.assertTrue(expected.size() == actual.size(), "Whole-table codec changed " + path + "." + list);
+            for (int i = 0; i < expected.size(); i++) {
+                assertLootFieldsPreserved(helper, expected.get(i).getAsJsonObject(), actual.get(i).getAsJsonObject(),
+                        ops, path + "." + list + "[" + i + "]");
             }
         }
     }
@@ -222,7 +325,7 @@ public final class ElectricGameTests {
         helper.assertTrue(!recipe.placementInfo().ingredients().isEmpty()
                         && recipe.placementInfo().ingredients().stream().allMatch(ingredient -> !ingredient.isEmpty()),
                 "Recipe loaded with an empty ingredient: " + id);
-        var encoded = Recipe.CODEC.encodeStart(level.registryAccess().createSerializationContext(
+        var encoded = Recipe.DIRECT_CODEC.encodeStart(level.registryAccess().createSerializationContext(
                 com.mojang.serialization.JsonOps.INSTANCE), recipe).getOrThrow().getAsJsonObject();
         var result = ItemStack.CODEC.parse(level.registryAccess().createSerializationContext(
                 com.mojang.serialization.JsonOps.INSTANCE), encoded.get("result")).getOrThrow();

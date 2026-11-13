@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:silicon_blend",
+      "required": false
+    }
+  ]
+}

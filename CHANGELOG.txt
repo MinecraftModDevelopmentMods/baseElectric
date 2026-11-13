@@ -1,3 +1,22 @@
+baseElectric 2.2.19.2603001 - manual testing accepted 13 November 2026
+
+- Target Minecraft 26.3, Forge 66.0.0, official names and Java 25.0.3+9.
+- Retain machine, battery, registry, saved-data, recipe and balance contracts.
+- Update native pack metadata to data 121.0 and the Forge client pack to 97.1.
+- Adapt RenderPearl pipelines, native recipe/context APIs and stem fruit lookup without changing outputs.
+- Add a native stem-fruit regression while retaining the complete existing test suite.
+- Keep bulk librarian offers on the native singular modifier field with their original ranges and tiers.
+- Preserve block-drop explosion gating with the native loot condition and type fields.
+- Keep all recipe discoveries available across mode changes with exact optional native recipe tags; preserve recipe guards, rewards and ingredient OR groups.
+- Keep exact dependency, tool, artifact, test and Eclipse classpath guards.
+- Verify whole native loot-table modifier/condition round-trips at table, pool and entry scope; detect silently ignored plural fields.
+- Seal an independent accepted Electric 2.2.18 loot fixture and compare all 21 complete native tables without changing item identities, quantities or weights.
+- Use published Power 2.4.18, Base Metals 3.1.2 and OreSpawn 4.1.1 for 26.3, with their exact verified source, file and player-hash pins.
+- Select Power handoff07's future-discovery repair, retaining strict retired-brain-memory and earlier loot/importer/tag repairs without carrying old qualification forward.
+- Machine, recipe, old-world upgrade, graphical, full-restart and two-world 30-minute endurance checks passed. Manual testing of the exact profile04 kit was accepted on 13 November 2026.
+- Prepare Electric publication on the released Power pin, keeping its independently qualified unit-support source. Steam public verification and the final combined-family gate still precede Electric's live release.
+- Keep the accepted profile04 jar separate from the published-pin candidate and qualify changed player bytes before release.
+
 baseElectric 2.2.18.2602001 (Minecraft 26.2 / Forge) - published 13 November 2026
 
 - Target Minecraft 26.2 and Forge 65 with Java 25.

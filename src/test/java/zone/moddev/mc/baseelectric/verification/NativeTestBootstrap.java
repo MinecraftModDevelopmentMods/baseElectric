@@ -32,6 +32,11 @@ public final class NativeTestBootstrap {
         // The plain test JVM has no FML registration phase after vanilla bootstrap.
         GameData.unfreezeData();
         ready = true;
+        try {
+            registerHolderSetTypes();
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("Could not initialize native Forge holder-set types", failure);
+        }
     }
 
     public static RegistryAccess.Frozen registries() {
@@ -39,7 +44,7 @@ public final class NativeTestBootstrap {
     }
 
     public static void bindNativeComponents() {
-        var lookup = net.minecraft.data.registries.VanillaRegistries.createLookup();
+        var lookup = net.minecraft.data.registries.VanillaRegistries.createWorldLookup();
         BuiltInRegistries.DATA_COMPONENT_INITIALIZERS.build(lookup).forEach(
                 net.minecraft.core.component.DataComponentInitializers.PendingComponents::apply);
     }
@@ -56,7 +61,13 @@ public final class NativeTestBootstrap {
 
     public static synchronized void registerVanillaIngredientSerializers() throws ReflectiveOperationException {
         initialize();
+        registerHolderSetTypes();
         registerNativeForgeRegistry(ForgeRegistries.INGREDIENT_SERIALIZERS, "INGREDIENT_SERIALIZERS");
+    }
+
+    public static synchronized void registerHolderSetTypes() throws ReflectiveOperationException {
+        initialize();
+        registerNativeForgeRegistry(ForgeRegistries.HOLDER_SET_TYPES, "HOLDER_SET_TYPES");
     }
 
     private static void registerNativeForgeRegistry(DeferredRegister.RegistryHolder<?> registry, String contentsField)

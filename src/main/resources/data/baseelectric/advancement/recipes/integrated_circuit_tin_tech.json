@@ -44,7 +44,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:integrated_circuit_tin_tech"
+        "recipes": "#baseelectric:discovery/integrated_circuit_tin_tech"
       }
     }
   },

@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:control_circuit",
+      "required": false
+    }
+  ]
+}

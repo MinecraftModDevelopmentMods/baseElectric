@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.context.ContextMap;
 
@@ -54,10 +54,10 @@ public final class RecipeDeconstructor {
 
     record RecipePlan(ItemStack result, List<Ingredient> ingredients) {}
 
-    static List<RecipePlan> describe(Recipe<?> recipe, HolderLookup.Provider registries) {
+    static List<RecipePlan> describe(Recipe<?> recipe, RegistryAccess registries) {
         List<Ingredient> ingredients = new ArrayList<>(recipe.placementInfo().ingredients());
-        ContextMap context = new ContextMap.Builder().withParameter(SlotDisplayContext.REGISTRIES, registries)
-                .create(SlotDisplayContext.CONTEXT);
+        ContextMap context = ContextMap.builder().set(SlotDisplayContext.REGISTRIES, registries)
+                .buildAndValidate(SlotDisplayContext.CONTEXT);
         List<ItemStack> displayedResults = recipe.display().stream()
                 .flatMap(display -> display.result().resolveForStacks(context).stream())
                 .filter(result -> !result.isEmpty()).toList();
@@ -65,7 +65,7 @@ public final class RecipeDeconstructor {
             return displayedResults.stream().map(result -> new RecipePlan(result.copy(), List.copyOf(ingredients))).toList();
         }
         var ops = registries.createSerializationContext(JsonOps.INSTANCE);
-        var encoded = Recipe.CODEC.encodeStart(ops, recipe).getOrThrow().getAsJsonObject();
+        var encoded = Recipe.DIRECT_CODEC.encodeStart(ops, recipe).getOrThrow().getAsJsonObject();
         // Special processing recipes, including Base Metals crushing, are not recipe-book placeable.
         if (ingredients.isEmpty() && encoded.has("ingredient")) {
             ingredients.add(Ingredient.CODEC.parse(ops, encoded.get("ingredient")).getOrThrow());

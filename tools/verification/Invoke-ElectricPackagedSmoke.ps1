@@ -30,7 +30,7 @@ $target = "$($pins.minecraft_version)-$($pins.forge_version)"
 $forgeDir = "libraries/net/minecraftforge/forge/$target"
 $winArgs = "$forgeDir/win_args.txt"
 $receipt = [ordered]@{
-    status = 'FAIL'; scope = 'Packaged Forge 26.2 dedicated server and legacy inventory probe; no client or whole-world upgrade proof'
+    status = 'FAIL'; scope = 'Packaged Forge 26.3 dedicated server and legacy inventory probe; no client or whole-world upgrade proof'
     baseMetalsIncluded = !$WithoutBaseMetals
     seed = $seed; java = $javaPath; inputs = @(); checks = [ordered]@{}; exitCode = $null; error = $null
 }
@@ -63,10 +63,10 @@ function Send-Command([string]$Command) {
 }
 
 try {
-    if ($target -cne '26.2-65.1.0' -or $pins.mod_version -cne '2.2.18.2602001') {
-        throw 'This smoke runner is bound to baseElectric 2.2.18.2602001 on Forge 65.1.0.'
+    if ($target -cne '26.3-66.0.0' -or $pins.mod_version -cne '2.2.19.2603001') {
+        throw 'This smoke runner is bound to baseElectric 2.2.19.2603001 on Forge 66.0.0.'
     }
-    if ($pins.poweradvantage_pin_state -notin @('LOCAL_SOURCE', 'MERGED_SOURCE') -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
+    if ($pins.poweradvantage_pin_state -notin @('LOCAL_SOURCE', 'PUBLISHED') -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
         throw 'Packaged smoke requires the exact source-pinned basePower player JAR.'
     }
     $receipt.powerSourceRef = $pins.poweradvantage_source_ref
@@ -78,16 +78,16 @@ try {
     $receipt.javaSha256 = (Get-FileHash -LiteralPath $javaPath).Hash
     $argsText = Get-Content -LiteralPath (Join-Path $seed $winArgs) -Raw
     $shim = "forge-$target-shim.jar"
-    if (!$argsText.Contains("-jar $shim")) { throw 'Unexpected Forge 65 server argument file.' }
+    if (!$argsText.Contains("-jar $shim")) { throw 'Unexpected Forge 66 server argument file.' }
     $receipt.shimSha256 = (Get-FileHash -LiteralPath (Join-Path $seed $shim)).Hash
-    if ($receipt.shimSha256 -cne $pins.forge_shim_sha256) { throw 'Forge shim differs from the recorded 65.1.0 runtime pin.' }
+    if ($receipt.shimSha256 -cne $pins.forge_shim_sha256) { throw 'Forge shim differs from the recorded 66.0.0 runtime pin.' }
     $receipt.seedArgumentsSha256 = (Get-FileHash -LiteralPath (Join-Path $seed $winArgs)).Hash
     $forgeUniversal = Join-Path $seed "$forgeDir/forge-$target-universal.jar"
     $receipt.forgeUniversalSha256 = (Get-FileHash -LiteralPath $forgeUniversal).Hash
-    if ($receipt.forgeUniversalSha256 -cne $pins.forge_universal_sha256) { throw 'Forge universal differs from the recorded 65.1.0 runtime pin.' }
+    if ($receipt.forgeUniversalSha256 -cne $pins.forge_universal_sha256) { throw 'Forge universal differs from the recorded 66.0.0 runtime pin.' }
     $forgeServer = Join-Path $seed "$forgeDir/forge-$target-server.jar"
     $receipt.forgeServerSha256 = (Get-FileHash -LiteralPath $forgeServer).Hash
-    if ($receipt.forgeServerSha256 -cne $pins.forge_server_sha256) { throw 'Forge server differs from the recorded 65.1.0 runtime pin.' }
+    if ($receipt.forgeServerSha256 -cne $pins.forge_server_sha256) { throw 'Forge server differs from the recorded 66.0.0 runtime pin.' }
     if ((Get-Content -LiteralPath $EulaFile -Raw) -notmatch '(?m)^eula=true\s*$') {
         throw 'Pass the existing accepted EULA from the local smoke fixture.'
     }

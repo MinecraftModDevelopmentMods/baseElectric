@@ -24,7 +24,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:silicon_blend"
+        "recipes": "#baseelectric:discovery/silicon_blend"
       }
     }
   },

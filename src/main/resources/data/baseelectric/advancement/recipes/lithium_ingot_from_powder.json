@@ -16,7 +16,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "baseelectric:lithium_ingot_from_powder"
+        "recipes": "#baseelectric:discovery/lithium_ingot_from_powder"
       }
     }
   },

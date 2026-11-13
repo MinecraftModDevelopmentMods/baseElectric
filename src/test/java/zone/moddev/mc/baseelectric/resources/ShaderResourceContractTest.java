@@ -29,7 +29,7 @@ public class ShaderResourceContractTest {
         assertFalse(vertex.contains("IViewRotMat"));
         for (String renderer : Arrays.asList("HydroturbineRenderer", "LaserDrillRenderer", "LaserTurretRenderer")) {
             String source = Files.readString(PIPELINES.resolveSibling(renderer + ".java"));
-            assertFalse("Forge 65 warns about mod-owned class annotations: " + renderer, source.contains("@OnlyIn"));
+            assertFalse("Forge 66 warns about mod-owned class annotations: " + renderer, source.contains("@OnlyIn"));
         }
         String registration = Files.readString(PIPELINES.resolveSibling("ClientRegistration.java"));
         assertTrue(registration.contains("value = Dist.CLIENT"));
@@ -38,11 +38,11 @@ public class ShaderResourceContractTest {
     @Test public void noDiffuseLightingDoesNotRemoveLightmapOrOverlaySampling() throws Exception {
         String vertex = vanilla("entity.vsh");
         assertTrue(vertex.contains("vertexColor = Color;"));
-        assertTrue(vertex.contains("#moj_import <minecraft:sample_lightmap.glsl>"));
+        assertTrue(vertex.contains("#include <minecraft:sample_lightmap.glsl>"));
         assertTrue(vertex.contains("lightMapColor = sample_lightmap(Sampler2, UV2);"));
         assertTrue(vertex.contains("overlayColor = texelFetch(Sampler1, UV1, 0);"));
         assertTrue(vertex.contains("#elif defined(NO_CARDINAL_LIGHTING)\n    vertexColor = Color;"));
-        assertTrue(vertex.contains("#moj_import <minecraft:fog.glsl>"));
+        assertTrue(vertex.contains("#include <minecraft:fog.glsl>"));
         assertTrue(vertex.contains("sphericalVertexDistance = fog_spherical_distance(Position);"));
         assertTrue(vertex.contains("cylindricalVertexDistance = fog_cylindrical_distance(Position);"));
         String fragment = vanilla("entity.fsh");
