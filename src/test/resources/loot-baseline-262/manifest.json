@@ -1,0 +1,112 @@
+{
+  "artifact": "baseElectric-2.2.18.2602001.jar",
+  "sourceJarSha256": "A7D12A66CA91A6BACCFEFD2CED9D3EC962F5FEB73BF632E1683F99084384F938",
+  "scope": "Exact accepted 26.2 loot bytes; historical data baseline, not 26.3 qualification",
+  "tables": [
+    {
+      "path": "data/baseelectric/loot_table/blocks/electric_battery_array.json",
+      "bytes": 324,
+      "sha256": "9484349D068595713F5572D29B030814355A83C1D0159C1070CC7091DB36400C"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/electric_conduit.json",
+      "bytes": 318,
+      "sha256": "61C54A15E1EF3AAFB2BDD010AC65A01779EFFC0D4A0EE75BF22C141BE7E3A228"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/electric_crusher.json",
+      "bytes": 318,
+      "sha256": "B65228D1723224099808C674D025A55D08257522C4E58ABE7166E6E7B341D004"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/electric_drill.json",
+      "bytes": 316,
+      "sha256": "8ACA0F99EE044C6D84F577A31D16642DA42B1E411962C1CFC9D83E4C4787A0C8"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/electric_fabricator.json",
+      "bytes": 321,
+      "sha256": "5A48AE129C5574694FF6D6749CEEAF2003A146D6530BC5ECD4957D8626CCF500"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/electric_furnace.json",
+      "bytes": 318,
+      "sha256": "1E1F8D8204795EB84E5C80381A1B1C0BD97A106458491AAB36F6E56A163F16D3"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/electric_oven.json",
+      "bytes": 315,
+      "sha256": "BF5723AA942EE806B30DE99EED8BCDAABDA39756811C54898A27BB8011A4DCC1"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/electric_pump.json",
+      "bytes": 315,
+      "sha256": "CC27F5363753A41F8E555ECC2C30472DD5695B865E7FE30E738BF82EA30FF7D5"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/electric_still.json",
+      "bytes": 316,
+      "sha256": "A0E832DA25EF12EC828435DCD7C29C292C65B09B2012EF3F14891BD26FFC98A2"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/electric_switch.json",
+      "bytes": 317,
+      "sha256": "C600D755D21A3780803B4DFED82A00A49F155A3CC51CF373138467DAF6F5713D"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/electric_track.json",
+      "bytes": 316,
+      "sha256": "1BDEE540771B3233E6C2A292128AAF5D3E4640DEDA105238E733949BDE1BD851"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/growth_chamber_controller.json",
+      "bytes": 327,
+      "sha256": "DBBA7C23B76A80CF807A641BC4DA17399B53BAF20528A78AECBEBF2DE5E910F4"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/growth_chamber.json",
+      "bytes": 316,
+      "sha256": "17D30FD293725A450E6D28148199137045AD8CBCDB94947CBB686E7641D8B729"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/hydroelectric_generator.json",
+      "bytes": 325,
+      "sha256": "87C822076E7916007599C0D4F3FF2321795C7C8D2CE4AD5CB3AFF73DFBACEF2D"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/laser_turret_evil.json",
+      "bytes": 319,
+      "sha256": "5791A9052A5AF6269D47646FEFED273604BAF0D8D91967402A125EA2F0CB6B0E"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/laser_turret.json",
+      "bytes": 314,
+      "sha256": "1359629BA2E473E9F676BC4FA6E655C358E93ADBB22D1DE49148037744FB3BDA"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/led_bar.json",
+      "bytes": 309,
+      "sha256": "B467026C53A05431EB5B9518052411582E350E7CA72D3EAADC96D3E922E69856"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/photovoltaic_generator.json",
+      "bytes": 324,
+      "sha256": "F807F20CEF961BCE0233A5F82D206090BD3EAD3E56AC8FB0FF41637C9D683E6D"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/plastic_refinery.json",
+      "bytes": 318,
+      "sha256": "75C16E80324FD1A62F81013C3D5063036D34C5C18A10935F37F23F72F8220A62"
+    },
+    {
+      "path": "data/baseelectric/loot_table/blocks/steam_powered_generator.json",
+      "bytes": 325,
+      "sha256": "67FC4A3728BDFA29CC6AD00117AEDDD99D5EC28B04F94B96B68152D6A624B004"
+    },
+    {
+      "path": "data/baseelectric/loot_table/chests/advantage_parts.json",
+      "bytes": 3089,
+      "sha256": "00D936DC11A206ED348358456FA9522F718F328548CA5B53727047662407172B"
+    }
+  ]
+}

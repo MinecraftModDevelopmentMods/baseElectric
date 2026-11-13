@@ -103,8 +103,8 @@ tasks.named('test', Test) {
     }
     afterSuite { descriptor, result ->
         if (!descriptor.parent && filter.includePatterns.empty && filter.commandLineIncludePatterns.empty
-                && (result.testCount != 118 || result.skippedTestCount != 0)) {
-            throw new GradleException("Expected 118 tests with no skips, got ${result.testCount} tests and ${result.skippedTestCount} skips")
+                && (result.testCount != 119 || result.skippedTestCount != 0)) {
+            throw new GradleException("Expected 119 tests with no skips, got ${result.testCount} tests and ${result.skippedTestCount} skips")
         }
     }
     doFirst {
@@ -451,7 +451,7 @@ tasks.register('compileNativeApiDiagnostics', JavaCompile) {
 def compileNativeResourceChecks = tasks.register('compileNativeResourceChecks', JavaCompile) {
     dependsOn tasks.named('compileNativeApiDiagnostics')
     source fileTree('src/test/java') {
-        include '**/BlockLootResourceTest.java', '**/RecipeResourceTest.java',
+        include '**/BlockLootResourceTest.java', '**/AcceptedLootBaselineTest.java', '**/RecipeResourceTest.java',
                 '**/RecipeUnlockContractTest.java',
                 '**/RecipeRegistrationThreadTest.java', '**/NativeTestBootstrap.java', '**/LegacyBatteryDataTest.java',
                 '**/NativePackRangeContractTest.java', '**/NativePackResourceProof.java',
@@ -498,8 +498,8 @@ tasks.register('nativeUnitDiagnostics', Test) {
     }
     afterSuite { descriptor, result ->
         if (!descriptor.parent && filter.includePatterns.empty && filter.commandLineIncludePatterns.empty
-                && (result.testCount != 118 || result.skippedTestCount != 0)) {
-            throw new GradleException("Expected 118 provisional unit diagnostics without skips, got ${result.testCount}/${result.skippedTestCount}")
+                && (result.testCount != 119 || result.skippedTestCount != 0)) {
+            throw new GradleException("Expected 119 provisional unit diagnostics without skips, got ${result.testCount}/${result.skippedTestCount}")
         }
     }
     doFirst {
@@ -515,8 +515,8 @@ tasks.register('nativeResourceChecks', Test) {
     testClassesDirs = files(nativeResourceCheckClasses)
     classpath = testClassesDirs + nativeResourceCheckClasspath.get() + files(layout.buildDirectory.dir('classes/native-api-diagnostics'))
     afterSuite { descriptor, result ->
-        if (!descriptor.parent && (result.testCount != 29 || result.skippedTestCount != 0)) {
-            throw new GradleException("Expected 29 native resource tests without skips, got ${result.testCount}/${result.skippedTestCount}")
+        if (!descriptor.parent && (result.testCount != 30 || result.skippedTestCount != 0)) {
+            throw new GradleException("Expected 30 native resource tests without skips, got ${result.testCount}/${result.skippedTestCount}")
         }
     }
     doFirst {

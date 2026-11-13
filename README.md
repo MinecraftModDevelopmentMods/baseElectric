@@ -17,14 +17,18 @@ The coordinated local versions are basePower **2.4.18.2603001**, Base Metals
 **3.1.2.2603001** with the shared migration hook, and OreSpawn
 **4.1.1.2603001** with the retained-settings repair. Exact source and artifact
 pins are recorded for the parent's immutable local compiler/test handoff.
-Power source is `1edd86f376e63753eaeaa0358e9d48459e3649ce`, player SHA-256
-`5241EA6024AAB3D898ADEA164527CA10EF6BDE2DE155F89B1F7DFD18363676AB`.
+Power source is `9d6e31a9c9d116b72a3758edfb18e81a25d939e3`, player SHA-256
+`F225B3EC1B9B272CCBA82716B6D105D3BF0A613E31437BBFA0F9CAB39E4FE9BB`.
 Unit-support sources and agent bytes are sealed to that accepted checkpoint.
 This handoff includes the native unlock, fuel-hook and scoped pending-item-tag
-phase repairs. D03's passing build/ECJ/cold results and failed startup are
+phase repairs, plus complete native loot-table and legacy-importer repairs.
+D03/D04 passing build/ECJ/cold results and D03's failed startup are
 historical; they do not qualify this changed input. Completed
 checks remain bound to their exact inputs; cold/reproduction and gameplay
 acceptance are separate gates.
+An independent SHA-sealed Electric 2.2.18 jar fixture protects all 21 loot
+tables through the actual native whole-table codec. The strict inventories
+are 119 units and 30 native tests, including the added golden comparison.
 The older 26.2 jars and public 26.3 BM 3.1.1/OS 4.1.0 jars
 are not substitutes. Base Metals remains required on both client and server.
 

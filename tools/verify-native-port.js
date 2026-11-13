@@ -15,7 +15,11 @@ const sha256 = data => createHash('sha256').update(data).digest('hex');
 const tracked = git('ls-tree', '-r', '--name-only', baseline, 'src').toString().trim().split('\n');
 const javaRoot = 'src/main/java/zone/moddev/mc/baseelectric/';
 const assets = 'src/main/resources/assets/baseelectric/';
-const addedNativeTests = ['src/test/java/zone/moddev/mc/baseelectric/util/farming/VirtualCropNativeTest.java'];
+const addedNativeTests = ['src/test/java/zone/moddev/mc/baseelectric/util/farming/VirtualCropNativeTest.java',
+    'src/test/java/zone/moddev/mc/baseelectric/resources/AcceptedLootBaselineTest.java'];
+const lootFixtureRoot = 'src/test/resources/loot-baseline-262/';
+const lootFixture = json(lootFixtureRoot + 'manifest.json');
+const lootFixtureFiles = [lootFixtureRoot + 'manifest.json', ...lootFixture.tables.map(entry => lootFixtureRoot + entry.path)];
 const relocated = file => file.replace(/(data\/[^/]+\/)recipes\//, '$1recipe/')
     .replace(/(data\/[^/]+\/)advancements\//, '$1advancement/')
     .replace(/(data\/[^/]+\/)loot_tables\//, '$1loot_table/')
@@ -183,8 +187,24 @@ check('Released resources retain content through exact native schema and atlas r
     const trades = ['electric_conduit', 'solder', 'integrated_circuit', 'blank_circuit_board', 'petrolplastic_ingot', 'psu']
         .map(id => 'src/main/resources/data/baseelectric/villager_trade/librarian/' + id + '.json');
     const tiers = [1,2].map(level => 'src/main/resources/data/minecraft/tags/villager_trade/librarian/level_' + level + '.json');
-    assert.deepEqual(actual, [...tracked.filter(file => file !== javaRoot + 'init/Villages.java' && file !== removedAbstract), itemsAtlas, ...trades, ...tiers, ...addedNativeTests].sort(),
+    assert.deepEqual(actual, [...tracked.filter(file => file !== javaRoot + 'init/Villages.java' && file !== removedAbstract), itemsAtlas, ...trades, ...tiers, ...addedNativeTests, ...lootFixtureFiles].sort(),
         'Source and resource inventory');
+});
+
+check('Accepted 26.2 loot fixture is independently SHA-sealed', () => {
+    assert.equal(sha256(read(lootFixtureRoot + 'manifest.json')).toUpperCase(),
+        'D4F3187FE5A46652885D66C2E68C9B083EF6A0E1076BD20BD6462F56F6BF1132');
+    assert.equal(lootFixture.sourceJarSha256, 'A7D12A66CA91A6BACCFEFD2CED9D3EC962F5FEB73BF632E1683F99084384F938');
+    assert.equal(lootFixture.tables.length, 21);
+    assert.deepEqual(lootFixture.tables.map(entry => entry.path).sort(), tracked
+        .filter(file => file.startsWith('src/main/resources/data/baseelectric/loot_table/') && file.endsWith('.json'))
+        .map(file => file.slice('src/main/resources/'.length)).sort());
+    for (const entry of lootFixture.tables) {
+        assert(entry.path.startsWith('data/baseelectric/loot_table/') && !entry.path.includes('..'));
+        const bytes = read(lootFixtureRoot + entry.path);
+        assert.equal(bytes.length, entry.bytes);
+        assert.equal(sha256(bytes).toUpperCase(), entry.sha256);
+    }
 });
 
 check('Migration and registration code keep their accepted IDs and compatibility paths', () => {
@@ -230,8 +250,8 @@ check('All 114 released tests retain their coverage without skips', () => {
         assert.doesNotMatch(source, /@Ignore|Assume\.|assumeTrue\(|assumeFalse\(/, file);
         added += methods(source).length;
     }
-    assert.equal(added, 1);
-    assert.equal(actual + added, 118);
+    assert.equal(added, 2);
+    assert.equal(actual + added, 119);
     const gameTests = javaRoot.replace('main', 'gametest') + 'gametest/ElectricGameTests.java';
     const names = value => [...value.toString().matchAll(/public static void (\w+)\(GameTestHelper/g)].map(m => m[1]);
     for (const name of names(old(gameTests))) assert(names(read(gameTests)).includes(name), 'Lost GameTest: ' + name);

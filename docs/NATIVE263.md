@@ -32,13 +32,14 @@ IAF `8e6de134b075811a7295e15ad32a224cf3c04134`.
 ## Local Input Handoffs
 
 Power's immutable compiler handoff is accepted: source
-`1edd86f376e63753eaeaa0358e9d48459e3649ce`, SHA-256
-`5241EA6024AAB3D898ADEA164527CA10EF6BDE2DE155F89B1F7DFD18363676AB`.
+`9d6e31a9c9d116b72a3758edfb18e81a25d939e3`, SHA-256
+`F225B3EC1B9B272CCBA82716B6D105D3BF0A613E31437BBFA0F9CAB39E4FE9BB`.
 The exact approved BM/OS compiler snapshots are likewise pinned by source
 and SHA-256. These pins identify local inputs, not gameplay/public acceptance.
-Handoff04 repairs the actual pending-item-tag phase with a required scoped
-Power mixin. Earlier D03 results remain historical. Rebuild and actual startup
-must use the changed exact input; no prior pass is transferred to handoff04.
+Handoff05 includes native loot-container and legacy ALT importer repairs,
+in addition to handoff04's required scoped pending-item-tag mixin. Earlier
+D03/D04 results remain historical. Rebuild and actual startup must use the
+changed exact input; no prior pass is transferred to handoff05.
 
 Full-suite, ECJ, complete Eclipse, packaged and reproduction gates remain
 separate. The remaining required handoffs are:
@@ -46,7 +47,7 @@ separate. The remaining required handoffs are:
 - Installed baseline server/shim/universal hashes for packaged verification.
 
 The earlier uncommitted helper mismatch is resolved by the approved test-rig
-checkpoint 26ad8, unchanged in current 1edd86f. Exact source files are frozen
+checkpoint 26ad8, unchanged in current 9d6e31a. Exact source files are frozen
 under the child's `unit-inputs-01`; its native agent rebuild remains sealed.
 Earlier helper-blocked attempts remain in the external receipts, not passes.
 
@@ -153,7 +154,24 @@ successfully decode but lose their fields; the semantic oracle rejects each.
 The registered-item source GameTest applies the same complete container-scope
 checks in addition to its existing exact quantity/weight/explosion assertions.
 The 29-test native gate passed this expansion in attempt34; Power handoff05
-is still required for final rebuilt/shared-runtime qualification.
+is now selected for final rebuilt/shared-runtime qualification.
+
+An independent golden test uses the 21 exact loot JSON entries extracted from
+accepted `baseElectric-2.2.18.2602001.jar`, SHA-256
+`A7D12A66CA91A6BACCFEFD2CED9D3EC962F5FEB73BF632E1683F99084384F938`.
+The manifest and each raw file are SHA-sealed; extraction rejects any other
+jar. Syntax translation is test-only and does not call the production loot
+importer. Real built-in item IDs form a bijection for worldless codec input;
+encoded names are reversed before comparison, without registry mutation.
+Actual mod IDs still require the registered-item server gate. Normalization
+is restricted to singleton modifier arrays, native default weight/quality,
+empty pools, zero bonus rolls, false add and namespaces on type fields only.
+The chest's nonsemantic comment must match before codec projection. Count,
+weight, item-identity, plural-modifier and explosion-condition counterfactuals
+must fail the full-table semantic comparison. Global Forge loot modifiers'
+`conditions` arrays are outside this fixture and remain unchanged.
+The added mandatory test raises the exact gates to 119 units in 35 suites
+and 30 native tests in 13 suites; older 118/29 receipts stay historical.
 The retained source GameTest now also decodes all 21 exact packaged tables with
 the actual registered Electric items; actual server startup remains pending.
 The chest table retains all nine item weights and count ranges (48 item weight,
