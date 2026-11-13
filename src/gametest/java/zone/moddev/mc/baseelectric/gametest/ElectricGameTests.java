@@ -236,6 +236,7 @@ public final class ElectricGameTests {
                 var json = com.google.gson.JsonParser.parseReader(reader).getAsJsonObject();
                 var decoded = codec.parse(ops, json).getOrThrow();
                 var encoded = codec.encodeStart(ops, decoded).getOrThrow().getAsJsonObject();
+                assertLootFieldsPreserved(helper, json, encoded, ops, entry.getKey().toString());
                 var condition = json.getAsJsonArray("pools").get(0).getAsJsonObject().get("condition");
                 if (json.has("type") && json.get("type").getAsString().equals("minecraft:block")) {
                     helper.assertTrue(condition != null && condition.equals(
@@ -257,6 +258,36 @@ public final class ElectricGameTests {
                 }
             } catch (Exception failure) {
                 throw new AssertionError("Native loot codec rejected registered Electric drops: " + entry.getKey(), failure);
+            }
+        }
+    }
+
+    private static void assertLootFieldsPreserved(GameTestHelper helper, com.google.gson.JsonObject before,
+            com.google.gson.JsonObject after,
+            com.mojang.serialization.DynamicOps<com.google.gson.JsonElement> ops, String path) {
+        helper.assertTrue(!before.has("functions") && !before.has("conditions"), "Obsolete loot fields at " + path);
+        for (String field : new String[] {"modifier", "condition"}) {
+            if (!before.has(field)) continue;
+            helper.assertTrue(after.has(field), "Whole-table codec lost " + path + "." + field);
+            com.google.gson.JsonElement canonical;
+            if (field.equals("modifier")) {
+                var codec = net.minecraft.world.level.storage.loot.functions.LootItemFunctions.CODEC;
+                canonical = codec.encodeStart(ops, codec.parse(ops, before.get(field)).getOrThrow()).getOrThrow();
+            } else {
+                var codec = net.minecraft.world.level.storage.loot.predicates.LootItemCondition.CODEC;
+                canonical = codec.encodeStart(ops, codec.parse(ops, before.get(field)).getOrThrow()).getOrThrow();
+            }
+            helper.assertTrue(canonical.equals(after.get(field)), "Whole-table codec changed " + path + "." + field);
+        }
+        for (String list : new String[] {"pools", "entries", "children"}) {
+            if (!before.has(list)) continue;
+            helper.assertTrue(after.has(list), "Whole-table codec lost " + path + "." + list);
+            var expected = before.getAsJsonArray(list);
+            var actual = after.getAsJsonArray(list);
+            helper.assertTrue(expected.size() == actual.size(), "Whole-table codec changed " + path + "." + list);
+            for (int i = 0; i < expected.size(); i++) {
+                assertLootFieldsPreserved(helper, expected.get(i).getAsJsonObject(), actual.get(i).getAsJsonObject(),
+                        ops, path + "." + list + "[" + i + "]");
             }
         }
     }

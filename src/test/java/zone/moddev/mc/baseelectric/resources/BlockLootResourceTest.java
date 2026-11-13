@@ -33,6 +33,7 @@ public class BlockLootResourceTest {
         }
         assertFalse(Files.exists(root.resolve("pump_pipe_electric.json")));
         assertNativeChestLoot();
+        assertWholeTableSequenceAndConditionContract();
     }
 
     @Test public void resourcePackDeclaresTheNativeTwentySixFormat() throws Exception {
@@ -124,6 +125,7 @@ public class BlockLootResourceTest {
         var tableCodec = net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC;
         var nativeTable = tableCodec.parse(ops, syntax).getOrThrow();
         var encoded = tableCodec.encodeStart(ops, nativeTable).getOrThrow().getAsJsonObject();
+        assertWholeTableFields(syntax, encoded, "table");
         assertEquals(condition, encoded.getAsJsonArray("pools").get(0).getAsJsonObject().get("condition"));
 
         JsonObject obsolete = syntax.deepCopy();
@@ -166,8 +168,9 @@ public class BlockLootResourceTest {
         var unknownCount = codec.parse(ops, obsoleteCount);
         assertTrue("Unknown native integer provider types must not use a legacy fallback", unknownCount.error().isPresent());
         assertTrue(unknownCount.error().orElseThrow().message().contains("baseelectric:missing_count_provider"));
-        var encoded = codec.encodeStart(ops, decoded).getOrThrow().getAsJsonObject()
-                .getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries");
+        var wholeTable = codec.encodeStart(ops, decoded).getOrThrow().getAsJsonObject();
+        assertWholeTableFields(syntax, wholeTable, "chest");
+        var encoded = wholeTable.getAsJsonArray("pools").get(0).getAsJsonObject().getAsJsonArray("entries");
         for (int i = 1; i < entries.size(); i++) {
             assertEquals("Native chest modifiers must retain their count ranges", entries.get(i).getAsJsonObject().get("modifier"),
                     encoded.get(i).getAsJsonObject().get("modifier"));
@@ -175,6 +178,81 @@ public class BlockLootResourceTest {
             int weight = wire.has("weight") ? wire.get("weight").getAsInt()
                     : net.minecraft.world.level.storage.loot.entries.UniformContainerBase.DEFAULT_WEIGHT;
             assertEquals(entries.get(i).getAsJsonObject().get("weight").getAsInt(), weight);
+        }
+    }
+
+    private static void assertWholeTableSequenceAndConditionContract() {
+        JsonObject source = JsonParser.parseString("""
+                {"type":"minecraft:chest",
+                 "modifier":[{"type":"minecraft:set_count","count":7},
+                             {"type":"minecraft:set_count","count":2,"add":true}],
+                 "pools":[{"rolls":1,
+                   "condition":{"type":"minecraft:all_of","terms":[
+                     {"type":"minecraft:survives_explosion"},{"type":"minecraft:killed_by_player"}]},
+                   "modifier":[{"type":"minecraft:set_count","count":3},
+                               {"type":"minecraft:set_count","count":4,"add":true}],
+                   "entries":[{"type":"minecraft:item","name":"minecraft:stone",
+                     "condition":{"type":"minecraft:all_of","terms":[
+                       {"type":"minecraft:killed_by_player"},{"type":"minecraft:survives_explosion"}]},
+                     "modifier":{"type":"minecraft:set_count",
+                       "count":{"type":"minecraft:uniform","min":2,"max":5}}}]}]}
+                """).getAsJsonObject();
+        var codec = net.minecraft.world.level.storage.loot.LootTable.DIRECT_CODEC;
+        var ops = com.mojang.serialization.JsonOps.INSTANCE;
+        var encoded = codec.encodeStart(ops, codec.parse(ops, source).getOrThrow()).getOrThrow().getAsJsonObject();
+        assertWholeTableFields(source, encoded, "fixture");
+        assertEquals(encoded, codec.encodeStart(ops, codec.parse(ops, encoded).getOrThrow()).getOrThrow());
+        for (String location : new String[] {"table", "pool", "entry"}) {
+            for (String field : new String[] {"modifier", "condition"}) {
+                if (location.equals("table") && field.equals("condition")) continue;
+                var obsolete = source.deepCopy();
+                var container = lootContainer(obsolete, location);
+                var value = container.remove(field);
+                var plural = new com.google.gson.JsonArray();
+                if (value.isJsonArray()) value.getAsJsonArray().forEach(plural::add);
+                else plural.add(value);
+                container.add(field.equals("modifier") ? "functions" : "conditions", plural);
+                var ignored = codec.encodeStart(ops, codec.parse(ops, obsolete).getOrThrow()).getOrThrow().getAsJsonObject();
+                assertFalse(location + "." + field + " old plural unexpectedly survived",
+                        lootContainer(ignored, location).has(field));
+                assertThrows("Whole-table oracle must detect lost " + location + "." + field,
+                        AssertionError.class, () -> assertWholeTableFields(source, ignored, "fixture"));
+            }
+        }
+    }
+
+    private static JsonObject lootContainer(JsonObject table, String location) {
+        if (location.equals("table")) return table;
+        var pool = table.getAsJsonArray("pools").get(0).getAsJsonObject();
+        return location.equals("pool") ? pool : pool.getAsJsonArray("entries").get(0).getAsJsonObject();
+    }
+
+    private static void assertWholeTableFields(JsonObject expected, JsonObject actual, String path) {
+        assertFalse(path + " has obsolete functions", expected.has("functions"));
+        assertFalse(path + " has obsolete conditions", expected.has("conditions"));
+        var ops = com.mojang.serialization.JsonOps.INSTANCE;
+        for (String field : new String[] {"modifier", "condition"}) {
+            if (!expected.has(field)) continue;
+            assertTrue(path + "." + field + " disappeared from whole-table encoding", actual.has(field));
+            com.google.gson.JsonElement canonical;
+            if (field.equals("modifier")) {
+                var codec = net.minecraft.world.level.storage.loot.functions.LootItemFunctions.CODEC;
+                canonical = codec.encodeStart(ops, codec.parse(ops, expected.get(field)).getOrThrow()).getOrThrow();
+            } else {
+                var codec = net.minecraft.world.level.storage.loot.predicates.LootItemCondition.CODEC;
+                canonical = codec.encodeStart(ops, codec.parse(ops, expected.get(field)).getOrThrow()).getOrThrow();
+            }
+            assertEquals(path + "." + field, canonical, actual.get(field));
+        }
+        for (String list : new String[] {"pools", "entries", "children"}) {
+            if (!expected.has(list)) continue;
+            assertTrue(path + "." + list + " disappeared", actual.has(list));
+            var before = expected.getAsJsonArray(list);
+            var after = actual.getAsJsonArray(list);
+            assertEquals(path + "." + list, before.size(), after.size());
+            for (int i = 0; i < before.size(); i++) {
+                assertWholeTableFields(before.get(i).getAsJsonObject(), after.get(i).getAsJsonObject(), path + "." + list + "[" + i + "]");
+            }
         }
     }
 }

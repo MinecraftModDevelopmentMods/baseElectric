@@ -142,6 +142,18 @@ All 20 block-loot tables use the singular native pool `condition` and predicate
 `type` discriminator; the original explosion survival condition is retained.
 Trade modifiers likewise use native `type`. The worldless native loot syntax
 proof uses a vanilla item and explicitly detects loss of the old plural field.
+All 21 Electric loot tables already use singular native container fields:
+20 explosion conditions and nine chest count modifiers. The whole-table proof
+now compares every modifier and condition recursively through pools, entries
+and composite children, using native canonical leaf values only as expectations
+for the actual `LootTable.DIRECT_CODEC` output. Synthetic whole tables cover
+table/pool/entry modifiers, pool/entry conditions, inline modifier sequences and
+multi-condition `minecraft:all_of` terms. Five old-plural counterfactuals
+successfully decode but lose their fields; the semantic oracle rejects each.
+The registered-item source GameTest applies the same complete container-scope
+checks in addition to its existing exact quantity/weight/explosion assertions.
+The 29-test native gate passed this expansion in attempt34; Power handoff05
+is still required for final rebuilt/shared-runtime qualification.
 The retained source GameTest now also decodes all 21 exact packaged tables with
 the actual registered Electric items; actual server startup remains pending.
 The chest table retains all nine item weights and count ranges (48 item weight,
