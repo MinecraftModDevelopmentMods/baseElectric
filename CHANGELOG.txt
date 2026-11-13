@@ -1,4 +1,4 @@
-baseElectric 2.2.19.2603001 - manual testing accepted 13 November 2026
+baseElectric 2.2.19.2603001 (Minecraft 26.3 / Forge) - published 13 November 2026
 
 - Target Minecraft 26.3, Forge 66.0.0, official names and Java 25.0.3+9.
 - Retain machine, battery, registry, saved-data, recipe and balance contracts.
@@ -14,8 +14,12 @@ baseElectric 2.2.19.2603001 - manual testing accepted 13 November 2026
 - Use published Power 2.4.18, Base Metals 3.1.2 and OreSpawn 4.1.1 for 26.3, with their exact verified source, file and player-hash pins.
 - Select Power handoff07's future-discovery repair, retaining strict retired-brain-memory and earlier loot/importer/tag repairs without carrying old qualification forward.
 - Machine, recipe, old-world upgrade, graphical, full-restart and two-world 30-minute endurance checks passed. Manual testing of the exact profile04 kit was accepted on 13 November 2026.
-- Prepare Electric publication on the released Power pin, keeping its independently qualified unit-support source. Steam public verification and the final combined-family gate still precede Electric's live release.
-- Keep the accepted profile04 jar separate from the published-pin candidate and qualify changed player bytes before release.
+- Publish on the released Power pin, keeping the independently qualified unit-support source.
+- Keep the accepted profile04 jar separate from the published jar. The final family separately passed original-1.10 operating migration, two real 30-minute worlds, raw/cold resumes and independent checkpoint replay.
+- Downloads: https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9590229
+- MMD Maven: https://maven.moddev.zone/releases/zone/moddev/mc/baseelectric/baseElectric/2.2.19.2603001/baseElectric-2.2.19.2603001.jar
+- GitHub: https://github.com/MinecraftModDevelopmentMods/baseElectric/releases/tag/2.2.19.2603001
+- Published source, exact download hashes and qualification scope: docs/RELEASE263.md. No jar or tag change for this documentation follow-up.
 
 baseElectric 2.2.18.2602001 (Minecraft 26.2 / Forge) - published 13 November 2026
 

@@ -1,10 +1,15 @@
 # baseElectric
 
-**Minecraft 26.3 Forge, version 2.2.19.2603001. Manual testing accepted; release preparation in progress.**
+**Minecraft 26.3 Forge, version 2.2.19.2603001. Published 13 November 2026.**
 
 baseElectric continues DrCyano's Electric Advantage and uses basePower's shared
 API, machines and creative tab. Existing `baseelectric` registry and saved-data
 identities, recipes, balance and public contracts are retained.
+
+Downloads: [CurseForge](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9590229),
+[MMD Maven](https://maven.moddev.zone/releases/zone/moddev/mc/baseelectric/baseElectric/2.2.19.2603001/baseElectric-2.2.19.2603001.jar)
+and [GitHub Releases](https://github.com/MinecraftModDevelopmentMods/baseElectric/releases/tag/2.2.19.2603001).
+The [26.3 release record](docs/RELEASE263.md) has the exact source and download hashes.
 
 This port targets Forge **66.0.0**, official Minecraft **26.3** names,
 MCP **20260918.230105**, Java **25.0.3+9**, ForgeGradle **7.0.34** and the
@@ -13,7 +18,7 @@ checksum-pinned Gradle **9.6.1** wrapper. Native data/client pack formats are
 full 66.0.0 baseline suite.
 
 The [published 26.2 release record](docs/RELEASE262.md) keeps its public
-downloads and exact source/hash separate from this 26.3 candidate. The
+downloads and exact source/hash separate from this 26.3 release. The
 [26.1.2 release](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9577930)
 also remains available for that Minecraft version.
 
@@ -31,16 +36,13 @@ Power source is `4fae0a51feb3e49875f09c500b869266122a711a`, player SHA-256
 `97525CE9C75509C55225E0061D43BAF9D29BDBDE6DF853E1552A64A54C14C3DE`.
 The test bootstrap and support sources remain independently sealed to
 `c0eb83f7ba91cf8c83caea75e63057407a345949`; they do not follow the player source pin.
-This handoff includes the native unlock, fuel-hook and scoped pending-item-tag
+These dependencies include the native unlock, fuel-hook and scoped pending-item-tag
 phase repairs, complete native loot-table and legacy-importer repairs, and
 strict retirement/archive handling for removed vanilla brain memories, and
 optional recipe-tag discovery that survives mode changes. Earlier candidate
 receipts, including failed/superseded attempts, remain historical and do not
-qualify this changed input. Completed
-checks remain bound to their exact inputs. Cold/reproduction and the combined
-gameplay tests passed. Manual testing of that exact kit was accepted on
-13 November 2026. A published-pin Electric candidate does not inherit that
-proof merely because its dependency player bytes are unchanged.
+qualify changed inputs. The original manual acceptance and the separately
+checked published-pin family are recorded below and in the release record.
 An independent SHA-sealed Electric 2.2.18 jar fixture protects all 21 loot
 tables through the actual native whole-table codec. The strict inventories
 are 119 units and 30 native tests, including the added golden comparison.
@@ -80,8 +82,9 @@ node tools/verify-native-port.js
 The normal Power path remains `../../PowerAdvantage`. Explicit
 `*DeobfJar` and `*RuntimeJar` flags select paths, never different bytes.
 Full unit, ECJ, GameTest, independent reproducibility, fresh cold-cache and
-paths-with-spaces gates remain required. See [26.3 status](docs/NATIVE263.md)
-for the current scope, blocked contracts and retained attempts.
+paths-with-spaces gates remain required. See the [release record](docs/RELEASE263.md)
+for completed release checks and the [historical port record](docs/NATIVE263.md)
+for retained attempts.
 
 ## Qualification Boundary
 
@@ -89,15 +92,17 @@ The matching basePower checkout's `docs/26.3/QUALIFICATION.md` records the
 completed machine, recipe, old-world upgrade, graphical, full-restart and
 two-world 30-minute endurance checks against the accepted player jar
 `44ED38BFC7040D73251E523B2803718CDA2212482268A7E65BCF4681CF9A75E8`.
-Manual testing was accepted on 13 November 2026. Publication is authorized
-in dependency order, but this release is not public yet. The 26.2 results in
-[the historical status](docs/NATIVE262.md) and the older records below
-qualify only their original inputs. Power's verified public release permits
-Electric source PR and CI work. Electric publication still waits for public
-Steam and the parent's explicit qualification gate for the final jar.
-If pin metadata changes its player hash, the new family needs its own
-combined checks and two 30-minute worlds. Hosted builds retain the merged/public
-dependency gates and remote Maven publication stays disabled.
+Manual testing of that kit was accepted on 13 November 2026. The published
+player is `7DD8DD0D2348360C41C64BDE9ADC88E95284842DE1FCEA73CEBC9A4938AD7819`.
+Its only changes from the accepted jar are two dependency-pin manifest
+attributes; its classes and other resources are unchanged. That final family
+separately passed the original-1.10 operating migration, two real 30-minute
+worlds, raw/cold resumes and independent checkpoint replay before publication.
+See the [release record](docs/RELEASE263.md) for the exact scope. The original
+client and broader migration receipts still belong to their original inputs.
+The 26.2 results in [the historical status](docs/NATIVE262.md) and the older
+records below do not qualify this release. Hosted builds retain the
+merged/public dependency gates; publication uses the separately guarded publisher.
 
 ## Historical Candidate09 Record (12 November 2026)
 
