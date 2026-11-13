@@ -32,14 +32,15 @@ IAF `8e6de134b075811a7295e15ad32a224cf3c04134`.
 ## Local Input Handoffs
 
 Power's immutable compiler handoff is accepted: source
-`9d6e31a9c9d116b72a3758edfb18e81a25d939e3`, SHA-256
-`F225B3EC1B9B272CCBA82716B6D105D3BF0A613E31437BBFA0F9CAB39E4FE9BB`.
+`2d9bb107221a620a3c1a0533f1b9e970bd88b6ea`, SHA-256
+`4D72332401D8521E8DAEAF57DE4BA7B0B3D2965C575E1DB454A811526538832B`.
 The exact approved BM/OS compiler snapshots are likewise pinned by source
 and SHA-256. These pins identify local inputs, not gameplay/public acceptance.
-Handoff05 includes native loot-container and legacy ALT importer repairs,
-in addition to handoff04's required scoped pending-item-tag mixin. Earlier
-D03/D04 results remain historical. Rebuild and actual startup must use the
-changed exact input; no prior pass is transferred to handoff05.
+Handoff06 adds strict retired vanilla brain-memory index handling and exact
+old-payload archival, retaining the earlier native loot/ALT repairs and scoped
+pending-item-tag mixin. The parent owns that migration implementation; Electric
+does not duplicate it. D03/D04/D05 results remain historical. Rebuild and actual
+startup must use the changed input; no prior pass transfers to handoff06.
 
 Full-suite, ECJ, complete Eclipse, packaged and reproduction gates remain
 separate. The remaining required handoffs are:
@@ -47,7 +48,7 @@ separate. The remaining required handoffs are:
 - Installed baseline server/shim/universal hashes for packaged verification.
 
 The earlier uncommitted helper mismatch is resolved by the approved test-rig
-checkpoint 26ad8, unchanged in current 9d6e31a. Exact source files are frozen
+checkpoint 26ad8, unchanged in current 2d9bb10. Exact source files are frozen
 under the child's `unit-inputs-01`; its native agent rebuild remains sealed.
 Earlier helper-blocked attempts remain in the external receipts, not passes.
 
@@ -153,8 +154,9 @@ multi-condition `minecraft:all_of` terms. Five old-plural counterfactuals
 successfully decode but lose their fields; the semantic oracle rejects each.
 The registered-item source GameTest applies the same complete container-scope
 checks in addition to its existing exact quantity/weight/explosion assertions.
-The 29-test native gate passed this expansion in attempt34; Power handoff05
-is now selected for final rebuilt/shared-runtime qualification.
+The 29-test native gate passed this expansion in attempt34. Power handoff06
+is now selected for rebuilt/shared-runtime qualification; handoff05's local
+full/ECJ/native/source-GameTest/cold/reproduction results remain preserved.
 
 An independent golden test uses the 21 exact loot JSON entries extracted from
 accepted `baseElectric-2.2.18.2602001.jar`, SHA-256

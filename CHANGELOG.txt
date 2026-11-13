@@ -12,7 +12,7 @@ baseElectric 2.2.19.2603001 - local port in progress
 - Verify whole native loot-table modifier/condition round-trips at table, pool and entry scope; detect silently ignored plural fields.
 - Seal an independent accepted Electric 2.2.18 loot fixture and compare all 21 complete native tables without changing item identities, quantities or weights.
 - Pin the coordinated local Power 2.4.18, Base Metals 3.1.2 and OreSpawn 4.1.1 inputs for 26.3.
-- Select Power handoff05's whole-loot and legacy-importer repairs, retaining the pending-item-tag repair and exact historical receipts without carrying qualification forward.
+- Select Power handoff06's strict retired-brain-memory migration repair, retaining the earlier loot/importer/tag repairs and exact historical receipts without carrying qualification forward.
 - Earlier 26.2 checks are historical, not qualification of this port. No publication.
 
 baseElectric 2.2.18.2602001 - local candidate

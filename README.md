@@ -17,12 +17,13 @@ The coordinated local versions are basePower **2.4.18.2603001**, Base Metals
 **3.1.2.2603001** with the shared migration hook, and OreSpawn
 **4.1.1.2603001** with the retained-settings repair. Exact source and artifact
 pins are recorded for the parent's immutable local compiler/test handoff.
-Power source is `9d6e31a9c9d116b72a3758edfb18e81a25d939e3`, player SHA-256
-`F225B3EC1B9B272CCBA82716B6D105D3BF0A613E31437BBFA0F9CAB39E4FE9BB`.
+Power source is `2d9bb107221a620a3c1a0533f1b9e970bd88b6ea`, player SHA-256
+`4D72332401D8521E8DAEAF57DE4BA7B0B3D2965C575E1DB454A811526538832B`.
 Unit-support sources and agent bytes are sealed to that accepted checkpoint.
 This handoff includes the native unlock, fuel-hook and scoped pending-item-tag
-phase repairs, plus complete native loot-table and legacy-importer repairs.
-D03/D04 passing build/ECJ/cold results and D03's failed startup are
+phase repairs, complete native loot-table and legacy-importer repairs, and
+strict retirement/archive handling for removed vanilla brain memories.
+D03/D04/D05 passing build/ECJ/cold results and D03's failed startup are
 historical; they do not qualify this changed input. Completed
 checks remain bound to their exact inputs; cold/reproduction and gameplay
 acceptance are separate gates.
