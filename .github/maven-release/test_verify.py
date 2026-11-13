@@ -16,14 +16,15 @@ class ReleaseTargetTests(unittest.TestCase):
             16: ("1.17.1",),
             17: ("1.18.2", "1.19.4", "1.20.1"),
             21: ("1.20.6", "1.21.1", "1.21.11"),
-            25: ("26.1.2", "26.2"),
+            25: ("26.1.2", "26.2", "26.3"),
         }.items():
             for version in versions:
                 with self.subTest(version=version):
                     self.assertEqual((version, f"Java {java}"), verify.release_target(f"master-{version}"))
 
     def test_unqualified_or_malformed_targets_are_rejected(self):
-        for branch in ("master-26.3", "master-26.2.0", "master-26.1.1", "master-26.1.3",
+        for branch in ("master-26.4", "master-26.3.0", "master-26.3-extra",
+                       "master-26.2.0", "master-26.1.1", "master-26.1.3",
                        "master-1.21.12", "master-26.1.2-extra", "feature/26.1.2",
                        "26.1.2", "master-main", "master-26.1.2\n"):
             with self.subTest(branch=branch), self.assertRaises(ValueError):
@@ -38,6 +39,16 @@ class ReleaseTargetTests(unittest.TestCase):
         exec(compile(mutated, "<missing-java25-control>", "exec"), namespace)
         with self.assertRaisesRegex(ValueError, "Unsupported Minecraft version"):
             namespace["release_target"]("master-26.1.2")
+
+    def test_missing_263_entry_is_rejected(self):
+        source = inspect.getsource(verify.release_target)
+        marker = '"26.3": 25'
+        self.assertIn(marker, source)
+        mutated = source.replace(marker + ",", "")
+        namespace = {"require": verify.require}
+        exec(compile(mutated, "<missing-263-control>", "exec"), namespace)
+        with self.assertRaisesRegex(ValueError, "Unsupported Minecraft version"):
+            namespace["release_target"]("master-26.3")
 
     def test_target_cli_has_no_publication_side_effects(self):
         output = io.StringIO()
