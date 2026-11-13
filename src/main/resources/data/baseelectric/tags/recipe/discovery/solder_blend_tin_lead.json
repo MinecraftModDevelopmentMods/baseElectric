@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:solder_blend_tin_lead",
+      "required": false
+    }
+  ]
+}

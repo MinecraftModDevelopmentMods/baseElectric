@@ -46,7 +46,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipes": "baseelectric:alkaline_battery"
+        "recipes": "#baseelectric:discovery/alkaline_battery"
       }
     }
   },
@@ -62,23 +62,6 @@
   "rewards": {
     "recipes": [
       "baseelectric:alkaline_battery"
-    ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:ingots/iron"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:ingots/zinc"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:plastic"
-      }
     ]
   }
 }

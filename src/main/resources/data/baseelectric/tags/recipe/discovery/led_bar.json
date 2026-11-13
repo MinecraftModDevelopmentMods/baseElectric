@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:led_bar",
+      "required": false
+    }
+  ]
+}

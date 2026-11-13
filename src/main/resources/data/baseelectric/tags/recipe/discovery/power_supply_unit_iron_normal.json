@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:power_supply_unit_iron_normal",
+      "required": false
+    }
+  ]
+}

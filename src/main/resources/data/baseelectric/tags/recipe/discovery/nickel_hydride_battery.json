@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:nickel_hydride_battery",
+      "required": false
+    }
+  ]
+}

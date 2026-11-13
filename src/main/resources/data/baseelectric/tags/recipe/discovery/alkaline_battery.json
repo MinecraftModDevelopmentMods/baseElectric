@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:alkaline_battery",
+      "required": false
+    }
+  ]
+}

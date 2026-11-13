@@ -16,7 +16,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipes": "baseelectric:lithium_ingot_from_ore"
+        "recipes": "#baseelectric:discovery/lithium_ingot_from_ore"
       }
     }
   },
@@ -30,9 +30,5 @@
     "recipes": [
       "baseelectric:lithium_ingot_from_ore"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": []
   }
 }

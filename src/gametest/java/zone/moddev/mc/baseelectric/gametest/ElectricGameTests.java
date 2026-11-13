@@ -126,6 +126,9 @@ public final class ElectricGameTests {
     @GameTest(name = "recipeavailabilitydoesnotremovediscovery", structure = "empty")
     public static void recipeAvailabilityDoesNotRemoveDiscovery(GameTestHelper helper) {
         var server = helper.getLevel().getServer();
+        helper.assertTrue(server.getAdvancements().get(Identifier.fromNamespaceAndPath(
+                        ElectricAdvantage.MODID, "recipes/alkaline_battery")) != null,
+                "A material-gated recipe lost its discovery advancement");
         var itemIds = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKeys().stream()
                 .filter(id -> id.getNamespace().equals(ElectricAdvantage.MODID))
                 .map(Object::toString).sorted().toList();
@@ -195,14 +198,25 @@ public final class ElectricGameTests {
             var id = Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, path);
             var key = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE, id);
             boolean recipeLoaded = level.recipeAccess().byKey(key).isPresent();
-            boolean advancementLoaded = server.getAdvancements().get(
-                    Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "recipes/" + path)) != null;
-            helper.assertTrue(recipeLoaded == advancementLoaded,
-                    "Recipe-registry and advancement availability differ for " + id);
+            var advancement = server.getAdvancements().get(
+                    Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "recipes/" + path));
+            helper.assertTrue(advancement != null, "Inactive recipe lost future discovery advancement: " + id);
+            var tag = net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.RECIPE,
+                    Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "discovery/" + path));
+            var members = level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.RECIPE)
+                    .get(tag).orElseThrow(() -> new AssertionError("Missing defined recipe-discovery tag: " + tag));
+            helper.assertTrue(members.size() == (recipeLoaded ? 1 : 0), "Wrong active/empty discovery membership: " + id);
+            helper.assertTrue(members.stream().allMatch(holder -> holder.is(key)), "Discovery tag names an unrelated recipe: " + id);
+            var trigger = advancement.value().criteria().get("has_recipe").triggerInstance();
+            helper.assertTrue(trigger instanceof net.minecraft.advancements.triggers.RecipeUnlockedTrigger.TriggerInstance,
+                    "Loaded discovery criterion changed trigger: " + id);
+            var criterion = (net.minecraft.advancements.triggers.RecipeUnlockedTrigger.TriggerInstance) trigger;
+            helper.assertTrue(criterion.recipes().unwrapKey().orElseThrow().equals(tag), "Loaded criterion lost its exact tag: " + id);
+            helper.assertTrue(criterion.recipes().size() == members.size(), "Loaded criterion has stale mode membership: " + id);
             if (recipeLoaded) active++; else disabled++;
         }
         helper.assertTrue(active > 0, "No active Electric recipe unlocks were checked");
-        helper.assertTrue(disabled > 0, "No disabled mode/tag variant exercised the registry-holder gate");
+        helper.assertTrue(disabled > 0, "No disabled mode/tag variant exercised defined-empty future discovery");
     }
 
     private static void assertEveryPackagedRecipeUsesTheNativeCodec(GameTestHelper helper) {

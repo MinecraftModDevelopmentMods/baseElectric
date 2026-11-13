@@ -24,7 +24,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipes": "baseelectric:blank_circuit_board_ingot_normal"
+        "recipes": "#baseelectric:discovery/blank_circuit_board_ingot_normal"
       }
     }
   },
@@ -38,23 +38,6 @@
   "rewards": {
     "recipes": [
       "baseelectric:blank_circuit_board_ingot_normal"
-    ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "baseelectric:recipe_mode",
-        "mode": "NORMAL"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:ingots/copper"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:plastic"
-      }
     ]
   }
 }

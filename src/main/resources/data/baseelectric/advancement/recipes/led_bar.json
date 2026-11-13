@@ -34,7 +34,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipes": "baseelectric:led_bar"
+        "recipes": "#baseelectric:discovery/led_bar"
       }
     }
   },
@@ -49,23 +49,6 @@
   "rewards": {
     "recipes": [
       "baseelectric:led_bar"
-    ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:glass_panes"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:microchips"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:wires"
-      }
     ]
   }
 }

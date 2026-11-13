@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:electric_crusher",
+      "required": false
+    }
+  ]
+}

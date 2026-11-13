@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:lithium_battery",
+      "required": false
+    }
+  ]
+}

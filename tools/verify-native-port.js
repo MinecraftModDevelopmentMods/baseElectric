@@ -20,6 +20,8 @@ const addedNativeTests = ['src/test/java/zone/moddev/mc/baseelectric/util/farmin
 const lootFixtureRoot = 'src/test/resources/loot-baseline-262/';
 const lootFixture = json(lootFixtureRoot + 'manifest.json');
 const lootFixtureFiles = [lootFixtureRoot + 'manifest.json', ...lootFixture.tables.map(entry => lootFixtureRoot + entry.path)];
+const discoveryTags = tracked.filter(file => file.startsWith('src/main/resources/data/baseelectric/advancement/recipes/') && file.endsWith('.json'))
+    .map(file => file.replace('/advancement/recipes/', '/tags/recipe/discovery/'));
 const relocated = file => file.replace(/(data\/[^/]+\/)recipes\//, '$1recipe/')
     .replace(/(data\/[^/]+\/)advancements\//, '$1advancement/')
     .replace(/(data\/[^/]+\/)loot_tables\//, '$1loot_table/')
@@ -58,11 +60,9 @@ function nativeLoot(table) {
 function nativeUnlock(unlock, file) {
     const conditions = unlock.criteria.has_recipe.conditions;
     assert.equal(typeof conditions.recipe, 'string');
-    conditions.recipes = conditions.recipe;
+    conditions.recipes = '#' + conditions.recipe.replace(':', ':discovery/');
     delete conditions.recipe;
-    const recipe = json(file.replace('/advancement/recipes/', '/recipe/'));
-    if (Object.prototype.hasOwnProperty.call(recipe, 'forge:condition'))
-        unlock['forge:condition'] = recipe['forge:condition'];
+    assert(!Object.prototype.hasOwnProperty.call(unlock, 'forge:condition'), file + ' original discovery must be unconditional');
     return unlock;
 }
 const track = file => file.startsWith(assets + 'models/block/electric_track_') && file.endsWith('.json');
@@ -187,7 +187,7 @@ check('Released resources retain content through exact native schema and atlas r
     const trades = ['electric_conduit', 'solder', 'integrated_circuit', 'blank_circuit_board', 'petrolplastic_ingot', 'psu']
         .map(id => 'src/main/resources/data/baseelectric/villager_trade/librarian/' + id + '.json');
     const tiers = [1,2].map(level => 'src/main/resources/data/minecraft/tags/villager_trade/librarian/level_' + level + '.json');
-    assert.deepEqual(actual, [...tracked.filter(file => file !== javaRoot + 'init/Villages.java' && file !== removedAbstract), itemsAtlas, ...trades, ...tiers, ...addedNativeTests, ...lootFixtureFiles].sort(),
+    assert.deepEqual(actual, [...tracked.filter(file => file !== javaRoot + 'init/Villages.java' && file !== removedAbstract), itemsAtlas, ...trades, ...tiers, ...addedNativeTests, ...lootFixtureFiles, ...discoveryTags].sort(),
         'Source and resource inventory');
 });
 
@@ -204,6 +204,18 @@ check('Accepted 26.2 loot fixture is independently SHA-sealed', () => {
         const bytes = read(lootFixtureRoot + entry.path);
         assert.equal(bytes.length, entry.bytes);
         assert.equal(sha256(bytes).toUpperCase(), entry.sha256);
+    }
+});
+
+check('All 50 future discoveries have exact optional recipe-tag identities', () => {
+    assert.equal(discoveryTags.length, 50);
+    for (const file of discoveryTags) {
+        const stem = path.basename(file, '.json');
+        assert.deepEqual(json(file), {values:[{id:'baseelectric:' + stem, required:false}]}, file);
+        const unlock = json(file.replace('/tags/recipe/discovery/', '/advancement/recipes/'));
+        assert.equal(unlock.criteria.has_recipe.conditions.recipes, '#baseelectric:discovery/' + stem);
+        assert(!Object.prototype.hasOwnProperty.call(unlock, 'forge:condition'), file);
+        assert.deepEqual(unlock.rewards, {recipes:['baseelectric:' + stem]}, file);
     }
 });
 

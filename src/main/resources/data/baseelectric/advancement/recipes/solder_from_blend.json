@@ -16,7 +16,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipes": "baseelectric:solder_from_blend"
+        "recipes": "#baseelectric:discovery/solder_from_blend"
       }
     }
   },
@@ -30,9 +30,5 @@
     "recipes": [
       "baseelectric:solder_from_blend"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": []
   }
 }

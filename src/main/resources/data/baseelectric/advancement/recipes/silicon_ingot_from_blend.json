@@ -16,7 +16,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipes": "baseelectric:silicon_ingot_from_blend"
+        "recipes": "#baseelectric:discovery/silicon_ingot_from_blend"
       }
     }
   },
@@ -30,9 +30,5 @@
     "recipes": [
       "baseelectric:silicon_ingot_from_blend"
     ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": []
   }
 }

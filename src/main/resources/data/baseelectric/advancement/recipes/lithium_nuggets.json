@@ -14,7 +14,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipes": "baseelectric:lithium_nuggets"
+        "recipes": "#baseelectric:discovery/lithium_nuggets"
       }
     }
   },
@@ -28,9 +28,5 @@
     "recipes": [
       "baseelectric:lithium_nuggets"
     ]
-  },
-  "forge:condition": {
-    "type": "basepower:tag_not_empty",
-    "tag": "forge:ingots/lithium"
   }
 }

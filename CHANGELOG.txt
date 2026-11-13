@@ -7,12 +7,12 @@ baseElectric 2.2.19.2603001 - local port in progress
 - Add a native stem-fruit regression while retaining the complete existing test suite.
 - Keep bulk librarian offers on the native singular modifier field with their original ranges and tiers.
 - Preserve block-drop explosion gating with the native loot condition and type fields.
-- Use native recipe-holder unlock criteria with exact recipe condition parity; preserve rewards and ingredient OR groups.
+- Keep all recipe discoveries available across mode changes with exact optional native recipe tags; preserve recipe guards, rewards and ingredient OR groups.
 - Keep exact dependency, tool, artifact, test and Eclipse classpath guards.
 - Verify whole native loot-table modifier/condition round-trips at table, pool and entry scope; detect silently ignored plural fields.
 - Seal an independent accepted Electric 2.2.18 loot fixture and compare all 21 complete native tables without changing item identities, quantities or weights.
 - Pin the coordinated local Power 2.4.18, Base Metals 3.1.2 and OreSpawn 4.1.1 inputs for 26.3.
-- Select Power handoff06's strict retired-brain-memory migration repair, retaining the earlier loot/importer/tag repairs and exact historical receipts without carrying qualification forward.
+- Select Power handoff07's future-discovery repair, retaining strict retired-brain-memory and earlier loot/importer/tag repairs without carrying old qualification forward.
 - Earlier 26.2 checks are historical, not qualification of this port. No publication.
 
 baseElectric 2.2.18.2602001 - local candidate

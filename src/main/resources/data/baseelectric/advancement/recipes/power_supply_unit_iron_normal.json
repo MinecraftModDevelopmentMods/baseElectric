@@ -34,7 +34,7 @@
     "has_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipes": "baseelectric:power_supply_unit_iron_normal"
+        "recipes": "#baseelectric:discovery/power_supply_unit_iron_normal"
       }
     }
   },
@@ -49,27 +49,6 @@
   "rewards": {
     "recipes": [
       "baseelectric:power_supply_unit_iron_normal"
-    ]
-  },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "baseelectric:recipe_mode",
-        "mode": "NORMAL"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:circuit_boards"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:ingots/iron"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:wires"
-      }
     ]
   }
 }

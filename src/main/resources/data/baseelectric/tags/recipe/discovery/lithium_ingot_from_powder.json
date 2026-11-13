@@ -1,0 +1,8 @@
+{
+  "values": [
+    {
+      "id": "baseelectric:lithium_ingot_from_powder",
+      "required": false
+    }
+  ]
+}

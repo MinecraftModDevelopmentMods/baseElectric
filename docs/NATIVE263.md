@@ -32,15 +32,15 @@ IAF `8e6de134b075811a7295e15ad32a224cf3c04134`.
 ## Local Input Handoffs
 
 Power's immutable compiler handoff is accepted: source
-`2d9bb107221a620a3c1a0533f1b9e970bd88b6ea`, SHA-256
-`4D72332401D8521E8DAEAF57DE4BA7B0B3D2965C575E1DB454A811526538832B`.
+`c0eb83f7ba91cf8c83caea75e63057407a345949`, SHA-256
+`97525CE9C75509C55225E0061D43BAF9D29BDBDE6DF853E1552A64A54C14C3DE`.
 The exact approved BM/OS compiler snapshots are likewise pinned by source
 and SHA-256. These pins identify local inputs, not gameplay/public acceptance.
-Handoff06 adds strict retired vanilla brain-memory index handling and exact
-old-payload archival, retaining the earlier native loot/ALT repairs and scoped
-pending-item-tag mixin. The parent owns that migration implementation; Electric
-does not duplicate it. D03/D04/D05 results remain historical. Rebuild and actual
-startup must use the changed input; no prior pass transfers to handoff06.
+Handoff07 restores future recipe discovery with optional native recipe tags,
+retaining strict retired-brain-memory archival, native loot/ALT repairs and
+the scoped pending-item-tag mixin. The parent owns shared migration code;
+Electric owns its recipe/tag/advancement generator and resources. Earlier
+results stay historical; no prior pass transfers to this changed input.
 
 Full-suite, ECJ, complete Eclipse, packaged and reproduction gates remain
 separate. The remaining required handoffs are:
@@ -48,7 +48,7 @@ separate. The remaining required handoffs are:
 - Installed baseline server/shim/universal hashes for packaged verification.
 
 The earlier uncommitted helper mismatch is resolved by the approved test-rig
-checkpoint 26ad8, unchanged in current 2d9bb10. Exact source files are frozen
+checkpoint 26ad8, unchanged in current c0eb83f. Exact source files are frozen
 under the child's `unit-inputs-01`; its native agent rebuild remains sealed.
 Earlier helper-blocked attempts remain in the external receipts, not passes.
 
@@ -154,7 +154,7 @@ multi-condition `minecraft:all_of` terms. Five old-plural counterfactuals
 successfully decode but lose their fields; the semantic oracle rejects each.
 The registered-item source GameTest applies the same complete container-scope
 checks in addition to its existing exact quantity/weight/explosion assertions.
-The 29-test native gate passed this expansion in attempt34. Power handoff06
+The 29-test native gate passed this expansion in attempt34. Power handoff07
 is now selected for rebuilt/shared-runtime qualification; handoff05's local
 full/ECJ/native/source-GameTest/cold/reproduction results remain preserved.
 
@@ -182,11 +182,25 @@ round-tripped. The separate legacy `additional-loot-tables` config export in
 `TreasureChests` remains unchanged for Power's shared importer; preserving its
 legacy count-function contract is a parent integration gate.
 
-All 50 recipe unlocks use native `conditions.recipes` registry holders and copy
-their recipe's `forge:condition` exactly. Rewards, recipe IDs and ingredient OR
-groups are unchanged. Real trigger-codec tests cover exact/unrelated/missing
-recipe holders and the rejected old singular key. The retained GameTest ID
-checks all 50 loaded recipe/advancement pairs, including disabled variants.
+All 50 recipe unlocks remain unconditional, preserving future discovery across
+NORMAL/TECH mode changes. Recipe `forge:condition` fields remain untouched;
+advancements do not copy them. Each trigger uses native `Recipe.LIST_CODEC`
+through `conditions.recipes: "#baseelectric:discovery/<stem>"`. Matching
+`tags/recipe/discovery/<stem>.json` files contain exactly one optional recipe
+entry (`id` unchanged, `required:false`). A disabled recipe leaves a defined
+empty tag rather than a missing direct holder; an active tag contains only its
+exact recipe. Rewards remain `Recipe.KEY_CODEC` keys and may safely refer to
+temporarily absent recipes. Ingredient alternatives, OR groups, recipe IDs,
+reward IDs and gameplay quantities are unchanged.
+
+Native trigger/TagFile/reward codecs test all 50 populated and all 50 empty
+tags, exact/unrelated matching, undefined-tag rejection, optional-vs-required
+loading, required-flag and ID mutation guards, and stable encoding. The source
+GameTest retains the original material-gated discovery assertion and requires
+all 50 advancements to load with correct active/empty tag membership. Existing
+recipe-mode assertions remain intact. Attempt49 preserves the red contract
+against the old conditional advancement resources. The superseded Power06
+cold attempt48 is interrupted and preserved, not counted as a cold pass.
 
 No 26.2 receipt is 26.3 proof. Combined family, graphical, endurance and manual
 acceptance gates remain separate. No push, PR, tag or publication is authorized.
