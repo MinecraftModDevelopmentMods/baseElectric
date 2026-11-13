@@ -18,20 +18,16 @@ apply to this branch.
 
 ## Build
 
-The coordinated local dependency versions are basePower **2.4.17.2602001**
-and Base Metals **3.1.2.2602001**. The Base Metals hook source is
-`523335a59ecff399e40a7c66eb121a3aabdc45ba`, player SHA-256
-`15CBD0C8DD95BBA846969929B8767887BA4B8152DFB10C9C58FB314AD39FB9E1`.
-Base Metals is REQUIRED on both client and server, not an optional integration.
-The approved local Power262 handoff is source
-`f84b2362449e39eff5e76696dd64ce4cb144da4f`, player SHA-256
-`7E456DE1A45140E86415A701D186FEDE08C4AB63D53C6B7848935DB70CBC68B1`.
+The coordinated dependencies are
+[basePower **2.4.17.2602001**](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9583433),
+[Base Metals **3.1.2.2602001**](https://www.curseforge.com/minecraft/mc-mods/base-metals/files/9583122)
+and [OreSpawn **4.1.1.2602001**](https://www.curseforge.com/minecraft/mc-mods/mmd-orespawn/files/9582731).
+Base Metals is required on both client and server. These two published
+dependency patches match the jars used for the combined tests; older downloads
+do not include the same migration and retained-settings repairs.
 
-OreSpawn **4.1.1.2602001** is the approved local retained-settings repair,
-source `dcaaa933299dd8b1ebc73e31c9e5acd36dd7957c`, SHA-256
-`BC0658DF2E149CC23E65E5771F3FF62E2BB13FFDA4E316AB632EB92EF7FA5A1F`.
-It is not published; the public file-ID pin is deliberately empty. The older
-4.1.0 public download is not substituted for these bytes.
+All three dependency downloads have been checked against their release builds.
+Exact source, download and SHA-256 pins are kept together in `gradle.properties`.
 
 The Mavenizer fixture and its source-rule, patch, licence and provenance files
 are checksum-sealed from the existing OS262 checkout. The established
@@ -43,6 +39,12 @@ Use Temurin 25 and clear `JAVA_TOOL_OPTIONS`, `JDK_JAVA_OPTIONS` and
 `_JAVA_OPTIONS` before qualification. The prepared sibling layout is the
 default; explicit `*DeobfJar` and `*RuntimeJar`/`*PlayerJar` flags change
 paths, not the required bytes. With these exact coordinated inputs:
+
+Unit support keeps its separately qualified Power source revision in
+`unit_support_source_ref`. Pass that source directory with `-PpowerUnitSource`
+when the sibling Power checkout is newer; the four source hashes remain fixed.
+Hosted builds check out this test-only revision separately from the public
+Power player pin.
 
 ```text
 ./gradlew clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums --no-build-cache --no-daemon
@@ -56,14 +58,14 @@ node tools/generate-recipe-unlocks.js --check
 Combined profile03 passed the machine, migration, actor/dimension, actual
 transformer-order and real-client checks, plus two 30-minute worlds, restart
 and independent 66-checkpoint replay. See [26.2 port status](docs/NATIVE262.md)
-for the counts and exact inputs. The [family qualification record](../../PowerAdvantage/docs/26.2/QUALIFICATION.md)
-is being finalized in the sibling Power checkout.
+for the counts and exact inputs. The [family qualification record](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-26.2/docs/26.2/QUALIFICATION.md)
+keeps the completed checks and their scope limits together.
 
-Ready for manual testing once the final root cold-cache gate is confirmed.
-Overall sign-off and user manual acceptance are not claimed here. Base Metals
-and OreSpawn are unpublished local 26.2 inputs; these changes remain local,
-with no 26.2 push or publication. The accepted 26.1.2 records remain historical
-proof of their original bytes, not qualification of this port.
+The final root build and cold-cache checks passed, and manual testing was
+accepted on 12 November 2026. Publication follows the dependency order:
+OreSpawn and Base Metals, then basePower and baseSteam, then this expansion.
+The accepted 26.1.2 records remain historical proof of their original bytes,
+not a substitute for the 26.2 results.
 
 ## Candidate09 Verification History
 

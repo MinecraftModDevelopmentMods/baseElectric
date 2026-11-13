@@ -35,7 +35,7 @@ function check(name, run) {
     catch (error) { checks.push({name, pass: false, error: error.message}); }
 }
 
-check('Exact Forge 65 and local port identity', () => {
+check('Exact Forge 65 and public release identity', () => {
     const props = Object.fromEntries(read('gradle.properties').toString().split(/\r?\n/)
         .filter(line => /^[a-z][a-z_\d]*=/.test(line)).map(line => line.split(/=(.*)/s).slice(0, 2)));
     for (const [key, value] of Object.entries({
@@ -43,7 +43,14 @@ check('Exact Forge 65 and local port identity', () => {
         mapping_version: '26.2', mcp_version: '20260616.103818', java_version: '25',
         mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.18.2602001',
         poweradvantage_version: '2.4.17.2602001', basemetals_version: '3.1.2.2602001',
-        orespawn_source_commit: 'dcaaa933299dd8b1ebc73e31c9e5acd36dd7957c',
+        poweradvantage_pin_state: 'MERGED_SOURCE',
+        poweradvantage_source_ref: '98863570ae84c5658a6b8ec2f8878e1f10009192',
+        poweradvantage_public_file_id: '9583433',
+        basemetals_source_commit: 'a68fe5a74f05ea8dae61bc718e67062f2fc4063b',
+        basemetals_public_file_id: '9583122',
+        orespawn_source_commit: 'a3973534f51c24ccfb8313541f47204c75d9dbeb',
+        orespawn_public_file_id: '9582731',
+        unit_support_source_ref: 'f84b2362449e39eff5e76696dd64ce4cb144da4f',
         orespawn_deobf_sha256: 'BC0658DF2E149CC23E65E5771F3FF62E2BB13FFDA4E316AB632EB92EF7FA5A1F',
         orespawn_version: '4.1.1.2602001', curseforge_project_id: '1783006',
         cf_requirements: 'basepower,base-metals'

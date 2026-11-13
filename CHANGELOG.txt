@@ -5,6 +5,7 @@ baseElectric 2.2.18.2602001 (Minecraft 26.2 / Forge)
 - Retain exact dependency, native pack, artifact and classpath guards.
 - Pass the combined profile03 machine, migration, actor/order, client and two-world endurance checks, including independent 66-checkpoint replay.
 - Complete the full release, cold-cache and manual checks. Publish after basePower so the expansion uses the released dependency.
+- Pin the verified public basePower, Base Metals and OreSpawn releases.
 
 baseElectric 2.2.17.2601021 (Minecraft 26.1.2 / Forge)
 

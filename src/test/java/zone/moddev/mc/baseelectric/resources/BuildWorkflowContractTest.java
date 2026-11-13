@@ -46,7 +46,8 @@ public class BuildWorkflowContractTest {
                 assertTrue(published < source.indexOf("repository: MinecraftModDevelopmentMods/" + repository));
             }
             assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.orespawn_ref }}"));
-            assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.power_ref }}"));
+            assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.unit_support_ref }}"));
+            assertFalse(source.contains("ref: ${{ steps.public-pins.outputs.power_ref }}"));
             assertTrue(source.contains("branches: [master-26.2"));
             assertTrue(source.contains("-Pforge64MavenizerJar=$MAVENIZER"));
             assertTrue(source.contains("-PpowerAdvantageDeobfJar=$POWER_PLAYER"));
@@ -61,6 +62,11 @@ public class BuildWorkflowContractTest {
             assertTrue(script.contains("$(value " + dependency + "_public_file_id)"));
         }
         assertTrue(script.contains("sha256sum -c -"));
+        assertTrue(script.contains("unit_support_ref=\"$(value unit_support_source_ref)\""));
+        assertTrue(script.contains("require_merged basePower \"$unit_support_ref\""));
+        String properties = Files.readString(Paths.get("gradle.properties"));
+        assertTrue(properties.contains("unit_support_source_ref=f84b2362449e39eff5e76696dd64ce4cb144da4f"));
+        assertTrue(properties.contains("unit_entity_tracker_java_sha256=EB2A83A35F617BC52D322332C824BE83A3BFE4C83CEB0418F77687EA93978E6D"));
         assertTrue(script.contains("$(value poweradvantage_pin_state)"));
         assertTrue(script.contains("!= 'MERGED_SOURCE'"));
         assertTrue(script.indexOf("!= 'MERGED_SOURCE'") < script.indexOf("require_merged()"));
