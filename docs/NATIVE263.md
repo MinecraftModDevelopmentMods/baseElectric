@@ -1,5 +1,12 @@
 # Minecraft 26.3 local port
 
+> Historical candidate and preparation record. Publication note, 13 November
+> 2026: baseElectric 2.2.19.2603001 is public on CurseForge, MMD Maven and
+> GitHub. The [published release record](RELEASE263.md) identifies its source,
+> hashes and separate final-family qualification. The original candidate
+> hashes, pending states and failed attempts below are retained as recorded;
+> they are not the current publication status.
+
 Starting source: `a34f6bba1ec87f911da65ec2b50eab89629f2ea8`.
 Branch: `feature/baseelectric-26.3-port`. Version: `2.2.19.2603001`.
 
