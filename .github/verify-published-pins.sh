@@ -18,10 +18,10 @@ done
 require_merged() {
     local repo="$1" ref="$2" status
     [[ "$ref" =~ ^[a-f0-9]{40}$ ]]
-    status="$(gh api "repos/MinecraftModDevelopmentMods/$repo/compare/$ref...master-26.1.2" --jq '.status')"
+    status="$(gh api "repos/MinecraftModDevelopmentMods/$repo/compare/$ref...master-26.2" --jq '.status')"
     case "$status" in
         identical|ahead) ;;
-        *) echo "::error::$repo $ref is not on upstream master-26.1.2 ($status)."; exit 1 ;;
+        *) echo "::error::$repo $ref is not on upstream master-26.2 ($status)."; exit 1 ;;
     esac
 }
 
@@ -43,12 +43,14 @@ public_jar() {
 }
 
 power_ref="$(value poweradvantage_source_ref)"
+unit_support_ref="$(value unit_support_source_ref)"
 orespawn_ref="$(value orespawn_source_commit)"
 require_merged basePower "$power_ref"
+require_merged basePower "$unit_support_ref"
 require_merged BaseMetals "$(value basemetals_source_commit)"
 require_merged OreSpawn "$orespawn_ref"
 
-inputs="${RUNNER_TEMP:?}/forge64-release-dependencies"
+inputs="${RUNNER_TEMP:?}/forge65-release-dependencies"
 mkdir -p "$inputs"
 power="$inputs/basePower-$(value poweradvantage_version).jar"
 metals="$inputs/BaseMetals-$(value basemetals_version).jar"
@@ -57,11 +59,12 @@ public_jar basePower 1780140 "$(value poweradvantage_public_file_id)" "$(value p
 public_jar BaseMetals 240967 "$(value basemetals_public_file_id)" "$(value basemetals_deobf_sha256)" "$metals"
 public_jar OreSpawn 245586 "$(value orespawn_public_file_id)" "$(value orespawn_deobf_sha256)" "$orespawn"
 
-installer="$inputs/forge-26.1.2-64.1.5-installer.jar"
-download 'https://maven.minecraftforge.net/net/minecraftforge/forge/26.1.2-64.1.5/forge-26.1.2-64.1.5-installer.jar' \
+installer="$inputs/forge-26.2-65.1.0-installer.jar"
+download 'https://maven.minecraftforge.net/net/minecraftforge/forge/26.2-65.1.0/forge-26.2-65.1.0-installer.jar' \
     "$(value forge_installer_sha256)" "$installer"
 {
     printf 'power_ref=%s\n' "$power_ref"
+    printf 'unit_support_ref=%s\n' "$unit_support_ref"
     printf 'orespawn_ref=%s\n' "$orespawn_ref"
 } >> "${GITHUB_OUTPUT:?}"
 {

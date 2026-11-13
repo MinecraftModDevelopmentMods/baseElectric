@@ -84,7 +84,7 @@ public class Native118ConstructionTest {
         try {
             zone.moddev.mc.baseelectric.init.Entities.LED = type;
             assertNotNull(block.getTicker(null, block.defaultBlockState(), type));
-            assertNull(block.getTicker(null, block.defaultBlockState(), BlockEntityType.CHEST));
+            assertNull(block.getTicker(null, block.defaultBlockState(), net.minecraft.world.level.block.entity.BlockEntityTypes.CHEST));
         } finally {
             zone.moddev.mc.baseelectric.init.Entities.LED = previous;
         }

@@ -35,26 +35,33 @@ function check(name, run) {
     catch (error) { checks.push({name, pass: false, error: error.message}); }
 }
 
-check('Exact Forge 64 and local port identity', () => {
+check('Exact Forge 65 and public release identity', () => {
     const props = Object.fromEntries(read('gradle.properties').toString().split(/\r?\n/)
         .filter(line => /^[a-z][a-z_\d]*=/.test(line)).map(line => line.split(/=(.*)/s).slice(0, 2)));
     for (const [key, value] of Object.entries({
-        minecraft_version: '26.1.2', forge_version: '64.1.5', mapping_channel: 'official',
-        mapping_version: '26.1.2', mcp_version: '20260409.101008', java_version: '25',
-        mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.17.2601021',
-        poweradvantage_version: '2.4.16.2601021', basemetals_version: '3.1.2.2601021',
-        orespawn_source_commit: '101fd12b598934c353e417c57edc5c2bbefd5f53',
-        orespawn_deobf_sha256: '810284ECB32D5249381F246498CEFA57E70FFF7CCC40110F799FC276CBC42BF7',
-        orespawn_version: '4.1.1.2601021', curseforge_project_id: '1783006',
+        minecraft_version: '26.2', forge_version: '65.1.0', mapping_channel: 'official',
+        mapping_version: '26.2', mcp_version: '20260616.103818', java_version: '25',
+        mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.18.2602001',
+        poweradvantage_version: '2.4.17.2602001', basemetals_version: '3.1.2.2602001',
+        poweradvantage_pin_state: 'MERGED_SOURCE',
+        poweradvantage_source_ref: '98863570ae84c5658a6b8ec2f8878e1f10009192',
+        poweradvantage_public_file_id: '9583433',
+        basemetals_source_commit: 'a68fe5a74f05ea8dae61bc718e67062f2fc4063b',
+        basemetals_public_file_id: '9583122',
+        orespawn_source_commit: 'a3973534f51c24ccfb8313541f47204c75d9dbeb',
+        orespawn_public_file_id: '9582731',
+        unit_support_source_ref: 'f84b2362449e39eff5e76696dd64ce4cb144da4f',
+        orespawn_deobf_sha256: 'BC0658DF2E149CC23E65E5771F3FF62E2BB13FFDA4E316AB632EB92EF7FA5A1F',
+        orespawn_version: '4.1.1.2602001', curseforge_project_id: '1783006',
         cf_requirements: 'basepower,base-metals'
     })) assert.equal(props[key], value, key);
     assert.equal(props.reobf, 'false');
     assert.deepEqual(json('src/main/resources/pack.mcmeta').pack,
-        {min_format:[101,1], max_format:[101,1], description:'baseElectric'});
+        {min_format:[107,1], max_format:[107,1], description:'baseElectric'});
     const mods = read('src/main/resources/META-INF/mods.toml').toString();
     assert.match(mods, /^showAsResourcePack=false$/m);
-    assert.match(mods, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.16\.2601021,3\.0\.0\)"/);
-    assert.match(mods, /modId="basemetals"\s+mandatory=true\s+versionRange="\[3\.1\.2\.2601021,4\.0\.0\)"/);
+    assert.match(mods, /modId="basepower"\s+mandatory=true\s+versionRange="\[2\.4\.17\.2602001,3\.0\.0\)"/);
+    assert.match(mods, /modId="basemetals"\s+mandatory=true\s+versionRange="\[3\.1\.2\.2602001,4\.0\.0\)"/);
     const build = read('build.gradle').toString();
     assert.match(build, /inputs\.files\(javadocTool\.map/);
     assert.match(build, /legal\/java\.base/);

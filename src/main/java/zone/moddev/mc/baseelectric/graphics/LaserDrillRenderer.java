@@ -3,7 +3,7 @@ package zone.moddev.mc.baseelectric.graphics;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.machines.ElectricDrillTileEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
@@ -51,13 +51,13 @@ public class LaserDrillRenderer implements BlockEntityRenderer<ElectricDrillTile
     }
 
 	public void render(final ElectricDrillTileEntity e, final float partialTick, final PoseStack matrices,
-            final MultiBufferSource buffers, final int packedLight, final int packedOverlay) {
+            final VertexConsumer vertices, final int packedLight, final int packedOverlay) {
 		float laserBlastLength = e.getDrillLength();
 
 		if(laserBlastLength > 0){
 
 			transform(matrices, e.getFacing());
-            draw(laserBlastLength, matrices.last(), buffers.getBuffer(beamType), packedOverlay);
+            draw(laserBlastLength, matrices.last(), vertices, packedOverlay);
             matrices.popPose();
         }
     }

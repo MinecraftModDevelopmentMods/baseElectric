@@ -98,7 +98,7 @@ public class NativePackRangeContractTest {
         assertEquals(java.util.Set.of("forge", "minecraft", "basepower", "basemetals"), dependencies.keySet());
         var metals = dependencies.getAsJsonObject("basemetals");
         assertTrue("Forge must require Base Metals on both sides", metals.get("mandatory").getAsBoolean());
-        assertEquals("[3.1.2.2601021,4.0.0)", metals.get("versionRange").getAsString());
+        assertEquals("[3.1.2.2602001,4.0.0)", metals.get("versionRange").getAsString());
         assertEquals("AFTER", metals.get("ordering").getAsString());
         assertEquals("BOTH", metals.get("side").getAsString());
         var control = proof.getAsJsonObject("optionalBaseMetalsControl");
@@ -117,9 +117,9 @@ public class NativePackRangeContractTest {
             JsonObject pack = side.getAsJsonObject("nativeMetadata");
             var range = PackFormat.packCodec(type).codec().parse(JsonOps.INSTANCE, pack).getOrThrow();
             assertEquals(type.toString(), type == PackType.CLIENT_RESOURCES,
-                    range.isValueInRange(PackFormat.of(84, 0)));
+                    range.isValueInRange(PackFormat.of(88, 0)));
             assertEquals(type.toString(), type == PackType.SERVER_DATA,
-                    range.isValueInRange(PackFormat.of(101, 1)));
+                    range.isValueInRange(PackFormat.of(107, 1)));
             assertFalse(range.isValueInRange(PackFormat.of(83)));
             assertFalse(range.isValueInRange(PackFormat.of(102)));
         }
@@ -143,11 +143,11 @@ public class NativePackRangeContractTest {
     }
 
     @Test public void dataOnlyRangeDoesNotQualifyClientResources() {
-        JsonObject dataOnly = JsonParser.parseString("{\"min_format\":[101,1],\"max_format\":[101,1]}")
+        JsonObject dataOnly = JsonParser.parseString("{\"min_format\":[107,1],\"max_format\":[107,1]}")
                 .getAsJsonObject();
         var range = PackFormat.packCodec(PackType.CLIENT_RESOURCES).codec()
                 .parse(JsonOps.INSTANCE, dataOnly).getOrThrow();
-        assertFalse(range.isValueInRange(PackFormat.of(84, 0)));
-        assertTrue(range.isValueInRange(PackFormat.of(101, 1)));
+        assertFalse(range.isValueInRange(PackFormat.of(88, 0)));
+        assertTrue(range.isValueInRange(PackFormat.of(107, 1)));
     }
 }

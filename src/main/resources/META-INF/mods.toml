@@ -31,13 +31,13 @@ side="BOTH"
 [[dependencies.baseelectric]]
 modId="basepower"
 mandatory=true
-versionRange="[2.4.16.2601021,3.0.0)"
+versionRange="[2.4.17.2602001,3.0.0)"
 ordering="AFTER"
 side="BOTH"
 
 [[dependencies.baseelectric]]
 modId="basemetals"
 mandatory=true
-versionRange="[3.1.2.2601021,4.0.0)"
+versionRange="[3.1.2.2602001,4.0.0)"
 ordering="AFTER"
 side="BOTH"

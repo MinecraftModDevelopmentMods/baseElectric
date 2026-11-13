@@ -102,17 +102,12 @@ public class ElectricOperationalHydroturbineAnchorTest {
         Field field = allocator.getDeclaredField("theUnsafe");
         field.setAccessible(true);
         Level world = (Level)allocator.getMethod("allocateInstance", Class.class)
-                .invoke(field.get(null), NoTickWorld.class);
+                .invoke(field.get(null), ServerLevel.class);
         Field random = Level.class.getDeclaredField("random");
         random.setAccessible(true);
         random.set(world, RandomSource.create(0));
+        zone.moddev.mc.advantageworks.unit.NativeEmptyEntityTracker.install((ServerLevel) world);
         return world;
-    }
-
-    private static final class NoTickWorld extends ServerLevel {
-        private NoTickWorld() {
-            super(null, null, null, null, null, null, false, 0L, Collections.emptyList(), false);
-        }
     }
 
     private static final class ControlEntity extends Entity {
