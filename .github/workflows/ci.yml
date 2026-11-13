@@ -34,11 +34,11 @@ jobs:
           repository: MinecraftModDevelopmentMods/OreSpawn
           ref: ${{ steps.public-pins.outputs.orespawn_ref }}
           path: .ci-dependencies/OreSpawn
-      - name: Check out released basePower source
+      - name: Check out qualified basePower unit-support source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: MinecraftModDevelopmentMods/basePower
-          ref: ${{ steps.public-pins.outputs.power_ref }}
+          ref: ${{ steps.public-pins.outputs.unit_support_ref }}
           path: .ci-dependencies/basePower
       - name: Install Java 25 for all build and runtime roles
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
@@ -56,7 +56,7 @@ jobs:
         shell: bash
         env:
           ORESPAWN_REF: ${{ steps.public-pins.outputs.orespawn_ref }}
-          POWER_REF: ${{ steps.public-pins.outputs.power_ref }}
+          POWER_REF: ${{ steps.public-pins.outputs.unit_support_ref }}
         run: |
           set -euo pipefail
           orespawn="$GITHUB_WORKSPACE/.ci-dependencies/OreSpawn"
@@ -69,7 +69,7 @@ jobs:
       - name: Build and audit release artifacts
         shell: bash
         run: |
-          ./gradlew $MMD_GRADLE_TOOLCHAINS clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts \
+          ./gradlew $MMD_GRADLE_TOOLCHAINS clean check nativeResourceChecks build javadoc verifyReleaseDependencies verifyReleaseArtifacts \
             writeReleaseChecksums verifyEclipseProductionClasspath --no-build-cache --no-daemon --stacktrace \
             "-Pforge64MavenizerJar=$MAVENIZER" "-PpowerAdvantageDeobfJar=$POWER_PLAYER" \
             "-PpowerUnitSource=$GITHUB_WORKSPACE/.ci-dependencies/basePower" \

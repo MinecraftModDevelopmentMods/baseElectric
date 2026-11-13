@@ -81,6 +81,8 @@ check('Exact Forge 66 and local port identity', () => {
         mod_id: 'baseelectric', mod_name: 'baseElectric', mod_version: '2.2.19.2603001',
         poweradvantage_version: '2.4.18.2603001', basemetals_version: '3.1.2.2603001',
         orespawn_version: '4.1.1.2603001', curseforge_project_id: '1783006',
+        unit_source_ref: 'c0eb83f7ba91cf8c83caea75e63057407a345949',
+        unit_entity_tracker_java_sha256: 'CEB0DFC585351DAC03FA2BDD0ED119152CCA00F341FBC7AE3FD0B1C6C2C40C06',
         cf_requirements: 'basepower,base-metals'
     })) assert.equal(props[key], value, key);
     assert.equal(props.reobf, 'false');
@@ -100,12 +102,14 @@ check('Exact Forge 66 and local port identity', () => {
 check('Native source and artifact pins are complete before qualification', () => {
     const props = Object.fromEntries(read('gradle.properties').toString().split(/\r?\n/)
         .filter(line => /^[a-z][a-z_\d]*=/.test(line)).map(line => line.split(/=(.*)/s).slice(0, 2)));
-    assert(['LOCAL_SOURCE', 'MERGED_SOURCE'].includes(props.poweradvantage_pin_state));
+    assert(['LOCAL_SOURCE', 'PUBLISHED'].includes(props.poweradvantage_pin_state));
     for (const prefix of ['poweradvantage', 'basemetals', 'orespawn']) {
         const source = props[prefix + (prefix === 'poweradvantage' ? '_source_ref' : '_source_commit')];
         assert.match(source, /^[a-f0-9]{40}$/, prefix + ' source pin is pending');
         assert.match(props[prefix + '_deobf_sha256'], /^[A-F0-9]{64}$/, prefix + ' artifact pin is pending');
         assert.equal(props[prefix + '_deobf_sha256'], props[prefix + '_runtime_sha256']);
+        if (props.poweradvantage_pin_state === 'PUBLISHED')
+            assert.match(props[prefix + '_public_file_id'], /^[1-9][0-9]*$/, prefix + ' public file pin is pending');
     }
 });
 

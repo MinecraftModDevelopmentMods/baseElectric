@@ -66,7 +66,7 @@ try {
     if ($target -cne '26.3-66.0.0' -or $pins.mod_version -cne '2.2.19.2603001') {
         throw 'This smoke runner is bound to baseElectric 2.2.19.2603001 on Forge 66.0.0.'
     }
-    if ($pins.poweradvantage_pin_state -notin @('LOCAL_SOURCE', 'MERGED_SOURCE') -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
+    if ($pins.poweradvantage_pin_state -notin @('LOCAL_SOURCE', 'PUBLISHED') -or $PowerSha256 -ne $pins.poweradvantage_runtime_sha256) {
         throw 'Packaged smoke requires the exact source-pinned basePower player JAR.'
     }
     $receipt.powerSourceRef = $pins.poweradvantage_source_ref

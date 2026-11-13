@@ -12,6 +12,11 @@ checksum-pinned Gradle **9.6.1** wrapper. Native data/client pack formats are
 **121.0/97.1**. Forge **66.1.5** has a separate bounded server check, not the
 full 66.0.0 baseline suite.
 
+The [published 26.2 release record](docs/RELEASE262.md) keeps its public
+downloads and exact source/hash separate from this 26.3 candidate. The
+[26.1.2 release](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9577930)
+also remains available for that Minecraft version.
+
 ## Dependencies
 
 The coordinated local versions are basePower **2.4.18.2603001**, Base Metals
@@ -54,6 +59,12 @@ node tools/generate-recipe-unlocks.js --check
 
 With the exact dependency and unit-support pins:
 
+Unit support keeps its separately qualified Power source revision in
+`unit_source_ref`. Pass that source directory with `-PpowerUnitSource`
+when the sibling Power checkout is newer; the four source hashes remain fixed.
+Hosted builds check out this test-only revision separately from the public
+Power player pin.
+
 ```text
 ./gradlew clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums --no-build-cache --no-daemon
 ./gradlew verifyEclipseProductionClasspath --no-daemon
@@ -82,7 +93,7 @@ If pin metadata changes its player hash, the new family needs its own
 combined checks and two 30-minute worlds. Hosted builds retain the merged/public
 dependency gates and remote Maven publication stays disabled.
 
-## Candidate09 Verification History
+## Historical Candidate09 Record (12 November 2026)
 
 This section records the earlier 26.1.2 work, not qualification of this 26.3 candidate.
 

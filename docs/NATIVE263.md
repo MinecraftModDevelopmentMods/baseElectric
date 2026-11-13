@@ -17,6 +17,15 @@ public Steam and the parent's explicit final-family qualification gate.
 Any changed player hash needs separate combined checks and two 30-minute
 worlds. The old candidate hashes and failed attempts remain unchanged.
 
+Publication preparation retains the independent `unit_source_ref` at
+`c0eb83f7ba91cf8c83caea75e63057407a345949`: its four actual committed source
+blobs match the sealed unit hashes, including the CEB0 entity-tracker helper.
+Hosted builds select that test-only checkout separately from the public
+Power player source. Installed Forge runtime pins now come from the actual
+66.0.0 code inventory bound by `server-engine-proof-05.json` (SHA-256
+`BBD2BF9A3B33BC1A1C366636AF0EB1ED12B838544684C6E1E9B0E4A86A76D13C`),
+not the older 26.2 runtime. These input checks add no gameplay result.
+
 ## Native Target
 
 Forge 66.0.0, official 26.3, MCP 20260918.230105, Temurin 25.0.3+9,

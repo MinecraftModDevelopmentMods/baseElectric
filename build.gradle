@@ -308,7 +308,7 @@ def requireCommittedPins = { String prefix ->
     committedPins.stringPropertyNames().findAll { key ->
         key.startsWith(prefix) && (key.endsWith('_sha256') || key.endsWith('_ref')
                 || key.endsWith('_commit') || key.endsWith('_pin_state') || key.endsWith('_version')
-                || key.endsWith('_built_on'))
+                || key.endsWith('_built_on') || key.endsWith('_public_file_id'))
     }.each { key ->
         if (project.property(key) != committedPins.getProperty(key)) {
             throw new GradleException("Cannot override the recorded release pin ${key}.")
@@ -317,11 +317,17 @@ def requireCommittedPins = { String prefix ->
 }
 def requirePowerPin = {
     requireCommittedPins('poweradvantage_')
-    if (!(project.poweradvantage_pin_state in ['LOCAL_SOURCE', 'MERGED_SOURCE'])
+    if (!(project.poweradvantage_pin_state in ['LOCAL_SOURCE', 'PUBLISHED'])
             || !(project.poweradvantage_source_ref ==~ /[a-f0-9]{40}/)
             || ![project.poweradvantage_deobf_sha256, project.poweradvantage_runtime_sha256]
                     .every { it ==~ /[A-F0-9]{64}/ }) {
         throw new GradleException('The owner-approved basePower 26.3 source and artifact pins are required.')
+    }
+    if (project.poweradvantage_pin_state == 'PUBLISHED'
+            && !['poweradvantage', 'basemetals', 'orespawn'].every {
+                project.property("${it}_public_file_id") ==~ /[1-9][0-9]*/
+            }) {
+        throw new GradleException('Published dependency pins require all three verified public file IDs.')
     }
 }
 // Resolve and check only the dependencies required by the selected tasks.

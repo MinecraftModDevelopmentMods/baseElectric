@@ -3,7 +3,7 @@ set -euo pipefail
 
 value() { sed -n "s/^$1=//p" gradle.properties | tr -d '\r'; }
 
-if [[ "$(value poweradvantage_pin_state)" != 'MERGED_SOURCE' ]]; then
+if [[ "$(value poweradvantage_pin_state)" != 'PUBLISHED' ]]; then
     echo '::error::This local port has no merged and public basePower release pin.' >&2
     exit 1
 fi
@@ -43,8 +43,10 @@ public_jar() {
 }
 
 power_ref="$(value poweradvantage_source_ref)"
+unit_support_ref="$(value unit_source_ref)"
 orespawn_ref="$(value orespawn_source_commit)"
 require_merged basePower "$power_ref"
+require_merged basePower "$unit_support_ref"
 require_merged BaseMetals "$(value basemetals_source_commit)"
 require_merged OreSpawn "$orespawn_ref"
 
@@ -62,6 +64,7 @@ download 'https://maven.minecraftforge.net/net/minecraftforge/forge/26.3-66.0.0/
     "$(value forge_installer_sha256)" "$installer"
 {
     printf 'power_ref=%s\n' "$power_ref"
+    printf 'unit_support_ref=%s\n' "$unit_support_ref"
     printf 'orespawn_ref=%s\n' "$orespawn_ref"
 } >> "${GITHUB_OUTPUT:?}"
 {
