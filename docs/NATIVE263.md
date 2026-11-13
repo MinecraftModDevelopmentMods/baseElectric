@@ -11,8 +11,9 @@ basePower checkout's `docs/26.3/QUALIFICATION.md` records the completed combined
 machine, recipe, migration, client, restart and endurance checks. The entries
 below retain the implementation history, including earlier pending gates;
 they do not supersede that final local test record. Publication is now
-authorized in dependency order, not already complete. Electric port-code
-push waits for Power's verified public pin; live publication also waits for
+authorized in dependency order, not already complete. Power is now verified
+public at source `4fae0a51feb3e49875f09c500b869266122a711a`, CF file `9589309`.
+Electric source push and CI may proceed; live publication still waits for
 public Steam and the parent's explicit final-family qualification gate.
 Any changed player hash needs separate combined checks and two 30-minute
 worlds. The old candidate hashes and failed attempts remain unchanged.

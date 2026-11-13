@@ -19,13 +19,18 @@ also remains available for that Minecraft version.
 
 ## Dependencies
 
-The coordinated local versions are basePower **2.4.18.2603001**, Base Metals
-**3.1.2.2603001** with the shared migration hook, and OreSpawn
-**4.1.1.2603001** with the retained-settings repair. Exact source and artifact
-pins identify the accepted, frozen profile04 test kit.
-Power source is `c0eb83f7ba91cf8c83caea75e63057407a345949`, player SHA-256
+Use published [basePower **2.4.18.2603001**](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9589309),
+[Base Metals **3.1.2.2603001**](https://www.curseforge.com/minecraft/mc-mods/base-metals/files/9589195)
+with the shared migration hook, and
+[OreSpawn **4.1.1.2603001**](https://www.curseforge.com/minecraft/mc-mods/mmd-orespawn/files/9589145)
+with the retained-settings repair. All three player downloads were checked
+against their release builds; their bytes match the profile04 dependencies.
+Power is also available from [MMD Maven](https://maven.moddev.zone/releases/zone/moddev/mc/basepower/basePower/2.4.18.2603001/basePower-2.4.18.2603001.jar)
+and [GitHub Releases](https://github.com/MinecraftModDevelopmentMods/basePower/releases/tag/2.4.18.2603001).
+Power source is `4fae0a51feb3e49875f09c500b869266122a711a`, player SHA-256
 `97525CE9C75509C55225E0061D43BAF9D29BDBDE6DF853E1552A64A54C14C3DE`.
-The test bootstrap and support sources are sealed to that accepted checkpoint.
+The test bootstrap and support sources remain independently sealed to
+`c0eb83f7ba91cf8c83caea75e63057407a345949`; they do not follow the player source pin.
 This handoff includes the native unlock, fuel-hook and scoped pending-item-tag
 phase repairs, complete native loot-table and legacy-importer repairs, and
 strict retirement/archive handling for removed vanilla brain memories, and
@@ -34,7 +39,8 @@ receipts, including failed/superseded attempts, remain historical and do not
 qualify this changed input. Completed
 checks remain bound to their exact inputs. Cold/reproduction and the combined
 gameplay tests passed. Manual testing of that exact kit was accepted on
-13 November 2026. A later published-dependency pin does not inherit that proof.
+13 November 2026. A published-pin Electric candidate does not inherit that
+proof merely because its dependency player bytes are unchanged.
 An independent SHA-sealed Electric 2.2.18 jar fixture protects all 21 loot
 tables through the actual native whole-table codec. The strict inventories
 are 119 units and 30 native tests, including the added golden comparison.
@@ -66,7 +72,7 @@ Hosted builds check out this test-only revision separately from the public
 Power player pin.
 
 ```text
-./gradlew clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums --no-build-cache --no-daemon
+./gradlew clean check nativeResourceChecks build javadoc verifyReleaseDependencies verifyReleaseArtifacts writeReleaseChecksums --no-build-cache --no-daemon
 ./gradlew verifyEclipseProductionClasspath --no-daemon
 node tools/verify-native-port.js
 ```
@@ -86,8 +92,8 @@ two-world 30-minute endurance checks against the accepted player jar
 Manual testing was accepted on 13 November 2026. Publication is authorized
 in dependency order, but this release is not public yet. The 26.2 results in
 [the historical status](docs/NATIVE262.md) and the older records below
-qualify only their original inputs. Port-code push and PR work wait for the
-verified public Power release. Electric publication also waits for public
+qualify only their original inputs. Power's verified public release permits
+Electric source PR and CI work. Electric publication still waits for public
 Steam and the parent's explicit qualification gate for the final jar.
 If pin metadata changes its player hash, the new family needs its own
 combined checks and two 30-minute worlds. Hosted builds retain the merged/public
