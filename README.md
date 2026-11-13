@@ -1,6 +1,6 @@
 # baseElectric
 
-**Minecraft 26.3 Forge, version 2.2.19.2603001. Local port; exact-input qualification remains separate.**
+**Minecraft 26.3 Forge, version 2.2.19.2603001. Manual testing accepted; release preparation in progress.**
 
 baseElectric continues DrCyano's Electric Advantage and uses basePower's shared
 API, machines and creative tab. Existing `baseelectric` registry and saved-data
@@ -9,25 +9,27 @@ identities, recipes, balance and public contracts are retained.
 This port targets Forge **66.0.0**, official Minecraft **26.3** names,
 MCP **20260918.230105**, Java **25.0.3+9**, ForgeGradle **7.0.34** and the
 checksum-pinned Gradle **9.6.1** wrapper. Native data/client pack formats are
-**121.0/97.1**. Forge **66.1.5** compatibility is a later, separate check.
+**121.0/97.1**. Forge **66.1.5** has a separate bounded server check, not the
+full 66.0.0 baseline suite.
 
 ## Dependencies
 
 The coordinated local versions are basePower **2.4.18.2603001**, Base Metals
 **3.1.2.2603001** with the shared migration hook, and OreSpawn
 **4.1.1.2603001** with the retained-settings repair. Exact source and artifact
-pins are recorded for the parent's immutable local compiler/test handoff.
+pins identify the accepted, frozen profile04 test kit.
 Power source is `c0eb83f7ba91cf8c83caea75e63057407a345949`, player SHA-256
 `97525CE9C75509C55225E0061D43BAF9D29BDBDE6DF853E1552A64A54C14C3DE`.
-Unit-support sources and agent bytes are sealed to that accepted checkpoint.
+The test bootstrap and support sources are sealed to that accepted checkpoint.
 This handoff includes the native unlock, fuel-hook and scoped pending-item-tag
 phase repairs, complete native loot-table and legacy-importer repairs, and
 strict retirement/archive handling for removed vanilla brain memories, and
 optional recipe-tag discovery that survives mode changes. Earlier candidate
 receipts, including failed/superseded attempts, remain historical and do not
 qualify this changed input. Completed
-checks remain bound to their exact inputs; cold/reproduction and gameplay
-acceptance are separate gates.
+checks remain bound to their exact inputs. Cold/reproduction and the combined
+gameplay tests passed. Manual testing of that exact kit was accepted on
+13 November 2026. A later published-dependency pin does not inherit that proof.
 An independent SHA-sealed Electric 2.2.18 jar fixture protects all 21 loot
 tables through the actual native whole-table codec. The strict inventories
 are 119 units and 30 native tests, including the added golden comparison.
@@ -66,11 +68,18 @@ for the current scope, blocked contracts and retained attempts.
 
 ## Qualification Boundary
 
-No 26.3 combined gameplay, graphical, endurance, restart, migration, manual
-acceptance or publication is claimed. The 26.2 results in
+The matching basePower checkout's `docs/26.3/QUALIFICATION.md` records the
+completed machine, recipe, old-world upgrade, graphical, full-restart and
+two-world 30-minute endurance checks against the accepted player jar
+`44ED38BFC7040D73251E523B2803718CDA2212482268A7E65BCF4681CF9A75E8`.
+Manual testing was accepted on 13 November 2026. Publication is authorized
+in dependency order, but this release is not public yet. The 26.2 results in
 [the historical status](docs/NATIVE262.md) and the older records below
-qualify only their original inputs. This branch is local-only: no push, PR,
-tag or publication is authorized. Hosted builds retain the merged/public
+qualify only their original inputs. Port-code push and PR work wait for the
+verified public Power release. Electric publication also waits for public
+Steam and the parent's explicit qualification gate for the final jar.
+If pin metadata changes its player hash, the new family needs its own
+combined checks and two 30-minute worlds. Hosted builds retain the merged/public
 dependency gates and remote Maven publication stays disabled.
 
 ## Candidate09 Verification History

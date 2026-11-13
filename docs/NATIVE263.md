@@ -3,12 +3,27 @@
 Starting source: `a34f6bba1ec87f911da65ec2b50eab89629f2ea8`.
 Branch: `feature/baseelectric-26.3-port`. Version: `2.2.19.2603001`.
 
+Manual testing of the exact profile04 kit was accepted on 13 November 2026.
+The accepted player SHA-256 is
+`44ED38BFC7040D73251E523B2803718CDA2212482268A7E65BCF4681CF9A75E8`,
+from source `464f2e9aaae9e2e8ee91f68ea44503b8bc2b2d27`. The matching
+basePower checkout's `docs/26.3/QUALIFICATION.md` records the completed combined
+machine, recipe, migration, client, restart and endurance checks. The entries
+below retain the implementation history, including earlier pending gates;
+they do not supersede that final local test record. Publication is now
+authorized in dependency order, not already complete. Electric port-code
+push waits for Power's verified public pin; live publication also waits for
+public Steam and the parent's explicit final-family qualification gate.
+Any changed player hash needs separate combined checks and two 30-minute
+worlds. The old candidate hashes and failed attempts remain unchanged.
+
 ## Native Target
 
 Forge 66.0.0, official 26.3, MCP 20260918.230105, Temurin 25.0.3+9,
 ForgeGradle 7.0.34 and checksum-pinned Gradle 9.6.1. Native client/data pack
 formats are 97.1/121.0, read from the actual 26.3 client `version.json`.
-Forge 66.1.5 compatibility is a later gate; it does not replace the baseline.
+Forge 66.1.5 has bounded dedicated-server compatibility evidence; it does not
+replace the full 66.0.0 baseline suite.
 
 Primary SDK inputs downloaded read-only from Forge Maven:
 

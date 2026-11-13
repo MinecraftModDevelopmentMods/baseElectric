@@ -1,4 +1,4 @@
-baseElectric 2.2.19.2603001 - local port in progress
+baseElectric 2.2.19.2603001 - manual testing accepted 13 November 2026
 
 - Target Minecraft 26.3, Forge 66.0.0, official names and Java 25.0.3+9.
 - Retain machine, battery, registry, saved-data, recipe and balance contracts.
@@ -13,7 +13,8 @@ baseElectric 2.2.19.2603001 - local port in progress
 - Seal an independent accepted Electric 2.2.18 loot fixture and compare all 21 complete native tables without changing item identities, quantities or weights.
 - Pin the coordinated local Power 2.4.18, Base Metals 3.1.2 and OreSpawn 4.1.1 inputs for 26.3.
 - Select Power handoff07's future-discovery repair, retaining strict retired-brain-memory and earlier loot/importer/tag repairs without carrying old qualification forward.
-- Earlier 26.2 checks are historical, not qualification of this port. No publication.
+- Machine, recipe, old-world upgrade, graphical, full-restart and two-world 30-minute endurance checks passed. Manual testing of the exact profile04 kit was accepted on 13 November 2026.
+- Prepare publication after the verified Power and Steam releases. Keep the accepted jar separate from any later dependency-pin promotion and qualify changed player bytes before release.
 
 baseElectric 2.2.18.2602001 - local candidate
 
