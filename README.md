@@ -1,6 +1,6 @@
 # baseElectric
 
-**Minecraft 26.2 Forge, version 2.2.18.2602001. Automated and manual testing complete.**
+**Minecraft 26.2 Forge, version 2.2.18.2602001. Published.**
 
 baseElectric continues DrCyano's Electric Advantage and uses basePower's shared
 API, machines and creative tab. Existing `baseelectric` registry and saved-data
@@ -11,10 +11,14 @@ MCP **20260616.103818**, Java **25.0.3+9**, ForgeGradle **7.0.34** and the
 checksum-pinned Gradle **9.6.1** wrapper. Native pack formats are data
 **107.1** and client **88.0**.
 
-The earlier [26.1.2 release](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9577930)
-remains available on CurseForge, MMD Maven and GitHub Releases. The 26.2
-release is being prepared separately; the version and dependency pins below
-apply to this branch.
+The 26.2 release is available from
+[CurseForge](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9584544),
+[MMD Maven](https://maven.moddev.zone/releases/zone/moddev/mc/baseelectric/baseElectric/2.2.18.2602001/baseElectric-2.2.18.2602001.jar)
+and [GitHub Releases](https://github.com/MinecraftModDevelopmentMods/baseElectric/releases/tag/2.2.18.2602001).
+The [published release record](docs/RELEASE262.md) gives the released source,
+download hash and separately checked publication promotion. The
+[26.1.2 release](https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9577930)
+remains available for that Minecraft version.
 
 ## Build
 
@@ -62,12 +66,14 @@ for the counts and exact inputs. The [family qualification record](https://githu
 keeps the completed checks and their scope limits together.
 
 The final root build and cold-cache checks passed, and manual testing was
-accepted on 12 November 2026. Publication follows the dependency order:
-OreSpawn and Base Metals, then basePower and baseSteam, then this expansion.
+accepted on 12 November 2026. Publication is complete. The published Electric
+jar uses the released dependency pins and has its own promotion checks; its
+2928E1C6... hash is not the original profile03 A7D12A66... input. See the
+[release record](docs/RELEASE262.md) for the exact identities.
 The accepted 26.1.2 records remain historical proof of their original bytes,
 not a substitute for the 26.2 results.
 
-## Candidate09 Verification History
+## Historical Candidate09 Record (12 November 2026)
 
 This section records the earlier 26.1.2 work, not qualification of this 26.2 candidate.
 

@@ -1,11 +1,15 @@
-baseElectric 2.2.18.2602001 (Minecraft 26.2 / Forge)
+baseElectric 2.2.18.2602001 (Minecraft 26.2 / Forge) - published 13 November 2026
 
 - Target Minecraft 26.2 and Forge 65 with Java 25.
 - Keep the shared Base Metals migration hook and existing machine, item and saved-data identities.
 - Retain exact dependency, native pack, artifact and classpath guards.
 - Pass the combined profile03 machine, migration, actor/order, client and two-world endurance checks, including independent 66-checkpoint replay.
-- Complete the full release, cold-cache and manual checks. Publish after basePower so the expansion uses the released dependency.
+- Release, cold-cache and original-candidate manual checks completed. The separately checked publication promotion uses the released basePower pin.
 - Pin the verified public basePower, Base Metals and OreSpawn releases.
+- Downloads: https://www.curseforge.com/minecraft/mc-mods/baseelectric/files/9584544
+- MMD Maven: https://maven.moddev.zone/releases/zone/moddev/mc/baseelectric/baseElectric/2.2.18.2602001/baseElectric-2.2.18.2602001.jar
+- GitHub: https://github.com/MinecraftModDevelopmentMods/baseElectric/releases/tag/2.2.18.2602001
+- Published source and download hash: docs/RELEASE262.md. Preserve the original profile03 candidate hash separately.
 
 baseElectric 2.2.17.2601021 (Minecraft 26.1.2 / Forge)
 
