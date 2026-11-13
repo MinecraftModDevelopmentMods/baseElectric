@@ -203,7 +203,7 @@ public final class ElectricGameTests {
             helper.assertTrue(advancement != null, "Inactive recipe lost future discovery advancement: " + id);
             var tag = net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.RECIPE,
                     Identifier.fromNamespaceAndPath(ElectricAdvantage.MODID, "discovery/" + path));
-            var members = level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.RECIPE)
+            var members = server.reloadableRegistries().lookup().lookupOrThrow(net.minecraft.core.registries.Registries.RECIPE)
                     .get(tag).orElseThrow(() -> new AssertionError("Missing defined recipe-discovery tag: " + tag));
             helper.assertTrue(members.size() == (recipeLoaded ? 1 : 0), "Wrong active/empty discovery membership: " + id);
             helper.assertTrue(members.stream().allMatch(holder -> holder.is(key)), "Discovery tag names an unrelated recipe: " + id);
