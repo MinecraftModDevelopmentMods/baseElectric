@@ -2,10 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "tag": "forge:plastic"
+      "tag": "c:plastic"
     },
     {
-      "tag": "forge:plates/copper"
+      "tag": "c:plates/copper"
     }
   ],
   "result": {
@@ -13,17 +13,19 @@
     "count": 2
   },
   "group": "baseelectric:blank_circuit_board",
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:plastic"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:plates/copper"
-      }
-    ]
-  }
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:plastic"
+        },
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:plates/copper"
+        }
+      ]
+    }
+  ]
 }

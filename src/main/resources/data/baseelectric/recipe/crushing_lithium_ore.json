@@ -1,23 +1,25 @@
 {
-  "type": "basemetals:crushing",
+  "type": "mmdlib:crushing",
   "ingredient": {
-    "tag": "forge:ores/lithium"
+    "tag": "c:ores/lithium"
   },
   "result": {
-    "id": "baseelectric:li_powder",
-    "count": 2
+    "count": 2,
+    "item": "baseelectric:li_powder"
   },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "forge:mod_loaded",
-        "modid": "basemetals"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:ores/lithium"
-      }
-    ]
-  }
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "neoforge:mod_loaded",
+          "modid": "basemetals"
+        },
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:ores/lithium"
+        }
+      ]
+    }
+  ]
 }

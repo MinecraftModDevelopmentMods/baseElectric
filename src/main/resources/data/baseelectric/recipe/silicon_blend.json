@@ -2,27 +2,29 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "tag": "forge:sand"
+      "tag": "c:sand"
     },
     {
-      "tag": "forge:dusts/carbon"
+      "tag": "c:dusts/carbon"
     }
   ],
   "result": {
     "id": "baseelectric:silicon_mix"
   },
   "group": "baseelectric:silicon_mix",
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:dusts/carbon"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:sand"
-      }
-    ]
-  }
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:dusts/carbon"
+        },
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:sand"
+        }
+      ]
+    }
+  ]
 }

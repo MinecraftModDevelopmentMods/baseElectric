@@ -18,7 +18,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:wires"
+            "items": "#c:wires"
           }
         ]
       }
@@ -28,7 +28,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:frames/steel"
+            "items": "#c:frames/steel"
           }
         ]
       }

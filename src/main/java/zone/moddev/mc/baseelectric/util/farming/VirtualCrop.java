@@ -16,7 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.IPlantable;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -61,9 +60,8 @@ public class VirtualCrop {
 			ItemStack product = seed.copy();
 			product.setCount(2);
 			return new VirtualCrop(seed,8,Arrays.asList(product));
-		} else if(i instanceof IPlantable || b instanceof IPlantable){
-			IPlantable plantable = i instanceof IPlantable ? (IPlantable)i : (IPlantable)b;
-			BlockState startingState = plantable.getPlant(w, pos);
+		} else if(b instanceof net.minecraft.world.level.block.BushBlock){
+			BlockState startingState = b.defaultBlockState();
 			Block block = startingState.getBlock();
 			int numStages = getNumberOfGrowthStages(startingState);
 			if(block instanceof StemBlock stem){
@@ -84,7 +82,7 @@ public class VirtualCrop {
 	
 	
 	private static Block resolveStemFruit(StemBlock stem, Level world) {
-		// Forge 52 exposes the registered fruit key through the native stem codec.
+		// Resolve the registered fruit through the native stem codec.
 		var ops = world.registryAccess().createSerializationContext(JsonOps.INSTANCE);
 		return StemBlock.CODEC.codec().encodeStart(ops, stem).result()
 				.flatMap(data -> ResourceKey.codec(Registries.BLOCK)

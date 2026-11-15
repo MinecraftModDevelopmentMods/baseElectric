@@ -76,10 +76,10 @@ public final class ItemMatcher {
         for (String[] form : forms) {
             if (name.startsWith(form[0]) && name.length() > form[0].length()) {
                 String material = name.substring(form[0].length()).toLowerCase(java.util.Locale.ROOT);
-                return ResourceLocation.fromNamespaceAndPath("forge", form[1] + "/" + material);
+                return ResourceLocation.fromNamespaceAndPath("c", form[1] + "/" + material);
             }
         }
-        return ResourceLocation.fromNamespaceAndPath("forge", name.toLowerCase(java.util.Locale.ROOT));
+        return ResourceLocation.fromNamespaceAndPath("c", name.toLowerCase(java.util.Locale.ROOT));
     }
 
     @Override

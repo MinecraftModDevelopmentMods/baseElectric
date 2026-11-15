@@ -4,7 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.orespawn.api.GeologyFamily;
 import zone.moddev.mc.orespawn.api.OrePattern;
@@ -19,7 +19,7 @@ public final class OreSpawnWorldGen {
             ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, "ore/sulfur");
     private static final ResourceLocation OVERWORLD = ResourceLocation.fromNamespaceAndPath("minecraft", "overworld");
     private static final ResourceLocation STONE = ResourceLocation.fromNamespaceAndPath("minecraft", "stone");
-    private static final ResourceLocation STONE_TAG = ResourceLocation.fromNamespaceAndPath("forge", "stone");
+    private static final ResourceLocation STONE_TAG = ResourceLocation.fromNamespaceAndPath("c", "stone");
 
     private OreSpawnWorldGen() {
     }

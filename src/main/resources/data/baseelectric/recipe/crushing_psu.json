@@ -1,23 +1,25 @@
 {
-  "type": "basemetals:crushing",
+  "type": "mmdlib:crushing",
   "ingredient": {
     "item": "baseelectric:psu"
   },
   "result": {
-    "id": "baseelectric:control_circuit",
-    "count": 1
+    "count": 1,
+    "item": "baseelectric:control_circuit"
   },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "forge:mod_loaded",
-        "modid": "basemetals"
-      },
-      {
-        "type": "baseelectric:recipe_mode",
-        "mode": "APOCALYPTIC"
-      }
-    ]
-  }
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "neoforge:mod_loaded",
+          "modid": "basemetals"
+        },
+        {
+          "type": "baseelectric:recipe_mode",
+          "mode": "APOCALYPTIC"
+        }
+      ]
+    }
+  ]
 }

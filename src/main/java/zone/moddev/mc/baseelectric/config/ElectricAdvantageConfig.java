@@ -2,21 +2,21 @@ package zone.moddev.mc.baseelectric.config;
 
 import java.util.Arrays;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.fml.event.config.ModConfigEvent;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.util.crafting.RecipeDeconstructor;
 
 /** Common configuration retaining the legacy gameplay defaults. */
 public final class ElectricAdvantageConfig {
-    public static final ForgeConfigSpec SPEC;
-    public static final ForgeConfigSpec.IntValue FABRICATOR_RECURSION_LIMIT;
-    public static final ForgeConfigSpec.ConfigValue<String> LASER_SOUND;
-    public static final ForgeConfigSpec.ConfigValue<String> PLASTIC_FLUIDS;
+    public static final ModConfigSpec SPEC;
+    public static final ModConfigSpec.IntValue FABRICATOR_RECURSION_LIMIT;
+    public static final ModConfigSpec.ConfigValue<String> LASER_SOUND;
+    public static final ModConfigSpec.ConfigValue<String> PLASTIC_FLUIDS;
     private static boolean loaded;
 
     static {
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
         builder.push("fabricator");
         FABRICATOR_RECURSION_LIMIT = builder.defineInRange(
                 "recursionLimit", RecipeDeconstructor.RECURSION_LIMIT, 1, 255);

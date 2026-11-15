@@ -9,8 +9,10 @@
   "experience": 0.5,
   "cookingtime": 200,
   "group": "baseelectric:silicon_ingot",
-  "forge:condition": {
-    "type": "forge:and",
-    "values": []
-  }
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": []
+    }
+  ]
 }

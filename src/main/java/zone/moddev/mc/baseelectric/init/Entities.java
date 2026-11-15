@@ -6,10 +6,10 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.entities.HydroturbineEntity;
 import zone.moddev.mc.baseelectric.machines.ElectricBatteryArrayTileEntity;
@@ -30,7 +30,7 @@ import zone.moddev.mc.baseelectric.machines.PlasticRefineryTileEntity;
 import zone.moddev.mc.baseelectric.machines.SteamPoweredElectricGeneratorTileEntity;
 
 /** Stable tile/entity registrations; IDs are unchanged from 1.12. */
-@Mod.EventBusSubscriber(modid = ElectricAdvantage.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ElectricAdvantage.MODID, bus = EventBusSubscriber.Bus.MOD)
 public final class Entities {
     public static BlockEntityType<ElectricFurnaceTileEntity> ELECTRIC_FURNACE;
     public static BlockEntityType<ElectricCrusherTileEntity> ELECTRIC_CRUSHER;
@@ -54,7 +54,7 @@ public final class Entities {
     public static void init() {}
 
     @SubscribeEvent public static void registerTiles(RegisterEvent event) {
-        event.register(ForgeRegistries.Keys.BLOCK_ENTITY_TYPES, Entities::registerTiles);
+        event.register(Registries.BLOCK_ENTITY_TYPE, Entities::registerTiles);
     }
 
     private static void registerTiles(RegisterEvent.RegisterHelper<BlockEntityType<?>> event) {
@@ -77,7 +77,7 @@ public final class Entities {
     }
 
     @SubscribeEvent public static void registerEntities(RegisterEvent event) {
-        event.register(ForgeRegistries.Keys.ENTITY_TYPES, registry -> {
+        event.register(Registries.ENTITY_TYPE, registry -> {
             ResourceLocation id = ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, "hydroturbine");
             HYDROTURBINE = EntityType.Builder.<HydroturbineEntity>of(HydroturbineEntity::new, MobCategory.MISC)
                     .sized(0.9375F, 0.9375F)

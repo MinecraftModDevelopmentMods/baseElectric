@@ -5,10 +5,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.basepower.PowerAdvantage;
 import zone.moddev.mc.basepower.RecipeMode;
@@ -16,7 +16,7 @@ import zone.moddev.mc.basepower.RecipeMode;
 /** Registers the data-pack conditions used by Electric Advantage recipes. */
 public final class RecipeConditions {
     private static final DeferredRegister<MapCodec<? extends ICondition>> SERIALIZERS =
-            DeferredRegister.create(ForgeRegistries.Keys.CONDITION_SERIALIZERS, ElectricAdvantage.MODID);
+            DeferredRegister.create(NeoForgeRegistries.Keys.CONDITION_CODECS, ElectricAdvantage.MODID);
     private static final Codec<RecipeMode> MODE = Codec.STRING.comapFlatMap(
             name -> {
                 try {
@@ -45,7 +45,7 @@ public final class RecipeConditions {
     }
 
     record ModeCondition(RecipeMode mode, boolean inverted) implements ICondition {
-        @Override public boolean test(IContext context, DynamicOps<?> ops) {
+        @Override public boolean test(IContext context) {
             return (PowerAdvantage.recipeMode == mode) != inverted;
         }
 

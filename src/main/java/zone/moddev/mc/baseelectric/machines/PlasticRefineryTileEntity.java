@@ -26,7 +26,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 
 public class PlasticRefineryTileEntity extends ElectricMachineTileEntity implements LegacyFluidHandler{
-	private static final TagKey<Item> PLASTICS_TAG = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("forge", "plastics"));
+	private static final TagKey<Item> PLASTICS_TAG = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", "plastics"));
 
 
 	public static final float ENERGY_PER_TICK = 12f;
@@ -158,7 +158,7 @@ public class PlasticRefineryTileEntity extends ElectricMachineTileEntity impleme
 
 	private boolean isPlasticFluid(Fluid fluid) {
 		if(fluid == null) return false;
-		ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.FLUIDS.getKey(fluid);
+		ResourceLocation id = net.minecraft.core.registries.BuiltInRegistries.FLUID.getKey(fluid);
 		return id != null && ElectricAdvantage.INSTANCE.PLASTIC_FLUID_MATERIALS.contains(id.toString());
 	}
 

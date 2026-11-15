@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:gems/emerald"
+            "items": "#c:gems/emerald"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:gems/diamond"
+            "items": "#c:gems/diamond"
           }
         ]
       }
@@ -26,7 +26,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:power_supply_units"
+            "items": "#c:power_supply_units"
           }
         ]
       }
@@ -36,7 +36,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:plates/steel"
+            "items": "#c:plates/steel"
           }
         ]
       }
@@ -46,7 +46,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:frames/steel"
+            "items": "#c:frames/steel"
           }
         ]
       }

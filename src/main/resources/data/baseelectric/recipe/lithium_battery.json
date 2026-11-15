@@ -7,41 +7,43 @@
   ],
   "key": {
     "X": {
-      "tag": "forge:ingots/lithium"
+      "tag": "c:ingots/lithium"
     },
     "Y": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:dusts/redstone"
     },
     "Z": {
-      "tag": "forge:dusts/carbon"
+      "tag": "c:dusts/carbon"
     },
     "p": {
-      "tag": "forge:plastic"
+      "tag": "c:plastic"
     }
   },
   "result": {
     "id": "baseelectric:lithium_battery"
   },
   "group": "baseelectric:lithium_battery",
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:dusts/carbon"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:dusts/redstone"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:ingots/lithium"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:plastic"
-      }
-    ]
-  }
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:dusts/carbon"
+        },
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:dusts/redstone"
+        },
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:ingots/lithium"
+        },
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:plastic"
+        }
+      ]
+    }
+  ]
 }

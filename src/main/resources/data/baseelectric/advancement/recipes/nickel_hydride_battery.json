@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:ingots/nickel"
+            "items": "#c:ingots/nickel"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:dusts/redstone"
+            "items": "#c:dusts/redstone"
           }
         ]
       }
@@ -38,7 +38,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:plastic"
+            "items": "#c:plastic"
           }
         ]
       }

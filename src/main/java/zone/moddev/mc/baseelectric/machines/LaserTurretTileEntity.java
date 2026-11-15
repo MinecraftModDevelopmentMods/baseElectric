@@ -29,9 +29,9 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraft.core.registries.Registries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +89,7 @@ public class LaserTurretTileEntity extends ElectricMachineTileEntity{
 	public LaserTurretTileEntity(net.minecraft.core.BlockPos pos, net.minecraft.world.level.block.state.BlockState state){
 		super(zone.moddev.mc.baseelectric.init.Entities.LASER_TURRET, pos, state, "tile.baseelectric.laser_turret.name",MAX_BUFFER,0,0,0);
 		SoundEvent soundEvent = ElectricAdvantage.INSTANCE == null ? SoundEvents.NOTE_BLOCK_BASS.value()
-				: ForgeRegistries.SOUND_EVENTS.getValue(ResourceLocation.parse(ElectricAdvantage.INSTANCE.LASER_SOUND));
+				: net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.parse(ElectricAdvantage.INSTANCE.LASER_SOUND));
 		if(soundEvent == null){
 			LASER_SOUND = SoundEvents.ENDERMAN_TELEPORT;
 		} else {

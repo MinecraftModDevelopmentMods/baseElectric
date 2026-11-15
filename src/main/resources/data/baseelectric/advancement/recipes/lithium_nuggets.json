@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:ingots/lithium"
+            "items": "#c:ingots/lithium"
           }
         ]
       }

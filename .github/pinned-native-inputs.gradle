@@ -1,0 +1,42 @@
+import groovy.json.JsonSlurper
+import java.security.MessageDigest
+
+allprojects {
+    afterEvaluate { project ->
+        def lock = new JsonSlurper().parse(project.file('.github/native-dependencies.json'))
+        if (lock.status != 'HOSTED_INPUTS_READY') {
+            throw new GradleException('Hosted dependency bootstrap is blocked; local Power is not a public release pin')
+        }
+        def arguments = [basepower: 'powerAdvantageJar', basemetals: 'baseMetalsJar', mmdlib: 'mmdlibJar', orespawn: 'oreSpawnJar']
+        if (lock.dependencies.collect { it.id }.sort() != arguments.keySet().toList().sort()) {
+            throw new GradleException('Exactly four pinned hosted inputs are required')
+        }
+        lock.dependencies.each { pin ->
+            def path = project.providers.gradleProperty(arguments[pin.id]).orNull
+            if (!path) throw new GradleException('Missing pinned dependency path: ' + pin.id)
+            File jar = project.file(path)
+            String actual = jar.isFile() ? MessageDigest.getInstance('SHA-256').digest(jar.bytes)
+                    .encodeHex().toString().toUpperCase(Locale.ROOT) : ''
+            if (pin.state != 'PUBLISHED' || actual != pin.sha256
+                    || project.property(pin.versionProperty) != pin.version
+                    || project.property(pin.hashProperty) != pin.sha256) {
+                throw new GradleException('Changed or unapproved hosted input: ' + pin.id)
+            }
+        }
+        if (project.poweradvantage_pin_state != 'MERGED_SOURCE'
+                || project.poweradvantage_sha256 != project.poweradvantage_runtime_sha256
+                || !(project.poweradvantage_source_ref ==~ /[a-f0-9]{40}/)
+                || project.poweradvantage_source_tag != project.poweradvantage_version
+                || lock.dependencies.find { it.id == 'basepower' }.source.tag != project.poweradvantage_source_tag) {
+            throw new GradleException('Missing merged Power source and matching API/runtime pins')
+        }
+        // The build's explicit jar overrides consume only the downloader's verified bytes.
+        project.configurations.configureEach {
+            withDependencies { dependencies ->
+                if (dependencies.any { dependency -> lock.dependencies.any { pin ->
+                    dependency.group == pin.group && dependency.name == pin.artifact
+                } }) throw new GradleException('Hosted inputs must use verified file overrides, not re-resolve Maven')
+            }
+        }
+    }
+}

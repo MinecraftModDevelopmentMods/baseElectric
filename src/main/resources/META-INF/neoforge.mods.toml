@@ -9,34 +9,46 @@ version="${version}"
 displayName="baseElectric"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/baseelectric"
 authors="DrCyano"
-description='''
-Electric-powered machines and infrastructure for basePower.
-'''
+description='''Electric-powered machines and infrastructure for basePower.'''
 
 [[dependencies.baseelectric]]
-modId="forge"
-mandatory=true
-versionRange="${forge_version_range}"
+modId="neoforge"
+type="required"
+versionRange="${neo_version_range}"
 ordering="NONE"
 side="BOTH"
 
 [[dependencies.baseelectric]]
 modId="minecraft"
-mandatory=true
+type="required"
 versionRange="${minecraft_version_range}"
 ordering="NONE"
 side="BOTH"
 
 [[dependencies.baseelectric]]
 modId="basepower"
-mandatory=true
-versionRange="[2.4.14.121011,3.0.0)"
+type="required"
+versionRange="[${poweradvantage_version},3.0.0)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.baseelectric]]
+modId="mmdlib"
+type="required"
+versionRange="[2.0.2.121012,3.0.0)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.baseelectric]]
+modId="orespawn"
+type="required"
+versionRange="[4.1.1.121012,5.0.0)"
 ordering="AFTER"
 side="BOTH"
 
 [[dependencies.baseelectric]]
 modId="basemetals"
-mandatory=false
-versionRange="[3.1.2.121011,4.0.0)"
+type="optional"
+versionRange="[4.0.1.121012,5.0.0)"
 ordering="AFTER"
 side="BOTH"

@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:plastic"
+            "items": "#c:plastic"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:rods/copper"
+            "items": "#c:rods/copper"
           }
         ]
       }

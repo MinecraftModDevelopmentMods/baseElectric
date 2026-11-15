@@ -10,15 +10,17 @@
       "item": "minecraft:bricks"
     },
     "u": {
-      "tag": "forge:power_supply_units"
+      "tag": "c:power_supply_units"
     }
   },
   "result": {
     "id": "baseelectric:electric_furnace"
   },
   "group": "baseelectric:electric_furnace",
-  "forge:condition": {
-    "type": "basepower:tag_not_empty",
-    "tag": "forge:power_supply_units"
-  }
+  "neoforge:conditions": [
+    {
+      "type": "basepower:tag_not_empty",
+      "tag": "c:power_supply_units"
+    }
+  ]
 }

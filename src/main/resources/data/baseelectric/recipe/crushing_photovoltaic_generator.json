@@ -1,23 +1,25 @@
 {
-  "type": "basemetals:crushing",
+  "type": "mmdlib:crushing",
   "ingredient": {
     "item": "baseelectric:photovoltaic_generator"
   },
   "result": {
-    "id": "baseelectric:psu",
-    "count": 1
+    "count": 1,
+    "item": "baseelectric:psu"
   },
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "forge:mod_loaded",
-        "modid": "basemetals"
-      },
-      {
-        "type": "baseelectric:recipe_mode",
-        "mode": "APOCALYPTIC"
-      }
-    ]
-  }
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "neoforge:mod_loaded",
+          "modid": "basemetals"
+        },
+        {
+          "type": "baseelectric:recipe_mode",
+          "mode": "APOCALYPTIC"
+        }
+      ]
+    }
+  ]
 }

@@ -10,7 +10,7 @@ const recipes = path.join(data, 'recipe');
 const output = path.join(data, 'advancement/recipes');
 const check = process.argv.includes('--check');
 const ignored = new Set(['item:minecraft:stick', 'item:minecraft:string',
-  'item:minecraft:feather', 'tag:forge:rods/wooden']);
+  'item:minecraft:feather', 'tag:c:rods/wooden']);
 
 function choices(value) {
   if (Array.isArray(value)) return value.flatMap(choices);

@@ -39,7 +39,7 @@ public class BlockLootResourceTest {
         JsonObject formats = pack.getAsJsonObject("supported_formats");
         assertEquals(34, formats.get("min_inclusive").getAsInt());
         assertEquals(48, formats.get("max_inclusive").getAsInt());
-        assertFalse(pack.has("forge:server_data_pack_format"));
+        assertFalse(pack.has("c:server_data_pack_format"));
     }
 
     @Test public void eachTrackStateUsesTheNativeCutoutRenderLayer() throws Exception {

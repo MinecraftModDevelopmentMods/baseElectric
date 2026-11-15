@@ -1,108 +1,81 @@
-name: baseElectric 1.21.1 CI
-
+name: baseElectric NeoForge 1.21.1 CI
 on:
   push:
-    branches: [master-1.21.1, 'feature/**']
+    branches: [master-1.21.1-neo, 'feature/**']
   pull_request:
-    branches: [master-1.21.1]
-
+    branches: [master-1.21.1-neo]
 permissions:
   contents: read
-
 concurrency:
-  group: baseelectric-1.21.1-${{ github.workflow }}-${{ github.ref }}
+  group: baseelectric-1211-neo-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   build:
     name: Build, test, and audit
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 30
     steps:
-      - name: Check out baseElectric
+      - name: Check out Electric source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Use canonical LF dependency inputs
-        run: git config --global core.autocrlf false
-      - name: Verify merged and public dependency pins
-        id: public-pins
+        with:
+          fetch-depth: 0
+      - name: Test native dependency guards
+        shell: pwsh
+        run: ./.github/test-native-dependencies.ps1 -EvidenceDirectory "$env:RUNNER_TEMP/electric-native-pin-tests"
+      - name: Require approved public native dependency pins
+        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: bash .github/verify-published-pins.sh
-      - name: Check out pinned OreSpawn tool source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          repository: MinecraftModDevelopmentMods/OreSpawn
-          ref: ${{ steps.public-pins.outputs.orespawn_ref }}
-          path: .ci-dependencies/OreSpawn
-      - name: Check out released basePower source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          repository: MinecraftModDevelopmentMods/basePower
-          ref: ${{ steps.public-pins.outputs.power_ref }}
-          path: .ci-dependencies/basePower
-      - name: Install Java 25 for Mavenizer
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
-        with:
-          distribution: temurin
-          java-version: '25.0.3+9.0.LTS'
-      - name: Install Java 8 for the launcher helper
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
-        with:
-          distribution: temurin
-          java-version: '8.0.502+7'
+        run: ./.github/verify-native-dependencies.ps1 -DownloadDirectory "$env:RUNNER_TEMP/electric-native-inputs"
       - name: Install Java 21 for Gradle and production
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
           java-version: '21.0.7+6.0.LTS'
-      - name: Use pinned build toolchains
+      - name: Use pinned build toolchain
         run: >-
-          echo "MMD_GRADLE_TOOLCHAINS=-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64
+          echo "MMD_GRADLE_TOOLCHAINS=-Porg.gradle.java.installations.paths=$JAVA_HOME
           -Porg.gradle.java.installations.auto-detect=false
           -Porg.gradle.java.installations.auto-download=false" >> "$GITHUB_ENV"
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
-      - name: Verify the Forge 52 build inputs
-        shell: bash
-        env:
-          ORESPAWN_REF: ${{ steps.public-pins.outputs.orespawn_ref }}
-          POWER_REF: ${{ steps.public-pins.outputs.power_ref }}
+      - name: Build and audit native candidate
         run: |
-          set -euo pipefail
-          orespawn="$GITHUB_WORKSPACE/.ci-dependencies/OreSpawn"
-          power="$GITHUB_WORKSPACE/.ci-dependencies/basePower"
-          test "$(git -C "$orespawn" rev-parse HEAD)" = "$ORESPAWN_REF"
-          test "$(git -C "$power" rev-parse HEAD)" = "$POWER_REF"
-          mavenizer="$orespawn/ci-fixtures/tools/minecraft-mavenizer-0.5.21-orespawn-compat.jar"
-          printf '%s  %s\n' '019032A4A26ECB473D403EF017054D5892CE59A9904E8831B452287CD756397E' "$mavenizer" | sha256sum -c -
-          echo "MAVENIZER=$mavenizer" >> "$GITHUB_ENV"
-      - name: Build and audit release artifacts
-        shell: bash
-        run: |
-          ./gradlew $MMD_GRADLE_TOOLCHAINS clean check build javadoc verifyReleaseDependencies verifyReleaseArtifacts \
-            writeReleaseChecksums verifyEclipseProductionClasspath --no-build-cache --no-daemon --stacktrace \
-            "-Pforge52MavenizerJar=$MAVENIZER" "-PpowerAdvantageDeobfJar=$POWER_PLAYER" \
-            "-PbaseMetalsDeobfJar=$METALS_PLAYER" "-PoreSpawnDeobfJar=$ORESPAWN_PLAYER" \
-            "-PforgeInstallerJar=$FORGE_INSTALLER"
-      - name: Upload audited release candidate
+          chmod +x gradlew
+          ./gradlew $MMD_GRADLE_TOOLCHAINS -I .github/pinned-native-inputs.gradle \
+            clean check build javadoc nativeResourceChecks verifyReleaseDependencies \
+            verifyReleaseArtifacts writeReleaseChecksums verifyEclipseProductionClasspath \
+            "-PpowerAdvantageJar=$POWER_PLAYER" "-PbaseMetalsJar=$BASE_METALS_JAR" \
+            "-PmmdlibJar=$MMDLIB_JAR" "-PoreSpawnJar=$ORESPAWN_JAR" \
+            --no-daemon --stacktrace
+          node tools/verify-native-port.js
+          node tools/generate-recipe-unlocks.js --check
+      - name: Upload CI candidate, not release approval
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: baseElectric-1.21.1-${{ github.sha }}
+          name: baseElectric-1.21.1-neo-${{ github.sha }}-unapproved
           if-no-files-found: error
           retention-days: 30
           path: |
-            build/libs/baseElectric-2.2.15.121011.jar
-            build/libs/baseElectric-2.2.15.121011-sources.jar
-            build/libs/baseElectric-2.2.15.121011-javadoc.jar
+            build/libs/baseElectric-${{ env.CHILD_VERSION }}.jar
+            build/libs/baseElectric-${{ env.CHILD_VERSION }}-sources.jar
+            build/libs/baseElectric-${{ env.CHILD_VERSION }}-javadoc.jar
             build/release/SHA256SUMS
             CHANGELOG.txt
       - name: Upload diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: baseElectric-1.21.1-diagnostics-${{ github.sha }}
+          name: baseElectric-1211-neo-diagnostics-${{ github.sha }}
           if-no-files-found: ignore
           retention-days: 14
           path: |
             build/test-results/**
             build/reports/**
+            ${{ runner.temp }}/electric-native-pin-tests/**
+            ${{ runner.temp }}/electric-native-inputs/verified-inputs.json
+      - name: Record remaining local delivery gates
+        if: always()
+        shell: pwsh
+        run: |
+          'Hosted checks do not replace local GameTests, ECJ, packaged gameplay, migration, endurance, rendered-client checks or manual acceptance. Dependency approval is enforced before builds.' | Add-Content $env:GITHUB_STEP_SUMMARY

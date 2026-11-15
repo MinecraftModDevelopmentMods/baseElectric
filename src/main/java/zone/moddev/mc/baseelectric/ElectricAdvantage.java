@@ -7,12 +7,13 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.loading.FMLPaths;
 import cyano.poweradvantage.api.migration.LegacyConfigMigration;
 import cyano.poweradvantage.api.migration.LegacyConfigMigration.Mapping;
 import cyano.poweradvantage.api.migration.LegacyConfigMigration.ValueType;
@@ -25,30 +26,30 @@ import zone.moddev.mc.baseelectric.init.Villages;
 import zone.moddev.mc.baseelectric.recipe.RecipeConditions;
 import zone.moddev.mc.baseelectric.migration.ElectricLegacyMigrations;
 
-/** Forge 1.21.1 entry point for baseElectric. */
+/** NeoForge 1.21.1 entry point for baseElectric. */
 @Mod(ElectricAdvantage.MODID)
 public final class ElectricAdvantage {
     public static final String MODID = "baseelectric";
     public static final String LEGACY_MODID = "electricadvantage";
     public static final String NAME = "baseElectric";
-    public static final String VERSION = "2.2.15.121011";
+    public static final String VERSION = "2.2.20.121012";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static ElectricAdvantage INSTANCE;
 
     public final Set<String> PLASTIC_FLUID_MATERIALS = new HashSet<>();
     public String LASER_SOUND = "minecraft:block.note_block.bass";
 
-    public ElectricAdvantage(FMLJavaModLoadingContext context) {
+    public ElectricAdvantage(IEventBus bus, ModContainer context) {
         INSTANCE = this;
         ElectricLegacyMigrations.register();
-        RecipeConditions.register(context.getModEventBus());
+        RecipeConditions.register(bus);
 
         migrateLegacyOreSpawnConfiguration();
         migrateLegacyConfiguration();
         context.registerConfig(ModConfig.Type.COMMON, ElectricAdvantageConfig.SPEC);
-        context.getModEventBus().addListener(ElectricAdvantageConfig::onConfigLoading);
-        context.getModEventBus().addListener(this::commonSetup);
-        context.getModEventBus().addListener(this::enqueueInterModCommunication);
+        bus.addListener(ElectricAdvantageConfig::onConfigLoading);
+        bus.addListener(this::commonSetup);
+        bus.addListener(this::enqueueInterModCommunication);
     }
 
     private static void migrateLegacyOreSpawnConfiguration() {
