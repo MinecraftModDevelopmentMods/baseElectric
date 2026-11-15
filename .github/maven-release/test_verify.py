@@ -56,7 +56,8 @@ class ReleaseTargetTests(unittest.TestCase):
                 patch.object(verify, "github") as github, patch.object(verify, "read_url") as read_url, \
                 patch.object(verify, "stage") as stage, contextlib.redirect_stdout(output):
             verify.main()
-        self.assertEqual("minecraft=1.21.11\njava=Java 21\n", output.getvalue())
+        self.assertEqual("minecraft=1.21.11\njava=Java 21\nloader=forge\n"
+                         "loader_display=Forge\n", output.getvalue())
         github.assert_not_called()
         read_url.assert_not_called()
         stage.assert_not_called()
