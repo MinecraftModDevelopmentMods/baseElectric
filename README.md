@@ -67,17 +67,20 @@ world migration require separate acceptance on disposable copies. See
 
 ## Release Status
 
-Manual testing has been accepted for the release campaign. Local qualification
-passed against the public pins: 109 native tests, 24 resource checks, release
-audits and independent ECJ compilation. Earlier seven-test GameTest runs in
-each recipe mode and the accepted gameplay/endurance results remain tied to
-the unchanged frozen player; those longer checks were not repeated here.
-An independent-cache full rebuild reproduced the player and sources archives.
-The canonical Javadoc archive was verified with repeated generation.
-Power's merged commit and public Maven hash are now pinned; final qualification
-against freshly downloaded public inputs passed. See the port notes
-for exact inputs and evidence. This Electric candidate has not been merged or
-published.
+The NeoForge port passed manual testing. Qualification against the released
+Power and dependency jars includes 110 native tests, 25 resource checks,
+seven GameTests in each recipe mode, ECJ compilation and release audits.
+
+The combined rig checks connected machine operation, legacy-world upgrades,
+recipes, real chunk unloading and full restarts. Fresh and upgraded worlds
+also completed 30-minute endurance runs and independent checkpoint replay.
+The port notes distinguish these packaged checks from the retained
+development-client and manual evidence.
+
+Windows and hosted Linux builds produce the same player, sources and Javadoc
+archives. The first hosted audit caught differing recipe line endings; text
+resources now use UTF-8 and LF without changing any recipe values or class
+files. See the [port notes](docs/NEOFORGE1211.md) for the exact final hashes.
 
 Native CI and CodeQL use the same four verified dependency jars. Their checked-in
 dependency lock is `HOSTED_INPUTS_READY`; the guard still requires exact public

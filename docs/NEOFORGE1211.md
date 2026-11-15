@@ -30,6 +30,15 @@ world for its old mod set; no test suite covers every modpack.
 
 ## Qualification
 
+Current candidate: `BC866F83F55FAD289EC36808D33A71B2602B8062EB71FC2E80C9CE3B0495F6D8`.
+The canonical-LF repair passed 110 native tests, 25 resource checks, ECJ and
+release audits. Exact entry comparison found only 62 JSON CRLF-to-LF changes;
+all 95 class entries and the TOML metadata are byte-identical, and all 331 JSON
+documents are semantically equal. Git-LF resource inputs reproduce this same
+jar. Packaged requalification is **PENDING_PARENT**; the old `61457EDF...`
+approval does not qualify this candidate. The campaign results below predate
+this player-format correction and remain historical evidence only.
+
 `tools/verify-native-port.js` compares the actual Forge baseline to the local
 candidate. It checks byte-identical visual assets, recipe IDs and counts,
 common tag members, migration/GUI contracts and normal drill mining.
@@ -50,8 +59,8 @@ passed on 2026-11-15 using Power SHA-256
 `E9ED662E15C3510E2A48CE85448D3D39C6EF2667208F29EB281791200507F77E`.
 The checks passed as follows:
 
-- 109 native JUnit tests and 24 independent resource checks against freshly downloaded public inputs, with no failures or skips.
-- Earlier seven-test GameTest runs in each of NORMAL, TECH_PROGRESSION and APOCALYPTIC retain their exact native loaded-mod receipts. They were not repeated during the final public-pin phase; the frozen player bytes are identical.
+- 110 native JUnit tests and 25 independent resource checks against the pinned public inputs, with no failures or skips.
+- Seven GameTests repeated in each of NORMAL, TECH_PROGRESSION and APOCALYPTIC after recipe-resource normalization, with exact native loaded-mod receipts.
 - Dependency hashes, release configuration, player/sources/Javadoc jars, checksums and repository hygiene.
 - Eclipse production metadata, native IDE synchronization and three repeated classpath merges with a duplicate-entry negative control.
 - ECJ compilation of 86 production and 35 test sources, plus three isolation/module negative controls; this gate does not execute JUnit.
@@ -87,9 +96,22 @@ on approved merged/public Power pins. Keep all previous failure logs and test
 reports. New release-campaign evidence belongs under
 `D:/PowerAdvantage/_verification/base-1211neo-release-20261115/electric`, with
 native GameTest receipts retained under unique `build/port-evidence` run paths.
-The final public-input run is `public-power-pins-20261115-01`; earlier reports
-and jars were archived there before the rebuild. The player jar SHA-256 is
-`61457EDF8B1C097AE17805DCC26CB7E0F4F661208B777A0B53C56BB383EEDA85`.
+The public-pin run is `public-power-pins-20261115-01`; the subsequent resource
+packaging proof and native rerun are in `canonical-player-lf-20261115-01`.
+The final player jar SHA-256 is
+`BC866F83F55FAD289EC36808D33A71B2602B8062EB71FC2E80C9CE3B0495F6D8`.
+The rejected `61457EDF...` jar and failed hosted audit are retained separately.
+Their 62 differences are recipe JSON CRLF-to-LF changes only: all 95 class
+files and every other resource are unchanged, and all 331 JSON documents have
+identical values. A Git-normalized resource fixture reproduces the final jar.
+
+The final jar received fresh combined machine, migration, recipe, unloading,
+drilling and generation checks. Fresh and upgraded worlds completed separate
+30-minute endurance periods, full restarts and resumed operation. Independent
+replay verified 33 checkpoints and 528 station snapshots per world. These runs
+use the `lf-a` suffix under the shared campaign evidence directory.
+The earlier rendered development-client evidence covers unchanged client code
+and assets; no new exact-jar-bound client run is claimed for this packaging fix.
 Do not use the historical Forge packaged-smoke or ECJ launcher scripts for this
 NeoForge candidate.
 
@@ -120,5 +142,6 @@ tagged source and successful push CI on the same release-branch commit.
 
 Candidate ZIPs retain `build/libs/` jar paths, `build/release/SHA256SUMS` and
 `CHANGELOG.txt` for the default-branch dispatcher. Tags validate identity only;
-publication remains a separate, explicitly approved step. No hosted workflow
-has been run or claimed successful during this local preparation.
+publication remains a separate, explicitly approved step. Hosted candidate
+checks passed, and all three hosted Linux archives match the local Windows
+archives. Only the approved post-merge artifact may be published.
