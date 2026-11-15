@@ -2,7 +2,9 @@
 
 baseElectric continues DrCyano's Electric Advantage, adding generators, batteries, wiring and electric machines to basePower.
 
-Use basePower `2.4.5.113021` and Base Metals `3.0.2.113021` for Forge 1.13.2. baseElectric's machines and parts are on the shared **basePower** creative tab. Back up the world and config, then replace the old jars together and test on a copy. Save, close Minecraft completely, and reopen the copy to check your machines.
+Use basePower `2.4.7.113021` and Base Metals `3.0.3.113021` for Forge 1.13.2. baseElectric's machines and parts are on the shared **basePower** creative tab. Back up the world and config, then replace the old jars together and test on a copy. Save, close Minecraft completely, and reopen the copy to check your machines.
+
+The [current dependency qualification](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.13.2/docs/1.13/DEPENDENCY-QUALIFICATION-20261115.md) records the candidate jars, automated checks and release order.
 
 The recipe book unlocks crafting and smelting recipes when you pick up the ingredients. See the [material checklist](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.13.2/docs/1.13/RECIPE-DISCOVERY.md) for where to start. Custom machine recipes aren't shown in the crafting book. After changing recipes, run `node tools/generate-recipe-unlocks.js` and `check`.
 
@@ -10,7 +12,17 @@ The recipe book unlocks crafting and smelting recipes when you pick up the ingre
 
 The `master-1.13.2` build uses ForgeGradle 7.0.34 and Gradle 9.6.1. Run Gradle with Java 17; production code is compiled for Java 8.
 
-Build the pinned basePower, Base Metals and OreSpawn development jars first. The source commits and checksums in `gradle.properties` keep local and CI builds on the same inputs.
+Build the pinned development jars from the released basePower 2.4.7.113021,
+Base Metals 3.0.3.113021 and OreSpawn 4.1.7.113021 sources first. The Power pin
+matches [CurseForge file 9638343](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9638343).
+No local dependency override is needed for these public releases.
+For future unpublished candidates, create the ignored file `gradle/development-dependencies.properties`
+with `allowUnreleasedDependencies=true`. Jar checksums and versions are still
+verified. Publication stays blocked in local mode. Before release, record the
+published source commit and CurseForge file ID instead of `UNRELEASED`, then
+disable local mode.
+The local file can pin `baseMetalsDeobfJar`, `oreSpawnDeobfJar` and
+`powerAdvantageDeobfJar` to checked copies under `libs/development`.
 With the standard sibling layout:
 
 ```text
@@ -40,19 +52,19 @@ The Eclipse resource root is `build/resources/main`, so its builder copies expan
 
 ## Compatibility
 
-The [stronger regression-test backport](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/TEST-COVERAGE-BACKPORT.md)
+The [stronger regression-test backport](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.13.2/docs/1.13/TEST-COVERAGE-BACKPORT.md)
 records measured machine work, restart checks, repaired windows and remaining limits.
 
-For an all-Advantage play-test, run `prepareCombinedEclipseLaunch` in the sibling PowerAdvantage checkout and select its `runClientAllAdvantage.launch`. The [native resource probe](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/test-rig/client-resources/README.md) checks models, textures and names across all three mods. These resource checks do not replace gameplay testing.
+For a combined play-test, run `prepareCombinedEclipseLaunch` in the sibling basePower checkout and select its `runClientAllAdvantage.launch`. The [native resource probe](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.13.2/test-rig/client-resources/README.md) checks models, textures and names across all three mods. These resource checks do not replace gameplay testing.
 
 The implementation namespace is `zone.moddev.mc.baseelectric`. Electric registers its legacy block, tile and hydroturbine mappings with basePower. Old Electric Advantage and baseElectric worlds are converted to the new IDs while carrying over saved batteries, inventories, fluids, and machine state.
 
 The RF- and Tech Reborn-labelled converters belong to Power Advantage and now use Forge Energy.
-Read the [1.13 migration guide](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/MIGRATION.md) before upgrading, and always use a backup. The [qualification notes](https://github.com/MinecraftModDevelopmentMods/PowerAdvantage/blob/master-1.13.2/docs/1.13/CURRENT-QUALIFICATION.md) list the tested scenarios and remaining gaps.
+Read the [1.13 migration guide](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.13.2/docs/1.13/MIGRATION.md) before upgrading, and always use a backup. The [qualification notes](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.13.2/docs/1.13/CURRENT-QUALIFICATION.md) list the tested scenarios and remaining gaps.
 
 ## Generator Follow-Up
 
-The [generator follow-up](../../PowerAdvantage/docs/1.13/TEST-COVERAGE-BACKPORT.md#generator-follow-up) records the older `pa113-candidate-g` inputs.
+The [generator follow-up](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.13.2/docs/1.13/TEST-COVERAGE-BACKPORT.md#generator-follow-up) records the older `pa113-candidate-g` inputs.
 Its 126 operating jobs and 126 cold checks, 39 GUI windows, 351 caption cases,
 355 rejected broken controls, eight frozen routes, five connected routes and
 paired 30-minute runs passed. This is a pre-final Steam-control checkpoint,
@@ -61,7 +73,7 @@ the final sweep. Manual play-testing and release review remain separate.
 
 ## Final T Candidate
 
-The [final-t checkpoint](../../PowerAdvantage/docs/1.13/TEST-COVERAGE-BACKPORT.md#final-t-candidate)
+The [final-t checkpoint](https://github.com/MinecraftModDevelopmentMods/basePower/blob/master-1.13.2/docs/1.13/TEST-COVERAGE-BACKPORT.md#final-t-candidate)
 records profile `pa113-candidate-i` and its exact jar hashes. All 132 operating
 jobs and 132 cold-restart comparisons pass, including an independent audit of
 six Steam controls and their nine tile-hold records. GUI checks pass for 39

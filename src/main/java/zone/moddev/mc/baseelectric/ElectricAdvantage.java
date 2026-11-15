@@ -38,7 +38,7 @@ import zone.moddev.mc.baseelectric.migration.ElectricLegacyMigrations;
 public final class ElectricAdvantage {
     public static final String MODID = "baseelectric";
     public static final String NAME = "Electric Advantage";
-    public static final String VERSION = "2.2.7.113021";
+    public static final String VERSION = "2.2.8.113021";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
     public static ElectricAdvantage INSTANCE;
 

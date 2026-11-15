@@ -14,6 +14,8 @@ plugins {
     id 'net.minecraftforge.gradle' version '7.0.34'
 }
 
+apply from: 'gradle/development-dependencies.gradle'
+
 group = project.mod_group
 version = project.mod_version
 base.archivesName = 'baseElectric'
@@ -169,7 +171,8 @@ def defaultPowerAdvantageDeobfJar = file("../../PowerAdvantage/build/libs-dev/" 
         + "basePower-${project.basepower_version}-deobf.jar")
 def powerAdvantageDeobfJar = providers.gradleProperty('powerAdvantageDeobfJar')
         .map { file(it) }
-        .getOrElse(defaultPowerAdvantageDeobfJar)
+        .getOrElse(file(developmentDependencyFiles.getProperty('powerAdvantageDeobfJar',
+                defaultPowerAdvantageDeobfJar.path)))
 if (!powerAdvantageDeobfJar.isFile()) {
     throw new GradleException("Missing PowerAdvantage deobf jar at ${powerAdvantageDeobfJar}. "
             + "Run gradlew.bat deobfJar in ../../PowerAdvantage first, or pass "
@@ -178,15 +181,17 @@ if (!powerAdvantageDeobfJar.isFile()) {
 // These defaults follow the sibling MMD checkout layout. They are constants
 // here so another developer can override them without editing the script.
 def baseMetalsDeobfJar = file(providers.gradleProperty('baseMetalsDeobfJar')
-        .getOrElse('../../../../BaseMetals/BaseMetals 113/BaseMetals/build/libs-dev/'
-                + "BaseMetals-${project.basemetals_version}-deobf.jar"))
+        .getOrElse(developmentDependencyFiles.getProperty('baseMetalsDeobfJar',
+                '../../../../BaseMetals/BaseMetals 113/BaseMetals/build/libs-dev/'
+                + "BaseMetals-${project.basemetals_version}-deobf.jar")))
 if (!baseMetalsDeobfJar.isFile()) {
     throw new GradleException("Missing Base Metals deobf jar at ${baseMetalsDeobfJar}. "
             + "Build Base Metals 1.13 first, or pass -PbaseMetalsDeobfJar=<path>.")
 }
 def oreSpawnDeobfJar = file(providers.gradleProperty('oreSpawnDeobfJar')
-        .getOrElse('../../../../MinecraftMineralogy/OS113/OreSpawn/build/libs-dev/'
-                + 'OreSpawn-4.1.0.113021-deobf.jar'))
+        .getOrElse(developmentDependencyFiles.getProperty('oreSpawnDeobfJar',
+                '../../../../MinecraftMineralogy/OS113/OreSpawn/build/libs-dev/'
+                + "OreSpawn-${project.orespawn_version}-deobf.jar")))
 if (!oreSpawnDeobfJar.isFile()) {
     throw new GradleException("Missing OreSpawn deobf jar at ${oreSpawnDeobfJar}. "
             + "Build OreSpawn 1.13 first, or pass -PoreSpawnDeobfJar=<path>.")
@@ -341,7 +346,7 @@ tasks.register('verifyReleaseConfiguration') {
     group = 'verification'
     description = 'Validates release identity, target metadata, and dependency policy.'
     doLast {
-        if (project.mod_version != '2.2.7.113021') {
+        if (project.mod_version != '2.2.8.113021') {
             throw new GradleException("Unexpected ElectricAdvantage release version: ${project.mod_version}")
         }
         if (project.minecraft_version != '1.13.2'
@@ -368,10 +373,12 @@ tasks.register('verifyReleaseConfiguration') {
                 || project.cf_versions != '1.13.2') {
             throw new GradleException('Unexpected CurseForge dependency or game-version metadata')
         }
-        if (project.basepower_version != '2.4.5.113021'
+        if (project.basepower_version != '2.4.7.113021'
                 || project.basepower_source_repository != 'MinecraftModDevelopmentMods/basePower'
-                || !(project.basepower_source_ref ==~ /[a-f0-9]{40}/)
-                || !(project.basepower_curse_file_id ==~ /[0-9]+/)
+                || (!(project.basepower_source_ref ==~ /[a-f0-9]{40}/)
+                    && !(localDependencyBuild && project.basepower_source_ref == 'UNRELEASED'))
+                || (!(project.basepower_curse_file_id ==~ /[0-9]+/)
+                    && !(localDependencyBuild && project.basepower_curse_file_id == 'UNRELEASED'))
                 || !(project.basepower_release_sha256 ==~ /[A-F0-9]{64}/)
                 || !(project.basepower_deobf_sha256 ==~ /[A-F0-9]{64}/)) {
             throw new GradleException('Unexpected PowerAdvantage compile dependency identity')
@@ -379,12 +386,12 @@ tasks.register('verifyReleaseConfiguration') {
         String mainSource = file(
                 'src/main/java/zone/moddev/mc/baseelectric/ElectricAdvantage.java').getText('UTF-8')
         if (!mainSource.contains('MODID = "baseelectric"')
-                || !mainSource.contains('VERSION = "2.2.7.113021"')) {
+                || !mainSource.contains('VERSION = "2.2.8.113021"')) {
             throw new GradleException('ElectricAdvantage source identity changed')
         }
         String metadata = file('src/main/resources/META-INF/mods.toml').getText('UTF-8').replace('\r\n', '\n')
         ['modId="baseelectric"', 'modId="basepower"', 'modId="basemetals"',
-         'versionRange="[2.4.5.113021,3.0.0)"'].each { marker ->
+         'versionRange="[2.4.7.113021,3.0.0)"'].each { marker ->
             if (!metadata.contains(marker)) {
                 throw new GradleException("Source mods.toml is missing ${marker}")
             }
@@ -424,7 +431,7 @@ tasks.register('verifyReleaseDependencies') {
         String actualBaseMetalsHash = MessageDigest.getInstance('SHA-256')
                 .digest(baseMetalsDeobfJar.bytes).encodeHex().toString().toUpperCase()
         if (!(actualBaseMetalsHash in [project.basemetals_deobf_sha256,
-                                      project.basemetals_deobf_lf_sha256])) {
+                                      project.findProperty('basemetals_deobf_lf_sha256')])) {
             throw new GradleException("Base Metals SHA-256 is ${actualBaseMetalsHash}, expected "
                     + project.basemetals_deobf_sha256)
         }
