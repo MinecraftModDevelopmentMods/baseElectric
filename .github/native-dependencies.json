@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "status": "HOSTED_INPUTS_READY",
+  "reason": "Power PR #51 is merged and its public Maven player jar was independently downloaded with the approved hash. All four native dependencies are published and pinned.",
+  "target": {
+    "minecraft": "1.21.1",
+    "neoforge": "21.1.265",
+    "java": "21",
+    "moddev": "2.0.148",
+    "gradle": "9.8.0",
+    "releaseBranch": "master-1.21.1-neo"
+  },
+  "dependencies": [
+    {
+      "id": "basepower",
+      "group": "zone.moddev.mc.basepower",
+      "artifact": "basePower",
+      "versionProperty": "poweradvantage_version",
+      "hashProperty": "poweradvantage_runtime_sha256",
+      "version": "2.4.19.121012",
+      "mavenVersion": "2.4.19.121012",
+      "modVersion": "2.4.19.121012",
+      "sha256": "E9ED662E15C3510E2A48CE85448D3D39C6EF2667208F29EB281791200507F77E",
+      "state": "PUBLISHED",
+      "source": {
+        "repository": "MinecraftModDevelopmentMods/basePower",
+        "branch": "master-1.21.1-neo",
+        "commit": "c5550ce133ce0f5d3fe3e5227f021b390cdc7953",
+        "tag": "2.4.19.121012"
+      },
+      "requiredEntry": "zone/moddev/mc/basepower/compat/CrushingRecipes.class"
+    },
+    {
+      "id": "basemetals",
+      "group": "zone.moddev.mc.basemetals",
+      "artifact": "BaseMetals",
+      "versionProperty": "basemetals_version",
+      "hashProperty": "basemetals_sha256",
+      "version": "4.0.1.121012+Neo",
+      "mavenVersion": "4.0.1.121012+Neo",
+      "modVersion": "4.0.1.121012+Neo",
+      "sha256": "B4BB1CBCD54DFCF2EC8465ACE82715EDCCC5BF1E5C15E14C627AE7CC58E8FED1",
+      "state": "PUBLISHED",
+      "source": {
+        "repository": "MinecraftModDevelopmentMods/BaseMetals",
+        "branch": "master-1.21.1-neo",
+        "commit": "39b240bb0d9f80997847ab4df70a2dd23e6ea826"
+      },
+      "requiredEntry": "zone/moddev/mc/basemetals/migration/LegacyWorldDataHook.class"
+    },
+    {
+      "id": "mmdlib",
+      "group": "zone.moddev.mc.lib",
+      "artifact": "mmdlib",
+      "versionProperty": "mmdlib_version",
+      "hashProperty": "mmdlib_sha256",
+      "version": "2.0.2.121012+Neo",
+      "mavenVersion": "2.0.2.121012+Neo",
+      "modVersion": "2.0.2.121012+Neo",
+      "sha256": "EE417C82D588B0050A49709B6430CF836315E71E4DB2DF4036D3735454BC5311",
+      "state": "PUBLISHED"
+    },
+    {
+      "id": "orespawn",
+      "group": "zone.moddev.mc.orespawn",
+      "artifact": "OreSpawn",
+      "versionProperty": "orespawn_version",
+      "hashProperty": "orespawn_sha256",
+      "version": "4.1.1.121012",
+      "mavenVersion": "4.1.1.121012",
+      "modVersion": "4.1.1.121012",
+      "sha256": "BF02244E25B5FBF89CCAD45F41B2624B850D4BBCB70CF66822249BA233A00976",
+      "state": "PUBLISHED",
+      "source": {
+        "repository": "MinecraftModDevelopmentMods/OreSpawn",
+        "branch": "master-1.21.1-neo",
+        "commit": "f141ae56ea69e4c9f7f8ebd7697b933a91ee5001"
+      }
+    }
+  ]
+}

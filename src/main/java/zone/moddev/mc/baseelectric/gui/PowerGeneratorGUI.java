@@ -1,7 +1,7 @@
 package zone.moddev.mc.baseelectric.gui;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.machines.ElectricGeneratorTileEntity;

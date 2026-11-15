@@ -9,10 +9,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.blocks.ElectricConduitBlock;
 import zone.moddev.mc.baseelectric.blocks.ElectricScaffoldBlock;
@@ -38,7 +38,7 @@ import zone.moddev.mc.basepower.blocks.BlockPowerSwitch;
 import zone.moddev.mc.basepower.init.ItemGroups;
 
 /** Stable block registry for Electric Advantage. */
-@Mod.EventBusSubscriber(modid = ElectricAdvantage.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ElectricAdvantage.MODID, bus = EventBusSubscriber.Bus.MOD)
 public final class Blocks {
     private static final Map<String, Block> ALL_BLOCKS = new LinkedHashMap<>();
 
@@ -106,14 +106,14 @@ public final class Blocks {
     }
 
     @SubscribeEvent public static void registerBlocks(RegisterEvent event) {
-        event.register(ForgeRegistries.Keys.BLOCKS, registry -> {
+        event.register(Registries.BLOCK, registry -> {
             constructBlocks();
             ALL_BLOCKS.forEach((id, block) -> registry.register(ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, id), block));
         });
     }
 
     @SubscribeEvent public static void registerBlockItems(RegisterEvent event) {
-        event.register(ForgeRegistries.Keys.ITEMS, registry -> ALL_BLOCKS.forEach((id, block) -> {
+        event.register(Registries.ITEM, registry -> ALL_BLOCKS.forEach((id, block) -> {
             BlockItem item = new BlockItem(block, new Item.Properties());
             if (!"pump_pipe_electric".equals(id) && !"laser_turret_evil".equals(id)) {
                 ItemGroups.show(item);

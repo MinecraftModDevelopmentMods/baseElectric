@@ -64,7 +64,9 @@ public class OreHarvestContractTest {
             tags.add(net.minecraft.world.item.Tiers.GOLD.getIncorrectBlocksForDrops());
         }
         // Bind only the fresh test block's holder; leave the global registry alone.
-        block.builtInRegistryHolder().bindTags(tags);
+        var bind = net.minecraft.core.Holder.Reference.class.getDeclaredMethod("bindTags", java.util.Collection.class);
+        bind.setAccessible(true);
+        bind.invoke(block.builtInRegistryHolder(), tags);
     }
 
     private static boolean canHarvest(BlockState state, ItemStack held) throws Exception {

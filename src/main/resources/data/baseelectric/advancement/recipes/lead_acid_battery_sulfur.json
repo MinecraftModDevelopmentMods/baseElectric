@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:ingots/lead"
+            "items": "#c:ingots/lead"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:sulfur"
+            "items": "#c:sulfur"
           }
         ]
       }
@@ -38,7 +38,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:plastic"
+            "items": "#c:plastic"
           }
         ]
       }

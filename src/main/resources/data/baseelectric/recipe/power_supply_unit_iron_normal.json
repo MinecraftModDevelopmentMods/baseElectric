@@ -6,38 +6,40 @@
   ],
   "key": {
     "w": {
-      "tag": "forge:wires"
+      "tag": "c:wires"
     },
     "c": {
-      "tag": "forge:circuit_boards"
+      "tag": "c:circuit_boards"
     },
     "s": {
-      "tag": "forge:ingots/iron"
+      "tag": "c:ingots/iron"
     }
   },
   "result": {
     "id": "baseelectric:psu"
   },
   "group": "baseelectric:psu",
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "baseelectric:recipe_mode",
-        "mode": "NORMAL"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:circuit_boards"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:ingots/iron"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:wires"
-      }
-    ]
-  }
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "baseelectric:recipe_mode",
+          "mode": "NORMAL"
+        },
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:circuit_boards"
+        },
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:ingots/iron"
+        },
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:wires"
+        }
+      ]
+    }
+  ]
 }

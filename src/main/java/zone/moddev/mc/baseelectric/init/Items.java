@@ -6,16 +6,16 @@ import java.util.Set;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.minecraft.core.registries.Registries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.items.BatteryItem;
 import zone.moddev.mc.basepower.init.ItemGroups;
 
 /** Stable item registry for Electric Advantage. */
-@Mod.EventBusSubscriber(modid = ElectricAdvantage.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = ElectricAdvantage.MODID, bus = EventBusSubscriber.Bus.MOD)
 public final class Items {
     public static final Map<String, Item> allItems = new LinkedHashMap<>();
     public static Item blank_circuit_board;
@@ -71,7 +71,7 @@ public final class Items {
     }
 
     @SubscribeEvent public static void register(RegisterEvent event) {
-        event.register(ForgeRegistries.Keys.ITEMS, registry -> {
+        event.register(Registries.ITEM, registry -> {
             constructItems();
             allItems.forEach((id, item) ->
                     registry.register(ResourceLocation.fromNamespaceAndPath(ElectricAdvantage.MODID, id), ItemGroups.show(item)));

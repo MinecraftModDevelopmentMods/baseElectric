@@ -7,37 +7,39 @@
   ],
   "key": {
     "X": {
-      "tag": "forge:ingots/nickel"
+      "tag": "c:ingots/nickel"
     },
     "Y": {
-      "tag": "forge:dusts/redstone"
+      "tag": "c:dusts/redstone"
     },
     "Z": {
       "item": "minecraft:water_bucket"
     },
     "p": {
-      "tag": "forge:plastic"
+      "tag": "c:plastic"
     }
   },
   "result": {
     "id": "baseelectric:nickel_hydride_battery"
   },
   "group": "baseelectric:nickel_hydride_battery",
-  "forge:condition": {
-    "type": "forge:and",
-    "values": [
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:dusts/redstone"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:ingots/nickel"
-      },
-      {
-        "type": "basepower:tag_not_empty",
-        "tag": "forge:plastic"
-      }
-    ]
-  }
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:and",
+      "values": [
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:dusts/redstone"
+        },
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:ingots/nickel"
+        },
+        {
+          "type": "basepower:tag_not_empty",
+          "tag": "c:plastic"
+        }
+      ]
+    }
+  ]
 }

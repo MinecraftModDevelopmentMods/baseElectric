@@ -1,0 +1,50 @@
+import java.security.MessageDigest
+import java.util.zip.ZipFile
+
+tasks.register('verifyReleaseDependencies') {
+    group = 'verification'
+    description = 'Checks the exact Power, published Base Metals, MMDLib and OreSpawn qualification jars.'
+    doLast {
+        Map expected = [
+            ("basePower-${project.poweradvantage_version}.jar"): project.poweradvantage_sha256,
+            ("BaseMetals-${project.basemetals_version}.jar"): project.basemetals_sha256,
+            ("mmdlib-${project.mmdlib_version}.jar"): project.mmdlib_sha256,
+            ("OreSpawn-${project.orespawn_version}.jar"): project.orespawn_sha256
+        ]
+        def jars = sourceSets.main.runtimeClasspath.files.findAll { it.name.endsWith('.jar') }
+        expected.each { name, sha ->
+            def matches = jars.findAll { it.name == name }
+            if (matches.size() != 1 || !(sha ==~ /[A-Fa-f0-9]{64}/)) {
+                throw new GradleException("Missing or duplicate pinned dependency: ${name}")
+            }
+            String actual = MessageDigest.getInstance('SHA-256').digest(matches[0].bytes).encodeHex().toString()
+            if (!actual.equalsIgnoreCase(sha)) throw new GradleException("Changed native dependency: ${name}")
+            new ZipFile(matches[0]).withCloseable { archive ->
+                if (archive.getEntry('META-INF/neoforge.mods.toml') == null) {
+                    throw new GradleException("Wrong loader dependency: ${name}")
+                }
+            }
+        }
+        def forbidden = jars.findAll { it.name ==~ /(?i).*(?:reborncore|rf-api|tesla|forge-1[.]).*/ }
+        if (forbidden) throw new GradleException("Obsolete runtime dependencies: ${forbidden}")
+    }
+}
+tasks.named('compileJava') { dependsOn 'verifyReleaseDependencies' }
+tasks.named('verifyReleaseArtifacts') {
+    dependsOn 'verifyReleaseDependencies'
+    doLast {
+        new ZipFile(tasks.jar.archiveFile.get().asFile).withCloseable { zip ->
+            zip.entries().findAll { it.name.endsWith('.class') }.each { entry ->
+                byte[] header = zip.getInputStream(entry).readNBytes(8)
+                if (header.length != 8 || ((header[6] & 255) << 8 | (header[7] & 255)) != 65) {
+                    throw new GradleException("Non-Java21 production class: ${entry.name}")
+                }
+                if (entry.name.startsWith('zone/moddev/mc/basemetals/')
+                        || entry.name.startsWith('zone/moddev/mc/lib/')
+                        || entry.name.startsWith('zone/moddev/mc/orespawn/')) {
+                    throw new GradleException("Embedded native dependency: ${entry.name}")
+                }
+            }
+        }
+    }
+}

@@ -18,7 +18,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:microchips"
+            "items": "#c:microchips"
           }
         ]
       }
@@ -28,7 +28,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:solder"
+            "items": "#c:solder"
           }
         ]
       }

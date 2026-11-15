@@ -4,7 +4,7 @@ import java.util.Locale;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import org.junit.Test;
-import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.ICondition;
 import zone.moddev.mc.basepower.PowerAdvantage;
 import zone.moddev.mc.basepower.RecipeMode;
 import static org.junit.Assert.*;
@@ -24,7 +24,7 @@ public class RecipeConditionsTest {
                     for (RecipeMode selected : RecipeMode.values()) {
                         PowerAdvantage.recipeMode = selected;
                         assertEquals((selected == expected) != inverted,
-                                condition.test(ICondition.IContext.EMPTY, JsonOps.INSTANCE));
+                                condition.test(ICondition.IContext.EMPTY));
                     }
                 }
             }

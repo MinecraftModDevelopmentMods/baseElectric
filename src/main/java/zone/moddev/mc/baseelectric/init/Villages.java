@@ -7,8 +7,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.ItemCost;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.village.VillagerTradesEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 
 /** Adds the historical librarian offers through the native profession trade event. */
 public final class Villages {
@@ -18,7 +18,7 @@ public final class Villages {
 
     public static synchronized void init() {
         if (initialized) return;
-        MinecraftForge.EVENT_BUS.addListener(Villages::addTrades);
+        NeoForge.EVENT_BUS.addListener(Villages::addTrades);
         initialized = true;
     }
 

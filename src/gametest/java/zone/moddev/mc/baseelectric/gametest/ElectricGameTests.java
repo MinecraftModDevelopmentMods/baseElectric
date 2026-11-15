@@ -3,6 +3,8 @@ package zone.moddev.mc.baseelectric.gametest;
 import io.netty.buffer.Unpooled;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.TreeMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTest;
@@ -17,8 +19,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.gametest.GameTestDontPrefix;
-import net.minecraftforge.gametest.GameTestHolder;
+import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.neoforged.neoforge.gametest.GameTestHolder;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.init.Blocks;
 import zone.moddev.mc.baseelectric.init.Items;
@@ -26,11 +28,94 @@ import zone.moddev.mc.baseelectric.init.Power;
 import zone.moddev.mc.baseelectric.items.BatteryItem;
 import zone.moddev.mc.baseelectric.machines.ElectricDrillTileEntity;
 import zone.moddev.mc.baseelectric.machines.LaserTurretTileEntity;
+import zone.moddev.mc.baseelectric.machines.ElectricCrusherTileEntity;
+import zone.moddev.mc.baseelectric.compat.BaseMetalsCompat;
+import net.minecraft.core.Direction;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.fml.ModList;
 
-@GameTestHolder(value = ElectricAdvantage.MODID, namespace = ElectricAdvantage.MODID)
-@GameTestDontPrefix
+@GameTestHolder(ElectricAdvantage.MODID)
+@PrefixGameTestTemplate(false)
 public final class ElectricGameTests {
     private ElectricGameTests() {}
+
+    @GameTest(batch = ElectricAdvantage.MODID, template = "empty")
+    public static void exactNativeModsAreLoaded(GameTestHelper helper) {
+        Map<String, String> expected = Map.of(
+                "baseelectric", "2.2.20.121012",
+                "baseelectric_tests", "1.0.0",
+                "basepower", "2.4.19.121012",
+                "basemetals", "4.0.1.121012+Neo",
+                "mmdlib", "2.0.2.121012+Neo",
+                "orespawn", "4.1.1.121012",
+                "minecraft", "1.21.1",
+                "neoforge", "21.1.265");
+        Map<String, String> actual = new TreeMap<>();
+        ModList.get().getMods().forEach(mod -> actual.put(mod.getModId(), mod.getVersion().toString()));
+        helper.assertTrue(actual.equals(expected), "Wrong native GameTest mod set: " + actual);
+        com.mojang.logging.LogUtils.getLogger().info("ELECTRIC_GAMETEST_LOADED_MODS {}", actual);
+        helper.succeed();
+    }
+
+    @GameTest(batch = "baseelectric_shared_crushing", template = "empty")
+    public static void sharedCrusherHonorsRecipeRemovalAndCopiesOutputs(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var manager = level.getRecipeManager();
+        var recipes = java.util.List.copyOf(manager.getRecipes());
+        ItemStack input = new ItemStack(net.minecraft.world.item.Items.STONE);
+        var first = BaseMetalsCompat.getCrusherRecipeOutput(level, input);
+        helper.assertTrue(first != null && first.is(net.minecraft.world.item.Items.COBBLESTONE),
+                "The shared vanilla stone recipe is missing");
+        first.setCount(63);
+        var second = BaseMetalsCompat.getCrusherRecipeOutput(level, input);
+        helper.assertTrue(second != null && second.getCount() == 1,
+                "Crusher output aliases the recipe result");
+        helper.assertTrue(input.getCount() == 1, "Recipe lookup changed its input");
+        helper.setBlock(new BlockPos(1, 1, 1), Blocks.rock_crusher);
+        var crusher = (ElectricCrusherTileEntity) helper.getBlockEntity(new BlockPos(1, 1, 1));
+        crusher.setInputSlot(0, input.copy());
+        for (int tick = 0; tick < 200; tick++) {
+            crusher.setEnergy(500.0F, Power.ELECTRIC_POWER);
+            crusher.tickUpdate(true);
+        }
+        helper.assertTrue(crusher.getInputSlot(0) == null
+                && crusher.getOutputSlot(0) != null
+                && crusher.getOutputSlot(0).is(net.minecraft.world.item.Items.COBBLESTONE),
+                "The machine did not process the shared recipe with its existing timing");
+        try {
+            manager.replaceRecipes(recipes.stream().filter(holder -> !(holder.value()
+                    instanceof zone.moddev.mc.lib.common.recipes.CrushingRecipe)).toList());
+            helper.assertTrue(BaseMetalsCompat.getCrusherRecipeOutput(level, input) == null,
+                    "A hard-coded fallback bypassed recipe deletion");
+            helper.assertTrue(BaseMetalsCompat.getCrusherRecipeOutput(level,
+                    net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()) == null,
+                    "The block-state lookup bypassed recipe deletion");
+            crusher.setInputSlot(0, input.copy());
+            crusher.setEnergy(500.0F, Power.ELECTRIC_POWER);
+            for (int tick = 0; tick < 201; tick++) crusher.tickUpdate(true);
+            helper.assertTrue(crusher.getInputSlot(0).getCount() == 1
+                    && crusher.getEnergy(Power.ELECTRIC_POWER) == 500.0F,
+                    "A removed recipe consumed input or energy");
+        } finally {
+            manager.replaceRecipes(recipes);
+        }
+        helper.assertTrue(BaseMetalsCompat.hasCrusherRecipe(level, input), "Restored recipe was not reloaded");
+        helper.succeed();
+    }
+
+    @GameTest(batch = ElectricAdvantage.MODID, template = "empty")
+    public static void nativeSidedCapabilitiesExposeElectricMachines(GameTestHelper helper) {
+        BlockPos pump = new BlockPos(1, 1, 1);
+        BlockPos crusher = new BlockPos(2, 1, 1);
+        helper.setBlock(pump, Blocks.electric_pump);
+        helper.setBlock(crusher, Blocks.rock_crusher);
+        var level = helper.getLevel();
+        helper.assertTrue(level.getCapability(Capabilities.FluidHandler.BLOCK,
+                helper.absolutePos(pump), Direction.UP) != null, "Pump fluid capability missing");
+        helper.assertTrue(level.getCapability(Capabilities.ItemHandler.BLOCK,
+                helper.absolutePos(crusher), Direction.NORTH) != null, "Crusher item capability missing");
+        helper.succeed();
+    }
 
     public static void main(String[] args) throws Exception {
         Path output = Path.of(args[1]);
@@ -84,9 +169,11 @@ public final class ElectricGameTests {
         helper.assertTrue(server.getAdvancements().get(advancement) != null,
                 "A material-gated recipe lost its discovery advancement");
         int checked = 0;
+        int crushing = 0;
         var registries = helper.getLevel().registryAccess();
         for (var holder : server.getRecipeManager().getRecipes()) {
             if (!holder.id().getNamespace().equals(ElectricAdvantage.MODID)) continue;
+            if (holder.value() instanceof zone.moddev.mc.lib.common.recipes.CrushingRecipe) crushing++;
             RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), registries);
             try {
                 Recipe.STREAM_CODEC.encode(buffer, holder.value());
@@ -100,6 +187,10 @@ public final class ElectricGameTests {
             checked++;
         }
         helper.assertTrue(checked > 0, "No Electric recipes were present for the network check");
+        int expectedCrushing = zone.moddev.mc.basepower.PowerAdvantage.recipeMode
+                == zone.moddev.mc.basepower.RecipeMode.APOCALYPTIC ? 8 : 3;
+        helper.assertTrue(crushing == expectedCrushing,
+                "Wrong Electric MMDLib crushing recipe count for the selected mode: " + crushing);
         helper.succeed();
     }
 

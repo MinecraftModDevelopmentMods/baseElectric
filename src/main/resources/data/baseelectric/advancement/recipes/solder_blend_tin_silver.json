@@ -6,7 +6,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:dusts/tin"
+            "items": "#c:dusts/tin"
           }
         ]
       }
@@ -16,7 +16,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#forge:dusts/silver"
+            "items": "#c:dusts/silver"
           }
         ]
       }

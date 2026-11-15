@@ -28,7 +28,7 @@ public class RecipeUnlockContractTest {
     private static final String MOD = "baseelectric";
     private static final Path DATA = Paths.get("src/main/resources/data", MOD);
     private static final Set<String> IGNORED = new LinkedHashSet<>(java.util.Arrays.asList(
-            "item:minecraft:stick", "item:minecraft:string", "item:minecraft:feather", "tag:forge:rods/wooden"));
+            "item:minecraft:stick", "item:minecraft:string", "item:minecraft:feather", "tag:c:rods/wooden"));
 
     @Test public void everyCraftingRecipeHasExactlyOneUnlockAndProcessingHasNone() throws IOException {
         Set<String> expected = new LinkedHashSet<>();
@@ -113,11 +113,11 @@ public class RecipeUnlockContractTest {
             JsonObject criterion = unlock.getAsJsonObject("criteria").getAsJsonObject("has_recipe");
             assertEquals("minecraft:recipe_unlocked", criterion.get("trigger").getAsString());
             assertEquals(id, criterion.getAsJsonObject("conditions").get("recipe").getAsString());
-            assertFalse("Recipe availability must not remove the unlock: " + id, unlock.has("forge:condition"));
+            assertFalse("Recipe availability must not remove the unlock: " + id, unlock.has("neoforge:conditions"));
             assertFalse(unlock.has("conditions"));
         }
         assertTrue("The material-gated control must remain conditional",
-                read(DATA.resolve("recipe/alkaline_battery.json")).has("forge:condition"));
+                read(DATA.resolve("recipe/alkaline_battery.json")).has("neoforge:conditions"));
     }
 
     @Test public void recipeBookGroupsIdentifyTheOutputNotABroadMachineCategory() throws IOException {

@@ -1,69 +1,86 @@
 # baseElectric
 
-baseElectric continues DrCyano's Electric Advantage. It adds electric machines,
-generation, storage, automation and defence to basePower. Its equipment appears
-in the shared basePower creative tab.
+Electric machines, generation, storage, automation and defence for basePower.
+Targets Minecraft **1.21.1**, NeoForge **21.1.265** and Java **21**.
+The build uses ModDevGradle **2.0.148** and Gradle **9.8.0**. Version:
+**2.2.20.121012**, with coordinated basePower **2.4.19.121012**.
 
-This version targets Minecraft **1.21.1**, Forge **52.1.0**, official mappings
-with MCP **20240808.132146**, ForgeGradle **7.0.34**, Gradle **9.6.1**, and Java
-**21**. The version is **2.2.15.121011**. It requires basePower **2.4.14.121011**.
-The coordinated dependencies are Base Metals **3.1.2.121011** and OreSpawn
-**4.1.0.121011**. All three dependency pins use merged source and verified public
-downloads. CurseForge, Maven and GitHub releases use the same checked player jar.
-See the [1.21.1 notes](docs/NATIVE1211.md) for compatibility and verification status.
+Registry names, migration aliases, machine inventory/NBT keys and gameplay
+quantities are retained. The laser drill
+still mines normal block drops. The crusher uses basePower's shared MMDLib
+crushing lookup, including datapack recipe removal, without hard-coded fallback
+outputs. The eight Electric crushing recipes now use `mmdlib:crushing` and `c`
+tags. Machinery is not replaced with MMDLib machinery.
 
-Back up your world and try the upgrade on a copy. Replace Electric Advantage
-and Power Advantage with baseElectric and basePower; do not install both sets.
+## Local Build
 
-## Building locally
+Use Java 21 and a separate Gradle user home. basePower **2.4.19.121012** is
+published. The native dependency verifier downloads and checks its exact Maven
+jar; select it with `-PpowerAdvantageJar=<verified-jar>`. Existing local workspaces
+default to `../../PowerAdvantage/build/libs/basePower-2.4.19.121012.jar` and must
+match the same published checksum. Published MMDLib **2.0.2.121012+Neo**,
+Base Metals **4.0.1.121012+Neo** and OreSpawn **4.1.1.121012** resolve from
+MMD Maven. Base Metals uses
+`zone.moddev.mc.basemetals:BaseMetals:4.0.1.121012+Neo` by default;
+the private development hook jar is no longer used.
+`-PoreSpawnJar=<jar>` permits an explicit local OreSpawn input.
+`-PbaseMetalsJar=<jar>` permits an explicit copy of the published Base Metals
+jar, retaining its Maven filename.
+`verifyReleaseDependencies` checks the exact Power, Base Metals, MMDLib and
+OreSpawn hashes. Overrides must match those same pins.
 
-Use Temurin 21.0.7+6 for Gradle and Minecraft. The pinned OreSpawn Mavenizer
-fixture uses Java 25, and ForgeGradle's Slime Launcher tooling uses Java 8. Set
-`-Porg.gradle.java.installations.paths=<java21-home>,<java25-home>,<java8-home>`
-if Gradle cannot discover all three.
-
-The independent Forge/resource checks do not require sibling jars:
-
-```text
-./gradlew --offline nativeResourceChecks compileNativeApiDiagnostics verifyRecipeTagGuards processResources
+```powershell
+$env:JAVA_HOME='C:/Users/johnb/.jdks/temurin-21.0.7+6'
+$env:GRADLE_USER_HOME='D:/PowerAdvantage/.gradle-electric1211neo'
+./gradlew.bat check build verifyReleaseArtifacts writeReleaseChecksums
 node tools/verify-native-port.js
 node tools/generate-recipe-unlocks.js --check
 ```
 
-For a full local build, supply files matching the exact coordinated source
-and jar pins recorded in `gradle.properties`. The current basePower pin is an
-approved local commit, not merged or publicly released:
+Jars and SHA-256 checksums are written to `build/libs`. Dependencies remain
+separate mods. `nativeResourceChecks` runs resource contracts independently of
+Power source compilation, but still needs the pinned runtime dependencies.
+Source-archive text is normalized to LF. Dispatcher checksums are also written
+to `build/release/SHA256SUMS`.
 
-```text
--PpowerAdvantageRuntimeJar=/path/to/basePower-2.4.14.121011.jar
--PbaseMetalsRuntimeJar=/path/to/BaseMetals-3.1.2.121011.jar
--PforgeInstallerJar=/path/to/forge-1.21.1-52.1.0-installer.jar
-```
+## Eclipse And Runtime Checks
 
-Forge 52 uses the ordinary native jar for both play and development. The former
-`*DeobfJar` path flags remain aliases for the same bytes. OreSpawn and the
-Mavenizer fixture default to the sibling `MinecraftMineralogy/OS1211/OreSpawn`
-checkout. Use `-PoreSpawnRuntimeJar` and `-Pforge52MavenizerJar` to override paths.
-For the prepared cache, use `--offline` with `ORESPAWN_MAVENIZER_OFFLINE=true`.
+Import as an existing Gradle project using Java 21 and the Gradle wrapper.
+Run `./gradlew.bat verifyEclipseProductionClasspath verifyEclipseEcj` after import.
+The second task checks the generated project with Eclipse's own compiler.
+Eclipse uses
+the expanded NeoForge resources and Java 21. Launch `runClient` or `runServer`
+from the Gradle Tasks view; old Forge `.launch` files are not applicable. IDE
+and generated output remain ignored.
 
-```text
-./gradlew check build javadoc verifyLocalRuntimeInputs writeReleaseChecksums verifyEclipseProductionClasspath --no-build-cache
-```
+For all three mods together, use Power's `runClientAllAdvantage` task. The sibling
+Power checkout's `docs/1.21.1-neoforge/TEST-RESULTS.md` records the coordinated
+candidate and manual checks.
 
-Use `gradlew.bat` on Windows. Output jars go to `build/libs`. Dependencies
-remain separate mods. The 1.21.1 CI and CodeQL jobs require merged source pins
-and checksum-matching public dependencies before checkout or compilation.
-Local jars do not satisfy that gate.
+`runGameTestServer` uses test-only sources and a disposable directory selected by
+`-PelectricGameTestRunDirectory=build/port-evidence/<new-run>`. Production jars
+exclude the tests. Pass an existing accepted EULA using
+`-PelectricGameTestEula=<path>`. Do not accept an EULA on somebody else's behalf or point a
+test run at an existing world. Client GUI/rendering, manual gameplay and historic
+world migration require separate acceptance on disposable copies. See
+[NeoForge port notes](docs/NEOFORGE1211.md).
 
-## Verification
+## Release Status
 
-Run `runGameTestServer` with the same pinned mod inputs, an existing accepted
-EULA passed as `-PelectricGameTestEula=<path>`, and a new directory passed as
-`-PelectricGameTestRunDirectory=build/port-evidence/<run>`. The test code and
-its structure are not in the production jar.
+Manual testing has been accepted for the release campaign. Local qualification
+passed against the public pins: 109 native tests, 24 resource checks, release
+audits and independent ECJ compilation. Earlier seven-test GameTest runs in
+each recipe mode and the accepted gameplay/endurance results remain tied to
+the unchanged frozen player; those longer checks were not repeated here.
+An independent-cache full rebuild reproduced the player and sources archives.
+The canonical Javadoc archive was verified with repeated generation.
+Power's merged commit and public Maven hash are now pinned; final qualification
+against freshly downloaded public inputs passed. See the port notes
+for exact inputs and evidence. This Electric candidate has not been merged or
+published.
 
-Run the packaged smoke script only with the exact pinned jars, a matching Forge
-server seed and an already accepted EULA. It stages launcher files only and
-creates a fresh loopback-only world under `build/port-evidence`. For an upgrade,
-use a separate disposable copy of a world. Neither a build nor this smoke
-substitutes for manual gameplay or client verification.
+Native CI and CodeQL use the same four verified dependency jars. Their checked-in
+dependency lock is `HOSTED_INPUTS_READY`; the guard still requires exact public
+bytes, merged source ancestry and Power's matching release tag. Hosted CI runs
+unit/resource, build, Javadoc, package and
+Eclipse checks; GameTests and ECJ remain local. Tag validation does not publish.

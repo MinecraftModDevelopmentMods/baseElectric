@@ -31,13 +31,14 @@ public class RecipeResourceTest {
             String text = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
             JsonObject json = new JsonParser().parse(text).getAsJsonObject();
             String type = json.get("type").getAsString();
-            assertTrue(file + " must use the 1.21.1 result stack codec", json.getAsJsonObject("result").has("id"));
+            assertTrue(file + " must use its native result stack codec", json.getAsJsonObject("result")
+                    .has(type.equals("mmdlib:crushing") ? "item" : "id"));
             assertFalse(file + " still has pre-1.21.1 Forge conditions", json.has("conditions"));
             assertTrue(file + " has unsupported serializer " + type,
                     "minecraft:crafting_shaped".equals(type)
                             || "minecraft:crafting_shapeless".equals(type)
                             || "minecraft:smelting".equals(type)
-                            || "basemetals:crushing".equals(type));
+                            || "mmdlib:crushing".equals(type));
             if (type.startsWith("minecraft:crafting_")) crafting++;
             else if ("minecraft:smelting".equals(type)) smelting++;
             else crushing++;

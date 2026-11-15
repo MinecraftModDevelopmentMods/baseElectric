@@ -21,8 +21,8 @@ public class DatapackLayoutTest {
         }
         assertTrue(Files.isRegularFile(data.resolve("baseelectric/advancement/recipes/alkaline_battery.json")));
         assertTrue(Files.isRegularFile(data.resolve("baseelectric/loot_table/blocks/electric_drill.json")));
-        assertTrue(Files.isRegularFile(data.resolve("forge/tags/item/ores/sulphur.json")));
-        assertTrue(Files.isRegularFile(data.resolve("forge/tags/block/ores/sulphur.json")));
+        assertTrue(Files.isRegularFile(data.resolve("c/tags/item/ores/sulphur.json")));
+        assertTrue(Files.isRegularFile(data.resolve("c/tags/block/ores/sulphur.json")));
     }
 
     @Test public void pumpHelperHasNoLootAndRemovesItsColumnWithoutDrops() throws Exception {

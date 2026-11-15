@@ -1,64 +1,83 @@
 package zone.moddev.mc.baseelectric.resources;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Properties;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class BuildWorkflowContractTest {
-    @Test public void hostedBuildsProvisionAllThreePinnedToolchainsBeforeGradle() throws Exception {
-        for (String workflow : new String[] {"ci.yml", "codeql-analysis.yml"}) {
-            String source = new String(Files.readAllBytes(Paths.get(".github/workflows", workflow)), StandardCharsets.UTF_8);
-            int setup = source.indexOf("- name: Set up Gradle");
-            for (String version : new String[] {"25.0.3+9.0.LTS", "8.0.502+7", "21.0.7+6.0.LTS"}) {
-                int pin = source.indexOf("java-version: '" + version + "'");
-                assertTrue(workflow + " missing pinned JDK " + version, pin >= 0 && pin < setup);
-            }
-            assertTrue(source.contains("-Porg.gradle.java.installations.paths=$JAVA_HOME,$JAVA_HOME_8_X64,$JAVA_HOME_25_X64"));
-            assertTrue(source.contains("-Porg.gradle.java.installations.auto-detect=false"));
-            assertTrue(source.contains("-Porg.gradle.java.installations.auto-download=false"));
-            assertFalse(source.contains("-Dorg.gradle.java.installations."));
-            for (String line : source.split("\\R")) {
-                if (line.contains("./gradlew ") && !line.contains("chmod")) {
-                    assertTrue(workflow + ": " + line, line.contains("./gradlew $MMD_GRADLE_TOOLCHAINS "));
-                }
-            }
-            assertTrue(source.indexOf("- name: Use pinned build toolchains") < setup);
-            assertFalse(source.contains("JAVA_HOME_16_X64"));
-            assertFalse(source.contains("distribution: microsoft"));
+    @Test public void nativeScaffoldUsesOneJava21Toolchain() throws Exception {
+        String build = Files.readString(Path.of("build.gradle"));
+        assertTrue(build.contains("id 'net.neoforged.moddev' version '2.0.148'"));
+        assertTrue(build.contains("JavaLanguageVersion.of(21)"));
+        assertFalse(build.contains("net.minecraftforge.gradle"));
+        assertFalse(build.contains("net.neoforged.gradle"));
+        assertFalse(build.contains("mavenizer"));
+        assertTrue(build.contains("tasks.named('sourcesJar', Jar)"));
+        assertTrue(build.contains("filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.newInstance('lf'))"));
+        String wrapper = Files.readString(Path.of("gradle/wrapper/gradle-wrapper.properties"));
+        assertTrue(wrapper.contains("gradle-9.8.0-bin.zip"));
+        assertTrue(wrapper.contains("bafd5ce9cfaea0fbccfdc8439a1ac42fbd4cd9c89dc9a988228d8a2639a58e6c"));
+    }
+
+    @Test public void hostedBuildsRemainGatedOnCoordinatedDependencies() throws Exception {
+        for (String workflow : new String[]{"ci.yml", "codeql-analysis.yml"}) {
+            String source = Files.readString(Path.of(".github/workflows", workflow));
+            assertTrue(source.contains("java-version: '21.0.7+6.0.LTS'"));
+            assertTrue(source.contains("./.github/test-native-dependencies.ps1"));
+            assertTrue(source.contains("./.github/verify-native-dependencies.ps1 -DownloadDirectory"));
+            assertTrue(source.contains("-I .github/pinned-native-inputs.gradle"));
+            assertTrue(source.contains("-PpowerAdvantageJar=$POWER_PLAYER"));
+            assertTrue(source.contains("-PbaseMetalsJar=$BASE_METALS_JAR"));
+            assertTrue(source.contains("-PmmdlibJar=$MMDLIB_JAR"));
+            assertTrue(source.contains("-PoreSpawnJar=$ORESPAWN_JAR"));
+            assertFalse(source.contains("verifyEclipseEcj"));
+            assertFalse(source.contains("runGameTestServer"));
+            assertFalse(source.contains("forge52Mavenizer"));
+            assertFalse(source.contains("Install Java 8"));
         }
     }
 
-    @Test public void dependencyPolicyPrecedesEveryPinnedCheckout() throws Exception {
-        for (String workflow : new String[] {"ci.yml", "codeql-analysis.yml"}) {
-            String source = new String(Files.readAllBytes(Paths.get(".github/workflows", workflow)), StandardCharsets.UTF_8);
-            int policy = source.indexOf("git config --global core.autocrlf false");
-            int published = source.indexOf("bash .github/verify-published-pins.sh");
-            assertTrue(policy > 0);
-            assertTrue(policy < published);
-            for (String repository : new String[] {"OreSpawn", "basePower"}) {
-                assertTrue(published < source.indexOf("repository: MinecraftModDevelopmentMods/" + repository));
-            }
-            assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.orespawn_ref }}"));
-            assertTrue(source.contains("ref: ${{ steps.public-pins.outputs.power_ref }}"));
-            assertTrue(source.contains("branches: [master-1.21.1"));
-            assertTrue(source.contains("-Pforge52MavenizerJar=$MAVENIZER"));
-            assertTrue(source.contains("-PpowerAdvantageDeobfJar=$POWER_PLAYER"));
-            assertFalse(source.contains("forge47"));
-            if (workflow.equals("ci.yml")) {
-                assertTrue(source.contains("-PforgeInstallerJar=$FORGE_INSTALLER"));
-            }
+    @Test public void candidateArchiveRetainsDispatcherPaths() throws Exception {
+        String ci = Files.readString(Path.of(".github/workflows/ci.yml"));
+        assertTrue(ci.contains("build/libs/baseElectric-${{ env.CHILD_VERSION }}.jar"));
+        assertTrue(ci.contains("build/libs/baseElectric-${{ env.CHILD_VERSION }}-sources.jar"));
+        assertTrue(ci.contains("build/libs/baseElectric-${{ env.CHILD_VERSION }}-javadoc.jar"));
+        assertTrue(ci.contains("build/release/SHA256SUMS"));
+        assertTrue(ci.contains("CHANGELOG.txt"));
+        assertFalse(ci.contains("env.POWER_VERSION"));
+        assertTrue(Files.readString(Path.of("build.gradle")).contains("buildDirectory.file('release/SHA256SUMS')"));
+    }
+
+    @Test public void wrapperAndTagValidationUseNativeReleaseBranch() throws Exception {
+        String wrapper = Files.readString(Path.of(".github/workflows/validate-gradle-build.yml"));
+        assertTrue(wrapper.contains("master-1.21.1-neo"));
+        assertFalse(wrapper.contains("- master-1.21.1\n"));
+        String tag = Files.readString(Path.of(".github/workflows/release-on-tag.yml"));
+        assertTrue(tag.contains(".github/verify-native-dependencies.ps1"));
+        assertTrue(tag.contains("neoforge:2)"));
+        assertFalse(tag.contains("forge:1|"));
+        assertTrue(tag.contains("actions/workflows/ci.yml/runs"));
+        assertTrue(tag.contains("-f event=push"));
+        assertTrue(tag.contains("compare/$GITHUB_SHA...$release_branch"));
+        assertTrue(tag.contains("release_player_sha256"));
+    }
+
+    @Test public void publicPowerPinsAndFrozenPlayerAreReleaseBound() throws Exception {
+        Properties properties = new Properties();
+        try (var reader = Files.newBufferedReader(Path.of("gradle.properties"))) {
+            properties.load(reader);
         }
-        String script = Files.readString(Paths.get(".github/verify-published-pins.sh"));
-        assertTrue(script.contains("=~ ^[a-f0-9]{40}$") && script.contains("=~ ^[A-F0-9]{64}$"));
-        for (String dependency : new String[] {"poweradvantage", "basemetals", "orespawn"}) {
-            assertTrue(script.contains("$(value " + dependency + "_public_file_id)"));
-        }
-        assertTrue(script.contains("sha256sum -c -"));
-        assertTrue(script.contains("$(value poweradvantage_pin_state)"));
-        assertTrue(script.contains("!= 'MERGED_SOURCE'"));
-        assertTrue(script.indexOf("!= 'MERGED_SOURCE'") < script.indexOf("require_merged()"));
-        assertTrue(script.contains("_public_file_id\")\""));
+        assertEquals("MERGED_SOURCE", properties.getProperty("poweradvantage_pin_state"));
+        assertEquals("c5550ce133ce0f5d3fe3e5227f021b390cdc7953", properties.getProperty("poweradvantage_source_ref"));
+        assertEquals(properties.getProperty("poweradvantage_version"), properties.getProperty("poweradvantage_source_tag"));
+        assertEquals(properties.getProperty("poweradvantage_sha256"), properties.getProperty("poweradvantage_runtime_sha256"));
+        assertEquals("61457EDF8B1C097AE17805DCC26CB7E0F4F661208B777A0B53C56BB383EEDA85",
+                properties.getProperty("release_player_sha256"));
+        assertTrue(Arrays.asList(properties.getProperty("cf_requirements").split(",")).contains("mmdlib"));
+        assertTrue(Files.readString(Path.of("build.gradle")).contains("Player artifact differs from approved release_player_sha256"));
+        assertTrue(Files.readString(Path.of(".github/verify-native-dependencies.ps1")).contains("Assert-NativeSourceTag $pin"));
     }
 }

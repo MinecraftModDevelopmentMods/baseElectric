@@ -1,18 +1,18 @@
 package zone.moddev.mc.baseelectric.graphics;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.RegisterShadersEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import net.minecraft.client.renderer.ShaderInstance;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import java.io.IOException;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import zone.moddev.mc.baseelectric.ElectricAdvantage;
 import zone.moddev.mc.baseelectric.init.Entities;
 
 /** Client-only renderer registration. */
-@Mod.EventBusSubscriber(modid = ElectricAdvantage.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = ElectricAdvantage.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ClientRegistration {
     private ClientRegistration() {}
 
