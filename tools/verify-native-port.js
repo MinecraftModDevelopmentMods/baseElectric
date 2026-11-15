@@ -46,7 +46,7 @@ check('Release campaign uses published Base Metals and exact dependency pins', (
         'poweradvantage_pin_state=MERGED_SOURCE',
         'poweradvantage_source_ref=c5550ce133ce0f5d3fe3e5227f021b390cdc7953',
         'poweradvantage_source_tag=2.4.19.121012',
-        'release_player_sha256=61457EDF8B1C097AE17805DCC26CB7E0F4F661208B777A0B53C56BB383EEDA85',
+        'release_player_sha256=BC866F83F55FAD289EC36808D33A71B2602B8062EB71FC2E80C9CE3B0495F6D8',
         'cf_requirements=basepower,base-metals,mmdlib',
         'poweradvantage_sha256=E9ED662E15C3510E2A48CE85448D3D39C6EF2667208F29EB281791200507F77E',
         'poweradvantage_runtime_sha256=E9ED662E15C3510E2A48CE85448D3D39C6EF2667208F29EB281791200507F77E',

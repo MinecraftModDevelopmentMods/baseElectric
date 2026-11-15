@@ -74,10 +74,27 @@ public class BuildWorkflowContractTest {
         assertEquals("c5550ce133ce0f5d3fe3e5227f021b390cdc7953", properties.getProperty("poweradvantage_source_ref"));
         assertEquals(properties.getProperty("poweradvantage_version"), properties.getProperty("poweradvantage_source_tag"));
         assertEquals(properties.getProperty("poweradvantage_sha256"), properties.getProperty("poweradvantage_runtime_sha256"));
-        assertEquals("61457EDF8B1C097AE17805DCC26CB7E0F4F661208B777A0B53C56BB383EEDA85",
+        assertEquals("BC866F83F55FAD289EC36808D33A71B2602B8062EB71FC2E80C9CE3B0495F6D8",
                 properties.getProperty("release_player_sha256"));
         assertTrue(Arrays.asList(properties.getProperty("cf_requirements").split(",")).contains("mmdlib"));
         assertTrue(Files.readString(Path.of("build.gradle")).contains("Player artifact differs from approved release_player_sha256"));
         assertTrue(Files.readString(Path.of(".github/verify-native-dependencies.ps1")).contains("Assert-NativeSourceTag $pin"));
+    }
+
+    @Test public void processedResourcesUseCanonicalUtf8Lf() throws Exception {
+        String build = Files.readString(Path.of("build.gradle"));
+        assertTrue(build.contains("inputs.property('canonicalResourceTextFormat', 'UTF-8-LF')"));
+        assertTrue(build.contains("filteringCharset = 'UTF-8'"));
+        assertTrue(build.contains("eof: FixCrLfFilter.AddAsisRemove.newInstance('asis'), fixlast: false"));
+        Path resources = Path.of("build/resources/main");
+        assertTrue(Files.isDirectory(resources));
+        try (var files = Files.walk(resources)) {
+            var text = files.filter(Files::isRegularFile).filter(path -> path.toString()
+                    .matches(".*\\.(json|toml|mcmeta|cfg|properties|js|txt|md)$")).toList();
+            assertFalse(text.isEmpty());
+            for (Path path : text) {
+                assertFalse("Noncanonical resource: " + path, Files.readString(path).contains("\r"));
+            }
+        }
     }
 }

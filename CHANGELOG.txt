@@ -2,6 +2,7 @@ baseElectric 2.2.20.121012 (Minecraft 1.21.1 / NeoForge)
 
 - Bring baseElectric to NeoForge 21.1.265 and Java 21 with basePower 2.4.19.121012.
 - Use published MMDLib 2.0.2.121012+Neo and Base Metals 4.0.1.121012+Neo instead of the private Base Metals development jar.
+- Package recipes and other text resources as UTF-8 with LF line endings so Windows and Linux builds produce identical resource bytes.
 - Keep Eclipse refreshes from adding duplicate resource folders and use Eclipse's compiler for independent checks.
 - Use shared Power/MMDLib crushing recipes and c tags; respect recipe removal.
 - Preserve registry names, saved machine data, recipe quantities and normal drill drops.

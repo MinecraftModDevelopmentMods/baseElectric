@@ -37,6 +37,9 @@ tasks.withType(AbstractArchiveTask).configureEach {
     reproducibleFileOrder = true
 }
 
+def archiveTextPatterns = ['**/*.json', '**/*.toml', '**/*.mcmeta', '**/*.cfg',
+        '**/*.properties', '**/*.js', '**/*.txt', '**/*.md']
+
 tasks.named('sourcesJar', Jar) {
     inputs.property('canonicalTextLineEndings', 'lf')
     filesMatching(['**/*.java', '**/*.json', '**/*.toml', '**/*.cfg', '**/*.properties', '**/*.mcmeta', '**/*.js']) {
@@ -132,7 +135,7 @@ tasks.register('compileNativeResourceChecks', JavaCompile) {
     destinationDirectory = resourceClasses
 }
 tasks.register('nativeResourceChecks', Test) {
-    dependsOn 'compileNativeResourceChecks'
+    dependsOn 'compileNativeResourceChecks', 'processResources'
     testClassesDirs = files(resourceClasses)
     classpath = files(resourceClasses, providers.provider { sourceSets.test.runtimeClasspath.files.findAll {
         !it.toPath().startsWith(layout.buildDirectory.dir('classes').get().asFile.toPath())
@@ -145,7 +148,14 @@ tasks.named('processResources', ProcessResources) {
             neo_version_range: project.neo_version_range, loader_version_range: project.loader_version_range,
             poweradvantage_version: project.poweradvantage_version]
     inputs.properties(replacements)
+    inputs.property('canonicalResourceTextFormat', 'UTF-8-LF')
+    inputs.property('archiveTextPatterns', archiveTextPatterns)
+    filteringCharset = 'UTF-8'
     filesMatching('META-INF/neoforge.mods.toml') { expand replacements }
+    filesMatching(archiveTextPatterns) {
+        filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.newInstance('lf'),
+                eof: FixCrLfFilter.AddAsisRemove.newInstance('asis'), fixlast: false)
+    }
 }
 tasks.named('jar', Jar) {
     manifest.attributes('Specification-Title': project.mod_id,
