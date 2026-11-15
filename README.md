@@ -12,11 +12,15 @@ The recipe book unlocks crafting and smelting recipes when you pick up the ingre
 
 The `master-1.13.2` build uses ForgeGradle 7.0.34 and Gradle 9.6.1. Run Gradle with Java 17; production code is compiled for Java 8.
 
-Build the pinned basePower, Base Metals and OreSpawn development jars first. Base Metals 3.0.3.113021 and OreSpawn 4.1.7.113021 are public releases; basePower 2.4.7.113021 is still a local candidate.
-For local testing, create the ignored file `gradle/development-dependencies.properties`
+Build the pinned development jars from the released basePower 2.4.7.113021,
+Base Metals 3.0.3.113021 and OreSpawn 4.1.7.113021 sources first. The Power pin
+matches [CurseForge file 9638343](https://www.curseforge.com/minecraft/mc-mods/basepower/files/9638343).
+No local dependency override is needed for these public releases.
+For future unpublished candidates, create the ignored file `gradle/development-dependencies.properties`
 with `allowUnreleasedDependencies=true`. Jar checksums and versions are still
-verified. Publication stays blocked until basePower is published and its real
-source commit and CurseForge file ID replace `UNRELEASED`.
+verified. Publication stays blocked in local mode. Before release, record the
+published source commit and CurseForge file ID instead of `UNRELEASED`, then
+disable local mode.
 The local file can pin `baseMetalsDeobfJar`, `oreSpawnDeobfJar` and
 `powerAdvantageDeobfJar` to checked copies under `libs/development`.
 With the standard sibling layout:
